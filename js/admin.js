@@ -15,7 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const addUserBtn = document.getElementById('add-user-btn');
     const addUserModal = document.getElementById('add-user-modal');
     const addUserForm = document.getElementById('add-user-form');
-    const createUserBtn = document.getElementById('create-user-btn');
     const closeBtns = document.querySelectorAll('.close-btn');
 
     let currentEditingUserId = null;
@@ -29,6 +28,11 @@ document.addEventListener('DOMContentLoaded', () => {
         addUserBtn.addEventListener('click', () => {
             if (addUserModal) {
                 addUserModal.style.display = 'block';
+                // Attach the event listener here, now that the modal is visible
+                const createUserBtn = document.getElementById('create-user-btn');
+                if (createUserBtn) {
+                    createUserBtn.addEventListener('click', handleAddUser);
+                }
             }
         });
     }
@@ -49,10 +53,6 @@ document.addEventListener('DOMContentLoaded', () => {
             event.target.style.display = 'none';
         }
     });
-
-    if (createUserBtn) {
-        createUserBtn.addEventListener('click', handleAddUser);
-    }
 
     document.addEventListener('submit', (event) => {
         if (event.target.id === 'edit-email-form') {
