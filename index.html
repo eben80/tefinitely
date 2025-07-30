@@ -187,7 +187,6 @@
 
     <div id="recordingSection" style="display:none;">
       <button id="startRecordBtn">Start Recording</button>
-      <button id="stopRecordBtn" disabled>Stop Recording</button>
       <audio id="userAudio" controls style="display:none;"></audio>
       <p id="recordingResult"></p>
     </div>
@@ -209,7 +208,6 @@
   const flashcard = document.querySelector('.flashcard');
   const recordingSection = document.getElementById('recordingSection');
   const startRecordBtn = document.getElementById('startRecordBtn');
-  const stopRecordBtn = document.getElementById('stopRecordBtn');
   const userAudio = document.getElementById('userAudio');
   const recordingResult = document.getElementById('recordingResult');
   const currentCardSpan = document.getElementById('current-card');
@@ -499,7 +497,6 @@
       return;
     }
     startRecordBtn.disabled = true;
-    stopRecordBtn.disabled = false;
     recordingResult.textContent = "Recording... speak now.";
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -522,15 +519,19 @@
         startRecordBtn.disabled = false;
         stopRecordBtn.disabled = true;
       };
+
+      recognition.onspeechend = () => {
+        stopRecording();
+      };
+
       recognition.onend = () => {};
     } catch (err) {
       recordingResult.textContent = 'Microphone access denied or error: ' + err.message;
       startRecordBtn.disabled = false;
-      stopRecordBtn.disabled = true;
     }
   };
-  stopRecordBtn.onclick = () => {
-    stopRecordBtn.disabled = true;
+
+  function stopRecording() {
     startRecordBtn.disabled = false;
     recordingResult.textContent = 'Stopped recording. Processing...';
     if (mediaRecorder && mediaRecorder.state !== 'inactive') {
@@ -545,7 +546,7 @@
     if (recognition) {
       recognition.stop();
     }
-  };
+  }
   function checkPronunciation(userTranscript) {
     const target = phrases[currentPhraseIndex].french_text.toLowerCase();
     const targetWords = target.split(/\s+/);
