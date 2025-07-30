@@ -154,18 +154,7 @@
       <label for="topicSelect">Select Topic:</label><br />
       <select id="topicSelect">
           <option value="">--Please choose a topic--</option>
-          <optgroup label="Section A">
-              <option value="section_a-daily_life">Daily Life</option>
-              <option value="section_a-housing">Housing</option>
-              <option value="section_a-courses">Courses</option>
-              <option value="section_a-jobs">Jobs</option>
-          </optgroup>
-          <optgroup label="General">
-              <option value="general-daily_life">Daily Life</option>
-              <option value="general-housing">Housing</option>
-              <option value="general-courses">Courses</option>
-              <option value="general-jobs">Jobs</option>
-          </optgroup>
+          <!-- Options will be dynamically populated -->
       </select>
       <br />
       <label for="speechRate">Speech Speed:</label><br />
@@ -178,10 +167,10 @@
         <div class="flashcard">
             <div class="flashcard-inner">
                 <div class="flashcard-front">
-                    <p id="phraseFrench"></p>
+                    <p id="phraseEnglish"></p>
                 </div>
                 <div class="flashcard-back">
-                    <p id="phraseEnglish"></p>
+                    <p id="phraseFrench"></p>
                 </div>
             </div>
         </div>
@@ -290,9 +279,39 @@
       }).render('#paypal-button-container');
   }
 
+  // --- Dynamic Topic Loading ---
+  async function populateTopics() {
+      try {
+          const response = await fetch('api/get_topics.php');
+          const data = await response.json();
+          if (response.ok && data.status === 'success') {
+              const topics = data.topics;
+              for (const section in topics) {
+                  const optgroup = document.createElement('optgroup');
+                  optgroup.label = section.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()); // Capitalize section name
+
+                  topics[section].forEach(theme => {
+                      const option = document.createElement('option');
+                      option.value = `${section}-${theme}`;
+                      // Capitalize theme name for display
+                      option.textContent = theme.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+                      optgroup.appendChild(option);
+                  });
+                  topicSelect.appendChild(optgroup);
+              });
+          } else {
+              showToast('Failed to load topics.', 'error');
+          }
+      } catch (error) {
+          console.error('Error fetching topics:', error);
+          showToast('Could not fetch topics.', 'error');
+      }
+  }
+
   // Check session on page load
   document.addEventListener('DOMContentLoaded', async () => {
       loadSpeechRate(); // Load saved speech rate
+      populateTopics(); // Populate the topics dropdown
       try {
           const response = await fetch('api/check_session.php');
           const data = await response.json();
