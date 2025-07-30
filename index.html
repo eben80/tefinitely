@@ -300,6 +300,10 @@
   }
 
   // --- Dynamic Topic Loading ---
+  function formatName(name) {
+      return name.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
+  }
+
   async function populateTopics() {
       try {
           const response = await fetch('api/get_topics.php');
@@ -308,12 +312,12 @@
               const topics = data.topics;
               for (const section in topics) {
                   const optgroup = document.createElement('optgroup');
-                  optgroup.label = section;
+                  optgroup.label = formatName(section);
 
                   topics[section].forEach(theme => {
                       const option = document.createElement('option');
                       option.value = `${section}-${theme}`;
-                      option.textContent = theme;
+                      option.textContent = formatName(theme);
                       optgroup.appendChild(option);
                   });
                   topicSelect.appendChild(optgroup);
