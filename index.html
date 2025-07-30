@@ -288,15 +288,12 @@
               const topics = data.topics;
               for (const section in topics) {
                   const optgroup = document.createElement('optgroup');
-                  let sectionDisplay = section.replace('_', ' ');
-                  optgroup.label = sectionDisplay.charAt(0).toUpperCase() + sectionDisplay.slice(1);
+                  optgroup.label = section;
 
                   topics[section].forEach(theme => {
                       const option = document.createElement('option');
                       option.value = `${section}-${theme}`;
-                      // Capitalize theme name for display
-                      let themeDisplay = theme.replace('_', ' ');
-                      option.textContent = themeDisplay.charAt(0).toUpperCase() + themeDisplay.slice(1);
+                      option.textContent = theme;
                       optgroup.appendChild(option);
                   });
                   topicSelect.appendChild(optgroup);
@@ -356,10 +353,10 @@
   logoutBtn.addEventListener('click', async () => {
       const response = await fetch('api/logout.php');
       if (response.ok) {
-          alert('You have been logged out.');
-          window.location.href = 'login.html';
+          showToast('You have been logged out.', 'success');
+          setTimeout(() => { window.location.href = 'login.html'; }, 1000);
       } else {
-          alert('Logout failed. Please try again.');
+          showToast('Logout failed. Please try again.', 'error');
       }
   });
 
