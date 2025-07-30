@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const addUserBtn = document.getElementById('add-user-btn');
     const addUserModal = document.getElementById('add-user-modal');
     const addUserForm = document.getElementById('add-user-form');
+    const createUserBtn = document.getElementById('create-user-btn');
     const closeBtns = document.querySelectorAll('.close-btn');
 
     let currentEditingUserId = null;
@@ -43,11 +44,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Use event delegation for form submissions
+    // Handle the add user button click directly
+    createUserBtn.addEventListener('click', handleAddUser);
+
+    // Use event delegation for the other form submissions
     document.addEventListener('submit', (event) => {
-        if (event.target.id === 'add-user-form') {
-            handleAddUser(event);
-        } else if (event.target.id === 'edit-email-form') {
+        if (event.target.id === 'edit-email-form') {
             handleEmailUpdate(event);
         } else if (event.target.id === 'edit-password-form') {
             handlePasswordUpdate(event);
