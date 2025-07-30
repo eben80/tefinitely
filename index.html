@@ -151,25 +151,27 @@
     <h1>TEF Canada - Section A Practice</h1>
 
     <div id="controls">
-      <label for="themeSelect">Select Theme:</label><br />
-      <select id="themeSelect">
-        <option value="daily_life">Daily Life</option>
-        <option value="housing">Housing</option>
-        <option value="courses">Courses</option>
-        <option value="jobs">Jobs</option>
-      </select>
-      <br />
-      <label for="sectionSelect">Select Section:</label><br />
-      <select id="sectionSelect">
-        <option value="section_a">Section A</option>
-        <option value="general">General</option>
+      <label for="topicSelect">Select Topic:</label><br />
+      <select id="topicSelect">
+          <option value="">--Please choose a topic--</option>
+          <optgroup label="Section A">
+              <option value="section_a-daily_life">Daily Life</option>
+              <option value="section_a-housing">Housing</option>
+              <option value="section_a-courses">Courses</option>
+              <option value="section_a-jobs">Jobs</option>
+          </optgroup>
+          <optgroup label="General">
+              <option value="general-daily_life">Daily Life</option>
+              <option value="general-housing">Housing</option>
+              <option value="general-courses">Courses</option>
+              <option value="general-jobs">Jobs</option>
+          </optgroup>
       </select>
       <br />
       <label for="speechRate">Speech Speed:</label><br />
-      <input type="range" id="speechRate" min="0.5" max="2" value="1.2" step="0.1" />
-      <span id="rateDisplay">1.2</span>x
+      <input type="range" id="speechRate" min="0.5" max="1.2" value="1.0" step="0.1" />
+      <span id="rateDisplay">1.0</span>x
       <br />
-      <button id="loadPhrasesBtn">Load Phrases</button>
     </div>
 
     <div id="phraseBox" style="display:none;">
@@ -202,11 +204,9 @@
 <script src="js/toast.js"></script>
 <script>
   // Existing script variables
-  const themeSelect = document.getElementById('themeSelect');
-  const sectionSelect = document.getElementById('sectionSelect');
+  const topicSelect = document.getElementById('topicSelect');
   const speechRateInput = document.getElementById('speechRate');
   const rateDisplay = document.getElementById('rateDisplay');
-  const loadBtn = document.getElementById('loadPhrasesBtn');
   const phraseBox = document.getElementById('phraseBox');
   const phraseFrench = document.getElementById('phraseFrench');
   const phraseEnglish = document.getElementById('phraseEnglish');
@@ -223,7 +223,7 @@
 
   let phrases = [];
   let currentPhraseIndex = 0;
-  let speechRate = 1.2; // Default value
+  let speechRate = 1.0; // Default value
 
   // --- Speech Rate Handling ---
   function loadSpeechRate() {
@@ -342,43 +342,48 @@
       }
   });
 
-  // Load phrases from backend
-  loadBtn.addEventListener('click', async () => {
-    const theme = themeSelect.value;
-    const section = sectionSelect.value;
-
-    try {
-      const res = await fetch(`api/get_phrases.php?theme=${encodeURIComponent(theme)}&section=${encodeURIComponent(section)}`);
-      const data = await res.json();
-
-      if (!res.ok) {
-          // The API now returns a JSON error message
-          throw new Error(data.message || 'Network response was not OK');
+  // Auto-load phrases on dropdown change
+  topicSelect.addEventListener('change', () => {
+      const selectedValue = topicSelect.value;
+      if (selectedValue) {
+          loadPhrases(selectedValue);
       }
-
-      phrases = data;
-      if (phrases.length === 0) {
-        alert('No phrases found for this selection.');
-        phraseBox.style.display = 'none';
-        recordingSection.style.display = 'none';
-        return;
-      }
-      currentPhraseIndex = 0;
-      displayPhrase(currentPhraseIndex);
-      phraseBox.style.display = 'block';
-      recordingSection.style.display = 'block';
-      recordingResult.textContent = '';
-      userAudio.style.display = 'none';
-      userAudio.src = '';
-      updateNavButtons();
-    } catch (e) {
-      alert('Error loading phrases: ' + e.message);
-      // If the error is an auth error, redirect
-      if (e.message.includes('Access denied')) {
-          window.location.href = 'login.html';
-      }
-    }
   });
+
+  async function loadPhrases(topicValue) {
+      const [section, theme] = topicValue.split('-');
+      if (!section || !theme) return;
+
+      try {
+          const res = await fetch(`api/get_phrases.php?theme=${encodeURIComponent(theme)}&section=${encodeURIComponent(section)}`);
+          const data = await res.json();
+
+          if (!res.ok) {
+              throw new Error(data.message || 'Network response was not OK');
+          }
+
+          phrases = data;
+          if (phrases.length === 0) {
+              showToast('No phrases found for this selection.', 'error');
+              phraseBox.style.display = 'none';
+              recordingSection.style.display = 'none';
+              return;
+          }
+          currentPhraseIndex = 0;
+          displayPhrase(currentPhraseIndex);
+          phraseBox.style.display = 'block';
+          recordingSection.style.display = 'block';
+          recordingResult.textContent = '';
+          userAudio.style.display = 'none';
+          userAudio.src = '';
+          updateNavButtons();
+      } catch (e) {
+          showToast('Error loading phrases: ' + e.message, 'error');
+          if (e.message.includes('Access denied')) {
+              setTimeout(() => { window.location.href = 'login.html'; }, 2000);
+          }
+      }
+  }
 
   // Display phrase
   function displayPhrase(idx) {
