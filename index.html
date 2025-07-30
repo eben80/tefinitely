@@ -73,6 +73,59 @@
     padding: 0.4rem 1rem;
     margin-right: 0.7rem;
   }
+  /* --- Flashcard Styles --- */
+  .flashcard {
+      background-color: transparent;
+      width: 600px;
+      height: 200px;
+      perspective: 1000px;
+      margin-bottom: 1rem;
+  }
+  .flashcard-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
+      box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+  }
+  .flashcard.is-flipped .flashcard-inner {
+      transform: rotateY(180deg);
+  }
+  .flashcard-front, .flashcard-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      background-color: #fff;
+      padding: 1rem;
+      box-sizing: border-box;
+  }
+  .flashcard-back {
+      transform: rotateY(180deg);
+  }
+
+  /* --- Slide Animation for Next/Prev --- */
+  @keyframes slide-out-left {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(-100px); opacity: 0; }
+  }
+  @keyframes slide-out-right {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(100px); opacity: 0; }
+  }
+  .slide-out-left {
+      animation: slide-out-left 0.3s forwards;
+  }
+  .slide-out-right {
+      animation: slide-out-right 0.3s forwards;
+  }
 </style>
 <script src="https://www.paypal.com/sdk/js?client-id=AUWWl6fyDnYoKr4N77ugdDKP7IKYv0-ObG_Zj-vFhmJ_HlEUc34ZYAY983je8c4syTpSl1L_Dn2M8ddP&currency=USD"></script>
 </head>
@@ -113,20 +166,29 @@
       </select>
       <br />
       <label for="speechRate">Speech Speed:</label><br />
-      <input type="range" id="speechRate" min="0.5" max="2" value="1" step="0.1" />
-      <span id="rateDisplay">1.0</span>x
+      <input type="range" id="speechRate" min="0.5" max="2" value="1.2" step="0.1" />
+      <span id="rateDisplay">1.2</span>x
       <br />
       <button id="loadPhrasesBtn">Load Phrases</button>
     </div>
 
     <div id="phraseBox" style="display:none;">
-      <p id="phraseFrench"></p>
-      <p id="phraseEnglish"></p>
-      <div id="navButtons">
-        <button id="prevPhraseBtn" disabled>Previous</button>
-        <button id="nextPhraseBtn" disabled>Next</button>
-      </div>
-      <button id="playPhraseBtn">Play Phrase</button>
+        <div class="flashcard">
+            <div class="flashcard-inner">
+                <div class="flashcard-front">
+                    <p id="phraseFrench"></p>
+                </div>
+                <div class="flashcard-back">
+                    <p id="phraseEnglish"></p>
+                </div>
+            </div>
+        </div>
+        <div id="navButtons">
+            <button id="prevPhraseBtn" disabled>Previous</button>
+            <button id="flipCardBtn">Flip</button>
+            <button id="playPhraseBtn">Play Phrase</button>
+            <button id="nextPhraseBtn" disabled>Next</button>
+        </div>
     </div>
 
     <div id="recordingSection" style="display:none;">
@@ -151,6 +213,8 @@
   const playPhraseBtn = document.getElementById('playPhraseBtn');
   const prevPhraseBtn = document.getElementById('prevPhraseBtn');
   const nextPhraseBtn = document.getElementById('nextPhraseBtn');
+  const flipCardBtn = document.getElementById('flipCardBtn');
+  const flashcard = document.querySelector('.flashcard');
   const recordingSection = document.getElementById('recordingSection');
   const startRecordBtn = document.getElementById('startRecordBtn');
   const stopRecordBtn = document.getElementById('stopRecordBtn');
@@ -159,7 +223,23 @@
 
   let phrases = [];
   let currentPhraseIndex = 0;
-  let speechRate = 1.0;
+  let speechRate = 1.2; // Default value
+
+  // --- Speech Rate Handling ---
+  function loadSpeechRate() {
+      const savedRate = localStorage.getItem('savedSpeechRate');
+      if (savedRate) {
+          speechRate = parseFloat(savedRate);
+          speechRateInput.value = savedRate;
+          rateDisplay.textContent = parseFloat(savedRate).toFixed(1);
+      }
+  }
+
+  speechRateInput.addEventListener('input', () => {
+      speechRate = parseFloat(speechRateInput.value);
+      rateDisplay.textContent = speechRate.toFixed(1);
+      localStorage.setItem('savedSpeechRate', speechRate);
+  });
 
   // New auth-related elements
   const userStatusDiv = document.getElementById('user-status');
@@ -212,6 +292,7 @@
 
   // Check session on page load
   document.addEventListener('DOMContentLoaded', async () => {
+      loadSpeechRate(); // Load saved speech rate
       try {
           const response = await fetch('api/check_session.php');
           const data = await response.json();
@@ -261,12 +342,6 @@
       }
   });
 
-  // Update rate display
-  speechRateInput.addEventListener('input', () => {
-    speechRate = parseFloat(speechRateInput.value);
-    rateDisplay.textContent = speechRate.toFixed(1);
-  });
-
   // Load phrases from backend
   loadBtn.addEventListener('click', async () => {
     const theme = themeSelect.value;
@@ -307,6 +382,9 @@
 
   // Display phrase
   function displayPhrase(idx) {
+    // Reset card flip state
+    flashcard.classList.remove('is-flipped');
+
     const p = phrases[idx];
     phraseFrench.textContent = p.french_text;
     phraseEnglish.textContent = p.english_translation;
@@ -323,19 +401,31 @@
 
   prevPhraseBtn.onclick = () => {
     if (currentPhraseIndex > 0) {
-      currentPhraseIndex--;
-      displayPhrase(currentPhraseIndex);
-      updateNavButtons();
+        phraseBox.classList.add('slide-out-right');
+        setTimeout(() => {
+            currentPhraseIndex--;
+            displayPhrase(currentPhraseIndex);
+            updateNavButtons();
+            phraseBox.classList.remove('slide-out-right');
+        }, 300); // Match animation duration
     }
   };
 
   nextPhraseBtn.onclick = () => {
     if (currentPhraseIndex < phrases.length - 1) {
-      currentPhraseIndex++;
-      displayPhrase(currentPhraseIndex);
-      updateNavButtons();
+        phraseBox.classList.add('slide-out-left');
+        setTimeout(() => {
+            currentPhraseIndex++;
+            displayPhrase(currentPhraseIndex);
+            updateNavButtons();
+            phraseBox.classList.remove('slide-out-left');
+        }, 300); // Match animation duration
     }
   };
+
+  flipCardBtn.addEventListener('click', () => {
+      flashcard.classList.toggle('is-flipped');
+  });
 
   // Play phrase text to speech
   playPhraseBtn.addEventListener('click', () => {
