@@ -38,12 +38,23 @@
                 width: 90%;
             }
         }
+        .header-with-button { display: flex; justify-content: space-between; align-items: center; }
+        .action-btn { background-color: #28a745; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem; }
+        .action-btn:hover { background-color: #218838; }
+        .delete-user-btn { background-color: #dc3545; color: white; }
+        .delete-user-btn:hover { background-color: #c82333; }
+        .edit-user-btn { background-color: #007bff; color: white; }
+        .edit-user-btn:hover { background-color: #0069d9; }
+        td button { padding: 0.3rem 0.6rem; border: none; border-radius: 4px; cursor: pointer; margin-right: 0.3rem; }
     </style>
 </head>
 <body>
     <div id="admin-dashboard" style="display: none;">
         <h1>Admin Dashboard</h1>
-        <h2>User Management</h2>
+        <div class="header-with-button">
+            <h2>User Management</h2>
+            <button id="add-user-btn" class="action-btn">Add New User</button>
+        </div>
         <div class="table-container">
             <table id="users-table">
                 <thead>
@@ -56,7 +67,7 @@
                     <th>Sub End Date</th>
                     <th>Created At</th>
                     <th>Manage Sub</th>
-                    <th>Manage User</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody id="users-table-body">
@@ -96,6 +107,28 @@
                 <label for="modal-sub-end">Subscription End (YYYY-MM-DD)</label>
                 <input type="text" id="modal-sub-end" placeholder="YYYY-MM-DD HH:MM:SS">
                 <button type="submit">Update Subscription Dates</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal for adding a new user -->
+    <div id="add-user-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Add New User</h2>
+            <form id="add-user-form">
+                <label for="add-username">Username</label>
+                <input type="text" id="add-username" required>
+                <label for="add-email">Email Address</label>
+                <input type="email" id="add-email" required>
+                <label for="add-password">Password</label>
+                <input type="password" id="add-password" required>
+                <label for="add-role">Role</label>
+                <select id="add-role">
+                    <option value="user">User</option>
+                    <option value="admin">Admin</option>
+                </select>
+                <button type="submit">Create User</button>
             </form>
         </div>
     </div>

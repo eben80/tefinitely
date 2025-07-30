@@ -69,6 +69,95 @@ if ($method === 'GET') {
             $stmt->close();
             break;
 
+        case 'delete_user':
+            // --- Delete User ---
+            if (!isset($data['user_id'])) {
+                http_response_code(400);
+                echo json_encode(['status' => 'error', 'message' => 'User ID not specified.']);
+                exit;
+            }
+            $user_id = $data['user_id'];
+
+            // Prevent admin from deleting themselves
+            if ($user_id == $_SESSION['user_id']) {
+                http_response_code(403);
+                echo json_encode(['status' => 'error', 'message' => 'You cannot delete your own account.']);
+                exit;
+            }
+
+            // We should also delete related records (e.g., in subscriptions) for good database hygiene.
+            // For simplicity here, we'll just delete from the users table. A real-world app would use transactions.
+            $stmt_delete_subs = $conn->prepare("DELETE FROM subscriptions WHERE user_id = ?");
+            $stmt_delete_subs->bind_param("i", $user_id);
+            $stmt_delete_subs->execute();
+
+
+            $stmt = $conn->prepare("DELETE FROM users WHERE id = ?");
+            $stmt->bind_param("i", $user_id);
+            if ($stmt->execute()) {
+                if ($stmt->affected_rows > 0) {
+                    echo json_encode(['status' => 'success', 'message' => 'User deleted successfully.']);
+                } else {
+                    http_response_code(404);
+                    echo json_encode(['status' => 'error', 'message' => 'User not found or already deleted.']);
+                }
+            } else {
+                http_response_code(500);
+                echo json_encode(['status' => 'error', 'message' => 'Failed to delete user.']);
+            }
+            $stmt->close();
+            break;
+
+        case 'add_user':
+            // --- Add New User ---
+            if (!isset($data['username']) || !isset($data['email']) || !isset($data['password']) || !isset($data['role'])) {
+                http_response_code(400);
+                echo json_encode(['status' => 'error', 'message' => 'All fields are required.']);
+                exit;
+            }
+            $username = $data['username'];
+            $email = $data['email'];
+            $password = $data['password'];
+            $role = $data['role'];
+
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                http_response_code(400);
+                echo json_encode(['status' => 'error', 'message' => 'Invalid email format.']);
+                exit;
+            }
+            if (strlen($password) < 8) {
+                http_response_code(400);
+                echo json_encode(['status' => 'error', 'message' => 'Password must be at least 8 characters long.']);
+                exit;
+            }
+            if (!in_array($role, ['user', 'admin'])) {
+                http_response_code(400);
+                echo json_encode(['status' => 'error', 'message' => 'Invalid role specified.']);
+                exit;
+            }
+
+            // Check if username or email already exists
+            $stmt_check = $conn->prepare("SELECT id FROM users WHERE username = ? OR email = ?");
+            $stmt_check->bind_param("ss", $username, $email);
+            $stmt_check->execute();
+            if ($stmt_check->get_result()->num_rows > 0) {
+                http_response_code(409); // Conflict
+                echo json_encode(['status' => 'error', 'message' => 'Username or email already exists.']);
+                exit;
+            }
+
+            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+            $stmt = $conn->prepare("INSERT INTO users (username, email, password, role, subscription_status) VALUES (?, ?, ?, ?, 'inactive')");
+            $stmt->bind_param("ssss", $username, $email, $hashed_password, $role);
+            if ($stmt->execute()) {
+                echo json_encode(['status' => 'success', 'message' => 'User added successfully.']);
+            } else {
+                http_response_code(500);
+                echo json_encode(['status' => 'error', 'message' => 'Failed to add user.']);
+            }
+            $stmt->close();
+            break;
+
         case 'update_email':
             // --- Update Email ---
             if (!isset($data['user_id']) || !isset($data['email'])) {
