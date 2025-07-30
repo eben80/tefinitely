@@ -7,11 +7,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalUsername = document.getElementById('modal-username');
     const modalEmailInput = document.getElementById('modal-email');
     const modalPasswordInput = document.getElementById('modal-password');
+    const modalSubStartInput = document.getElementById('modal-sub-start');
+    const modalSubEndInput = document.getElementById('modal-sub-end');
     const editEmailForm = document.getElementById('edit-email-form');
     const editPasswordForm = document.getElementById('edit-password-form');
+    const editSubscriptionForm = document.getElementById('edit-subscription-form');
     const closeBtn = document.querySelector('.close-btn');
 
     let currentEditingUserId = null;
+    let usersData = []; // Cache user data
 
     // --- Initial Load ---
     checkAdminAccess();
@@ -26,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     editEmailForm.addEventListener('submit', handleEmailUpdate);
     editPasswordForm.addEventListener('submit', handlePasswordUpdate);
+    editSubscriptionForm.addEventListener('submit', handleSubscriptionUpdate);
 
     // --- Functions ---
     async function checkAdminAccess() {
@@ -49,13 +54,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch('api/admin/manage_users.php');
             const data = await response.json();
             if (response.ok && data.status === 'success') {
-                populateTable(data.users);
+                usersData = data.users; // Cache the data
+                populateTable(usersData);
             } else {
-                alert('Failed to load users: ' + (data.message || 'Unknown error'));
+                showToast('Failed to load users: ' + (data.message || 'Unknown error'), 'error');
             }
         } catch (error) {
             console.error('Error loading users:', error);
-            alert('An error occurred while fetching user data.');
+            showToast('An error occurred while fetching user data.', 'error');
         }
     }
 
@@ -81,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </select>
                 </td>
                 <td>
-                    <button class="edit-user-btn" data-userid="${user.id}" data-username="${user.username}" data-email="${user.email}">Edit User</button>
+                    <button class="edit-user-btn" data-userid="${user.id}">Edit User</button>
                 </td>
             `;
             usersTableBody.appendChild(row);
@@ -98,13 +104,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function openEditModal(event) {
         currentEditingUserId = event.target.dataset.userid;
-        const username = event.target.dataset.username;
-        const email = event.target.dataset.email;
+        const user = usersData.find(u => u.id == currentEditingUserId);
 
-        modalUsername.textContent = username;
-        modalEmailInput.value = email;
-        modalPasswordInput.value = ''; // Clear password field
-        modal.style.display = 'block';
+        if (user) {
+            modalUsername.textContent = user.username;
+            modalEmailInput.value = user.email;
+            modalPasswordInput.value = ''; // Clear password field
+            modalSubStartInput.value = user.subscription_start_date || '';
+            modalSubEndInput.value = user.subscription_end_date || '';
+            modal.style.display = 'block';
+        }
     }
 
     async function handleSubscriptionChange(event) {
@@ -122,17 +131,30 @@ document.addEventListener('DOMContentLoaded', () => {
     async function handlePasswordUpdate(event) {
         event.preventDefault();
         const newPassword = modalPasswordInput.value;
-        if (!newPassword || newPassword.length < 8) {
-            alert('Password must be at least 8 characters long.');
+        if (newPassword && newPassword.length < 8) {
+            showToast('Password must be at least 8 characters long.', 'error');
             return;
         }
-        await updateUser('update_password', { user_id: currentEditingUserId, password: newPassword });
+        if (newPassword) { // Only update if a new password is provided
+            await updateUser('update_password', { user_id: currentEditingUserId, password: newPassword });
+        }
+    }
+
+    async function handleSubscriptionUpdate(event) {
+        event.preventDefault();
+        const startDate = modalSubStartInput.value;
+        const endDate = modalSubEndInput.value;
+        await updateUser('update_subscription_dates', {
+            user_id: currentEditingUserId,
+            start_date: startDate,
+            end_date: endDate
+        });
     }
 
     async function updateUser(action, data) {
         const payload = { action, ...data };
         if (!confirm(`Are you sure you want to perform this action?`)) {
-            loadUsers(); // a bit heavy-handed, but resets the UI state
+            loadUsers();
             return;
         }
         try {
@@ -142,14 +164,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify(payload)
             });
             const result = await response.json();
-            alert(result.message);
+            showToast(result.message, response.ok ? 'success' : 'error');
             if (response.ok && result.status === 'success') {
-                modal.style.display = 'none'; // Close modal on success
-                loadUsers(); // Refresh table
+                modal.style.display = 'none';
+                loadUsers();
             }
         } catch (error) {
             console.error('Update user failed:', error);
-            alert('An error occurred while updating the user.');
+            showToast('An error occurred while updating the user.', 'error');
         }
     }
 });

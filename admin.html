@@ -45,6 +45,7 @@
         <p>You must be an administrator to view this page. <a href="login.html">Login as Admin</a></p>
     </div>
 
+    <script src="js/toast.js"></script>
     <script src="js/admin.js"></script>
 
     <!-- Modal for editing user -->
@@ -62,6 +63,14 @@
                 <label for="modal-password">New Password (leave blank if no change)</label>
                 <input type="text" id="modal-password">
                 <button type="submit">Update Password</button>
+            </form>
+            <hr>
+            <form id="edit-subscription-form">
+                <label for="modal-sub-start">Subscription Start (YYYY-MM-DD)</label>
+                <input type="text" id="modal-sub-start" placeholder="YYYY-MM-DD HH:MM:SS">
+                <label for="modal-sub-end">Subscription End (YYYY-MM-DD)</label>
+                <input type="text" id="modal-sub-end" placeholder="YYYY-MM-DD HH:MM:SS">
+                <button type="submit">Update Subscription Dates</button>
             </form>
         </div>
     </div>

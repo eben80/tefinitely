@@ -23,13 +23,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 subEndDateSpan.textContent = profile.subscription_end_date ? new Date(profile.subscription_end_date).toLocaleDateString() : 'N/A';
             } else {
                 // If not logged in or error, redirect
-                alert(data.message || 'You must be logged in to view this page.');
-                window.location.href = 'login.html';
+                showToast(data.message || 'You must be logged in to view this page.', 'error');
+                setTimeout(() => { window.location.href = 'login.html'; }, 2000);
             }
         } catch (error) {
             console.error('Failed to load profile data:', error);
-            alert('An error occurred while fetching your profile.');
-            window.location.href = 'login.html';
+            showToast('An error occurred while fetching your profile.', 'error');
+            setTimeout(() => { window.location.href = 'login.html'; }, 2000);
         }
     }
 
@@ -46,14 +46,14 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             const result = await response.json();
 
-            alert(result.message);
+            showToast(result.message, response.ok ? 'success' : 'error');
             if (response.ok && result.status === 'success') {
                 loadProfileData(); // Refresh data on page
                 updateEmailForm.reset();
             }
         } catch (error) {
             console.error('Email update failed:', error);
-            alert('An error occurred while updating your email.');
+            showToast('An error occurred while updating your email.', 'error');
         }
     });
 
@@ -74,13 +74,13 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             const result = await response.json();
 
-            alert(result.message);
+            showToast(result.message, response.ok ? 'success' : 'error');
             if (response.ok && result.status === 'success') {
                 updatePasswordForm.reset();
             }
         } catch (error) {
             console.error('Password update failed:', error);
-            alert('An error occurred while updating your password.');
+            showToast('An error occurred while updating your password.', 'error');
         }
     });
 });

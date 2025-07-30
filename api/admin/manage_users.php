@@ -120,6 +120,39 @@ if ($method === 'GET') {
             $stmt->close();
             break;
 
+        case 'update_subscription_dates':
+            if (!isset($data['user_id']) || !isset($data['start_date']) || !isset($data['end_date'])) {
+                http_response_code(400);
+                echo json_encode(['status' => 'error', 'message' => 'Missing user_id or date fields.']);
+                exit;
+            }
+            $user_id = $data['user_id'];
+            $start_date = $data['start_date'];
+            $end_date = $data['end_date'];
+
+            // Find the latest subscription to update it.
+            // If none exists, create one.
+            $stmt_find = $conn->prepare("SELECT id FROM subscriptions WHERE user_id = ? ORDER BY subscription_end_date DESC LIMIT 1");
+            $stmt_find->bind_param("i", $user_id);
+            $stmt_find->execute();
+            $result = $stmt_find->get_result();
+
+            if ($result->num_rows > 0) {
+                // Update existing subscription
+                $sub = $result->fetch_assoc();
+                $sub_id = $sub['id'];
+                $stmt_update = $conn->prepare("UPDATE subscriptions SET subscription_start_date = ?, subscription_end_date = ? WHERE id = ?");
+                $stmt_update->bind_param("ssi", $start_date, $end_date, $sub_id);
+                $stmt_update->execute();
+            } else {
+                // Insert a new subscription record
+                $stmt_insert = $conn->prepare("INSERT INTO subscriptions (user_id, paypal_transaction_id, subscription_start_date, subscription_end_date) VALUES (?, 'manual_admin', ?, ?)");
+                $stmt_insert->bind_param("iss", $user_id, $start_date, $end_date);
+                $stmt_insert->execute();
+            }
+            echo json_encode(['status' => 'success', 'message' => 'Subscription dates updated successfully.']);
+            break;
+
         default:
             http_response_code(400);
             echo json_encode(['status' => 'error', 'message' => 'Invalid action specified.']);

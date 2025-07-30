@@ -27,11 +27,11 @@ async function apiRequest(url, data) {
 async function registerUser(username, email, password) {
     try {
         const result = await apiRequest('api/register.php', { username, email, password });
-        alert(result.message); // "User registered successfully."
+        showToast(result.message, 'success');
         // Redirect to login page on successful registration
-        window.location.href = 'login.html';
+        setTimeout(() => { window.location.href = 'login.html'; }, 1000);
     } catch (error) {
-        alert(`Registration Failed: ${error.message}`);
+        showToast(`Registration Failed: ${error.message}`, 'error');
     }
 }
 
@@ -39,11 +39,11 @@ async function registerUser(username, email, password) {
 async function loginUser(username, password) {
     try {
         const result = await apiRequest('api/login.php', { username, password });
-        alert(result.message); // "Login successful."
+        showToast(result.message, 'success');
         // Redirect to the main page on successful login
-        window.location.href = 'index.html';
+        setTimeout(() => { window.location.href = 'index.html'; }, 1000);
     } catch (error) {
-        alert(`Login Failed: ${error.message}`);
+        showToast(`Login Failed: ${error.message}`, 'error');
     }
 }
 
