@@ -479,6 +479,9 @@
 
   nextPhraseBtn.onclick = () => {
     if (currentPhraseIndex < phrases.length - 1) {
+        // Flip card back to front before sliding
+        flashcard.classList.remove('is-flipped');
+
         phraseBox.classList.add('slide-out-left');
         setTimeout(() => {
             currentPhraseIndex++;
