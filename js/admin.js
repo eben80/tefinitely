@@ -43,10 +43,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    addUserForm.addEventListener('submit', handleAddUser);
-    editEmailForm.addEventListener('submit', handleEmailUpdate);
-    editPasswordForm.addEventListener('submit', handlePasswordUpdate);
-    editSubscriptionForm.addEventListener('submit', handleSubscriptionUpdate);
+    // Use event delegation for form submissions
+    document.addEventListener('submit', (event) => {
+        if (event.target.id === 'add-user-form') {
+            handleAddUser(event);
+        } else if (event.target.id === 'edit-email-form') {
+            handleEmailUpdate(event);
+        } else if (event.target.id === 'edit-password-form') {
+            handlePasswordUpdate(event);
+        } else if (event.target.id === 'edit-subscription-form') {
+            handleSubscriptionUpdate(event);
+        }
+    });
 
     // --- Functions ---
     async function checkAdminAccess() {
