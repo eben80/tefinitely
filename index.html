@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TEF Canada Section A Practice</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 2rem;
+    background: #f0f4f8;
+  }
+  h1 {
+    margin-bottom: 1rem;
+    color: #333;
+  }
+  label {
+    font-weight: bold;
+  }
+  select, button {
+    margin: 0.5rem 0 1rem 0;
+    padding: 0.4rem 0.7rem;
+    font-size: 1rem;
+  }
+  #phraseBox {
+    background: white;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgb(0 0 0 / 0.1);
+    max-width: 600px;
+    margin-bottom: 2rem;
+  }
+  #phraseBox p {
+    margin: 0.3rem 0;
+  }
+  #phraseFrench {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #004d99;
+  }
+  #phraseEnglish {
+    font-size: 1.1rem;
+    color: #666;
+  }
+  #controls {
+    margin-bottom: 2rem;
+  }
+  #recordingSection {
+    margin-top: 1.5rem;
+    max-width: 600px;
+    background: #fff;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgb(0 0 0 / 0.1);
+  }
+  #recordingSection button {
+    padding: 0.5rem 1rem;
+    margin-right: 1rem;
+    font-size: 1rem;
+  }
+  #userAudio {
+    margin-top: 1rem;
+    width: 100%;
+    outline: none;
+  }
+  #recordingResult {
+    margin-top: 0.8rem;
+    font-weight: 600;
+  }
+  #navButtons button {
+    padding: 0.4rem 1rem;
+    margin-right: 0.7rem;
+  }
+</style>
+</head>
+<body>
+
+<h1>TEF Canada - Section A Practice</h1>
+
+<div id="controls">
+  <label for="themeSelect">Select Theme:</label><br />
+  <select id="themeSelect">
+    <option value="daily_life">Daily Life</option>
+    <option value="housing">Housing</option>
+    <option value="courses">Courses</option>
+    <option value="jobs">Jobs</option>
+  </select>
+  <br />
+  <label for="sectionSelect">Select Section:</label><br />
+  <select id="sectionSelect">
+    <option value="section_a">Section A</option>
+    <option value="general">General</option>
+  </select>
+  <br />
+  <label for="speechRate">Speech Speed:</label><br />
+  <input type="range" id="speechRate" min="0.5" max="2" value="1" step="0.1" />
+  <span id="rateDisplay">1.0</span>x
+  <br />
+  <button id="loadPhrasesBtn">Load Phrases</button>
+</div>
+
+<div id="phraseBox" style="display:none;">
+  <p id="phraseFrench"></p>
+  <p id="phraseEnglish"></p>
+  <div id="navButtons">
+    <button id="prevPhraseBtn" disabled>?? Previous</button>
+    <button id="nextPhraseBtn" disabled>Next ??</button>
+  </div>
+  <button id="playPhraseBtn">?? Play Phrase</button>
+</div>
+
+<div id="recordingSection" style="display:none;">
+  <button id="startRecordBtn">Start Recording</button>
+  <button id="stopRecordBtn" disabled>Stop Recording</button>
+  <audio id="userAudio" controls style="display:none;"></audio>
+  <p id="recordingResult"></p>
+</div>
+
+<script>
+  const themeSelect = document.getElementById('themeSelect');
+  const sectionSelect = document.getElementById('sectionSelect');
+  const speechRateInput = document.getElementById('speechRate');
+  const rateDisplay = document.getElementById('rateDisplay');
+  const loadBtn = document.getElementById('loadPhrasesBtn');
+
+  const phraseBox = document.getElementById('phraseBox');
+  const phraseFrench = document.getElementById('phraseFrench');
+  const phraseEnglish = document.getElementById('phraseEnglish');
+  const playPhraseBtn = document.getElementById('playPhraseBtn');
+  const prevPhraseBtn = document.getElementById('prevPhraseBtn');
+  const nextPhraseBtn = document.getElementById('nextPhraseBtn');
+
+  const recordingSection = document.getElementById('recordingSection');
+  const startRecordBtn = document.getElementById('startRecordBtn');
+  const stopRecordBtn = document.getElementById('stopRecordBtn');
+  const userAudio = document.getElementById('userAudio');
+  const recordingResult = document.getElementById('recordingResult');
+
+  let phrases = [];
+  let currentPhraseIndex = 0;
+  let speechRate = 1.0;
+
+  // Update rate display
+  speechRateInput.addEventListener('input', () => {
+    speechRate = parseFloat(speechRateInput.value);
+    rateDisplay.textContent = speechRate.toFixed(1);
+  });
+
+  // Load phrases from backend
+  loadBtn.addEventListener('click', async () => {
+    const theme = themeSelect.value;
+    const section = sectionSelect.value;
+
+    try {
+      const res = await fetch(`api/get_phrases.php?theme=${encodeURIComponent(theme)}&section=${encodeURIComponent(section)}`);
+      if (!res.ok) throw new Error('Network response was not OK');
+      phrases = await res.json();
+      if (phrases.length === 0) {
+        alert('No phrases found for this selection.');
+        phraseBox.style.display = 'none';
+        recordingSection.style.display = 'none';
+        return;
+      }
+      currentPhraseIndex = 0;
+      displayPhrase(currentPhraseIndex);
+      phraseBox.style.display = 'block';
+      recordingSection.style.display = 'block';
+      recordingResult.textContent = '';
+      userAudio.style.display = 'none';
+      userAudio.src = '';
+      updateNavButtons();
+    } catch (e) {
+      alert('Error loading phrases: ' + e.message);
+    }
+  });
+
+  // Display phrase
+  function displayPhrase(idx) {
+    const p = phrases[idx];
+    phraseFrench.textContent = p.french_text;
+    phraseEnglish.textContent = p.english_translation;
+    recordingResult.textContent = '';
+    userAudio.style.display = 'none';
+    userAudio.src = '';
+  }
+
+  // Update nav button states
+  function updateNavButtons() {
+    prevPhraseBtn.disabled = (currentPhraseIndex === 0);
+    nextPhraseBtn.disabled = (currentPhraseIndex === phrases.length - 1);
+  }
+
+  prevPhraseBtn.onclick = () => {
+    if (currentPhraseIndex > 0) {
+      currentPhraseIndex--;
+      displayPhrase(currentPhraseIndex);
+      updateNavButtons();
+    }
+  };
+
+  nextPhraseBtn.onclick = () => {
+    if (currentPhraseIndex < phrases.length - 1) {
+      currentPhraseIndex++;
+      displayPhrase(currentPhraseIndex);
+      updateNavButtons();
+    }
+  };
+
+  // Play phrase text to speech
+  playPhraseBtn.addEventListener('click', () => {
+    if (!phraseFrench.textContent) return;
+    const utterance = new SpeechSynthesisUtterance(phraseFrench.textContent);
+    utterance.lang = 'fr-FR';
+    utterance.rate = speechRate;
+    speechSynthesis.speak(utterance);
+  });
+
+  // ======= Recording & Pronunciation Check =======
+
+  let mediaRecorder;
+  let audioChunks = [];
+  let recognition;
+
+  startRecordBtn.onclick = async () => {
+    if (!('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
+      alert("Sorry, your browser does not support Speech Recognition.");
+      return;
+    }
+
+    startRecordBtn.disabled = true;
+    stopRecordBtn.disabled = false;
+    recordingResult.textContent = "Recording... speak now.";
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorder = new MediaRecorder(stream);
+      audioChunks = [];
+      mediaRecorder.start();
+      mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+
+      // Setup Speech Recognition
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognition = new SpeechRecognition();
+      recognition.lang = 'fr-FR';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+
+      recognition.start();
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript.toLowerCase();
+        checkPronunciation(transcript);
+      };
+
+      recognition.onerror = (event) => {
+        recordingResult.textContent = 'Speech recognition error: ' + event.error;
+        startRecordBtn.disabled = false;
+        stopRecordBtn.disabled = true;
+      };
+
+      recognition.onend = () => {
+        // Recognition ended naturally
+      };
+    } catch (err) {
+      recordingResult.textContent = 'Microphone access denied or error: ' + err.message;
+      startRecordBtn.disabled = false;
+      stopRecordBtn.disabled = true;
+    }
+  };
+
+  stopRecordBtn.onclick = () => {
+    stopRecordBtn.disabled = true;
+    startRecordBtn.disabled = false;
+    recordingResult.textContent = 'Stopped recording. Processing...';
+
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+      mediaRecorder.stop();
+      mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+        const audioUrl = URL.createObjectURL(audioBlob);
+        userAudio.src = audioUrl;
+        userAudio.style.display = 'block';
+      };
+    }
+    if (recognition) {
+      recognition.stop();
+    }
+  };
+
+  function checkPronunciation(userTranscript) {
+    const target = phrases[currentPhraseIndex].french_text.toLowerCase();
+    // Simple check: userTranscript includes at least 60% of words from target
+    const targetWords = target.split(/\s+/);
+    const userWords = userTranscript.split(/\s+/);
+    let matchCount = 0;
+    targetWords.forEach(w => {
+      if (userWords.includes(w)) matchCount++;
+    });
+    const ratio = matchCount / targetWords.length;
+
+    if (ratio > 0.6) {
+      recordingResult.textContent = 'Good pronunciation! ??';
+      recordingResult.style.color = 'green';
+    } else {
+      recordingResult.textContent = 'Pronunciation could be improved. Try again.';
+      recordingResult.style.color = 'red';
+    }
+  }
+</script>
+
+</body>
+</html>
