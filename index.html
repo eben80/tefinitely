@@ -250,7 +250,7 @@
               if (order.status === 'success') {
                   return order.orderID;
               } else {
-                  alert('Error creating PayPal order: ' + order.message);
+                  showToast('Error creating PayPal order: ' + order.message, 'error');
                   return null;
               }
           },
@@ -264,17 +264,17 @@
               });
               const captureDetails = await response.json();
               if (captureDetails.status === 'success') {
-                  alert('Payment successful! Your subscription is now active.');
+                  showToast('Payment successful! Your subscription is now active.', 'success');
                   // Reload the page to reflect the new status
-                  window.location.reload();
+                  setTimeout(() => { window.location.reload(); }, 2000);
               } else {
-                  alert('Payment failed: ' + captureDetails.message);
+                  showToast('Payment failed: ' + captureDetails.message, 'error');
               }
           },
 
           onError: function(err) {
               console.error('PayPal button error:', err);
-              alert('An error occurred with the PayPal button.');
+              showToast('An error occurred with the PayPal button.', 'error');
           }
       }).render('#paypal-button-container');
   }
@@ -294,7 +294,8 @@
                       const option = document.createElement('option');
                       option.value = `${section}-${theme}`;
                       // Capitalize theme name for display
-                      option.textContent = theme.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+                      let themeDisplay = theme.replace('_', ' ');
+                      option.textContent = themeDisplay.charAt(0).toUpperCase() + themeDisplay.slice(1);
                       optgroup.appendChild(option);
                   });
                   topicSelect.appendChild(optgroup);
