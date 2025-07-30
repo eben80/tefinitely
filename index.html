@@ -180,6 +180,9 @@
             <button id="playPhraseBtn">Play Phrase</button>
             <button id="nextPhraseBtn" disabled>Next</button>
         </div>
+        <div id="pagination-display" style="text-align: center; margin-top: 1rem; font-weight: bold;">
+            <span id="current-card"></span> / <span id="total-cards"></span>
+        </div>
     </div>
 
     <div id="recordingSection" style="display:none;">
@@ -209,10 +212,27 @@
   const stopRecordBtn = document.getElementById('stopRecordBtn');
   const userAudio = document.getElementById('userAudio');
   const recordingResult = document.getElementById('recordingResult');
+  const currentCardSpan = document.getElementById('current-card');
+  const totalCardsSpan = document.getElementById('total-cards');
 
   let phrases = [];
   let currentPhraseIndex = 0;
+  let currentTopic = '';
   let speechRate = 1.0; // Default value
+
+  // --- Position Persistence ---
+  function savePosition(topic, index) {
+      if (!topic) return;
+      let positions = JSON.parse(localStorage.getItem('cardPositions')) || {};
+      positions[topic] = index;
+      localStorage.setItem('cardPositions', JSON.stringify(positions));
+  }
+
+  function loadPosition(topic) {
+      if (!topic) return 0;
+      let positions = JSON.parse(localStorage.getItem('cardPositions')) || {};
+      return positions[topic] || 0;
+  }
 
   // --- Speech Rate Handling ---
   function loadSpeechRate() {
@@ -288,15 +308,12 @@
               const topics = data.topics;
               for (const section in topics) {
                   const optgroup = document.createElement('optgroup');
-                  let sectionDisplay = section.replace('_', ' ');
-                  optgroup.label = sectionDisplay.charAt(0).toUpperCase() + sectionDisplay.slice(1);
+                  optgroup.label = section;
 
                   topics[section].forEach(theme => {
                       const option = document.createElement('option');
                       option.value = `${section}-${theme}`;
-                      // Capitalize theme name for display
-                      let themeDisplay = theme.replace('_', ' ');
-                      option.textContent = themeDisplay.charAt(0).toUpperCase() + themeDisplay.slice(1);
+                      option.textContent = theme;
                       optgroup.appendChild(option);
                   });
                   topicSelect.appendChild(optgroup);
@@ -356,10 +373,10 @@
   logoutBtn.addEventListener('click', async () => {
       const response = await fetch('api/logout.php');
       if (response.ok) {
-          alert('You have been logged out.');
-          window.location.href = 'login.html';
+          showToast('You have been logged out.', 'success');
+          setTimeout(() => { window.location.href = 'login.html'; }, 1000);
       } else {
-          alert('Logout failed. Please try again.');
+          showToast('Logout failed. Please try again.', 'error');
       }
   });
 
@@ -372,6 +389,7 @@
   });
 
   async function loadPhrases(topicValue) {
+      currentTopic = topicValue; // Set the current topic
       const [section, theme] = topicValue.split('-');
       if (!section || !theme) return;
 
@@ -390,7 +408,11 @@
               recordingSection.style.display = 'none';
               return;
           }
-          currentPhraseIndex = 0;
+          totalCardsSpan.textContent = phrases.length;
+          currentPhraseIndex = loadPosition(currentTopic);
+          if (currentPhraseIndex >= phrases.length) {
+              currentPhraseIndex = 0; // Reset if saved index is out of bounds
+          }
           displayPhrase(currentPhraseIndex);
           phraseBox.style.display = 'block';
           recordingSection.style.display = 'block';
@@ -410,6 +432,9 @@
   function displayPhrase(idx) {
     // Reset card flip state
     flashcard.classList.remove('is-flipped');
+
+    // Update pagination
+    currentCardSpan.textContent = idx + 1;
 
     const p = phrases[idx];
     phraseFrench.textContent = p.french_text;
@@ -432,6 +457,7 @@
             currentPhraseIndex--;
             displayPhrase(currentPhraseIndex);
             updateNavButtons();
+            savePosition(currentTopic, currentPhraseIndex);
             phraseBox.classList.remove('slide-out-right');
         }, 300); // Match animation duration
     }
@@ -444,6 +470,7 @@
             currentPhraseIndex++;
             displayPhrase(currentPhraseIndex);
             updateNavButtons();
+            savePosition(currentTopic, currentPhraseIndex);
             phraseBox.classList.remove('slide-out-left');
         }, 300); // Match animation duration
     }
