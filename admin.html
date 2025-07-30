@@ -15,16 +15,40 @@
         select { padding: 0.3rem; font-size: 0.9rem; }
         .status-active { color: green; font-weight: bold; }
         .status-inactive { color: red; font-weight: bold; }
+
+        .table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+        }
+
+        @media (max-width: 768px) {
+            body {
+                margin: 1rem;
+                padding: 0;
+            }
+            h1 {
+                font-size: 1.5rem;
+            }
+            th, td {
+                padding: 0.6rem 0.8rem;
+                font-size: 0.9rem;
+            }
+            .modal-content {
+                margin: 10% auto;
+                width: 90%;
+            }
+        }
     </style>
 </head>
 <body>
     <div id="admin-dashboard" style="display: none;">
         <h1>Admin Dashboard</h1>
         <h2>User Management</h2>
-        <table id="users-table">
-            <thead>
-                <tr>
-                    <th>ID</th>
+        <div class="table-container">
+            <table id="users-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
                     <th>Username</th>
                     <th>Email</th>
                     <th>Role</th>
@@ -38,7 +62,8 @@
             <tbody id="users-table-body">
                 <!-- User rows will be inserted here by JavaScript -->
             </tbody>
-        </table>
+            </table>
+        </div>
     </div>
     <div id="auth-error" style="display: none; text-align: center; margin-top: 5rem;">
         <h2>Access Denied</h2>
