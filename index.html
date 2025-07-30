@@ -288,7 +288,8 @@
               const topics = data.topics;
               for (const section in topics) {
                   const optgroup = document.createElement('optgroup');
-                  optgroup.label = section.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()); // Capitalize section name
+                  let sectionDisplay = section.replace('_', ' ');
+                  optgroup.label = sectionDisplay.charAt(0).toUpperCase() + sectionDisplay.slice(1);
 
                   topics[section].forEach(theme => {
                       const option = document.createElement('option');
