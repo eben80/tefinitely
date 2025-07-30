@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function checkAdminAccess() {
         try {
-            const response = await fetch('../api/check_session.php');
+            const response = await fetch('api/check_session.php');
             const data = await response.json();
 
             if (response.ok && data.loggedIn && data.user.role === 'admin') {
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Fetch users from the admin API
     async function loadUsers() {
         try {
-            const response = await fetch('../api/admin/manage_users.php');
+            const response = await fetch('api/admin/manage_users.php');
             const data = await response.json();
 
             if (response.ok && data.status === 'success') {
