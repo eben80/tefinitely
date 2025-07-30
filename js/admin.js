@@ -12,7 +12,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const editEmailForm = document.getElementById('edit-email-form');
     const editPasswordForm = document.getElementById('edit-password-form');
     const editSubscriptionForm = document.getElementById('edit-subscription-form');
-    const closeBtn = document.querySelector('.close-btn');
+    const addUserBtn = document.getElementById('add-user-btn');
+    const addUserModal = document.getElementById('add-user-modal');
+    const addUserForm = document.getElementById('add-user-form');
+    const createUserBtn = document.getElementById('create-user-btn');
+    const closeBtns = document.querySelectorAll('.close-btn');
 
     let currentEditingUserId = null;
     let usersData = []; // Cache user data
@@ -21,16 +25,44 @@ document.addEventListener('DOMContentLoaded', () => {
     checkAdminAccess();
 
     // --- Event Listeners ---
-    closeBtn.addEventListener('click', () => modal.style.display = 'none');
+    if (addUserBtn) {
+        addUserBtn.addEventListener('click', () => {
+            if (addUserModal) {
+                addUserModal.style.display = 'block';
+            }
+        });
+    }
+
+    if (closeBtns) {
+        closeBtns.forEach(btn => {
+            btn.addEventListener('click', (event) => {
+                const modal = event.target.closest('.modal');
+                if (modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        });
+    }
+
     window.addEventListener('click', (event) => {
-        if (event.target == modal) {
-            modal.style.display = 'none';
+        if (event.target.classList.contains('modal')) {
+            event.target.style.display = 'none';
         }
     });
 
-    editEmailForm.addEventListener('submit', handleEmailUpdate);
-    editPasswordForm.addEventListener('submit', handlePasswordUpdate);
-    editSubscriptionForm.addEventListener('submit', handleSubscriptionUpdate);
+    if (createUserBtn) {
+        createUserBtn.addEventListener('click', handleAddUser);
+    }
+
+    document.addEventListener('submit', (event) => {
+        if (event.target.id === 'edit-email-form') {
+            handleEmailUpdate(event);
+        } else if (event.target.id === 'edit-password-form') {
+            handlePasswordUpdate(event);
+        } else if (event.target.id === 'edit-subscription-form') {
+            handleSubscriptionUpdate(event);
+        }
+    });
 
     // --- Functions ---
     async function checkAdminAccess() {
@@ -87,7 +119,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     </select>
                 </td>
                 <td>
-                    <button class="edit-user-btn" data-userid="${user.id}">Edit User</button>
+                    <button class="edit-user-btn" data-userid="${user.id}">Edit</button>
+                    <button class="delete-user-btn" data-userid="${user.id}">Delete</button>
                 </td>
             `;
             usersTableBody.appendChild(row);
@@ -99,6 +132,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         document.querySelectorAll('.edit-user-btn').forEach(button => {
             button.addEventListener('click', openEditModal);
+        });
+        document.querySelectorAll('.delete-user-btn').forEach(button => {
+            button.addEventListener('click', handleDeleteUser);
         });
     }
 
@@ -120,6 +156,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const userId = event.target.dataset.userid;
         const newStatus = event.target.value;
         await updateUser('update_subscription', { user_id: userId, subscription_status: newStatus });
+    }
+
+    async function handleDeleteUser(event) {
+        const userId = event.target.dataset.userid;
+        await updateUser('delete_user', { user_id: userId });
     }
 
     async function handleEmailUpdate(event) {
@@ -149,6 +190,45 @@ document.addEventListener('DOMContentLoaded', () => {
             start_date: startDate,
             end_date: endDate
         });
+    }
+
+    async function handleAddUser(event) {
+        event.preventDefault();
+        const username = document.getElementById('add-username').value;
+        const email = document.getElementById('add-email').value;
+        const password = document.getElementById('add-password').value;
+        const role = document.getElementById('add-role').value;
+
+        if (password.length < 8) {
+            showToast('Password must be at least 8 characters long.', 'error');
+            return;
+        }
+
+        const userData = { username, email, password, role };
+        await addUser(userData);
+    }
+
+    async function addUser(data) {
+        const payload = { action: 'add_user', ...data };
+        try {
+            const response = await fetch('api/admin/manage_users.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const result = await response.json();
+            showToast(result.message, response.ok ? 'success' : 'error');
+            if (response.ok && result.status === 'success') {
+                addUserModal.style.display = 'none';
+                addUserForm.reset();
+                loadUsers();
+            } else {
+                console.error('Failed to add user:', result);
+            }
+        } catch (error) {
+            console.error('Add user failed with error:', error);
+            showToast('An error occurred while adding the user.', 'error');
+        }
     }
 
     async function updateUser(action, data) {
