@@ -552,7 +552,7 @@
         const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
         const audioUrl = URL.createObjectURL(audioBlob);
         userAudio.src = audioUrl;
-        userAudio.style.display = 'block';
+        // userAudio.style.display = 'block';
       };
     }
     if (recognition) {
