@@ -29,16 +29,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     closeBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            modal.style.display = 'none';
-            addUserModal.style.display = 'none';
+        btn.addEventListener('click', (event) => {
+            const modal = event.target.closest('.modal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
         });
     });
 
     window.addEventListener('click', (event) => {
-        if (event.target == modal || event.target == addUserModal) {
-            modal.style.display = 'none';
-            addUserModal.style.display = 'none';
+        if (event.target.classList.contains('modal')) {
+            event.target.style.display = 'none';
         }
     });
 
@@ -205,6 +206,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 addUserModal.style.display = 'none';
                 addUserForm.reset();
                 loadUsers();
+            } else {
+                console.error('Failed to add user:', result);
             }
         } catch (error) {
             console.error('Add user failed:', error);
