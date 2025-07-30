@@ -13,8 +13,26 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
-    // Fetch all users
-    $result = $conn->query("SELECT id, username, email, role, subscription_status, created_at FROM users");
+    // Fetch all users and their latest subscription end date
+    $query = "
+        SELECT
+            u.id,
+            u.username,
+            u.email,
+            u.role,
+            u.subscription_status,
+            u.created_at,
+            MAX(s.subscription_end_date) AS subscription_end_date
+        FROM
+            users u
+        LEFT JOIN
+            subscriptions s ON u.id = s.user_id
+        GROUP BY
+            u.id
+        ORDER BY
+            u.id ASC
+    ";
+    $result = $conn->query($query);
     $users = [];
     while ($row = $result->fetch_assoc()) {
         $users[] = $row;
@@ -22,35 +40,91 @@ if ($method === 'GET') {
     http_response_code(200);
     echo json_encode(['status' => 'success', 'users' => $users]);
 } elseif ($method === 'POST') {
-    // Update a user's subscription status
     $data = json_decode(file_get_contents('php://input'), true);
+    $action = $data['action'] ?? '';
 
-    if (!isset($data['user_id']) || !isset($data['subscription_status'])) {
-        http_response_code(400);
-        echo json_encode(['status' => 'error', 'message' => 'Missing user_id or subscription_status.']);
-        exit;
+    switch ($action) {
+        case 'update_subscription':
+            // --- Update Subscription Status ---
+            if (!isset($data['user_id']) || !isset($data['subscription_status'])) {
+                http_response_code(400);
+                echo json_encode(['status' => 'error', 'message' => 'Missing user_id or subscription_status.']);
+                exit;
+            }
+            $user_id = $data['user_id'];
+            $status = $data['subscription_status'];
+            if (!in_array($status, ['active', 'inactive'])) {
+                http_response_code(400);
+                echo json_encode(['status' => 'error', 'message' => 'Invalid status value.']);
+                exit;
+            }
+            $stmt = $conn->prepare("UPDATE users SET subscription_status = ? WHERE id = ?");
+            $stmt->bind_param("si", $status, $user_id);
+            if ($stmt->execute()) {
+                echo json_encode(['status' => 'success', 'message' => 'User subscription updated successfully.']);
+            } else {
+                http_response_code(500);
+                echo json_encode(['status' => 'error', 'message' => 'Failed to update user subscription.']);
+            }
+            $stmt->close();
+            break;
+
+        case 'update_email':
+            // --- Update Email ---
+            if (!isset($data['user_id']) || !isset($data['email'])) {
+                http_response_code(400);
+                echo json_encode(['status' => 'error', 'message' => 'Missing user_id or email.']);
+                exit;
+            }
+            $user_id = $data['user_id'];
+            $email = $data['email'];
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                http_response_code(400);
+                echo json_encode(['status' => 'error', 'message' => 'Invalid email format.']);
+                exit;
+            }
+            $stmt = $conn->prepare("UPDATE users SET email = ? WHERE id = ?");
+            $stmt->bind_param("si", $email, $user_id);
+            if ($stmt->execute()) {
+                echo json_encode(['status' => 'success', 'message' => 'User email updated successfully.']);
+            } else {
+                http_response_code(500);
+                echo json_encode(['status' => 'error', 'message' => 'Failed to update user email.']);
+            }
+            $stmt->close();
+            break;
+
+        case 'update_password':
+            // --- Update Password ---
+            if (!isset($data['user_id']) || !isset($data['password'])) {
+                http_response_code(400);
+                echo json_encode(['status' => 'error', 'message' => 'Missing user_id or password.']);
+                exit;
+            }
+            $user_id = $data['user_id'];
+            $password = $data['password'];
+            if (strlen($password) < 8) {
+                http_response_code(400);
+                echo json_encode(['status' => 'error', 'message' => 'Password must be at least 8 characters long.']);
+                exit;
+            }
+            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+            $stmt = $conn->prepare("UPDATE users SET password = ? WHERE id = ?");
+            $stmt->bind_param("si", $hashed_password, $user_id);
+            if ($stmt->execute()) {
+                echo json_encode(['status' => 'success', 'message' => 'User password updated successfully.']);
+            } else {
+                http_response_code(500);
+                echo json_encode(['status' => 'error', 'message' => 'Failed to update user password.']);
+            }
+            $stmt->close();
+            break;
+
+        default:
+            http_response_code(400);
+            echo json_encode(['status' => 'error', 'message' => 'Invalid action specified.']);
+            break;
     }
-
-    $user_id = $data['user_id'];
-    $status = $data['subscription_status'];
-
-    if (!in_array($status, ['active', 'inactive'])) {
-        http_response_code(400);
-        echo json_encode(['status' => 'error', 'message' => 'Invalid status value.']);
-        exit;
-    }
-
-    $stmt = $conn->prepare("UPDATE users SET subscription_status = ? WHERE id = ?");
-    $stmt->bind_param("si", $status, $user_id);
-
-    if ($stmt->execute()) {
-        http_response_code(200);
-        echo json_encode(['status' => 'success', 'message' => 'User status updated successfully.']);
-    } else {
-        http_response_code(500);
-        echo json_encode(['status' => 'error', 'message' => 'Failed to update user status.']);
-    }
-    $stmt->close();
 } else {
     http_response_code(405); // Method Not Allowed
     echo json_encode(['status' => 'error', 'message' => 'Invalid request method.']);

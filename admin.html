@@ -28,9 +28,11 @@
                     <th>Username</th>
                     <th>Email</th>
                     <th>Role</th>
-                    <th>Subscription Status</th>
+                    <th>Sub Status</th>
+                    <th>Sub End Date</th>
                     <th>Created At</th>
-                    <th>Action</th>
+                    <th>Manage Sub</th>
+                    <th>Manage User</th>
                 </tr>
             </thead>
             <tbody id="users-table-body">
@@ -44,5 +46,33 @@
     </div>
 
     <script src="js/admin.js"></script>
+
+    <!-- Modal for editing user -->
+    <div id="edit-user-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Edit User: <span id="modal-username"></span></h2>
+            <form id="edit-email-form">
+                <label for="modal-email">Email Address</label>
+                <input type="email" id="modal-email" required>
+                <button type="submit">Update Email</button>
+            </form>
+            <hr>
+            <form id="edit-password-form">
+                <label for="modal-password">New Password (leave blank if no change)</label>
+                <input type="text" id="modal-password">
+                <button type="submit">Update Password</button>
+            </form>
+        </div>
+    </div>
+    <style>
+        .modal { position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); }
+        .modal-content { background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px; border-radius: 8px; }
+        .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; }
+        .close-btn:hover, .close-btn:focus { color: black; text-decoration: none; cursor: pointer; }
+        .modal input { width: 100%; padding: 0.5rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; margin-bottom: 1rem; }
+        .modal button { width: 100%; }
+        .modal hr { margin: 1.5rem 0; }
+    </style>
 </body>
 </html>
