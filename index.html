@@ -175,6 +175,7 @@
             </div>
         </div>
         <div id="navButtons">
+            <button id="firstCardBtn">&lt;&lt;</button>
             <button id="prevPhraseBtn" disabled>Previous</button>
             <button id="flipCardBtn">Flip</button>
             <button id="playPhraseBtn">Play Phrase</button>
@@ -202,6 +203,7 @@
   const phraseFrench = document.getElementById('phraseFrench');
   const phraseEnglish = document.getElementById('phraseEnglish');
   const playPhraseBtn = document.getElementById('playPhraseBtn');
+  const firstCardBtn = document.getElementById('firstCardBtn');
   const prevPhraseBtn = document.getElementById('prevPhraseBtn');
   const nextPhraseBtn = document.getElementById('nextPhraseBtn');
   const flipCardBtn = document.getElementById('flipCardBtn');
@@ -315,7 +317,7 @@
                       optgroup.appendChild(option);
                   });
                   topicSelect.appendChild(optgroup);
-              };
+              });
           } else {
               showToast('Failed to load topics.', 'error');
           }
@@ -444,6 +446,7 @@
 
   // Update nav button states
   function updateNavButtons() {
+    firstCardBtn.disabled = (currentPhraseIndex === 0);
     prevPhraseBtn.disabled = (currentPhraseIndex === 0);
     nextPhraseBtn.disabled = (currentPhraseIndex === phrases.length - 1);
   }
@@ -458,6 +461,15 @@
             savePosition(currentTopic, currentPhraseIndex);
             phraseBox.classList.remove('slide-out-right');
         }, 300); // Match animation duration
+    }
+  };
+
+  firstCardBtn.onclick = () => {
+    if (currentPhraseIndex > 0) {
+        currentPhraseIndex = 0;
+        displayPhrase(currentPhraseIndex);
+        updateNavButtons();
+        savePosition(currentTopic, currentPhraseIndex);
     }
   };
 
