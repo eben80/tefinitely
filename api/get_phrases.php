@@ -1,5 +1,17 @@
 <?php
+session_start();
 header('Content-Type: application/json; charset=utf-8');
+
+// Check if the user is authenticated and has an active subscription
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['subscription_status']) || $_SESSION['subscription_status'] !== 'active') {
+    http_response_code(403); // Forbidden
+    echo json_encode([
+        'status' => 'error',
+        'message' => 'Access denied. You need an active subscription to view this content.'
+    ]);
+    exit;
+}
+
 require_once '../db/db_config.php';
 
 $theme = $_GET['theme'] ?? '';

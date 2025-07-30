@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2rem; background: #f0f4f8; }
+        h1 { color: #333; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; background: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        th, td { padding: 0.8rem; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #007bff; color: white; }
+        tr:hover { background-color: #f1f1f1; }
+        select { padding: 0.3rem; font-size: 0.9rem; }
+        .status-active { color: green; font-weight: bold; }
+        .status-inactive { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div id="admin-dashboard" style="display: none;">
+        <h1>Admin Dashboard</h1>
+        <h2>User Management</h2>
+        <table id="users-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Subscription Status</th>
+                    <th>Created At</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="users-table-body">
+                <!-- User rows will be inserted here by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+    <div id="auth-error" style="display: none; text-align: center; margin-top: 5rem;">
+        <h2>Access Denied</h2>
+        <p>You must be an administrator to view this page. <a href="login.html">Login as Admin</a></p>
+    </div>
+
+    <script src="js/admin.js"></script>
+</body>
+</html>

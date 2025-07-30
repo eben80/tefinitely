@@ -72,64 +72,78 @@
     margin-right: 0.7rem;
   }
 </style>
+<script src="https://www.paypal.com/sdk/js?client-id=AUWWl6fyDnYoKr4N77ugdDKP7IKYv0-ObG_Zj-vFhmJ_HlEUc34ZYAY983je8c4syTpSl1L_Dn2M8ddP&currency=USD"></script>
 </head>
 <body>
 
-<h1>TEF Canada - Section A Practice</h1>
-
-<div id="controls">
-  <label for="themeSelect">Select Theme:</label><br />
-  <select id="themeSelect">
-    <option value="daily_life">Daily Life</option>
-    <option value="housing">Housing</option>
-    <option value="courses">Courses</option>
-    <option value="jobs">Jobs</option>
-  </select>
-  <br />
-  <label for="sectionSelect">Select Section:</label><br />
-  <select id="sectionSelect">
-    <option value="section_a">Section A</option>
-    <option value="general">General</option>
-  </select>
-  <br />
-  <label for="speechRate">Speech Speed:</label><br />
-  <input type="range" id="speechRate" min="0.5" max="2" value="1" step="0.1" />
-  <span id="rateDisplay">1.0</span>x
-  <br />
-  <button id="loadPhrasesBtn">Load Phrases</button>
+<div id="user-status" style="display: none; position: absolute; top: 1rem; right: 2rem;">
+    <span id="username-display"></span> | <button id="logoutBtn">Logout</button>
 </div>
 
-<div id="phraseBox" style="display:none;">
-  <p id="phraseFrench"></p>
-  <p id="phraseEnglish"></p>
-  <div id="navButtons">
-    <button id="prevPhraseBtn" disabled>Previous</button>
-    <button id="nextPhraseBtn" disabled>Next</button>
-  </div>
-  <button id="playPhraseBtn">Play Phrase</button>
+<div id="auth-prompt" style="display: none; text-align: center; margin-top: 5rem;">
+    <h2 id="auth-message"></h2>
+    <!-- This link is now a fallback, PayPal button is the main action -->
+    <a id="auth-link" href="login.html"></a>
+    <!-- PayPal button will be rendered here -->
+    <div id="paypal-button-container" style="margin-top: 1rem;"></div>
 </div>
 
-<div id="recordingSection" style="display:none;">
-  <button id="startRecordBtn">Start Recording</button>
-  <button id="stopRecordBtn" disabled>Stop Recording</button>
-  <audio id="userAudio" controls style="display:none;"></audio>
-  <p id="recordingResult"></p>
+<div id="main-content" style="display: none;">
+    <h1>TEF Canada - Section A Practice</h1>
+
+    <div id="controls">
+      <label for="themeSelect">Select Theme:</label><br />
+      <select id="themeSelect">
+        <option value="daily_life">Daily Life</option>
+        <option value="housing">Housing</option>
+        <option value="courses">Courses</option>
+        <option value="jobs">Jobs</option>
+      </select>
+      <br />
+      <label for="sectionSelect">Select Section:</label><br />
+      <select id="sectionSelect">
+        <option value="section_a">Section A</option>
+        <option value="general">General</option>
+      </select>
+      <br />
+      <label for="speechRate">Speech Speed:</label><br />
+      <input type="range" id="speechRate" min="0.5" max="2" value="1" step="0.1" />
+      <span id="rateDisplay">1.0</span>x
+      <br />
+      <button id="loadPhrasesBtn">Load Phrases</button>
+    </div>
+
+    <div id="phraseBox" style="display:none;">
+      <p id="phraseFrench"></p>
+      <p id="phraseEnglish"></p>
+      <div id="navButtons">
+        <button id="prevPhraseBtn" disabled>Previous</button>
+        <button id="nextPhraseBtn" disabled>Next</button>
+      </div>
+      <button id="playPhraseBtn">Play Phrase</button>
+    </div>
+
+    <div id="recordingSection" style="display:none;">
+      <button id="startRecordBtn">Start Recording</button>
+      <button id="stopRecordBtn" disabled>Stop Recording</button>
+      <audio id="userAudio" controls style="display:none;"></audio>
+      <p id="recordingResult"></p>
+    </div>
 </div>
 
 <script>
+  // Existing script variables
   const themeSelect = document.getElementById('themeSelect');
   const sectionSelect = document.getElementById('sectionSelect');
   const speechRateInput = document.getElementById('speechRate');
   const rateDisplay = document.getElementById('rateDisplay');
   const loadBtn = document.getElementById('loadPhrasesBtn');
-
   const phraseBox = document.getElementById('phraseBox');
   const phraseFrench = document.getElementById('phraseFrench');
   const phraseEnglish = document.getElementById('phraseEnglish');
   const playPhraseBtn = document.getElementById('playPhraseBtn');
   const prevPhraseBtn = document.getElementById('prevPhraseBtn');
   const nextPhraseBtn = document.getElementById('nextPhraseBtn');
-
   const recordingSection = document.getElementById('recordingSection');
   const startRecordBtn = document.getElementById('startRecordBtn');
   const stopRecordBtn = document.getElementById('stopRecordBtn');
@@ -139,6 +153,101 @@
   let phrases = [];
   let currentPhraseIndex = 0;
   let speechRate = 1.0;
+
+  // New auth-related elements
+  const userStatusDiv = document.getElementById('user-status');
+  const usernameDisplay = document.getElementById('username-display');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const authPromptDiv = document.getElementById('auth-prompt');
+  const authMessage = document.getElementById('auth-message');
+  const authLink = document.getElementById('auth-link');
+  const mainContentDiv = document.getElementById('main-content');
+  const paypalContainer = document.getElementById('paypal-button-container');
+
+  // --- PayPal Button Rendering ---
+  function renderPayPalButton() {
+      paypal.Buttons({
+          // Call your server to set up the transaction
+          createOrder: async function(data, actions) {
+              const response = await fetch('api/paypal/create_payment.php', { method: 'POST' });
+              const order = await response.json();
+              if (order.status === 'success') {
+                  return order.orderID;
+              } else {
+                  alert('Error creating PayPal order: ' + order.message);
+                  return null;
+              }
+          },
+
+          // Call your server to finalize the transaction
+          onApprove: async function(data, actions) {
+              const response = await fetch('api/paypal/capture_payment.php', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ orderID: data.orderID })
+              });
+              const captureDetails = await response.json();
+              if (captureDetails.status === 'success') {
+                  alert('Payment successful! Your subscription is now active.');
+                  // Reload the page to reflect the new status
+                  window.location.reload();
+              } else {
+                  alert('Payment failed: ' + captureDetails.message);
+              }
+          },
+
+          onError: function(err) {
+              console.error('PayPal button error:', err);
+              alert('An error occurred with the PayPal button.');
+          }
+      }).render('#paypal-button-container');
+  }
+
+  // Check session on page load
+  document.addEventListener('DOMContentLoaded', async () => {
+      try {
+          const response = await fetch('api/check_session.php');
+          const data = await response.json();
+
+          if (response.ok && data.loggedIn) {
+              // User is logged in
+              usernameDisplay.textContent = `Welcome, ${data.user.username}`;
+              userStatusDiv.style.display = 'block';
+
+              if (data.user.subscription_status === 'active') {
+                  // Active subscription, show the main content
+                  mainContentDiv.style.display = 'block';
+              } else {
+                  // Logged in but no active subscription
+                  authMessage.textContent = 'Your subscription is inactive. Please subscribe to get access.';
+                  authLink.style.display = 'none'; // Hide the old link
+                  authPromptDiv.style.display = 'block';
+                  renderPayPalButton(); // Render the PayPal button
+              }
+          } else {
+              // User is not logged in
+              authMessage.textContent = 'Please log in to access the content.';
+              authLink.textContent = 'Login';
+              authLink.href = 'login.html';
+              authPromptDiv.style.display = 'block';
+          }
+      } catch (error) {
+          console.error('Session check failed:', error);
+          authMessage.textContent = 'An error occurred. Please try again later.';
+          authPromptDiv.style.display = 'block';
+      }
+  });
+
+  // Logout functionality
+  logoutBtn.addEventListener('click', async () => {
+      const response = await fetch('api/logout.php');
+      if (response.ok) {
+          alert('You have been logged out.');
+          window.location.href = 'login.html';
+      } else {
+          alert('Logout failed. Please try again.');
+      }
+  });
 
   // Update rate display
   speechRateInput.addEventListener('input', () => {
@@ -153,8 +262,14 @@
 
     try {
       const res = await fetch(`api/get_phrases.php?theme=${encodeURIComponent(theme)}&section=${encodeURIComponent(section)}`);
-      if (!res.ok) throw new Error('Network response was not OK');
-      phrases = await res.json();
+      const data = await res.json();
+
+      if (!res.ok) {
+          // The API now returns a JSON error message
+          throw new Error(data.message || 'Network response was not OK');
+      }
+
+      phrases = data;
       if (phrases.length === 0) {
         alert('No phrases found for this selection.');
         phraseBox.style.display = 'none';
@@ -171,6 +286,10 @@
       updateNavButtons();
     } catch (e) {
       alert('Error loading phrases: ' + e.message);
+      // If the error is an auth error, redirect
+      if (e.message.includes('Access denied')) {
+          window.location.href = 'login.html';
+      }
     }
   });
 
@@ -216,63 +335,49 @@
   });
 
   // ======= Recording & Pronunciation Check =======
-
   let mediaRecorder;
   let audioChunks = [];
   let recognition;
-
   startRecordBtn.onclick = async () => {
     if (!('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
       alert("Sorry, your browser does not support Speech Recognition.");
       return;
     }
-
     startRecordBtn.disabled = true;
     stopRecordBtn.disabled = false;
     recordingResult.textContent = "Recording... speak now.";
-
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaRecorder = new MediaRecorder(stream);
       audioChunks = [];
       mediaRecorder.start();
       mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-
-      // Setup Speech Recognition
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       recognition = new SpeechRecognition();
       recognition.lang = 'fr-FR';
       recognition.interimResults = false;
       recognition.maxAlternatives = 1;
-
       recognition.start();
-
       recognition.onresult = (event) => {
         const transcript = event.results[0][0].transcript.toLowerCase();
         checkPronunciation(transcript);
       };
-
       recognition.onerror = (event) => {
         recordingResult.textContent = 'Speech recognition error: ' + event.error;
         startRecordBtn.disabled = false;
         stopRecordBtn.disabled = true;
       };
-
-      recognition.onend = () => {
-        // Recognition ended naturally
-      };
+      recognition.onend = () => {};
     } catch (err) {
       recordingResult.textContent = 'Microphone access denied or error: ' + err.message;
       startRecordBtn.disabled = false;
       stopRecordBtn.disabled = true;
     }
   };
-
   stopRecordBtn.onclick = () => {
     stopRecordBtn.disabled = true;
     startRecordBtn.disabled = false;
     recordingResult.textContent = 'Stopped recording. Processing...';
-
     if (mediaRecorder && mediaRecorder.state !== 'inactive') {
       mediaRecorder.stop();
       mediaRecorder.onstop = () => {
@@ -286,10 +391,8 @@
       recognition.stop();
     }
   };
-
   function checkPronunciation(userTranscript) {
     const target = phrases[currentPhraseIndex].french_text.toLowerCase();
-    // Simple check: userTranscript includes at least 60% of words from target
     const targetWords = target.split(/\s+/);
     const userWords = userTranscript.split(/\s+/);
     let matchCount = 0;
@@ -297,7 +400,6 @@
       if (userWords.includes(w)) matchCount++;
     });
     const ratio = matchCount / targetWords.length;
-
     if (ratio > 0.6) {
       recordingResult.textContent = 'Good pronunciation! ??';
       recordingResult.style.color = 'green';
