@@ -5,9 +5,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
+    <link rel="icon" href="img/favicon/favicon.ico" sizes="any">
+    <link rel="icon" href="img/favicon/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="img/favicon/apple-touch-icon.png">
+    <link rel="manifest" href="img/favicon/site.webmanifest">
     <link rel="stylesheet" href="css/toast.css">
     <style>
-        body { font-family: Arial, sans-serif; background: #f0f4f8; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 1rem; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f0f4f8; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 1rem; box-sizing: border-box; }
+        .logo { width: 250px; margin-bottom: 2rem; }
         .container { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
         h1 { text-align: center; color: #333; }
         .form-group { margin-bottom: 1rem; }
@@ -20,6 +25,9 @@
     </style>
 </head>
 <body>
+    <header>
+        <img src="img/top_logo_light.png" alt="TEFinitely Logo" class="logo">
+    </header>
     <div id="toast-container"></div>
     <div class="container">
         <h1>Register</h1>
