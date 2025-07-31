@@ -14,11 +14,23 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['subscription_status']) || 
 
 require_once '../db/db_config.php';
 
-$theme = $_GET['theme'] ?? '';
-$section = $_GET['section'] ?? 'general';
+$mode = $_GET['mode'] ?? '';
+$main_topic = $_GET['main_topic'] ?? '';
+$sub_topic = $_GET['sub_topic'] ?? null;
 
-$stmt = $conn->prepare("SELECT french_text, english_translation FROM phrases WHERE theme = ? AND section = ?");
-$stmt->bind_param("ss", $theme, $section);
+if (empty($mode) || empty($main_topic)) {
+    http_response_code(400);
+    echo json_encode(['status' => 'error', 'message' => 'Mode and main topic are required.']);
+    exit;
+}
+
+if ($sub_topic) {
+    $stmt = $conn->prepare("SELECT french_text, english_translation FROM phrases WHERE mode = ? AND main_topic = ? AND sub_topic = ?");
+    $stmt->bind_param("sss", $mode, $main_topic, $sub_topic);
+} else {
+    $stmt = $conn->prepare("SELECT french_text, english_translation FROM phrases WHERE mode = ? AND main_topic = ?");
+    $stmt->bind_param("ss", $mode, $main_topic);
+}
 $stmt->execute();
 $result = $stmt->get_result();
 

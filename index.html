@@ -376,18 +376,22 @@
           const data = await response.json();
           if (response.ok && data.status === 'success') {
               const topics = data.topics;
-              for (const section in topics) {
-                  const optgroup = document.createElement('optgroup');
-                  optgroup.label = formatName(section);
-
-                  topics[section].forEach(theme => {
-                      const option = document.createElement('option');
-                      option.value = `${section}-${theme}`;
-                      option.textContent = formatName(theme);
-                      optgroup.appendChild(option);
-                  });
-                  topicSelect.appendChild(optgroup);
-              };
+              for (const mode in topics) {
+                  const modeOptgroup = document.createElement('optgroup');
+                  modeOptgroup.label = formatName(mode);
+                  for (const mainTopic in topics[mode]) {
+                      const mainTopicOptgroup = document.createElement('optgroup');
+                      mainTopicOptgroup.label = `  ${formatName(mainTopic)}`;
+                      topics[mode][mainTopic].forEach(subTopic => {
+                          const option = document.createElement('option');
+                          option.value = `${mode}-${mainTopic}-${subTopic}`;
+                          option.textContent = `    ${formatName(subTopic)}`;
+                          mainTopicOptgroup.appendChild(option);
+                      });
+                      modeOptgroup.appendChild(mainTopicOptgroup);
+                  }
+                  topicSelect.appendChild(modeOptgroup);
+              }
           } else {
               showToast('Failed to load topics.', 'error');
           }
@@ -460,11 +464,15 @@
 
   async function loadPhrases(topicValue) {
       currentTopic = topicValue; // Set the current topic
-      const [section, theme] = topicValue.split('-');
-      if (!section || !theme) return;
+      const [mode, main_topic, sub_topic] = topicValue.split('-');
+      if (!mode || !main_topic) return;
 
       try {
-          const res = await fetch(`api/get_phrases.php?theme=${encodeURIComponent(theme)}&section=${encodeURIComponent(section)}`);
+          let url = `api/get_phrases.php?mode=${encodeURIComponent(mode)}&main_topic=${encodeURIComponent(main_topic)}`;
+          if (sub_topic) {
+              url += `&sub_topic=${encodeURIComponent(sub_topic)}`;
+          }
+          const res = await fetch(url);
           const data = await res.json();
 
           if (!res.ok) {
