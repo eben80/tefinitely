@@ -1,7 +1,21 @@
+-- Connect to the correct database
 USE french_practice;
 
-INSERT INTO phrases (french_text, english_translation, theme, section)
-VALUES
+-- Drop the table if it already exists
+DROP TABLE IF EXISTS phrases;
+
+-- Create the table with proper encoding
+CREATE TABLE phrases (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    french_text TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+    english_translation TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+    theme VARCHAR(50),
+    section VARCHAR(50)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Insert phrases
+INSERT IGNORE INTO phrases (french_text, english_translation, theme, section) VALUES
+
 -- EVENTS
 ('Combien coûte l’entrée pour une personne adulte ?', 'How much is entry for an adult?', 'events', 'section_a'),
 ('Est-ce que l’événement a lieu en intérieur ou en extérieur ?', 'Is the event held indoors or outdoors?', 'events', 'section_a'),
@@ -13,6 +27,11 @@ VALUES
 ('Faut-il imprimer les billets ou peut-on les présenter sur téléphone ?', 'Do we need to print the tickets or can we show them on a phone?', 'events', 'section_a'),
 ('Y a-t-il des activités prévues pour les familles ?', 'Are there activities planned for families?', 'events', 'section_a'),
 ('Quel est le programme de l’événement ?', 'What is the event schedule?', 'events', 'section_a'),
+('Faut-il réserver à l’avance ?', 'Do we need to book in advance?', 'events', 'section_a'),
+('Combien de personnes peut-on inscrire ?', 'How many people can be registered?', 'events', 'section_a'),
+('L’événement est-il accessible aux personnes handicapées ?', 'Is the event accessible to people with disabilities?', 'events', 'section_a'),
+('Quel est l’adresse exacte de l’événement ?', 'What is the exact address of the event?', 'events', 'section_a'),
+('Peut-on obtenir un remboursement en cas d’annulation ?', 'Can we get a refund in case of cancellation?', 'events', 'section_a'),
 
 -- VOLUNTEERING
 ('Le bénévolat est-il ponctuel ou régulier ?', 'Is the volunteering temporary or regular?', 'volunteering', 'section_a'),
@@ -25,6 +44,11 @@ VALUES
 ('Doit-on apporter du matériel personnel ?', 'Do we need to bring any personal equipment?', 'volunteering', 'section_a'),
 ('Est-ce que les frais de déplacement sont remboursés ?', 'Are travel expenses reimbursed?', 'volunteering', 'section_a'),
 ('Faut-il signer un contrat ou une convention ?', 'Do we need to sign a contract or agreement?', 'volunteering', 'section_a'),
+('Y a-t-il une formation prévue ?', 'Is there a training session planned?', 'volunteering', 'section_a'),
+('Les repas sont-ils fournis ?', 'Are meals provided?', 'volunteering', 'section_a'),
+('Combien d’heures par semaine doit-on s’engager ?', 'How many hours per week are required?', 'volunteering', 'section_a'),
+('Puis-je choisir l’activité qui me plaît ?', 'Can I choose the activity I like?', 'volunteering', 'section_a'),
+('Est-ce que c’est ouvert aux étudiants étrangers ?', 'Is it open to foreign students?', 'volunteering', 'section_a'),
 
 -- SECOND-HAND ITEMS
 ('Depuis combien de temps possédez-vous cet objet ?', 'How long have you owned this item?', 'second_hand', 'section_a'),
@@ -36,4 +60,26 @@ VALUES
 ('Est-ce que le prix est ferme ou ouvert à négociation ?', 'Is the price firm or negotiable?', 'second_hand', 'section_a'),
 ('Est-ce que l’article a beaucoup servi ?', 'Has the item been used a lot?', 'second_hand', 'section_a'),
 ('Y a-t-il des accessoires inclus ?', 'Are there any accessories included?', 'second_hand', 'section_a'),
-('Est-il possible de venir le voir aujourd’hui ?', 'Is it possible to come see it today?', 'second_hand', 'section_a');
+('Est-il possible de venir le voir aujourd’hui ?', 'Is it possible to come see it today?', 'second_hand', 'section_a'),
+('Quel est l’état général de l’objet ?', 'What is the general condition of the item?', 'second_hand', 'section_a'),
+('Peut-on tester l’objet avant l’achat ?', 'Can we test the item before buying?', 'second_hand', 'section_a'),
+('Acceptez-vous les paiements par virement ?', 'Do you accept bank transfers?', 'second_hand', 'section_a'),
+('L’objet est-il encore disponible ?', 'Is the item still available?', 'second_hand', 'section_a'),
+('Avez-vous la facture originale ?', 'Do you have the original invoice?', 'second_hand', 'section_a'),
+
+-- HOUSING
+('Le logement est-il meublé ?', 'Is the accommodation furnished?', 'housing', 'section_a'),
+('Quel est le montant du loyer mensuel ?', 'What is the monthly rent?', 'housing', 'section_a'),
+('Y a-t-il des frais d’agence ?', 'Are there agency fees?', 'housing', 'section_a'),
+('Les charges sont-elles comprises ?', 'Are utilities included?', 'housing', 'section_a'),
+('Combien de pièces y a-t-il ?', 'How many rooms are there?', 'housing', 'section_a'),
+('Est-ce que les animaux sont acceptés ?', 'Are pets allowed?', 'housing', 'section_a'),
+('Le logement est-il proche des transports en commun ?', 'Is the housing near public transport?', 'housing', 'section_a'),
+('Y a-t-il un parking disponible ?', 'Is parking available?', 'housing', 'section_a'),
+('Quel est le montant du dépôt de garantie ?', 'What is the security deposit amount?', 'housing', 'section_a'),
+('Est-ce que le logement est bien isolé ?', 'Is the apartment well insulated?', 'housing', 'section_a'),
+('Puis-je visiter le logement cette semaine ?', 'Can I visit the property this week?', 'housing', 'section_a'),
+('Est-ce que le logement est libre tout de suite ?', 'Is the apartment immediately available?', 'housing', 'section_a'),
+('Combien d’étages y a-t-il dans l’immeuble ?', 'How many floors does the building have?', 'housing', 'section_a'),
+('Y a-t-il un ascenseur ?', 'Is there an elevator?', 'housing', 'section_a'),
+('Est-ce que la cuisine est équipée ?', 'Is the kitchen equipped?', 'housing', 'section_a');
