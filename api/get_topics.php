@@ -3,24 +3,18 @@ header('Content-Type: application/json; charset=utf-8');
 require_once '../db/db_config.php';
 
 try {
-    $query = "SELECT DISTINCT mode, main_topic, sub_topic FROM phrases ORDER BY mode, main_topic, sub_topic";
+    $query = "SELECT DISTINCT section, theme FROM phrases ORDER BY section, theme";
     $result = $conn->query($query);
 
     $topics = [];
     while ($row = $result->fetch_assoc()) {
-        $mode = $row['mode'];
-        $main_topic = $row['main_topic'];
-        $sub_topic = $row['sub_topic'];
+        $section = $row['section'];
+        $theme = $row['theme'];
 
-        if (!isset($topics[$mode])) {
-            $topics[$mode] = [];
+        if (!isset($topics[$section])) {
+            $topics[$section] = [];
         }
-        if (!isset($topics[$mode][$main_topic])) {
-            $topics[$mode][$main_topic] = [];
-        }
-        if (!empty($sub_topic) && !in_array($sub_topic, $topics[$mode][$main_topic])) {
-            $topics[$mode][$main_topic][] = $sub_topic;
-        }
+        $topics[$section][] = $theme;
     }
 
     http_response_code(200);
