@@ -434,7 +434,6 @@
       let positions = JSON.parse(localStorage.getItem('cardPositions')) || {};
       positions[topic] = index;
       localStorage.setItem('cardPositions', JSON.stringify(positions));
-      localStorage.setItem('lastTopic', topic);
   }
 
   function loadPosition(topic) {
@@ -550,15 +549,15 @@
   // Check session on page load
   document.addEventListener('DOMContentLoaded', async () => {
       loadSpeechRate(); // Load saved speech rate
-      populateTopics(); // Populate the topics dropdown
-
-      const lastTopic = localStorage.getItem('lastTopic');
-      if (lastTopic) {
-        topicSelect.value = lastTopic;
-        loadPhrases(lastTopic);
-      } else if (!localStorage.getItem('tourCompleted')) {
-        showTourStep(0);
-      }
+      populateTopics().then(() => {
+        const lastTopic = localStorage.getItem('lastTopic');
+        if (lastTopic) {
+          topicSelect.value = lastTopic;
+          loadPhrases(lastTopic);
+        } else if (!localStorage.getItem('tourCompleted')) {
+          showTourStep(0);
+        }
+      });
 
       try {
           const response = await fetch('api/check_session.php');
@@ -619,6 +618,7 @@
 
   async function loadPhrases(topicValue) {
       currentTopic = topicValue; // Set the current topic
+      localStorage.setItem('lastTopic', topicValue);
       const [section, theme] = topicValue.split('-');
       if (!section || !theme) return;
 
@@ -664,6 +664,7 @@
 
     // Update pagination
     currentCardSpan.textContent = idx + 1;
+    savePosition(currentTopic, idx);
 
     const p = phrases[idx];
     phraseFrench.textContent = p.french_text;
