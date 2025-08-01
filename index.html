@@ -572,6 +572,27 @@
       flashcard.classList.toggle('is-flipped');
   });
 
+  let touchstartX = 0;
+  let touchendX = 0;
+
+  flashcard.addEventListener('touchstart', e => {
+      touchstartX = e.changedTouches[0].screenX;
+  });
+
+  flashcard.addEventListener('touchend', e => {
+      touchendX = e.changedTouches[0].screenX;
+      handleSwipe();
+  });
+
+  function handleSwipe() {
+      if (touchendX < touchstartX) {
+          nextPhraseBtn.click();
+      }
+      if (touchendX > touchstartX) {
+          prevPhraseBtn.click();
+      }
+  }
+
   // Play phrase text to speech
   function speakFrench(text) {
     const utterance = new SpeechSynthesisUtterance(text);
