@@ -434,6 +434,7 @@
       let positions = JSON.parse(localStorage.getItem('cardPositions')) || {};
       positions[topic] = index;
       localStorage.setItem('cardPositions', JSON.stringify(positions));
+      localStorage.setItem('lastTopic', topic);
   }
 
   function loadPosition(topic) {
@@ -530,6 +531,13 @@
                   });
                   topicSelect.appendChild(optgroup);
               };
+              if (!localStorage.getItem('tourCompleted') && !localStorage.getItem('lastTopic')) {
+                // Load the first topic by default
+                if (topicSelect.options.length > 1) {
+                  topicSelect.selectedIndex = 1;
+                  loadPhrases(topicSelect.value);
+                }
+              }
           } else {
               showToast('Failed to load topics.', 'error');
           }
@@ -544,7 +552,11 @@
       loadSpeechRate(); // Load saved speech rate
       populateTopics(); // Populate the topics dropdown
 
-      if (!localStorage.getItem('tourCompleted')) {
+      const lastTopic = localStorage.getItem('lastTopic');
+      if (lastTopic) {
+        topicSelect.value = lastTopic;
+        loadPhrases(lastTopic);
+      } else if (!localStorage.getItem('tourCompleted')) {
         showTourStep(0);
       }
 
