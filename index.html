@@ -195,6 +195,41 @@
         padding: 0;
     }
   }
+
+  /* --- Guided Tour Styles --- */
+  .tour-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    display: none;
+  }
+  .tour-popup {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    width: 90%;
+    max-width: 500px;
+    z-index: 1001;
+  }
+  .tour-popup h2 {
+    margin-top: 0;
+  }
+  .tour-popup .buttons {
+    margin-top: 1rem;
+    text-align: right;
+  }
+  .tour-popup .buttons button {
+    margin-left: 0.5rem;
+  }
 </style>
 <script src="https://www.paypal.com/sdk/js?client-id=AUWWl6fyDnYoKr4N77ugdDKP7IKYv0-ObG_Zj-vFhmJ_HlEUc34ZYAY983je8c4syTpSl1L_Dn2M8ddP&currency=USD"></script>
 </head>
@@ -216,6 +251,17 @@
     <a id="auth-link" href="login.html"></a>
     <!-- PayPal button will be rendered here -->
     <div id="paypal-button-container" style="margin-top: 1rem;"></div>
+</div>
+
+<div id="tour-overlay" class="tour-overlay">
+    <div id="tour-popup" class="tour-popup">
+        <h2 id="tour-title"></h2>
+        <p id="tour-content"></p>
+        <div class="buttons">
+            <button id="tour-skip">Skip</button>
+            <button id="tour-next">Next</button>
+        </div>
+    </div>
 </div>
 
 <div id="main-content" style="display: none;">
@@ -286,9 +332,100 @@
   const currentCardSpan = document.getElementById('current-card');
   const totalCardsSpan = document.getElementById('total-cards');
 
+  const tourSteps = [
+    {
+      title: 'Welcome to TEFinitely!',
+      content: 'This guided tour will walk you through the features of the site. You can skip this at any time by clicking the "Skip" button.',
+      target: null
+    },
+    {
+      title: 'Select a Topic',
+      content: 'Start by selecting a topic from this dropdown menu. The phrases for the selected topic will be loaded automatically.',
+      target: '#topicSelect'
+    },
+    {
+      title: 'The Flashcard',
+      content: 'This is the flashcard. The English translation is shown on the front. Click the "Flip" button or the card itself to see the French text.',
+      target: '#phraseBox'
+    },
+    {
+      title: 'Navigation',
+      content: 'Use these buttons to navigate between cards. You can also swipe left and right on the card on a touch device.',
+      target: '#navButtons'
+    },
+    {
+      title: 'Listen to the Phrase',
+      content: 'Click this button to hear the French phrase spoken.',
+      target: '#playPhraseBtn'
+    },
+    {
+      title: 'Check Your Pronunciation',
+      content: 'Click the "Speak" button and say the French phrase. We\'ll let you know how you did.',
+      target: '#recordingSection'
+    },
+    {
+      title: 'Adjust Speech Speed',
+      content: 'You can adjust the speed of the text-to-speech voice here.',
+      target: '#speechRate'
+    },
+    {
+      title: 'Ready to Go!',
+      content: 'You\'re all set! You can restart this tour at any time from your profile page.',
+      target: null
+    }
+  ];
+
   let phrases = [];
   let currentPhraseIndex = 0;
   let currentTopic = '';
+  let currentTourStep = 0;
+
+  const tourOverlay = document.getElementById('tour-overlay');
+  const tourPopup = document.getElementById('tour-popup');
+  const tourTitle = document.getElementById('tour-title');
+  const tourContent = document.getElementById('tour-content');
+  const tourSkip = document.getElementById('tour-skip');
+  const tourNext = document.getElementById('tour-next');
+
+  function showTourStep(stepIndex) {
+    const step = tourSteps[stepIndex];
+    tourTitle.textContent = step.title;
+    tourContent.textContent = step.content;
+
+    if (step.target) {
+      const targetElement = document.querySelector(step.target);
+      targetElement.style.zIndex = '1002';
+      targetElement.style.position = 'relative';
+    }
+
+    tourOverlay.style.display = 'block';
+  }
+
+  function hideTourStep(stepIndex) {
+    const step = tourSteps[stepIndex];
+    if (step.target) {
+      const targetElement = document.querySelector(step.target);
+      targetElement.style.zIndex = '';
+      targetElement.style.position = '';
+    }
+  }
+
+  tourNext.addEventListener('click', () => {
+    hideTourStep(currentTourStep);
+    currentTourStep++;
+    if (currentTourStep < tourSteps.length) {
+      showTourStep(currentTourStep);
+    } else {
+      tourOverlay.style.display = 'none';
+      localStorage.setItem('tourCompleted', 'true');
+    }
+  });
+
+  tourSkip.addEventListener('click', () => {
+    hideTourStep(currentTourStep);
+    tourOverlay.style.display = 'none';
+    localStorage.setItem('tourCompleted', 'true');
+  });
   let speechRate = 1.0; // Default value
 
   // --- Position Persistence ---
@@ -406,6 +543,11 @@
   document.addEventListener('DOMContentLoaded', async () => {
       loadSpeechRate(); // Load saved speech rate
       populateTopics(); // Populate the topics dropdown
+
+      if (!localStorage.getItem('tourCompleted')) {
+        showTourStep(0);
+      }
+
       try {
           const response = await fetch('api/check_session.php');
           const data = await response.json();
