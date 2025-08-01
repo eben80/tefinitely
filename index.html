@@ -574,22 +574,33 @@
 
   let touchstartX = 0;
   let touchendX = 0;
+  let touchstartY = 0;
+  let touchendY = 0;
 
   flashcard.addEventListener('touchstart', e => {
       touchstartX = e.changedTouches[0].screenX;
+      touchstartY = e.changedTouches[0].screenY;
   });
 
   flashcard.addEventListener('touchend', e => {
       touchendX = e.changedTouches[0].screenX;
+      touchendY = e.changedTouches[0].screenY;
       handleSwipe();
   });
 
   function handleSwipe() {
-      if (touchendX < touchstartX) {
-          nextPhraseBtn.click();
-      }
-      if (touchendX > touchstartX) {
-          prevPhraseBtn.click();
+      const threshold = 50; // Minimum swipe distance
+      const deltaX = touchendX - touchstartX;
+      const deltaY = touchendY - touchstartY;
+
+      if (Math.abs(deltaX) > Math.abs(deltaY)) { // Horizontal swipe
+          if (Math.abs(deltaX) > threshold) {
+              if (deltaX < 0) {
+                  nextPhraseBtn.click();
+              } else {
+                  prevPhraseBtn.click();
+              }
+          }
       }
   }
 
