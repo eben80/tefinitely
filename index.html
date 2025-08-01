@@ -572,7 +572,12 @@
   function speakFrench(text) {
     const utterance = new SpeechSynthesisUtterance(text);
     const voices = speechSynthesis.getVoices();
-    let frenchVoice = voices.find(voice => voice.name === 'Thomas' && voice.lang === 'fr-FR');
+    let frenchVoice;
+
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    if (isIOS) {
+        frenchVoice = voices.find(voice => voice.name === 'Thomas' && voice.lang === 'fr-FR');
+    }
 
     if (!frenchVoice) {
       frenchVoice = voices.find(voice => voice.lang === 'fr-FR');
