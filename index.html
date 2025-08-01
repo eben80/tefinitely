@@ -572,10 +572,16 @@
   function speakFrench(text) {
     const utterance = new SpeechSynthesisUtterance(text);
     const voices = speechSynthesis.getVoices();
-    const frenchVoice = voices.find(voice => voice.lang === 'fr-FR');
+    let frenchVoice = voices.find(voice => voice.name === 'Thomas' && voice.lang === 'fr-FR');
+
+    if (!frenchVoice) {
+      frenchVoice = voices.find(voice => voice.lang === 'fr-FR');
+    }
+
     if (frenchVoice) {
       utterance.voice = frenchVoice;
     }
+
     utterance.lang = 'fr-FR';
     utterance.rate = speechRate;
     speechSynthesis.speak(utterance);
