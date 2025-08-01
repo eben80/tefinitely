@@ -568,6 +568,10 @@
       flashcard.classList.toggle('is-flipped');
   });
 
+  flashcard.addEventListener('click', () => {
+      flashcard.classList.toggle('is-flipped');
+  });
+
   // Play phrase text to speech
   function speakFrench(text) {
     const utterance = new SpeechSynthesisUtterance(text);
