@@ -569,12 +569,31 @@
   });
 
   // Play phrase text to speech
-  playPhraseBtn.addEventListener('click', () => {
-    if (!phraseFrench.textContent) return;
-    const utterance = new SpeechSynthesisUtterance(phraseFrench.textContent);
+  function speakFrench(text) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    const voices = speechSynthesis.getVoices();
+    const frenchVoice = voices.find(voice => voice.lang === 'fr-FR');
+    if (frenchVoice) {
+      utterance.voice = frenchVoice;
+    }
     utterance.lang = 'fr-FR';
     utterance.rate = speechRate;
     speechSynthesis.speak(utterance);
+  }
+
+  speechSynthesis.onvoiceschanged = () => {
+    // This is to ensure voices are loaded on some browsers.
+  };
+
+  playPhraseBtn.addEventListener('click', () => {
+    if (!phraseFrench.textContent) return;
+    if (speechSynthesis.getVoices().length === 0) {
+        speechSynthesis.onvoiceschanged = () => {
+            speakFrench(phraseFrench.textContent);
+        };
+    } else {
+        speakFrench(phraseFrench.textContent);
+    }
   });
 
   // ======= Recording & Pronunciation Check =======
