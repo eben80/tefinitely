@@ -551,11 +551,11 @@
       loadSpeechRate(); // Load saved speech rate
       populateTopics().then(() => {
         const lastTopic = localStorage.getItem('lastTopic');
-        if (lastTopic) {
+        if (!localStorage.getItem('tourCompleted')) {
+          showTourStep(0);
+        } else if (lastTopic) {
           topicSelect.value = lastTopic;
           loadPhrases(lastTopic);
-        } else if (!localStorage.getItem('tourCompleted')) {
-          showTourStep(0);
         }
       });
 
