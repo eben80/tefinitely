@@ -13,6 +13,9 @@ if (isset($_SESSION['user_id'])) {
     $stmt->execute();
     $result = $stmt->get_result();
     $user_details = $result->fetch_assoc();
+    if (!$user_details) {
+        $user_details = [];
+    }
 
     // User is logged in
     http_response_code(200);
