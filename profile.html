@@ -129,7 +129,7 @@
                 let html = '<table>';
                 html += '<tr><th>Theme</th><th>Section</th><th>Phrases Covered</th><th>Average Matching Quality</th></tr>';
                 data.progress.forEach(item => {
-                    html += `<tr><td>${formatName(item.theme)}</td><td>${formatName(item.section)}</td><td>${item.phrases_covered}</td><td>${(item.average_matching_quality * 100).toFixed(2)}%</td></tr>`;
+                    html += `<tr><td>${formatName(item.theme)}</td><td>${formatName(item.section)}</td><td>${item.phrases_covered} out of ${item.total_phrases}</td><td>${(item.average_matching_quality * 100).toFixed(2)}%</td></tr>`;
                 });
                 html += '</table>';
                 progressContainer.innerHTML = html;
