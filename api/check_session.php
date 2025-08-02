@@ -8,7 +8,7 @@ debug_log($_SESSION);
 
 if (isset($_SESSION['user_id'])) {
     $user_id = $_SESSION['user_id'];
-    $stmt = $conn->prepare("SELECT subscription_start_date, subscription_end_date, tour_completed, last_topic, last_card_index FROM users WHERE id = ?");
+    $stmt = $conn->prepare("SELECT u.tour_completed, u.last_topic, u.last_card_index, s.subscription_start_date, s.subscription_end_date FROM users u LEFT JOIN subscriptions s ON u.id = s.user_id WHERE u.id = ? ORDER BY s.subscription_end_date DESC LIMIT 1");
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
     $result = $stmt->get_result();
