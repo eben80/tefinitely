@@ -86,25 +86,9 @@
     <script src="js/toast.js"></script>
     <script src="js/profile.js"></script>
     <script>
-        document.getElementById('restart-tour').addEventListener('click', async () => {
-            try {
-                const response = await fetch('api/profile/update_user_details.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ tour_completed: false })
-                });
-                const data = await response.json();
-                if (data.status === 'success') {
-                    showToast('Guided tour has been reset. Redirecting...', 'success');
-                    setTimeout(() => {
-                        window.location.href = 'index.html';
-                    }, 2000);
-                } else {
-                    showToast('Failed to reset the guided tour. Please try again.', 'error');
-                }
-            } catch (error) {
-                showToast('An error occurred. Please try again later.', 'error');
-            }
+        document.getElementById('restart-tour').addEventListener('click', () => {
+            localStorage.removeItem('tourCompleted');
+            window.location.href = 'index.html';
         });
 
         async function fetchProgress() {
@@ -119,9 +103,9 @@
                 }
 
                 let html = '<table>';
-                html += '<tr><th>Theme</th><th>Section</th><th>Phrases Covered</th><th>Average Matching Quality</th></tr>';
+                html += '<tr><th>Topic</th><th>Section</th><th>Phrases Covered</th><th>Average Matching Quality</th></tr>';
                 data.progress.forEach(item => {
-                    html += `<tr><td>${item.theme}</td><td>${item.section}</td><td>${item.phrases_covered}</td><td>${(item.average_matching_quality * 100).toFixed(2)}%</td></tr>`;
+                    html += `<tr><td>${item.topic}</td><td>${item.section}</td><td>${item.phrases_covered}</td><td>${(item.average_matching_quality * 100).toFixed(2)}%</td></tr>`;
                 });
                 html += '</table>';
                 progressContainer.innerHTML = html;

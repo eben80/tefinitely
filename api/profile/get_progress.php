@@ -10,11 +10,11 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-$sql = "SELECT p.theme, p.section, COUNT(up.id) as phrases_covered, AVG(up.matching_quality) as average_matching_quality
+$sql = "SELECT p.topic, p.section, COUNT(up.id) as phrases_covered, AVG(up.matching_quality) as average_matching_quality
         FROM user_progress up
         JOIN phrases p ON up.phrase_id = p.id
         WHERE up.user_id = ?
-        GROUP BY p.theme, p.section";
+        GROUP BY p.topic, p.section";
 
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);

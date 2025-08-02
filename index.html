@@ -445,11 +445,11 @@
 
   // --- Position Persistence ---
   function savePosition(topic, index) {
-      //
-  }
-
-  function loadPosition(topic) {
-      return 0;
+    fetch('api/profile/update_user_details.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ last_topic: topic, last_card_index: index })
+    });
   }
 
   // --- Speech Rate Handling ---
@@ -553,7 +553,7 @@
   // Check session on page load
   document.addEventListener('DOMContentLoaded', async () => {
       loadSpeechRate(); // Load saved speech rate
-      populateTopics();
+      await populateTopics();
 
       try {
           const response = await fetch('api/check_session.php');
@@ -576,7 +576,7 @@
                       showTourStep(0);
                   } else if (data.user.last_topic) {
                       topicSelect.value = data.user.last_topic;
-                      loadPhrases(data.user.last_topic);
+                      loadPhrases(data.user.last_topic, data.user.last_card_index);
                   }
               } else {
                   // Logged in but no active subscription
@@ -618,13 +618,9 @@
       }
   });
 
-  async function loadPhrases(topicValue) {
+  async function loadPhrases(topicValue, initialCardIndex = 0) {
       currentTopic = topicValue; // Set the current topic
-      fetch('api/profile/update_user_details.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ last_topic: topicValue })
-      });
+      savePosition(currentTopic, initialCardIndex);
       const [section, theme] = topicValue.split('-');
       if (!section || !theme) return;
 
@@ -644,7 +640,7 @@
               return;
           }
           totalCardsSpan.textContent = phrases.length;
-          currentPhraseIndex = loadPosition(currentTopic);
+          currentPhraseIndex = initialCardIndex || 0;
           if (currentPhraseIndex >= phrases.length) {
               currentPhraseIndex = 0; // Reset if saved index is out of bounds
           }
@@ -670,11 +666,7 @@
 
     // Update pagination
     currentCardSpan.textContent = idx + 1;
-    fetch('api/profile/update_user_details.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ last_card_index: idx })
-    });
+    savePosition(currentTopic, idx);
 
     const p = phrases[idx];
     phraseFrench.textContent = p.french_text;
@@ -698,7 +690,6 @@
             currentPhraseIndex--;
             displayPhrase(currentPhraseIndex);
             updateNavButtons();
-            savePosition(currentTopic, currentPhraseIndex);
             phraseBox.classList.remove('slide-out-right');
         }, 300); // Match animation duration
     }
@@ -709,7 +700,6 @@
         currentPhraseIndex = 0;
         displayPhrase(currentPhraseIndex);
         updateNavButtons();
-        savePosition(currentTopic, currentPhraseIndex);
     }
   };
 
@@ -723,7 +713,6 @@
             currentPhraseIndex++;
             displayPhrase(currentPhraseIndex);
             updateNavButtons();
-            savePosition(currentTopic, currentPhraseIndex);
             phraseBox.classList.remove('slide-out-left');
         }, 300); // Match animation duration
     }
