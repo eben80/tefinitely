@@ -424,29 +424,32 @@
       showTourStep(currentTourStep);
     } else {
       tourOverlay.style.display = 'none';
-      localStorage.setItem('tourCompleted', 'true');
+      fetch('api/profile/update_user_details.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tour_completed: true })
+      });
     }
   });
 
   tourSkip.addEventListener('click', () => {
     hideTourStep(currentTourStep);
     tourOverlay.style.display = 'none';
-    localStorage.setItem('tourCompleted', 'true');
+    fetch('api/profile/update_user_details.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tour_completed: true })
+    });
   });
   let speechRate = 1.0; // Default value
 
   // --- Position Persistence ---
   function savePosition(topic, index) {
-      if (!topic) return;
-      let positions = JSON.parse(localStorage.getItem('cardPositions')) || {};
-      positions[topic] = index;
-      localStorage.setItem('cardPositions', JSON.stringify(positions));
+      //
   }
 
   function loadPosition(topic) {
-      if (!topic) return 0;
-      let positions = JSON.parse(localStorage.getItem('cardPositions')) || {};
-      return positions[topic] || 0;
+      return 0;
   }
 
   // --- Speech Rate Handling ---
@@ -537,13 +540,7 @@
                   });
                   topicSelect.appendChild(optgroup);
               };
-              if (!localStorage.getItem('tourCompleted') && !localStorage.getItem('lastTopic')) {
-                // Load the first topic by default
-                if (topicSelect.options.length > 1) {
-                  topicSelect.selectedIndex = 1;
-                  loadPhrases(topicSelect.value);
-                }
-              }
+              //
           } else {
               showToast('Failed to load topics.', 'error');
           }
@@ -556,15 +553,7 @@
   // Check session on page load
   document.addEventListener('DOMContentLoaded', async () => {
       loadSpeechRate(); // Load saved speech rate
-      populateTopics().then(() => {
-        const lastTopic = localStorage.getItem('lastTopic');
-        if (!localStorage.getItem('tourCompleted')) {
-          showTourStep(0);
-        } else if (lastTopic) {
-          topicSelect.value = lastTopic;
-          loadPhrases(lastTopic);
-        }
-      });
+      populateTopics();
 
       try {
           const response = await fetch('api/check_session.php');
@@ -583,6 +572,12 @@
               if (data.user.subscription_status === 'active') {
                   // Active subscription, show the main content
                   mainContentDiv.style.display = 'block';
+                  if (!data.user.tour_completed) {
+                      showTourStep(0);
+                  } else if (data.user.last_topic) {
+                      topicSelect.value = data.user.last_topic;
+                      loadPhrases(data.user.last_topic);
+                  }
               } else {
                   // Logged in but no active subscription
                   authMessage.textContent = 'Your subscription is inactive. Please subscribe to get access.';
@@ -625,7 +620,11 @@
 
   async function loadPhrases(topicValue) {
       currentTopic = topicValue; // Set the current topic
-      localStorage.setItem('lastTopic', topicValue);
+      fetch('api/profile/update_user_details.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ last_topic: topicValue })
+      });
       const [section, theme] = topicValue.split('-');
       if (!section || !theme) return;
 
@@ -671,7 +670,11 @@
 
     // Update pagination
     currentCardSpan.textContent = idx + 1;
-    savePosition(currentTopic, idx);
+    fetch('api/profile/update_user_details.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ last_card_index: idx })
+    });
 
     const p = phrases[idx];
     phraseFrench.textContent = p.french_text;
@@ -881,6 +884,15 @@
       recordingResult.textContent = 'Pronunciation could be improved. Try again.';
       recordingResult.style.color = 'red';
     }
+
+    fetch('api/profile/store_progress.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        phrase_id: phrases[currentPhraseIndex].id,
+        matching_quality: ratio
+      })
+    });
   }
 </script>
 

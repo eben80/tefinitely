@@ -72,12 +72,47 @@
             </form>
         </div>
 
+        <div class="form-section">
+            <h2>Your Progress</h2>
+            <div id="progress-container"></div>
+        </div>
+
         <div class="nav-link">
-            <a href="index.html">&larr; Back to Main Page</a>
+            <button id="restart-tour">Restart Guided Tour</button>
+            <a href="index.html" style="margin-left: 1rem;">&larr; Back to Main Page</a>
         </div>
     </div>
 
     <script src="js/toast.js"></script>
     <script src="js/profile.js"></script>
+    <script>
+        document.getElementById('restart-tour').addEventListener('click', () => {
+            localStorage.removeItem('tourCompleted');
+            window.location.href = 'index.html';
+        });
+
+        async function fetchProgress() {
+            const response = await fetch('api/profile/get_progress.php');
+            const data = await response.json();
+
+            if (data.status === 'success') {
+                const progressContainer = document.getElementById('progress-container');
+                if (data.progress.length === 0) {
+                    progressContainer.innerHTML = '<p>No progress yet. Start practicing!</p>';
+                    return;
+                }
+
+                let html = '<table>';
+                html += '<tr><th>Topic</th><th>Section</th><th>Phrases Covered</th><th>Average Matching Quality</th></tr>';
+                data.progress.forEach(item => {
+                    html += `<tr><td>${item.topic}</td><td>${item.section}</td><td>${item.phrases_covered}</td><td>${(item.average_matching_quality * 100).toFixed(2)}%</td></tr>`;
+                });
+                html += '</table>';
+                progressContainer.innerHTML = html;
+            }
+        }
+
+        fetchProgress();
+    </script>
 </body>
 </html>
