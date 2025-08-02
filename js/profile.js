@@ -72,11 +72,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     new_password: newPassword
                 })
             });
-            const result = await response.json();
-
-            showToast(result.message, response.ok ? 'success' : 'error');
-            if (response.ok && result.status === 'success') {
+            if (response.ok) {
+                const result = await response.json();
+                showToast(result.message, 'success');
                 updatePasswordForm.reset();
+            } else if (response.status === 401) {
+                const result = await response.json();
+                showToast(result.message, 'error');
+            } else {
+                showToast('An unexpected error occurred. Please try again.', 'error');
             }
         } catch (error) {
             console.error('Password update failed:', error);
