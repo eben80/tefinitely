@@ -8,13 +8,25 @@ debug_log($_SESSION);
 
 if (isset($_SESSION['user_id'])) {
     $user_id = $_SESSION['user_id'];
-    $stmt = $conn->prepare("SELECT tour_completed, last_topic, last_card_index FROM users WHERE id = ?");
+    $stmt = $conn->prepare("SELECT subscription_start_date, subscription_end_date, tour_completed, last_topic, last_card_index FROM users WHERE id = ?");
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
     $result = $stmt->get_result();
     $user_details = $result->fetch_assoc();
+
     if (!$user_details) {
         $user_details = [];
+        $subscription_status = 'inactive';
+    } else {
+        $now = new DateTime();
+        $start_date = $user_details['subscription_start_date'] ? new DateTime($user_details['subscription_start_date']) : null;
+        $end_date = $user_details['subscription_end_date'] ? new DateTime($user_details['subscription_end_date']) : null;
+
+        if ($start_date && $end_date && $now >= $start_date && $now <= $end_date) {
+            $subscription_status = 'active';
+        } else {
+            $subscription_status = 'inactive';
+        }
     }
 
     // User is logged in
@@ -26,7 +38,7 @@ if (isset($_SESSION['user_id'])) {
             'user_id' => $_SESSION['user_id'],
             'username' => $_SESSION['username'],
             'role' => $_SESSION['role'],
-            'subscription_status' => $_SESSION['subscription_status']
+            'subscription_status' => $subscription_status
         ], $user_details)
     ]);
 } else {
