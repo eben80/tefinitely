@@ -388,6 +388,13 @@
   const tourNext = document.getElementById('tour-next');
 
   function showTourStep(stepIndex) {
+    if (stepIndex === 0) {
+        // Load the first topic by default
+        if (topicSelect.options.length > 1) {
+          topicSelect.selectedIndex = 1;
+          loadPhrases(topicSelect.value);
+        }
+    }
     const step = tourSteps[stepIndex];
     tourTitle.textContent = step.title;
     tourContent.textContent = step.content;
