@@ -13,7 +13,7 @@ $user_id = $_SESSION['user_id'];
 $sql = "SELECT
             p.theme,
             p.section,
-            COUNT(up.id) as phrases_covered,
+            COUNT(DISTINCT up.phrase_id) as phrases_covered,
             AVG(up.matching_quality) as average_matching_quality,
             (SELECT COUNT(*) FROM phrases WHERE theme = p.theme AND section = p.section) as total_phrases
         FROM user_progress up
