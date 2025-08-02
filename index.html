@@ -848,7 +848,6 @@
 
   function stopRecording() {
     startRecordBtn.disabled = false;
-    recordingResult.textContent = 'Stopped recording. Processing...';
     if (mediaRecorder && mediaRecorder.state !== 'inactive') {
       mediaRecorder.stop();
       mediaRecorder.onstop = () => {
@@ -871,13 +870,16 @@
       if (userWords.includes(w)) matchCount++;
     });
     const ratio = matchCount / targetWords.length;
+    const score = (ratio * 100).toFixed(2);
+    let resultText = '';
     if (ratio > 0.6) {
-      recordingResult.textContent = 'Good pronunciation!';
+      resultText = 'Good pronunciation!';
       recordingResult.style.color = 'green';
     } else {
-      recordingResult.textContent = 'Pronunciation could be improved. Try again.';
+      resultText = 'Pronunciation could be improved. Try again.';
       recordingResult.style.color = 'red';
     }
+    recordingResult.textContent = `${resultText} (Score: ${score}%)`;
 
     fetch('api/profile/store_progress.php', {
       method: 'POST',
