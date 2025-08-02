@@ -5,7 +5,8 @@ require_once 'db_config.php';
 $sql_files = [
     __DIR__ . '/../sql/create_phrases_table.sql',
     __DIR__ . '/../sql/create_user_management_tables.sql',
-    __DIR__ . '/../sql/create_password_reset_table.sql'
+    __DIR__ . '/../sql/create_password_reset_table.sql',
+    __DIR__ . '/../sql/update_user_tracking.sql'
 ];
 
 echo "<h2>Database Setup</h2>";
