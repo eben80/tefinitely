@@ -834,7 +834,12 @@
         stopRecording();
       };
 
-      recognition.onend = () => {};
+      recognition.onend = () => {
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        if (isMobile) {
+            stopRecording();
+        }
+      };
     } catch (err) {
       recordingResult.textContent = 'Microphone access denied or error: ' + err.message;
       startRecordBtn.disabled = false;
