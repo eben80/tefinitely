@@ -1,6 +1,7 @@
 -- Drop tables if they exist to start fresh
 DROP TABLE IF EXISTS user_progress;
 DROP TABLE IF EXISTS subscriptions;
+DROP TABLE IF EXISTS phrases;
 DROP TABLE IF EXISTS users;
 
 -- Create users table
@@ -12,7 +13,10 @@ CREATE TABLE users (
     password VARCHAR(255) NOT NULL,
     role ENUM('user', 'admin') NOT NULL DEFAULT 'user',
     subscription_status ENUM('active', 'inactive') NOT NULL DEFAULT 'inactive',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    tour_completed BOOLEAN NOT NULL DEFAULT FALSE,
+    last_topic VARCHAR(255),
+    last_card_index INT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Create subscriptions table
@@ -30,3 +34,14 @@ CREATE TABLE subscriptions (
 -- The password is 'adminpass'
 INSERT INTO users (first_name, last_name, email, password, role, subscription_status) VALUES
 ('Admin', 'User', 'admin@example.com', '$2y$10$I0jS6..L.pL4h3Y/G8k.S.V0hJz.uV0g6wzJ.o6wzJ.o6wzJ.o6w', 'admin', 'active');
+
+-- Create user_progress table
+CREATE TABLE user_progress (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    phrase_id INT NOT NULL,
+    matching_quality DECIMAL(5, 2) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (phrase_id) REFERENCES phrases(id)
+);
