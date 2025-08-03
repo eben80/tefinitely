@@ -105,7 +105,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             row.innerHTML = `
                 <td>${user.id}</td>
-                <td>${user.username}</td>
+                <td>${user.first_name}</td>
+                <td>${user.last_name}</td>
                 <td>${user.email}</td>
                 <td>${user.role}</td>
                 <td class="${statusClass}">${user.subscription_status}</td>
@@ -142,7 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const user = usersData.find(u => u.id == currentEditingUserId);
 
         if (user) {
-            modalUsername.textContent = user.username;
+            document.getElementById('modal-user-name').textContent = `${user.first_name} ${user.last_name}`;
             modalEmailInput.value = user.email;
             modalPasswordInput.value = ''; // Clear password field
             modalSubStartInput.value = user.subscription_start_date || '';
@@ -193,7 +194,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function handleAddUser(event) {
         event.preventDefault();
-        const username = document.getElementById('add-username').value;
+        const first_name = document.getElementById('add-first-name').value;
+        const last_name = document.getElementById('add-last-name').value;
         const email = document.getElementById('add-email').value;
         const password = document.getElementById('add-password').value;
         const role = document.getElementById('add-role').value;
@@ -203,7 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const userData = { username, email, password, role };
+        const userData = { first_name, last_name, email, password, role };
         await addUser(userData);
     }
 

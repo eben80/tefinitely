@@ -71,7 +71,8 @@
                 <thead>
                     <tr>
                         <th>ID</th>
-                    <th>Username</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
                     <th>Email</th>
                     <th>Role</th>
                     <th>Sub Status</th>
@@ -96,7 +97,7 @@
     <div id="edit-user-modal" class="modal" style="display: none;">
         <div class="modal-content">
             <span class="close-btn">&times;</span>
-            <h2>Edit User: <span id="modal-username"></span></h2>
+            <h2>Edit User: <span id="modal-user-name"></span></h2>
             <form id="edit-email-form">
                 <label for="modal-email">Email Address</label>
                 <input type="email" id="modal-email" required>
@@ -125,8 +126,10 @@
             <span class="close-btn">&times;</span>
             <h2>Add New User</h2>
             <form id="add-user-form">
-                <label for="add-username">Username</label>
-                <input type="text" id="add-username" required>
+                <label for="add-first-name">First Name</label>
+                <input type="text" id="add-first-name" required>
+                <label for="add-last-name">Last Name</label>
+                <input type="text" id="add-last-name" required>
                 <label for="add-email">Email Address</label>
                 <input type="email" id="add-email" required>
                 <label for="add-password">Password</label>

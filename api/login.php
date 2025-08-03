@@ -14,23 +14,23 @@ try {
     $data = json_decode(file_get_contents('php://input'), true);
 
     // Basic validation
-    if (!$data || !isset($data['username']) || !isset($data['password'])) {
-        throw new Exception('Missing username or password.', 400);
+    if (!$data || !isset($data['email']) || !isset($data['password'])) {
+        throw new Exception('Missing email or password.', 400);
     }
 
-    $username = trim($data['username']);
+    $email = trim($data['email']);
     $password = trim($data['password']);
 
-    if (empty($username) || empty($password)) {
-        throw new Exception('Username and password are required.', 400);
+    if (empty($email) || empty($password)) {
+        throw new Exception('Email and password are required.', 400);
     }
 
     // Fetch user from the database
-    $stmt = $conn->prepare("SELECT id, username, password, role, subscription_status FROM users WHERE username = ?");
+    $stmt = $conn->prepare("SELECT id, first_name, password, role, subscription_status FROM users WHERE email = ?");
     if (!$stmt) {
         throw new Exception("Database prepare failed: " . $conn->error);
     }
-    $stmt->bind_param("s", $username);
+    $stmt->bind_param("s", $email);
     $stmt->execute();
     $result = $stmt->get_result();
 
@@ -40,11 +40,11 @@ try {
         if (password_verify($password, $user['password'])) {
             // Password is correct, start the session
             $_SESSION['user_id'] = $user['id'];
-            $_SESSION['username'] = $user['username'];
+            $_SESSION['first_name'] = $user['first_name'];
             $_SESSION['role'] = $user['role'];
             $_SESSION['subscription_status'] = $user['subscription_status'];
 
-            debug_log('Login successful. Session data set for user: ' . $username);
+            debug_log('Login successful. Session data set for user: ' . $email);
             debug_log($_SESSION);
 
             http_response_code(200);
@@ -52,18 +52,18 @@ try {
                 'status' => 'success',
                 'message' => 'Login successful.',
                 'user' => [
-                    'username' => $user['username'],
+                    'first_name' => $user['first_name'],
                     'role' => $user['role'],
                     'subscription_status' => $user['subscription_status']
                 ]
             ]);
         } else {
             // Invalid password
-            throw new Exception('Invalid username or password.', 401);
+            throw new Exception('Invalid email or password.', 401);
         }
     } else {
         // User not found
-        throw new Exception('Invalid username or password.', 401);
+        throw new Exception('Invalid email or password.', 401);
     }
 
     $stmt->close();

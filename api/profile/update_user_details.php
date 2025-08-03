@@ -14,6 +14,8 @@ $data = json_decode(file_get_contents('php://input'), true);
 $tour_completed = isset($data['tour_completed']) ? ($data['tour_completed'] ? 1 : 0) : null;
 $last_topic = isset($data['last_topic']) ? $data['last_topic'] : null;
 $last_card_index = isset($data['last_card_index']) ? $data['last_card_index'] : null;
+$first_name = isset($data['first_name']) ? trim($data['first_name']) : null;
+$last_name = isset($data['last_name']) ? trim($data['last_name']) : null;
 
 $sql = "UPDATE users SET ";
 $params = [];
@@ -23,6 +25,18 @@ if ($tour_completed !== null) {
     $sql .= "tour_completed = ?, ";
     $params[] = $tour_completed;
     $types .= "i";
+}
+
+if ($first_name !== null) {
+    $sql .= "first_name = ?, ";
+    $params[] = $first_name;
+    $types .= "s";
+}
+
+if ($last_name !== null) {
+    $sql .= "last_name = ?, ";
+    $params[] = $last_name;
+    $types .= "s";
 }
 
 if ($last_topic !== null) {

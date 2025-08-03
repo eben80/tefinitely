@@ -1,14 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- DOM Elements ---
-    const usernameSpan = document.getElementById('username');
+    const firstNameSpan = document.getElementById('first-name');
+    const lastNameSpan = document.getElementById('last-name');
     const emailSpan = document.getElementById('email');
     const subStatusSpan = document.getElementById('sub-status');
     const subEndDateSpan = document.getElementById('sub-end-date');
-    const updateEmailForm = document.getElementById('updateEmailForm');
+    const updateDetailsForm = document.getElementById('updateDetailsForm');
     const updatePasswordForm = document.getElementById('updatePasswordForm');
-    const toggleEmailFormLink = document.getElementById('toggle-email-form');
+    const toggleDetailsFormLink = document.getElementById('toggle-details-form');
     const togglePasswordFormLink = document.getElementById('toggle-password-form');
-    const changeEmailSection = document.getElementById('change-email-section');
+    const updateDetailsSection = document.getElementById('update-details-section');
     const changePasswordSection = document.getElementById('change-password-section');
 
     // --- Load Profile Data on Page Load ---
@@ -21,8 +22,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (response.ok && data.status === 'success') {
                 const profile = data.profile;
-                usernameSpan.textContent = profile.username;
+                firstNameSpan.textContent = profile.first_name;
+                lastNameSpan.textContent = profile.last_name;
                 emailSpan.textContent = profile.email;
+                document.getElementById('new-first-name').value = profile.first_name;
+                document.getElementById('new-last-name').value = profile.last_name;
+                document.getElementById('new-email').value = profile.email;
                 subStatusSpan.textContent = profile.subscription_status;
                 subEndDateSpan.textContent = profile.subscription_end_date ? new Date(profile.subscription_end_date).toLocaleDateString() : 'N/A';
             } else {
@@ -37,27 +42,39 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- Handle Email Update ---
-    updateEmailForm.addEventListener('submit', async (e) => {
+    // --- Handle Details Update ---
+    updateDetailsForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        const newFirstName = document.getElementById('new-first-name').value;
+        const newLastName = document.getElementById('new-last-name').value;
         const newEmail = document.getElementById('new-email').value;
 
         try {
-            const response = await fetch('api/profile/update_email.php', {
+            // We can do this in two separate requests, or create a new endpoint.
+            // For simplicity, we'll use the existing endpoints.
+            const nameUpdateResponse = await fetch('api/profile/update_user_details.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ first_name: newFirstName, last_name: newLastName })
+            });
+            const nameUpdateResult = await nameUpdateResponse.json();
+            if (!nameUpdateResponse.ok) throw new Error(nameUpdateResult.message);
+
+            const emailUpdateResponse = await fetch('api/profile/update_email.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: newEmail })
             });
-            const result = await response.json();
+            const emailUpdateResult = await emailUpdateResponse.json();
+            if (!emailUpdateResponse.ok) throw new Error(emailUpdateResult.message);
 
-            showToast(result.message, response.ok ? 'success' : 'error');
-            if (response.ok && result.status === 'success') {
-                loadProfileData(); // Refresh data on page
-                updateEmailForm.reset();
-            }
+            showToast('Details updated successfully!', 'success');
+            loadProfileData();
+            updateDetailsSection.style.display = 'none';
+
         } catch (error) {
-            console.error('Email update failed:', error);
-            showToast('An error occurred while updating your email.', 'error');
+            console.error('Details update failed:', error);
+            showToast(`Failed to update details: ${error.message}`, 'error');
         }
     });
 
@@ -90,10 +107,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Toggle Form Visibility ---
-    toggleEmailFormLink.addEventListener('click', (e) => {
+    toggleDetailsFormLink.addEventListener('click', (e) => {
         e.preventDefault();
-        const isVisible = changeEmailSection.style.display === 'block';
-        changeEmailSection.style.display = isVisible ? 'none' : 'block';
+        const isVisible = updateDetailsSection.style.display === 'block';
+        updateDetailsSection.style.display = isVisible ? 'none' : 'block';
     });
 
     togglePasswordFormLink.addEventListener('click', (e) => {

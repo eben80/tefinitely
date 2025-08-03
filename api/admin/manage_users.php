@@ -17,7 +17,8 @@ if ($method === 'GET') {
     $query = "
         SELECT
             u.id,
-            u.username,
+            u.first_name,
+            u.last_name,
             u.email,
             u.role,
             u.subscription_status,
@@ -110,12 +111,13 @@ if ($method === 'GET') {
 
         case 'add_user':
             // --- Add New User ---
-            if (!isset($data['username']) || !isset($data['email']) || !isset($data['password']) || !isset($data['role'])) {
+            if (!isset($data['first_name']) || !isset($data['last_name']) || !isset($data['email']) || !isset($data['password']) || !isset($data['role'])) {
                 http_response_code(400);
                 echo json_encode(['status' => 'error', 'message' => 'All fields are required.']);
                 exit;
             }
-            $username = $data['username'];
+            $first_name = $data['first_name'];
+            $last_name = $data['last_name'];
             $email = $data['email'];
             $password = $data['password'];
             $role = $data['role'];
@@ -136,25 +138,25 @@ if ($method === 'GET') {
                 exit;
             }
 
-            // Check if username or email already exists
-            $stmt_check = $conn->prepare("SELECT id FROM users WHERE username = ? OR email = ?");
-            $stmt_check->bind_param("ss", $username, $email);
+            // Check if email already exists
+            $stmt_check = $conn->prepare("SELECT id FROM users WHERE email = ?");
+            $stmt_check->bind_param("s", $email);
             $stmt_check->execute();
             if ($stmt_check->get_result()->num_rows > 0) {
                 http_response_code(409); // Conflict
-                echo json_encode(['status' => 'error', 'message' => 'Username or email already exists.']);
+                echo json_encode(['status' => 'error', 'message' => 'Email already exists.']);
                 exit;
             }
 
             $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-            $stmt = $conn->prepare("INSERT INTO users (username, email, password, role, subscription_status) VALUES (?, ?, ?, ?, 'inactive')");
-            $stmt->bind_param("ssss", $username, $email, $hashed_password, $role);
+            $stmt = $conn->prepare("INSERT INTO users (first_name, last_name, email, password, role, subscription_status) VALUES (?, ?, ?, ?, ?, 'inactive')");
+            $stmt->bind_param("sssss", $first_name, $last_name, $email, $hashed_password, $role);
             if ($stmt->execute()) {
                 // Send welcome email
                 require_once __DIR__ . '/../services/EmailService.php';
                 $subject = "Welcome to Tefinitely!";
-                $body_html = "<h1>Welcome, {$username}!</h1><p>An administrator has created an account for you. Your password is: {$password}</p><p>We recommend changing your password after you log in.</p>";
-                $body_text = "Welcome, {$username}!\nAn administrator has created an account for you. Your password is: {$password}\nWe recommend changing your password after you log in.";
+                $body_html = "<h1>Welcome, {$first_name}!</h1><p>An administrator has created an account for you. Your password is: {$password}</p><p>We recommend changing your password after you log in.</p>";
+                $body_text = "Welcome, {$first_name}!\nAn administrator has created an account for you. Your password is: {$password}\nWe recommend changing your password after you log in.";
                 sendEmail($email, $subject, $body_html, $body_text);
 
                 echo json_encode(['status' => 'success', 'message' => 'User added successfully.']);
