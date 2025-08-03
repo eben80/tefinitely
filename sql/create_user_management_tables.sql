@@ -1,4 +1,5 @@
 -- Drop tables if they exist to start fresh
+DROP TABLE IF EXISTS user_progress;
 DROP TABLE IF EXISTS subscriptions;
 DROP TABLE IF EXISTS users;
 
