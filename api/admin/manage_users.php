@@ -150,6 +150,13 @@ if ($method === 'GET') {
             $stmt = $conn->prepare("INSERT INTO users (username, email, password, role, subscription_status) VALUES (?, ?, ?, ?, 'inactive')");
             $stmt->bind_param("ssss", $username, $email, $hashed_password, $role);
             if ($stmt->execute()) {
+                // Send welcome email
+                require_once __DIR__ . '/../services/EmailService.php';
+                $subject = "Welcome to Tefinitely!";
+                $body_html = "<h1>Welcome, {$username}!</h1><p>An administrator has created an account for you. Your password is: {$password}</p><p>We recommend changing your password after you log in.</p>";
+                $body_text = "Welcome, {$username}!\nAn administrator has created an account for you. Your password is: {$password}\nWe recommend changing your password after you log in.";
+                sendEmail($email, $subject, $body_html, $body_text);
+
                 echo json_encode(['status' => 'success', 'message' => 'User added successfully.']);
             } else {
                 http_response_code(500);

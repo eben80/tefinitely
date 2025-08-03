@@ -58,6 +58,13 @@ $stmt = $conn->prepare("INSERT INTO users (username, email, password) VALUES (?,
 $stmt->bind_param("sss", $username, $email, $hashed_password);
 
 if ($stmt->execute()) {
+    // Send welcome email
+    require_once __DIR__ . '/services/EmailService.php';
+    $subject = "Welcome to Tefinitely!";
+    $body_html = "<h1>Welcome, {$username}!</h1><p>Thank you for registering. We are excited to have you on board.</p>";
+    $body_text = "Welcome, {$username}!\nThank you for registering. We are excited to have you on board.";
+    sendEmail($email, $subject, $body_html, $body_text);
+
     http_response_code(201); // Created
     echo json_encode(['status' => 'success', 'message' => 'User registered successfully.']);
 } else {

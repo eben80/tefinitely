@@ -93,6 +93,22 @@ if (isset($capture_details->status) && $capture_details->status === 'COMPLETED')
         // Also update the session
         $_SESSION['subscription_status'] = 'active';
 
+        // Send confirmation email
+        require_once __DIR__ . '/../services/EmailService.php';
+        $stmt_email = $conn->prepare("SELECT email, username FROM users WHERE id = ?");
+        $stmt_email->bind_param("i", $user_id);
+        $stmt_email->execute();
+        $result = $stmt_email->get_result();
+        $user = $result->fetch_assoc();
+        $stmt_email->close();
+
+        if ($user) {
+            $subject = "Your Subscription is Active!";
+            $body_html = "<h1>Hi {$user['username']},</h1><p>Your payment was successful and your subscription is now active. It will be valid until {$end_date}.</p>";
+            $body_text = "Hi {$user['username']}! Your payment was successful and your subscription is now active. It will be valid until {$end_date}.";
+            sendEmail($user['email'], $subject, $body_html, $body_text);
+        }
+
         http_response_code(200);
         echo json_encode(['status' => 'success', 'message' => 'Payment successful and subscription activated.']);
 

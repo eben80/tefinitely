@@ -39,18 +39,34 @@ try {
     $stmt_insert->execute();
     $stmt_insert->close();
 
-    // 5. !!! IMPORTANT - MOCKING EMAIL SENDING !!!
-    // In a real application, you would use a mail library to send an email with a link like:
-    // $reset_link = "https://ebski.co/tefinitely/reset_password.html?token=" . $token;
-    // mail($email, "Password Reset Request", "Click here to reset your password: " . $reset_link);
+    // 5. Send the password reset email
+    require_once __DIR__ . '/../services/EmailService.php';
 
-    // For this implementation, we will return the token directly in the response for testing purposes.
-    // This is INSECURE and should NOT be done in production.
+    $reset_link = "https://ebski.co/tefinitely/reset_password.html?token=" . $token;
+    $subject = "Password Reset Request";
+
+    $body_html = "
+        <h1>Password Reset Request</h1>
+        <p>You are receiving this email because a password reset request was made for your account.</p>
+        <p>Click the link below to reset your password:</p>
+        <a href='{$reset_link}'>{$reset_link}</a>
+        <p>If you did not request a password reset, you can safely ignore this email.</p>
+    ";
+
+    $body_text = "
+        Password Reset Request\n
+        You are receiving this email because a password reset request was made for your account.\n
+        Click the link below to reset your password:\n
+        {$reset_link}\n
+        If you did not request a password reset, you can safely ignore this email.\n
+    ";
+
+    sendEmail($email, $subject, $body_html, $body_text);
+
     http_response_code(200);
     echo json_encode([
         'status' => 'success',
-        'message' => 'If an account with that email exists, a password reset link has been sent.',
-        '__debug_token' => $token // Exposing for testing
+        'message' => 'If an account with that email exists, a password reset link has been sent.'
     ]);
 
 } catch (Exception $e) {
