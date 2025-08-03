@@ -8,7 +8,7 @@ debug_log($_SESSION);
 
 if (isset($_SESSION['user_id'])) {
     $user_id = $_SESSION['user_id'];
-    $stmt = $conn->prepare("SELECT u.tour_completed, u.last_topic, u.last_card_index, s.subscription_start_date, s.subscription_end_date FROM users u LEFT JOIN subscriptions s ON u.id = s.user_id WHERE u.id = ? ORDER BY s.subscription_end_date DESC LIMIT 1");
+    $stmt = $conn->prepare("SELECT u.role, u.subscription_status, u.tour_completed, u.last_topic, u.last_card_index, s.subscription_start_date, s.subscription_end_date FROM users u LEFT JOIN subscriptions s ON u.id = s.user_id WHERE u.id = ? ORDER BY s.subscription_end_date DESC LIMIT 1");
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -18,28 +18,38 @@ if (isset($_SESSION['user_id'])) {
         $user_details = [];
         $subscription_status = 'inactive';
     } else {
-        $now = new DateTime();
-        $start_date = $user_details['subscription_start_date'] ? new DateTime($user_details['subscription_start_date']) : null;
-        $end_date = $user_details['subscription_end_date'] ? new DateTime($user_details['subscription_end_date']) : null;
-
-        if ($start_date && $end_date && $now >= $start_date && $now <= $end_date) {
+        if ($user_details['role'] === 'admin') {
+            $subscription_status = 'active';
+        } elseif ($user_details['subscription_status'] === 'active') {
             $subscription_status = 'active';
         } else {
-            $subscription_status = 'inactive';
+            $now = new DateTime();
+            $start_date = $user_details['subscription_start_date'] ? new DateTime($user_details['subscription_start_date']) : null;
+            $end_date = $user_details['subscription_end_date'] ? new DateTime($user_details['subscription_end_date']) : null;
+
+            if ($start_date && $end_date && $now >= $start_date && $now <= $end_date) {
+                $subscription_status = 'active';
+            } else {
+                $subscription_status = 'inactive';
+            }
         }
     }
 
     // User is logged in
     http_response_code(200);
+
+    // Prepare user data for the response
+    $response_user = $user_details; // Start with all details from DB
+    $response_user['user_id'] = $_SESSION['user_id'];
+    $response_user['username'] = $_SESSION['username'];
+    // Overwrite subscription_status with the one we just calculated
+    $response_user['subscription_status'] = $subscription_status;
+    // The 'role' from $user_details is from the DB, which is more current than session.
+
     echo json_encode([
         'status' => 'success',
         'loggedIn' => true,
-        'user' => array_merge([
-            'user_id' => $_SESSION['user_id'],
-            'username' => $_SESSION['username'],
-            'role' => $_SESSION['role'],
-            'subscription_status' => $subscription_status
-        ], $user_details)
+        'user' => $response_user
     ]);
 } else {
     // User is not logged in
