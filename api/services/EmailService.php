@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../aws/aws-autoloader.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 use Aws\Ses\SesClient;
 use Aws\Exception\AwsException;
