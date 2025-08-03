@@ -59,15 +59,28 @@ if ($method === 'GET') {
                 echo json_encode(['status' => 'error', 'message' => 'Invalid status value.']);
                 exit;
             }
-            $stmt = $conn->prepare("UPDATE users SET subscription_status = ? WHERE id = ?");
-            $stmt->bind_param("si", $status, $user_id);
-            if ($stmt->execute()) {
+
+            $conn->begin_transaction();
+            try {
+                // Update the user's status
+                $stmt_user = $conn->prepare("UPDATE users SET subscription_status = ? WHERE id = ?");
+                $stmt_user->bind_param("si", $status, $user_id);
+                $stmt_user->execute();
+                $stmt_user->close();
+
+                // Nullify the subscription dates
+                $stmt_sub = $conn->prepare("UPDATE subscriptions SET subscription_start_date = NULL, subscription_end_date = NULL WHERE user_id = ?");
+                $stmt_sub->bind_param("i", $user_id);
+                $stmt_sub->execute();
+                $stmt_sub->close();
+
+                $conn->commit();
                 echo json_encode(['status' => 'success', 'message' => 'User subscription updated successfully.']);
-            } else {
+            } catch (Exception $e) {
+                $conn->rollback();
                 http_response_code(500);
                 echo json_encode(['status' => 'error', 'message' => 'Failed to update user subscription.']);
             }
-            $stmt->close();
             break;
 
         case 'delete_user':
@@ -245,10 +258,21 @@ if ($method === 'GET') {
             } else {
                 // Insert a new subscription record
                 $stmt_insert = $conn->prepare("INSERT INTO subscriptions (user_id, paypal_transaction_id, subscription_start_date, subscription_end_date) VALUES (?, 'manual_admin', ?, ?)");
-                $stmt_insert->bind_param("iss", $user_id, $start_date, $end_date);
+                $stmt_insert->bind_param("isss", $user_id, 'manual_admin', $start_date, $end_date);
                 $stmt_insert->execute();
             }
-            echo json_encode(['status' => 'success', 'message' => 'Subscription dates updated successfully.']);
+
+            // Calculate and update user's status based on dates
+            $now = new DateTime();
+            $start_date_obj = new DateTime($start_date);
+            $end_date_obj = new DateTime($end_date);
+            $new_status = ($now >= $start_date_obj && $now <= $end_date_obj) ? 'active' : 'inactive';
+
+            $stmt_status = $conn->prepare("UPDATE users SET subscription_status = ? WHERE id = ?");
+            $stmt_status->bind_param("si", $new_status, $user_id);
+            $stmt_status->execute();
+
+            echo json_encode(['status' => 'success', 'message' => 'Subscription dates and status updated successfully.']);
             break;
 
         default:
