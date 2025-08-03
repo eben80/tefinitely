@@ -68,11 +68,18 @@ if ($method === 'GET') {
                 $stmt_user->execute();
                 $stmt_user->close();
 
-                // Nullify the subscription dates
-                $stmt_sub = $conn->prepare("UPDATE subscriptions SET subscription_start_date = NULL, subscription_end_date = NULL WHERE user_id = ?");
-                $stmt_sub->bind_param("i", $user_id);
-                $stmt_sub->execute();
-                $stmt_sub->close();
+                // If a subscription exists, nullify its dates
+                $stmt_check_sub = $conn->prepare("SELECT id FROM subscriptions WHERE user_id = ?");
+                $stmt_check_sub->bind_param("i", $user_id);
+                $stmt_check_sub->execute();
+                $result_sub = $stmt_check_sub->get_result();
+                if ($result_sub->num_rows > 0) {
+                    $stmt_sub = $conn->prepare("UPDATE subscriptions SET subscription_start_date = NULL, subscription_end_date = NULL WHERE user_id = ?");
+                    $stmt_sub->bind_param("i", $user_id);
+                    $stmt_sub->execute();
+                    $stmt_sub->close();
+                }
+                $stmt_check_sub->close();
 
                 $conn->commit();
                 echo json_encode(['status' => 'success', 'message' => 'User subscription updated successfully.']);
