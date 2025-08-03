@@ -28,12 +28,13 @@ document.addEventListener('DOMContentLoaded', () => {
         addUserBtn.addEventListener('click', () => {
             if (addUserModal) {
                 addUserModal.style.display = 'block';
-                const createUserBtn = document.getElementById('create-user-btn');
-                if (createUserBtn) {
-                    createUserBtn.addEventListener('click', handleAddUser);
-                }
             }
         });
+    }
+
+    const createUserBtn = document.getElementById('create-user-btn');
+    if (createUserBtn) {
+        createUserBtn.addEventListener('click', handleAddUser);
     }
 
     if (closeBtns) {
