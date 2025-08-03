@@ -11,7 +11,7 @@ if ($argc < 2) {
 }
 
 $new_password = $argv[1];
-$admin_username = 'admin';
+$admin_username = 'admin@example.com';
 
 if (strlen($new_password) < 8) {
     echo "Error: Password must be at least 8 characters long.\n";
@@ -22,7 +22,7 @@ if (strlen($new_password) < 8) {
 $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
 
 // Prepare the statement to update the password
-$stmt = $conn->prepare("UPDATE users SET password = ? WHERE username = ?");
+$stmt = $conn->prepare("UPDATE users SET password = ? WHERE email = ?");
 $stmt->bind_param("ss", $hashed_password, $admin_username);
 
 if ($stmt->execute()) {
