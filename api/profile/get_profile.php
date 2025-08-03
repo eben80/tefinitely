@@ -14,7 +14,7 @@ $user_id = $_SESSION['user_id'];
 
 try {
     // Fetch user's basic info
-    $stmt_user = $conn->prepare("SELECT id, username, email, role, subscription_status FROM users WHERE id = ?");
+    $stmt_user = $conn->prepare("SELECT id, first_name, last_name, email, role, subscription_status FROM users WHERE id = ?");
     $stmt_user->bind_param("i", $user_id);
     $stmt_user->execute();
     $result_user = $stmt_user->get_result();

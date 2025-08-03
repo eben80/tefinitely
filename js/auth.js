@@ -24,9 +24,9 @@ async function apiRequest(url, data) {
 }
 
 // --- Registration ---
-async function registerUser(username, email, password) {
+async function registerUser(first_name, last_name, email, password) {
     try {
-        const result = await apiRequest('api/register.php', { username, email, password });
+        const result = await apiRequest('api/register.php', { first_name, last_name, email, password });
         showToast(result.message, 'success');
         // Redirect to login page on successful registration
         setTimeout(() => { window.location.href = 'login.html'; }, 1000);
@@ -36,9 +36,9 @@ async function registerUser(username, email, password) {
 }
 
 // --- Login ---
-async function loginUser(username, password) {
+async function loginUser(email, password) {
     try {
-        const result = await apiRequest('api/login.php', { username, password });
+        const result = await apiRequest('api/login.php', { email, password });
         showToast(result.message, 'success');
         // Redirect to the main page on successful login
         setTimeout(() => { window.location.href = 'index.html'; }, 1000);

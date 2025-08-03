@@ -59,22 +59,26 @@
                 <button id="restart-tour">Restart Guided Tour</button>
                 <a href="index.html">&larr; Back to Main Page</a>
             </div>
-            <p><strong>Username:</strong> <span id="username"></span></p>
+            <p><strong>Name:</strong> <span id="first-name"></span> <span id="last-name"></span></p>
             <p><strong>Email:</strong> <span id="email"></span></p>
             <p><strong>Subscription Status:</strong> <span id="sub-status"></span></p>
             <p><strong>Subscription Ends:</strong> <span id="sub-end-date"></span></p>
             <div class="form-toggle-links">
-                <a href="#" id="toggle-email-form">Change Email</a> |
+                <a href="#" id="toggle-details-form">Update User Details</a> |
                 <a href="#" id="toggle-password-form">Change Password</a>
             </div>
         </div>
 
-        <div id="change-email-section" class="form-section" style="display: none;">
-            <h2>Change Email</h2>
-            <form id="updateEmailForm">
-                <label for="new-email">New Email Address</label>
+        <div id="update-details-section" class="form-section" style="display: none;">
+            <h2>Update User Details</h2>
+            <form id="updateDetailsForm">
+                <label for="new-first-name">First Name</label>
+                <input type="text" id="new-first-name" required>
+                <label for="new-last-name">Last Name</label>
+                <input type="text" id="new-last-name" required>
+                <label for="new-email">Email Address</label>
                 <input type="email" id="new-email" required>
-                <button type="submit">Update Email</button>
+                <button type="submit">Update Details</button>
             </form>
         </div>
 

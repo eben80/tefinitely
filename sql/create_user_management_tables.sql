@@ -5,7 +5,8 @@ DROP TABLE IF EXISTS users;
 -- Create users table
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(50) UNIQUE NOT NULL,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     role ENUM('user', 'admin') NOT NULL DEFAULT 'user',
@@ -26,5 +27,5 @@ CREATE TABLE subscriptions (
 
 -- Insert a default admin user
 -- The password is 'adminpass'
-INSERT INTO users (username, email, password, role, subscription_status) VALUES
-('admin', 'admin@example.com', '$2y$10$I0jS6..L.pL4h3Y/G8k.S.V0hJz.uV0g6wzJ.o6wzJ.o6wzJ.o6w', 'admin', 'active');
+INSERT INTO users (first_name, last_name, email, password, role, subscription_status) VALUES
+('Admin', 'User', 'admin@example.com', '$2y$10$I0jS6..L.pL4h3Y/G8k.S.V0hJz.uV0g6wzJ.o6wzJ.o6wzJ.o6w', 'admin', 'active');

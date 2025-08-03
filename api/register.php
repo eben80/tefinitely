@@ -13,17 +13,18 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $data = json_decode(file_get_contents('php://input'), true);
 
 // Basic validation
-if (!$data || !isset($data['username']) || !isset($data['email']) || !isset($data['password'])) {
+if (!$data || !isset($data['first_name']) || !isset($data['last_name']) || !isset($data['email']) || !isset($data['password'])) {
     http_response_code(400); // Bad Request
     echo json_encode(['status' => 'error', 'message' => 'Missing required fields.']);
     exit;
 }
 
-$username = trim($data['username']);
+$first_name = trim($data['first_name']);
+$last_name = trim($data['last_name']);
 $email = trim($data['email']);
 $password = trim($data['password']);
 
-if (empty($username) || empty($email) || empty($password)) {
+if (empty($first_name) || empty($last_name) || empty($email) || empty($password)) {
     http_response_code(400);
     echo json_encode(['status' => 'error', 'message' => 'All fields are required.']);
     exit;
@@ -35,15 +36,15 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     exit;
 }
 
-// Check if username or email already exists
-$stmt = $conn->prepare("SELECT id FROM users WHERE username = ? OR email = ?");
-$stmt->bind_param("ss", $username, $email);
+// Check if email already exists
+$stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
+$stmt->bind_param("s", $email);
 $stmt->execute();
 $stmt->store_result();
 
 if ($stmt->num_rows > 0) {
     http_response_code(409); // Conflict
-    echo json_encode(['status' => 'error', 'message' => 'Username or email already taken.']);
+    echo json_encode(['status' => 'error', 'message' => 'Email already taken.']);
     $stmt->close();
     $conn->close();
     exit;
@@ -54,15 +55,15 @@ $stmt->close();
 $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
 // Insert the new user
-$stmt = $conn->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
-$stmt->bind_param("sss", $username, $email, $hashed_password);
+$stmt = $conn->prepare("INSERT INTO users (first_name, last_name, email, password) VALUES (?, ?, ?, ?)");
+$stmt->bind_param("ssss", $first_name, $last_name, $email, $hashed_password);
 
 if ($stmt->execute()) {
     // Send welcome email
     require_once __DIR__ . '/services/EmailService.php';
     $subject = "Welcome to Tefinitely!";
-    $body_html = "<h1>Welcome, {$username}!</h1><p>Thank you for registering. We are excited to have you on board.</p>";
-    $body_text = "Welcome, {$username}!\nThank you for registering. We are excited to have you on board.";
+    $body_html = "<h1>Welcome, {$first_name}!</h1><p>Thank you for registering. We are excited to have you on board.</p>";
+    $body_text = "Welcome, {$first_name}!\nThank you for registering. We are excited to have you on board.";
     sendEmail($email, $subject, $body_html, $body_text);
 
     http_response_code(201); // Created
