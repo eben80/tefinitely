@@ -6,12 +6,12 @@ use Aws\Exception\AwsException;
 
 function sendEmail($recipient, $subject, $body_html, $body_text) {
     // TODO: Replace with your AWS credentials and region
-    $aws_key = 'YOUR_AWS_ACCESS_KEY_ID';
+    $aws_key = 'AKIA5SGXHWFP2UEGBIO7';
     $aws_secret = 'YOUR_AWS_SECRET_ACCESS_KEY';
     $aws_region = 'us-east-1'; // e.g., 'us-east-1'
 
     // TODO: Replace with a sender email address that you have verified with Amazon SES.
-    $sender_email = 'your-verified-sender@example.com';
+    $sender_email = 'tefinitely@gmail.com';
 
     $client = new SesClient([
         'version'     => 'latest',
