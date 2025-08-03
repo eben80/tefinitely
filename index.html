@@ -239,7 +239,7 @@
 </header>
 <div id="toast-container"></div>
 <div id="user-status" style="display: none;">
-    <span id="username-display"></span> |
+    <span id="first-name-display"></span> |
     <a href="profile.html">Profile</a> |
     <a id="admin-link" href="admin.html" style="display: none;">Admin Portal</a> |
     <button id="logoutBtn">Logout</button>
@@ -470,7 +470,7 @@
 
   // New auth-related elements
   const userStatusDiv = document.getElementById('user-status');
-  const usernameDisplay = document.getElementById('username-display');
+  const firstNameDisplay = document.getElementById('first-name-display');
   const logoutBtn = document.getElementById('logoutBtn');
   const authPromptDiv = document.getElementById('auth-prompt');
   const authMessage = document.getElementById('auth-message');
@@ -561,7 +561,7 @@
 
           if (response.ok && data.loggedIn) {
               // User is logged in
-              usernameDisplay.textContent = `Welcome, ${data.user.username}`;
+              firstNameDisplay.textContent = `Welcome, ${data.user.first_name}`;
               userStatusDiv.style.display = 'block';
 
               // Show admin link if user is an admin
