@@ -6,6 +6,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const subEndDateSpan = document.getElementById('sub-end-date');
     const updateEmailForm = document.getElementById('updateEmailForm');
     const updatePasswordForm = document.getElementById('updatePasswordForm');
+    const toggleEmailFormLink = document.getElementById('toggle-email-form');
+    const togglePasswordFormLink = document.getElementById('toggle-password-form');
+    const changeEmailSection = document.getElementById('change-email-section');
+    const changePasswordSection = document.getElementById('change-password-section');
 
     // --- Load Profile Data on Page Load ---
     loadProfileData();
@@ -83,5 +87,18 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Password update failed:', error);
             showToast('An error occurred while updating your password.', 'error');
         }
+    });
+
+    // --- Toggle Form Visibility ---
+    toggleEmailFormLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        const isVisible = changeEmailSection.style.display === 'block';
+        changeEmailSection.style.display = isVisible ? 'none' : 'block';
+    });
+
+    togglePasswordFormLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        const isVisible = changePasswordSection.style.display === 'block';
+        changePasswordSection.style.display = isVisible ? 'none' : 'block';
     });
 });
