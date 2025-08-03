@@ -60,6 +60,9 @@ $stmt = $conn->prepare($sql);
 $stmt->bind_param($types, ...$params);
 
 if ($stmt->execute()) {
+    if ($first_name !== null) {
+        $_SESSION['first_name'] = $first_name;
+    }
     echo json_encode(['status' => 'success', 'message' => 'User details updated successfully']);
 } else {
     http_response_code(500);
