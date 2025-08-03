@@ -1,0 +1,9 @@
+[2025-08-03 23:11:49] --- check_session.php ---
+[2025-08-03 23:11:49] Array
+(
+    [user_id] => 1
+    [first_name] => Eben
+    [role] => admin
+    [subscription_status] => active
+)
+
