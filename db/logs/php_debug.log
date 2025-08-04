@@ -7,3 +7,41 @@
     [subscription_status] => active
 )
 
+[2025-08-03 23:25:03] --- check_session.php ---
+[2025-08-03 23:25:03] Array
+(
+    [user_id] => 1
+    [first_name] => Eben
+    [role] => admin
+    [subscription_status] => active
+)
+
+[2025-08-03 23:27:21] --- check_session.php ---
+[2025-08-03 23:27:21] Array
+(
+)
+
+[2025-08-03 23:44:12] --- check_session.php ---
+[2025-08-03 23:44:12] Array
+(
+)
+
+[2025-08-03 23:53:28] --- check_session.php ---
+[2025-08-03 23:53:28] Array
+(
+)
+
+[2025-08-04 03:37:22] --- check_session.php ---
+[2025-08-04 03:37:22] Array
+(
+)
+
+[2025-08-04 08:08:45] --- check_session.php ---
+[2025-08-04 08:08:45] Array
+(
+    [user_id] => 1
+    [first_name] => Eben
+    [role] => admin
+    [subscription_status] => active
+)
+
