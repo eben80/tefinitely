@@ -3,8 +3,8 @@ session_start();
 header('Content-Type: application/json; charset=utf-8');
 require_once '../db/db_config.php'; // For the debug_log function
 
-debug_log('--- check_session.php ---');
-debug_log($_SESSION);
+// debug_log('--- check_session.php ---');
+// debug_log($_SESSION);
 
 if (isset($_SESSION['user_id'])) {
     $user_id = $_SESSION['user_id'];
