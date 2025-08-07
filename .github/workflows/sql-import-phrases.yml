@@ -18,5 +18,5 @@ jobs:
     - name: Run SQL Import on EC2
       run: |
         ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} '
-          mysql -u tefuser -p"${MYSQL_PASSWORD}" french_practice < /var/www/tefinitely.com/html/sql/add_more_inc_mode.sql
+          mysql -u tefuser -p"${MYSQL_PASSWORD}" french_practice < /var/www/tefinitely.com/html/sql/add_more.sql
         '
