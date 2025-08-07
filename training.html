@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<base href="/">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TEF Canada Training - New Methods</title>
+<link rel="icon" href="img/favicon/favicon.ico" sizes="any">
+<link rel="icon" href="img/favicon/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="img/favicon/apple-touch-icon.png">
+<link rel="manifest" href="img/favicon/site.webmanifest">
+<link rel="stylesheet" href="css/toast.css">
+<style>
+  .logo {
+    width: 100%;
+    max-width: 500px;
+    margin: 1rem 0 2rem 0;
+  }
+  body {
+    font-family: Arial, sans-serif;
+    margin: 2rem;
+    background: #f4f1ea;
+  }
+  h1 {
+    margin-bottom: 1rem;
+    color: #333;
+  }
+  #user-status {
+    position: absolute;
+    top: 1rem;
+    right: 2rem;
+  }
+  #main-content {
+      padding: 1rem;
+  }
+  .training-nav {
+      margin-bottom: 2rem;
+      text-align: center;
+  }
+  .training-nav button {
+      padding: 0.8rem 1.2rem;
+      font-size: 1rem;
+      margin: 0 0.5rem;
+      cursor: pointer;
+      border: 1px solid #ccc;
+      background-color: #fff;
+      border-radius: 5px;
+  }
+  .training-nav button.active {
+      background-color: #004d99;
+      color: white;
+      border-color: #004d99;
+  }
+  .training-module {
+      display: none; /* Hidden by default */
+  }
+  .training-module.active {
+      display: block; /* Shown when active */
+  }
+</style>
+</head>
+<body>
+<header>
+    <a href="/"><img src="img/top_logo_light.png" alt="TEFinitely Logo" class="logo"></a>
+</header>
+<div id="toast-container"></div>
+<div id="user-status" style="display: none;">
+    <span id="first-name-display"></span> |
+    <a href="profile.html">Profile</a> |
+    <a id="admin-link" href="admin.html" style="display: none;">Admin Portal</a> |
+    <button id="logoutBtn">Logout</button>
+</div>
+
+<div id="main-content">
+    <h1>New Training Methods</h1>
+    <div class="training-nav">
+        <button id="phase1-btn" class="active">Phase 1: Shadowing</button>
+        <button id="phase2-btn">Phase 2: Question Drills</button>
+        <button id="phase3-btn">Phase 3: Roleplays</button>
+        <button id="phase4-btn">Phase 4: Spontaneity</button>
+        <button id="phase5-btn">Phase 5: Script Writing</button>
+    </div>
+
+    <div id="phase1-module" class="training-module active">
+        <h2>Phase 1: Shadowing Practice</h2>
+        <p>Familiarize yourself with the structure of TEF Section A. Listen to the dialogues and repeat each line.</p>
+        <div id="dialogue-controls">
+            <label for="dialogueSelect">Choose a dialogue:</label>
+            <select id="dialogueSelect">
+                <!-- Options will be populated dynamically -->
+            </select>
+            <button id="play-full-dialogue-btn">Play Full Dialogue</button>
+        </div>
+        <div id="dialogue-content" style="margin-top: 1rem; padding: 1rem; background: #fff; border-radius: 8px;">
+            <!-- Dialogue will be rendered here -->
+        </div>
+    </div>
+
+    <div id="phase2-module" class="training-module">
+        <h2>Phase 2: Controlled Question Practice</h2>
+        <p>Build varied question types using vocabulary templates.</p>
+        <button id="start-drill-btn">Start Drill</button>
+        <div id="drill-container" style="display: none;">
+            <div id="drill-timer">Time left: <span id="timer-display">15</span>s</div>
+            <div class="flashcard" id="drill-flashcard">
+                <div class="flashcard-inner">
+                    <div class="flashcard-front" id="drill-card-front">
+                        <!-- English question here -->
+                    </div>
+                    <div class="flashcard-back" id="drill-card-back">
+                        <!-- Hints and answer here -->
+                    </div>
+                </div>
+            </div>
+            <div id="drill-nav">
+                <button id="drill-prev-btn">Previous</button>
+                <button id="drill-flip-btn">Flip</button>
+                <button id="drill-next-btn">Next</button>
+            </div>
+            <div id="drill-pagination"></div>
+        </div>
+    </div>
+
+    <div id="phase3-module" class="training-module">
+        <h2>Phase 3: Semi-Guided Roleplays</h2>
+        <p>Practice fluid, realistic dialogue in context. Start with a cloze (fill-in-the-blanks) activity.</p>
+        <div id="roleplay-setup">
+            <label for="roleplay-scenario-select">Choose a scenario:</label>
+            <select id="roleplay-scenario-select"></select>
+            <button id="start-roleplay-btn">Start Cloze Activity</button>
+        </div>
+        <div id="roleplay-container" style="display: none; margin-top: 1rem; padding: 1rem; background: #fff; border-radius: 8px;">
+            <h3 id="roleplay-title"></h3>
+            <div id="roleplay-script-content"></div>
+            <button id="check-roleplay-answers-btn" style="margin-top: 1rem;">Check Answers</button>
+        </div>
+    </div>
+
+    <div id="phase4-module" class="training-module">
+        <h2>Phase 4: Spontaneity Drills</h2>
+        <p>Build your real-time reaction ability.</p>
+        <!-- Content for Phase 4 will be loaded here -->
+    </div>
+
+    <div id="phase5-module" class="training-module">
+        <h2>Phase 5: Feedback & Reuse</h2>
+        <p>Write your own scripts and get feedback.</p>
+        <!-- Content for Phase 5 will be loaded here -->
+    </div>
+</div>
+
+<script src="js/toast.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Basic session check and user status update
+    const userStatusDiv = document.getElementById('user-status');
+    const firstNameDisplay = document.getElementById('first-name-display');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const mainContentDiv = document.getElementById('main-content');
+
+    fetch('api/check_session.php')
+        .then(response => response.json())
+        .then(data => {
+            if (data.loggedIn && data.user.subscription_status === 'active') {
+                firstNameDisplay.textContent = `Welcome, ${data.user.first_name}`;
+                userStatusDiv.style.display = 'block';
+                if (data.user.role === 'admin') {
+                    document.getElementById('admin-link').style.display = 'inline';
+                }
+            } else {
+                // Redirect to login if not logged in or subscribed
+                window.location.href = 'login.html';
+            }
+        })
+        .catch(error => {
+            console.error('Session check failed:', error);
+            window.location.href = 'login.html';
+        });
+
+    logoutBtn.addEventListener('click', () => {
+        fetch('api/logout.php').then(() => {
+            window.location.href = 'login.html';
+        });
+    });
+
+    // Tab navigation
+    const navButtons = document.querySelectorAll('.training-nav button');
+    const modules = document.querySelectorAll('.training-module');
+
+    navButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // Deactivate all buttons and modules
+            navButtons.forEach(btn => btn.classList.remove('active'));
+            modules.forEach(module => module.classList.remove('active'));
+
+            // Activate the clicked button and corresponding module
+            button.classList.add('active');
+            const phase = button.id.replace('-btn', '');
+            document.getElementById(`${phase}-module`).classList.add('active');
+        });
+    });
+
+    // --- Phase 1: Shadowing ---
+    const dialogueSelect = document.getElementById('dialogueSelect');
+    const dialogueContent = document.getElementById('dialogue-content');
+    const playFullDialogueBtn = document.getElementById('play-full-dialogue-btn');
+    let speechRate = 1.0; // Assuming a default, can be loaded from localStorage like in index.html
+
+    function speakFrench(text) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        const voices = speechSynthesis.getVoices();
+        let frenchVoice = voices.find(voice => voice.lang === 'fr-FR');
+        if (frenchVoice) {
+            utterance.voice = frenchVoice;
+        }
+        utterance.lang = 'fr-FR';
+        utterance.rate = speechRate;
+        speechSynthesis.speak(utterance);
+    }
+
+    speechSynthesis.onvoiceschanged = () => {}; // Ensure voices are loaded
+
+    async function loadDialogueList() {
+        try {
+            const response = await fetch('api/get_dialogues_list.php');
+            const dialogues = await response.json();
+            if (response.ok) {
+                dialogueSelect.innerHTML = '<option value="">-- Choose a dialogue --</option>';
+                dialogues.forEach(dialogue => {
+                    const option = document.createElement('option');
+                    option.value = dialogue.id;
+                    option.textContent = dialogue.dialogue_name;
+                    dialogueSelect.appendChild(option);
+                });
+                // Automatically load the first dialogue
+                if (dialogues.length > 0) {
+                    dialogueSelect.value = dialogues[0].id;
+                    loadDialogue(dialogues[0].id);
+                }
+            } else {
+                showToast('Failed to load dialogues.', 'error');
+            }
+        } catch (error) {
+            console.error('Error fetching dialogue list:', error);
+            showToast('Could not fetch dialogue list.', 'error');
+        }
+    }
+
+    async function loadDialogue(id) {
+        if (!id) {
+            dialogueContent.innerHTML = '';
+            return;
+        }
+        try {
+            const response = await fetch(`api/get_dialogue.php?id=${id}`);
+            const dialogue = await response.json();
+            if (response.ok) {
+                renderDialogue(dialogue);
+            } else {
+                showToast('Failed to load dialogue.', 'error');
+            }
+        } catch (error) {
+            console.error('Error fetching dialogue:', error);
+            showToast('Could not fetch dialogue.', 'error');
+        }
+    }
+
+    function renderDialogue(dialogue) {
+        dialogueContent.innerHTML = `<h3>${dialogue.name}</h3>`;
+        dialogue.lines.forEach((line, index) => {
+            const lineEl = document.createElement('p');
+            lineEl.innerHTML = `<strong>${line.speaker}:</strong> ${line.line} <button class="play-line-btn" data-line-index="${index}">▶️</button>`;
+            dialogueContent.appendChild(lineEl);
+        });
+
+        document.querySelectorAll('.play-line-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const lineIndex = e.target.getAttribute('data-line-index');
+                const lineText = dialogue.lines[lineIndex].line;
+                speakFrench(lineText);
+            });
+        });
+    }
+
+    dialogueSelect.addEventListener('change', () => {
+        loadDialogue(dialogueSelect.value);
+    });
+
+    playFullDialogueBtn.addEventListener('click', async () => {
+        const id = dialogueSelect.value;
+        if (!id) return;
+
+        // Fetch the dialogue again to ensure we have the right one
+        const response = await fetch(`api/get_dialogue.php?id=${id}`);
+        const dialogue = await response.json();
+
+        if (response.ok) {
+            // Use a recursive function to play lines sequentially
+            let currentLine = 0;
+            function playNextLine() {
+                if (currentLine < dialogue.lines.length) {
+                    const utterance = new SpeechSynthesisUtterance(dialogue.lines[currentLine].line);
+                    utterance.lang = 'fr-FR';
+                    utterance.rate = speechRate;
+                    // When one utterance ends, play the next
+                    utterance.onend = () => {
+                        currentLine++;
+                        playNextLine();
+                    };
+                    speechSynthesis.speak(utterance);
+                }
+            }
+            playNextLine();
+        }
+    });
+
+    // Initial load
+    loadDialogueList();
+
+    // --- Phase 2: Question Drills ---
+    const startDrillBtn = document.getElementById('start-drill-btn');
+    const drillContainer = document.getElementById('drill-container');
+    const timerDisplay = document.getElementById('timer-display');
+    const drillFlashcard = document.getElementById('drill-flashcard');
+    const drillCardFront = document.getElementById('drill-card-front');
+    const drillCardBack = document.getElementById('drill-card-back');
+    const drillPrevBtn = document.getElementById('drill-prev-btn');
+    const drillFlipBtn = document.getElementById('drill-flip-btn');
+    const drillNextBtn = document.getElementById('drill-next-btn');
+    const drillPagination = document.getElementById('drill-pagination');
+
+    let drills = [];
+    let currentDrillIndex = 0;
+    let drillTimer;
+    const DRILL_TIME = 15;
+
+    async function startDrill() {
+        startDrillBtn.style.display = 'none';
+        drillContainer.style.display = 'block';
+
+        try {
+            const response = await fetch('api/get_question_drills.php');
+            drills = await response.json();
+            if (response.ok && drills.length > 0) {
+                currentDrillIndex = 0;
+                displayDrill(currentDrillIndex);
+            } else {
+                drillContainer.innerHTML = '<p>No drills found.</p>';
+            }
+        } catch (error) {
+            console.error('Error starting drill:', error);
+            drillContainer.innerHTML = '<p>Error loading drills.</p>';
+        }
+    }
+
+    function displayDrill(index) {
+        if (index < 0 || index >= drills.length) return;
+
+        drillFlashcard.classList.remove('is-flipped');
+        const drill = drills[index];
+        drillCardFront.innerHTML = `<p>${drill.english_question}</p>`;
+        drillCardBack.innerHTML = `
+            <p><strong>Hints:</strong> ${drill.french_vocab_hints}</p>
+            <p><strong>Expected:</strong> ${drill.expected_answer}</p>
+        `;
+        drillPagination.textContent = `Card ${index + 1} of ${drills.length}`;
+        updateDrillNav();
+        resetTimer();
+    }
+
+    function updateDrillNav() {
+        drillPrevBtn.disabled = currentDrillIndex === 0;
+        drillNextBtn.disabled = currentDrillIndex === drills.length - 1;
+    }
+
+    function flipDrillCard() {
+        drillFlashcard.classList.toggle('is-flipped');
+        clearInterval(drillTimer);
+    }
+
+    function resetTimer() {
+        clearInterval(drillTimer);
+        let timeLeft = DRILL_TIME;
+        timerDisplay.textContent = timeLeft;
+        drillTimer = setInterval(() => {
+            timeLeft--;
+            timerDisplay.textContent = timeLeft;
+            if (timeLeft <= 0) {
+                clearInterval(drillTimer);
+                flipDrillCard();
+            }
+        }, 1000);
+    }
+
+    startDrillBtn.addEventListener('click', startDrill);
+    drillFlipBtn.addEventListener('click', flipDrillCard);
+    drillFlashcard.addEventListener('click', flipDrillCard);
+
+    drillNextBtn.addEventListener('click', () => {
+        if (currentDrillIndex < drills.length - 1) {
+            currentDrillIndex++;
+            displayDrill(currentDrillIndex);
+        }
+    });
+
+    drillPrevBtn.addEventListener('click', () => {
+        if (currentDrillIndex > 0) {
+            currentDrillIndex--;
+            displayDrill(currentDrillIndex);
+        }
+    });
+
+    // --- Phase 3: Roleplays ---
+    const roleplayScenarioSelect = document.getElementById('roleplay-scenario-select');
+    const startRoleplayBtn = document.getElementById('start-roleplay-btn');
+    const roleplayContainer = document.getElementById('roleplay-container');
+    const roleplayTitle = document.getElementById('roleplay-title');
+    const roleplayScriptContent = document.getElementById('roleplay-script-content');
+    const checkRoleplayAnswersBtn = document.getElementById('check-roleplay-answers-btn');
+    let currentClozeScript = null;
+
+    async function loadRoleplayScenarios() {
+        try {
+            const response = await fetch('api/get_roleplay_scenarios_list.php');
+            const scenarios = await response.json();
+            if (response.ok) {
+                roleplayScenarioSelect.innerHTML = '<option value="">-- Choose a scenario --</option>';
+                scenarios.forEach(scenario => {
+                    const option = document.createElement('option');
+                    option.value = scenario.id;
+                    option.textContent = scenario.name;
+                    roleplayScenarioSelect.appendChild(option);
+                });
+            }
+        } catch (error) {
+            console.error('Error loading scenarios:', error);
+        }
+    }
+
+    async function startRoleplay() {
+        const scenarioId = roleplayScenarioSelect.value;
+        if (!scenarioId) {
+            showToast('Please select a scenario first.', 'error');
+            return;
+        }
+
+        try {
+            const response = await fetch(`api/get_roleplay_scenario.php?id=${scenarioId}`);
+            const scenario = await response.json();
+            if (response.ok) {
+                currentClozeScript = scenario.cloze_script_json;
+                renderClozeScript(currentClozeScript);
+                roleplayContainer.style.display = 'block';
+            } else {
+                showToast('Failed to load scenario.', 'error');
+            }
+        } catch (error) {
+            console.error('Error starting roleplay:', error);
+        }
+    }
+
+    function renderClozeScript(script) {
+        roleplayTitle.textContent = script.title;
+        roleplayScriptContent.innerHTML = '';
+        script.lines.forEach((line, index) => {
+            const lineEl = document.createElement('div');
+            lineEl.classList.add('script-line');
+            if (line.is_blank) {
+                lineEl.innerHTML = `<strong>${line.speaker}:</strong> <input type="text" class="cloze-input" data-line-index="${index}" placeholder="Your response here...">`;
+            } else {
+                lineEl.innerHTML = `<strong>${line.speaker}:</strong> ${line.line}`;
+            }
+            roleplayScriptContent.appendChild(lineEl);
+        });
+    }
+
+    function checkClozeAnswers() {
+        if (!currentClozeScript) return;
+
+        const inputs = document.querySelectorAll('.cloze-input');
+        let allCorrect = true;
+        inputs.forEach(input => {
+            const lineIndex = input.getAttribute('data-line-index');
+            const expectedAnswer = currentClozeScript.lines[lineIndex].expected;
+            // Simple case-insensitive comparison for now
+            if (input.value.trim().toLowerCase() === expectedAnswer.trim().toLowerCase()) {
+                input.style.backgroundColor = '#d4edda'; // Green for correct
+            } else {
+                input.style.backgroundColor = '#f8d7da'; // Red for incorrect
+                allCorrect = false;
+            }
+        });
+
+        if (allCorrect) {
+            showToast('Great job! All answers are correct.', 'success');
+        } else {
+            showToast('Some answers are incorrect. Please review them.', 'error');
+        }
+    }
+
+    startRoleplayBtn.addEventListener('click', startRoleplay);
+    checkRoleplayAnswersBtn.addEventListener('click', checkClozeAnswers);
+
+    // Initial load for Phase 3
+    loadRoleplayScenarios();
+});
+</script>
+
+</body>
+</html>
