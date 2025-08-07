@@ -452,11 +452,12 @@ document.addEventListener('DOMContentLoaded', () => {
         drillCardBack.innerHTML = `
             <div>
                 <p><strong>Hints:</strong> ${drill.french_vocab_hints}</p>
-                <button class="show-answer-btn" style="margin-top: 1rem;">Show Answer</button>
+                <div class="drill-answer" style="display: none;">
+                    <br><br>
+                    <p><strong>Expected:</strong> ${drill.expected_answer}</p>
+                </div>
             </div>
-            <div class="drill-answer" style="display: none; margin-top: 1rem;">
-                <p><strong>Expected:</strong> ${drill.expected_answer}</p>
-            </div>
+            <button class="show-answer-btn" style="margin-top: 1rem;">Show Answer</button>
         `;
         drillPagination.textContent = `Card ${index + 1} of ${drills.length}`;
         updateDrillNav();
@@ -500,6 +501,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     drillCardBack.addEventListener('click', (e) => {
         if (e.target.classList.contains('show-answer-btn')) {
+            e.stopPropagation(); // Prevent the click from bubbling up to the flashcard
             const answerContainer = e.target.closest('.flashcard-back').querySelector('.drill-answer');
             if (answerContainer) {
                 answerContainer.style.display = 'block';
