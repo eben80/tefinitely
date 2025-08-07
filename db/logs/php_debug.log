@@ -425,3 +425,20 @@
     [subscription_status] => active
 )
 
+[2025-08-07 13:37:52] Login successful. Session data set for user: jules@test.com
+[2025-08-07 13:37:52] Array
+(
+    [user_id] => 2
+    [first_name] => Jules
+    [role] => user
+    [subscription_status] => inactive
+)
+
+[2025-08-07 13:39:15] Login successful. Session data set for user: jules@test.com
+[2025-08-07 13:39:15] Array
+(
+    [user_id] => 2
+    [first_name] => Jules
+    [role] => user
+    [subscription_status] => inactive
+)
