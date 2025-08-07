@@ -473,7 +473,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function flipDrillCard() {
         drillFlashcard.classList.toggle('is-flipped');
-        clearInterval(drillTimer);
     }
 
     function resetTimer() {
@@ -485,7 +484,10 @@ document.addEventListener('DOMContentLoaded', () => {
             timerDisplay.textContent = timeLeft;
             if (timeLeft <= 0) {
                 clearInterval(drillTimer);
-                flipDrillCard();
+                // Only flip if it's not already flipped
+                if (!drillFlashcard.classList.contains('is-flipped')) {
+                    drillFlashcard.classList.add('is-flipped');
+                }
             }
         }, 1000);
     }
