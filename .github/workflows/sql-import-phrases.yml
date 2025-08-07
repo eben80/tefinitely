@@ -1,0 +1,22 @@
+name: Manual SQL Import
+
+on:
+  workflow_dispatch:  # Enables manual run from GitHub UI
+
+jobs:
+  sql-import:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Set up SSH
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+    - name: Run SQL Import on EC2
+      run: |
+        ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} '
+          mysql -u tefuser -p"${MYSQL_PASSWORD}" french_practice < /var/www/tefinitely.com/html/sql/add_more_inc_mode.sql
+        '
