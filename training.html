@@ -223,9 +223,31 @@
     </div>
 
     <div id="phase5-module" class="training-module">
-        <h2>Phase 5: Feedback & Reuse</h2>
-        <p>Write your own scripts and get feedback.</p>
-        <!-- Content for Phase 5 will be loaded here -->
+        <h2>Phase 5: Script Writing & Reuse</h2>
+        <p>Write your own dialogues, save them, and get feedback.</p>
+        <div id="script-manager">
+            <div id="script-loader" style="margin-bottom: 1rem;">
+                <label for="user-script-select">Load a saved script:</label>
+                <select id="user-script-select">
+                    <option value="">-- My Scripts --</option>
+                    <!-- User's scripts will be loaded here -->
+                </select>
+            </div>
+            <div id="script-editor">
+                <input type="text" id="script-name-input" placeholder="Enter script name" style="width: 100%; margin-bottom: 0.5rem; padding: 0.5rem; box-sizing: border-box;">
+                <textarea id="script-content-textarea" rows="10" placeholder="Write your script here...&#10;Example:&#10;Person A: Bonjour!&#10;Person B: Bonjour, comment ça va?" style="width: 100%; padding: 0.5rem; box-sizing: border-box;"></textarea>
+                <div id="script-actions" style="margin-top: 1rem; text-align: right;">
+                    <button id="save-script-btn">Save Script</button>
+                    <button id="perform-script-btn">Perform Script</button>
+                </div>
+            </div>
+            <div id="script-feedback-container" style="margin-top: 1.5rem; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                <h4>Script Analysis</h4>
+                <div id="script-feedback-content">
+                    <!-- Feedback will be displayed here -->
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -646,6 +668,188 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initial load for Phase 4
     populateScenarioDropdown(diceGameScenarioSelect);
+
+    // --- Phase 5: Script Writing ---
+    const userScriptSelect = document.getElementById('user-script-select');
+    const scriptNameInput = document.getElementById('script-name-input');
+    const scriptContentTextarea = document.getElementById('script-content-textarea');
+    const saveScriptBtn = document.getElementById('save-script-btn');
+
+    async function loadUserScripts() {
+        try {
+            const response = await fetch('api/get_user_scripts.php');
+            const scripts = await response.json();
+            if (response.ok) {
+                userScriptSelect.innerHTML = '<option value="">-- My Scripts --</option>';
+                scripts.forEach(script => {
+                    const option = document.createElement('option');
+                    option.value = script.id;
+                    option.textContent = script.script_name;
+                    userScriptSelect.appendChild(option);
+                });
+            }
+        } catch (error) {
+            console.error('Error loading user scripts:', error);
+        }
+    }
+
+    async function loadSpecificScript(id) {
+        if (!id) {
+            scriptNameInput.value = '';
+            scriptContentTextarea.value = '';
+            return;
+        }
+        try {
+            const response = await fetch(`api/get_user_scripts.php?id=${id}`);
+            const script = await response.json();
+            if (response.ok) {
+                scriptNameInput.value = script.script_name;
+                scriptContentTextarea.value = script.script_content;
+            } else {
+                showToast('Failed to load script.', 'error');
+            }
+        } catch (error) {
+            console.error('Error loading specific script:', error);
+        }
+    }
+
+    async function saveScript() {
+        const name = scriptNameInput.value.trim();
+        const content = scriptContentTextarea.value.trim();
+
+        if (!name || !content) {
+            showToast('Script name and content cannot be empty.', 'error');
+            return;
+        }
+
+        try {
+            const response = await fetch('api/save_user_script.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ script_name: name, script_content: content })
+            });
+            const result = await response.json();
+            if (response.ok) {
+                showToast('Script saved successfully!', 'success');
+                loadUserScripts(); // Refresh the list
+            } else {
+                showToast(`Error: ${result.message}`, 'error');
+            }
+        } catch (error) {
+            console.error('Error saving script:', error);
+            showToast('An unexpected error occurred while saving.', 'error');
+        }
+    }
+
+    userScriptSelect.addEventListener('change', () => {
+        loadSpecificScript(userScriptSelect.value);
+    });
+
+    saveScriptBtn.addEventListener('click', saveScript);
+
+    // Initial load for Phase 5
+    loadUserScripts();
+
+    // --- Phase 5: Perform and Feedback Logic ---
+    const performScriptBtn = document.getElementById('perform-script-btn');
+    const scriptFeedbackContent = document.getElementById('script-feedback-content');
+
+    function analyzeScript(content) {
+        const lines = content.split('\n').filter(line => line.trim() !== '');
+        const words = content.toLowerCase().match(/\b(\w+)\b/g) || [];
+        const uniqueWords = new Set(words);
+
+        const questionWords = ['où', 'quand', 'qui', 'comment', 'combien', 'pourquoi', 'est-ce'];
+        let questionWordCount = 0;
+        questionWords.forEach(qw => {
+            const regex = new RegExp(`\\b${qw}\\b`, 'gi');
+            const matches = content.toLowerCase().match(regex);
+            if (matches) questionWordCount += matches.length;
+        });
+
+        const questionMarkCount = (content.match(/\?/g) || []).length;
+
+        return {
+            lineCount: lines.length,
+            wordCount: words.length,
+            uniqueWordCount: uniqueWords.size,
+            questionCount: questionMarkCount,
+            questionWordCount: questionWordCount
+        };
+    }
+
+    function displayFeedback(stats) {
+        scriptFeedbackContent.innerHTML = `
+            <ul>
+                <li><strong>Lines:</strong> ${stats.lineCount}</li>
+                <li><strong>Total Words:</strong> ${stats.wordCount}</li>
+                <li><strong>Unique Words:</strong> ${stats.uniqueWordCount}</li>
+                <li><strong>Questions (by '?'):</strong> ${stats.questionCount}</li>
+                <li><strong>Question Words:</strong> ${stats.questionWordCount}</li>
+            </ul>
+        `;
+    }
+
+    // Update the saveScript function to include feedback
+    async function saveScript() {
+        const name = scriptNameInput.value.trim();
+        const content = scriptContentTextarea.value.trim();
+
+        if (!name || !content) {
+            showToast('Script name and content cannot be empty.', 'error');
+            return;
+        }
+
+        try {
+            const response = await fetch('api/save_user_script.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ script_name: name, script_content: content })
+            });
+            const result = await response.json();
+            if (response.ok) {
+                showToast('Script saved successfully!', 'success');
+                loadUserScripts(); // Refresh the list
+                const stats = analyzeScript(content);
+                displayFeedback(stats);
+            } else {
+                showToast(`Error: ${result.message}`, 'error');
+            }
+        } catch (error) {
+            console.error('Error saving script:', error);
+            showToast('An unexpected error occurred while saving.', 'error');
+        }
+    }
+    // Re-assign the event listener to the updated function
+    saveScriptBtn.addEventListener('click', saveScript);
+
+
+    performScriptBtn.addEventListener('click', () => {
+        const content = scriptContentTextarea.value;
+        const lines = content.split('\n').filter(line => line.trim() !== '');
+
+        if (lines.length === 0) {
+            showToast('There is no script content to perform.', 'error');
+            return;
+        }
+
+        let currentLine = 0;
+        function playNextScriptLine() {
+            if (currentLine < lines.length) {
+                // Extract only the dialogue text, removing "Speaker: " part
+                const dialogueText = lines[currentLine].substring(lines[currentLine].indexOf(':') + 1).trim();
+                const utterance = new SpeechSynthesisUtterance(dialogueText);
+                utterance.lang = 'fr-FR';
+                utterance.rate = speechRate;
+                utterance.onend = () => {
+                    currentLine++;
+                    playNextScriptLine();
+                };
+                speechSynthesis.speak(utterance);
+            }
+        }
+        playNextScriptLine();
+    });
 });
 </script>
 
