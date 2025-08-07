@@ -207,8 +207,19 @@
 
     <div id="phase4-module" class="training-module">
         <h2>Phase 4: Spontaneity Drills</h2>
-        <p>Build your real-time reaction ability.</p>
-        <!-- Content for Phase 4 will be loaded here -->
+        <p>Build your real-time reaction ability. Select a scenario, roll the dice, and form a question in 10-15 seconds.</p>
+        <div id="dice-game-setup">
+            <label for="dice-game-scenario-select">Select Scenario:</label>
+            <select id="dice-game-scenario-select">
+                <!-- Options will be populated by JS -->
+            </select>
+        </div>
+        <div id="dice-game-main" style="margin-top: 1rem; text-align: center;">
+            <button id="roll-dice-btn" style="padding: 1rem 2rem; font-size: 1.2rem;">Roll Dice</button>
+            <div id="dice-result-display" style="font-size: 2rem; font-weight: bold; margin-top: 1rem; padding: 2rem; background: #fff; border-radius: 8px; min-height: 50px;">
+                ?
+            </div>
+        </div>
     </div>
 
     <div id="phase5-module" class="training-module">
@@ -530,17 +541,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const checkRoleplayAnswersBtn = document.getElementById('check-roleplay-answers-btn');
     let currentClozeScript = null;
 
-    async function loadRoleplayScenarios() {
+    async function populateScenarioDropdown(selectElement) {
+        if (!selectElement) return;
         try {
             const response = await fetch('api/get_roleplay_scenarios_list.php');
             const scenarios = await response.json();
             if (response.ok) {
-                roleplayScenarioSelect.innerHTML = '<option value="">-- Choose a scenario --</option>';
+                selectElement.innerHTML = '<option value="">-- Choose a scenario --</option>';
                 scenarios.forEach(scenario => {
                     const option = document.createElement('option');
                     option.value = scenario.id;
                     option.textContent = scenario.name;
-                    roleplayScenarioSelect.appendChild(option);
+                    selectElement.appendChild(option);
                 });
             }
         } catch (error) {
@@ -613,7 +625,27 @@ document.addEventListener('DOMContentLoaded', () => {
     checkRoleplayAnswersBtn.addEventListener('click', checkClozeAnswers);
 
     // Initial load for Phase 3
-    loadRoleplayScenarios();
+    populateScenarioDropdown(roleplayScenarioSelect);
+
+    // --- Phase 4: Dice Game ---
+    const diceGameScenarioSelect = document.getElementById('dice-game-scenario-select');
+    const rollDiceBtn = document.getElementById('roll-dice-btn');
+    const diceResultDisplay = document.getElementById('dice-result-display');
+
+    const diceWords = ['Où', 'Quand', 'Qui', 'Comment', 'Combien', 'Pourquoi', 'Est-ce que...'];
+
+    rollDiceBtn.addEventListener('click', () => {
+        if (!diceGameScenarioSelect.value) {
+            showToast('Please select a scenario first.', 'error');
+            return;
+        }
+        const randomIndex = Math.floor(Math.random() * diceWords.length);
+        const randomWord = diceWords[randomIndex];
+        diceResultDisplay.textContent = randomWord;
+    });
+
+    // Initial load for Phase 4
+    populateScenarioDropdown(diceGameScenarioSelect);
 });
 </script>
 
