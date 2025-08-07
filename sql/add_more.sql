@@ -1,11 +1,8 @@
 -- Connect to the correct database
 USE french_practice;
 
--- Drop the table if it already exists
-DROP TABLE IF EXISTS phrases;
-
--- Create the table with proper encoding
-CREATE TABLE phrases (
+-- Create the table only if it doesn't exist
+CREATE TABLE IF NOT EXISTS phrases (
     id INT AUTO_INCREMENT PRIMARY KEY,
     french_text TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
     english_translation TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
@@ -14,7 +11,7 @@ CREATE TABLE phrases (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Insert phrases
-INSERT IGNORE INTO phrases (french_text, english_translation, theme, section) VALUES
+INSERT INTO phrases (french_text, english_translation, theme, section) VALUES
 
 -- EVENTS
 ('Combien coûte l’entrée pour une personne adulte ?', 'How much is entry for an adult?', 'events', 'section_a'),
@@ -65,21 +62,4 @@ INSERT IGNORE INTO phrases (french_text, english_translation, theme, section) VA
 ('Peut-on tester l’objet avant l’achat ?', 'Can we test the item before buying?', 'second_hand', 'section_a'),
 ('Acceptez-vous les paiements par virement ?', 'Do you accept bank transfers?', 'second_hand', 'section_a'),
 ('L’objet est-il encore disponible ?', 'Is the item still available?', 'second_hand', 'section_a'),
-('Avez-vous la facture originale ?', 'Do you have the original invoice?', 'second_hand', 'section_a'),
-
--- HOUSING
-('Le logement est-il meublé ?', 'Is the accommodation furnished?', 'housing', 'section_a'),
-('Quel est le montant du loyer mensuel ?', 'What is the monthly rent?', 'housing', 'section_a'),
-('Y a-t-il des frais d’agence ?', 'Are there agency fees?', 'housing', 'section_a'),
-('Les charges sont-elles comprises ?', 'Are utilities included?', 'housing', 'section_a'),
-('Combien de pièces y a-t-il ?', 'How many rooms are there?', 'housing', 'section_a'),
-('Est-ce que les animaux sont acceptés ?', 'Are pets allowed?', 'housing', 'section_a'),
-('Le logement est-il proche des transports en commun ?', 'Is the housing near public transport?', 'housing', 'section_a'),
-('Y a-t-il un parking disponible ?', 'Is parking available?', 'housing', 'section_a'),
-('Quel est le montant du dépôt de garantie ?', 'What is the security deposit amount?', 'housing', 'section_a'),
-('Est-ce que le logement est bien isolé ?', 'Is the apartment well insulated?', 'housing', 'section_a'),
-('Puis-je visiter le logement cette semaine ?', 'Can I visit the property this week?', 'housing', 'section_a'),
-('Est-ce que le logement est libre tout de suite ?', 'Is the apartment immediately available?', 'housing', 'section_a'),
-('Combien d’étages y a-t-il dans l’immeuble ?', 'How many floors does the building have?', 'housing', 'section_a'),
-('Y a-t-il un ascenseur ?', 'Is there an elevator?', 'housing', 'section_a'),
-('Est-ce que la cuisine est équipée ?', 'Is the kitchen equipped?', 'housing', 'section_a');
+('Avez-vous la facture originale ?', 'Do you have the original invoice?', 'second_hand', 'section_a');
