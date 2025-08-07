@@ -1,0 +1,27 @@
+name: Pull changes from EC2 to GitHub
+
+on:
+  workflow_dispatch:  # Manual trigger only
+
+jobs:
+  sync-back:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Set up SSH
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+    - name: Pull changes from EC2 repo
+      run: |
+        ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} '
+          cd /var/www/tefinitely.com/html &&
+          git config user.email "github-actions@github.com" &&
+          git config user.name "GitHub Actions Bot" &&
+          git add . &&
+          git commit -m "Pull from EC2 [bot sync]" || echo "Nothing to commit" &&
+          git push origin main
+        '
