@@ -450,14 +450,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const drill = drills[index];
         drillCardFront.innerHTML = `<p>${drill.english_question}</p>`;
         drillCardBack.innerHTML = `
-            <div>
+            <div style="width: 100%; text-align: left;">
                 <p><strong>Hints:</strong> ${drill.french_vocab_hints}</p>
                 <div class="drill-answer" style="display: none;">
                     <br><br>
                     <p><strong>Expected:</strong> ${drill.expected_answer}</p>
                 </div>
+                <div style="text-align: center; margin-top: 1rem;">
+                    <button class="show-answer-btn">Show Answer</button>
+                </div>
             </div>
-            <button class="show-answer-btn" style="margin-top: 1rem;">Show Answer</button>
         `;
         drillPagination.textContent = `Card ${index + 1} of ${drills.length}`;
         updateDrillNav();
