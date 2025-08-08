@@ -3,13 +3,13 @@ require_once 'db_config.php';
 
 // SQL files to execute
 $sql_files = [
-    // __DIR__ . '/../sql/create_phrases_table.sql',
-    // __DIR__ . '/../sql/create_user_management_tables.sql',
-    // __DIR__ . '/../sql/create_password_reset_table.sql',
-    // __DIR__ . '/../sql/update_user_tracking.sql',
-    // __DIR__ . '/../sql/create_training_tables.sql',
-    // __DIR__ . '/../sql/alter_roleplay_scenarios.sql',
-    // __DIR__ . '/../sql/update_roleplay_scenarios_level2.sql',
+    __DIR__ . '/../sql/create_phrases_table.sql',
+    __DIR__ . '/../sql/create_user_management_tables.sql',
+    __DIR__ . '/../sql/create_password_reset_table.sql',
+    __DIR__ . '/../sql/update_user_tracking.sql',
+    __DIR__ . '/../sql/create_training_tables.sql',
+    __DIR__ . '/../sql/alter_roleplay_scenarios.sql',
+    __DIR__ . '/../sql/update_roleplay_scenarios_level2.sql',
     __DIR__ . '/../sql/add_more_drills.sql'
 ];
 
