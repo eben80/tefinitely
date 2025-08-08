@@ -1,7 +1,7 @@
 <?php
 session_start();
 header('Content-Type: application/json; charset=utf-8');
-// require_once '../db/db_config.php';
+require_once '../db/db_config.php';
 
 // --- Main Logic ---
 try {
