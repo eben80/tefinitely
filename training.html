@@ -238,6 +238,7 @@
                 <textarea id="script-content-textarea" rows="10" placeholder="Write your script here...&#10;Example:&#10;Person A: Bonjour!&#10;Person B: Bonjour, comment ça va?" style="width: 100%; padding: 0.5rem; box-sizing: border-box;"></textarea>
                 <div id="script-actions" style="margin-top: 1rem; text-align: right;">
                     <button id="save-script-btn">Save Script</button>
+                    <button id="delete-script-btn" style="background-color: #dc3545;">Delete Script</button>
                     <button id="perform-script-btn">Perform Script</button>
                 </div>
             </div>
@@ -746,6 +747,42 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     saveScriptBtn.addEventListener('click', saveScript);
+
+    const deleteScriptBtn = document.getElementById('delete-script-btn');
+
+    async function deleteScript() {
+        const scriptId = userScriptSelect.value;
+        if (!scriptId) {
+            showToast('Please select a script to delete.', 'error');
+            return;
+        }
+
+        if (!confirm('Are you sure you want to delete this script?')) {
+            return;
+        }
+
+        try {
+            const response = await fetch('api/delete_user_script.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ script_id: scriptId })
+            });
+            const result = await response.json();
+            if (response.ok) {
+                showToast('Script deleted successfully!', 'success');
+                scriptNameInput.value = '';
+                scriptContentTextarea.value = '';
+                loadUserScripts(); // Refresh the list
+            } else {
+                showToast(`Error: ${result.message}`, 'error');
+            }
+        } catch (error) {
+            console.error('Error deleting script:', error);
+            showToast('An unexpected error occurred while deleting.', 'error');
+        }
+    }
+
+    deleteScriptBtn.addEventListener('click', deleteScript);
 
     // Initial load for Phase 5
     loadUserScripts();

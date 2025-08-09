@@ -27,6 +27,22 @@ if (empty($script_name) || empty($script_content)) {
     exit;
 }
 
+// Check if a script with the same name already exists for this user
+$stmt = $conn->prepare("SELECT id FROM user_scripts WHERE user_id = ? AND script_name = ?");
+$stmt->bind_param("is", $user_id, $script_name);
+$stmt->execute();
+$stmt->store_result();
+
+if ($stmt->num_rows > 0) {
+    http_response_code(409); // Conflict
+    echo json_encode(['status' => 'error', 'message' => 'A script with this name already exists. Please choose a different name.']);
+    $stmt->close();
+    $conn->close();
+    exit;
+}
+$stmt->close();
+
+// Insert the new script
 try {
     $stmt = $conn->prepare("INSERT INTO user_scripts (user_id, script_name, script_content) VALUES (?, ?, ?)");
     $stmt->bind_param("iss", $user_id, $script_name, $script_content);
@@ -35,18 +51,12 @@ try {
         http_response_code(201); // Created
         echo json_encode(['status' => 'success', 'message' => 'Script saved successfully.', 'script_id' => $conn->insert_id]);
     } else {
-        http_response_code(500);
-        echo json_encode(['status' => 'error', 'message' => 'Failed to save script.']);
+        throw new Exception("Failed to execute statement.");
     }
     $stmt->close();
 } catch (Exception $e) {
     http_response_code(500);
-    // Check for duplicate entry error (code 1062)
-    if ($conn->errno === 1062) {
-        echo json_encode(['status' => 'error', 'message' => 'A script with this name already exists. Please choose a different name.']);
-    } else {
-        echo json_encode(['status' => 'error', 'message' => 'An unexpected error occurred: ' . $e->getMessage()]);
-    }
+    echo json_encode(['status' => 'error', 'message' => 'Failed to save script: ' . $e->getMessage()]);
 }
 
 $conn->close();
