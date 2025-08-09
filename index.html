@@ -822,10 +822,12 @@
       recognition.maxAlternatives = 1;
       recognition.start();
       recognition.onresult = (event) => {
+        console.log('Speech recognition result:', event);
         const transcript = event.results[0][0].transcript.toLowerCase();
         checkPronunciation(transcript);
       };
       recognition.onerror = (event) => {
+        console.log('Speech recognition error:', event);
         recordingResult.textContent = 'Speech recognition error: ' + event.error;
         startRecordBtn.disabled = false;
         stopRecordBtn.disabled = true;
@@ -836,9 +838,10 @@
       };
 
       recognition.onend = () => {
-        // The 'onspeechend' event is more reliable for stopping the recording.
-        // This onend event can fire prematurely on some mobile browsers.
-        startRecordBtn.disabled = false;
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        if (isMobile) {
+            stopRecording();
+        }
       };
     } catch (err) {
       recordingResult.textContent = 'Microphone access denied or error: ' + err.message;
