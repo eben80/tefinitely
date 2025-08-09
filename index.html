@@ -836,10 +836,9 @@
       };
 
       recognition.onend = () => {
-        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-        if (isMobile) {
-            stopRecording();
-        }
+        // The 'onspeechend' event is more reliable for stopping the recording.
+        // This onend event can fire prematurely on some mobile browsers.
+        startRecordBtn.disabled = false;
       };
     } catch (err) {
       recordingResult.textContent = 'Microphone access denied or error: ' + err.message;
