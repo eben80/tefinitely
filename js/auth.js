@@ -1,12 +1,13 @@
 // Function to handle API requests
 async function apiRequest(url, data) {
     try {
+        const urlSearchParams = new URLSearchParams(Object.entries(data));
         const response = await fetch(url, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/x-www-form-urlencoded'
             },
-            body: JSON.stringify(data)
+            body: urlSearchParams
         });
 
         const result = await response.json();
