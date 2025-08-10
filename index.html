@@ -821,6 +821,18 @@
       recognition.interimResults = false;
       recognition.maxAlternatives = 1;
       recognition.start();
+      recognition.onstart = () => console.log('Speech recognition started.');
+      recognition.onaudiostart = () => console.log('Audio capturing started.');
+      recognition.onsoundstart = () => console.log('Sound has been detected.');
+      recognition.onspeechstart = () => console.log('Speech has been detected.');
+      recognition.onspeechend = () => {
+        console.log('Speech has stopped being detected.');
+        stopRecording();
+      };
+      recognition.onsoundend = () => console.log('Sound has stopped being detected.');
+      recognition.onaudioend = () => console.log('Audio capturing ended.');
+      recognition.onnomatch = () => console.log('Speech not recognized.');
+
       recognition.onresult = (event) => {
         console.log('Speech recognition result:', event);
         const transcript = event.results[0][0].transcript.toLowerCase();
@@ -831,16 +843,9 @@
         recordingResult.textContent = 'Speech recognition error: ' + event.error;
         startRecordBtn.disabled = false;
       };
-
-      recognition.onspeechend = () => {
-        stopRecording();
-      };
-
       recognition.onend = () => {
-        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-        if (isMobile) {
-            stopRecording();
-        }
+        console.log('Speech recognition ended.');
+        startRecordBtn.disabled = false;
       };
     } catch (err) {
       recordingResult.textContent = 'Microphone access denied or error: ' + err.message;
