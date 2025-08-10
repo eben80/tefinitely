@@ -10,17 +10,8 @@ try {
         throw new Exception('Invalid request method.', 405);
     }
 
-    // --- Debugging ---
-    $raw_input = file_get_contents('php://input');
-    $post_data = print_r($_POST, true);
-    $log_message = "Timestamp: " . date('Y-m-d H:i:s') . "\n";
-    $log_message .= "Raw Input: " . $raw_input . "\n";
-    $log_message .= "POST Data: " . $post_data . "\n";
-    file_put_contents('/tmp/login_debug.log', $log_message, FILE_APPEND);
-    // --- End Debugging ---
-
     // Get the posted data
-    $data = json_decode($raw_input, true);
+    $data = json_decode(file_get_contents('php://input'), true);
 
     // Basic validation
     if (!$data || !isset($data['email']) || !isset($data['password'])) {
