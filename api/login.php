@@ -10,16 +10,13 @@ try {
         throw new Exception('Invalid request method.', 405);
     }
 
-    // Get the posted data
-    $data = json_decode(file_get_contents('php://input'), true);
-
-    // Basic validation
-    if (!$data || !isset($data['email']) || !isset($data['password'])) {
+    // Get the posted data from $_POST
+    if (!isset($_POST['email']) || !isset($_POST['password'])) {
         throw new Exception('Missing email or password.', 400);
     }
 
-    $email = trim($data['email']);
-    $password = trim($data['password']);
+    $email = trim($_POST['email']);
+    $password = trim($_POST['password']);
 
     if (empty($email) || empty($password)) {
         throw new Exception('Email and password are required.', 400);
