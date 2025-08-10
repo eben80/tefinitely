@@ -10,13 +10,25 @@ try {
         throw new Exception('Invalid request method.', 405);
     }
 
-    // Get the posted data from $_POST
-    if (!isset($_POST['email']) || !isset($_POST['password'])) {
+    // --- Debugging ---
+    $raw_input = file_get_contents('php://input');
+    $post_data = print_r($_POST, true);
+    $log_message = "Timestamp: " . date('Y-m-d H:i:s') . "\n";
+    $log_message .= "Raw Input: " . $raw_input . "\n";
+    $log_message .= "POST Data: " . $post_data . "\n";
+    file_put_contents('/tmp/login_debug.log', $log_message, FILE_APPEND);
+    // --- End Debugging ---
+
+    // Get the posted data
+    $data = json_decode($raw_input, true);
+
+    // Basic validation
+    if (!$data || !isset($data['email']) || !isset($data['password'])) {
         throw new Exception('Missing email or password.', 400);
     }
 
-    $email = trim($_POST['email']);
-    $password = trim($_POST['password']);
+    $email = trim($data['email']);
+    $password = trim($data['password']);
 
     if (empty($email) || empty($password)) {
         throw new Exception('Email and password are required.', 400);
