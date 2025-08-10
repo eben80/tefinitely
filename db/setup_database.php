@@ -10,7 +10,8 @@ $sql_files = [
     __DIR__ . '/../sql/create_training_tables.sql',
     __DIR__ . '/../sql/alter_roleplay_scenarios.sql',
     __DIR__ . '/../sql/update_roleplay_scenarios_level2.sql',
-    __DIR__ . '/../sql/add_more_drills.sql'
+    __DIR__ . '/../sql/add_more_drills.sql',
+    __DIR__ . '/../sql/update_subscription_schema.sql'
 ];
 
 echo "<h2>Database Setup</h2>";
