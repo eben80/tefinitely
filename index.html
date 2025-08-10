@@ -846,6 +846,20 @@
     };
 
     recognition.start();
+
+    // iOS/Safari has a bug where it doesn't fire onspeechend and doesn't return a result
+    // until recognition.stop() is called. This timeout is a workaround to force it.
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    if (isIOS) {
+      console.log('iOS device detected. Setting 5s timeout to stop recognition.');
+      setTimeout(() => {
+        // Check if recognition is still active before stopping
+        if (recognition) {
+          console.log('iOS timeout reached. Forcing recognition.stop().');
+          recognition.stop();
+        }
+      }, 5000);
+    }
   };
 
   function stopRecording() {
