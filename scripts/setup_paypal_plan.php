@@ -95,8 +95,8 @@ function create_plan($access_token, $product_id) {
     $ch = curl_init();
     $plan_data = [
         'product_id' => $product_id,
-        'name' => 'TEF Practice Pro - Monthly Plan',
-        'description' => '$5 per month for full access to all features.',
+    'name' => 'TEF Practice Pro - Monthly Plan (15 CAD)',
+    'description' => '15 CAD per month for full access to all features.',
         'status' => 'ACTIVE',
         'billing_cycles' => [
             [
@@ -109,16 +109,16 @@ function create_plan($access_token, $product_id) {
                 'total_cycles' => 0, // 0 = repeats forever
                 'pricing_scheme' => [
                     'fixed_price' => [
-                        'value' => '5.00',
-                        'currency_code' => 'USD',
+                    'value' => '15.00',
+                    'currency_code' => 'CAD',
                     ],
                 ],
             ],
         ],
         'payment_preferences' => [
             'auto_bill_outstanding' => true,
-            'setup_fee_failure_action' => 'CONTINUE',
-            'payment_failure_threshold' => 3,
+        'setup_fee_failure_action' => 'CANCEL',
+        'payment_failure_threshold' => 0, // 0 means the subscription is suspended immediately after the first failed payment.
         ],
     ];
 
