@@ -42,7 +42,16 @@ try {
     // 5. Send the password reset email
     require_once __DIR__ . '/../services/EmailService.php';
 
-    $reset_link = "https://ebski.co/tefinitely/reset_password.html?token=" . $token;
+    // 6. Dynamically generate the reset link
+    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https" : "http";
+    $host = $_SERVER['HTTP_HOST'];
+    $script_path = dirname($_SERVER['PHP_SELF']);
+    // Go up two directories from /api/auth to the root path
+    $app_path = dirname(dirname($script_path));
+    // Normalize to handle root install vs. subdirectory
+    $app_path = ($app_path == '/' || $app_path == '\\') ? '' : $app_path;
+
+    $reset_link = "{$protocol}://{$host}{$app_path}/reset_password.html?token=" . $token;
     $subject = "Password Reset Request";
 
     $body_html = "
