@@ -17,9 +17,9 @@ $conn->set_charset("utf8mb4");  // IMPORTANT: Set charset to utf8mb4 here
 // Load from environment variables.
 // The fallback values are for development purposes and should not be used in production.
 $aws_key = getenv('AWS_ACCESS_KEY_ID') ?: 'AKIA5SGXHWFP2UEGBIO7';
-$aws_secret = getenv('AWS_SECRET_ACCESS_KEY') ?: 'YOUR_AWS_SECRET_ACCESS_KEY';
+$aws_secret = getenv('AWS_SECRET_ACCESS_KEY') ?: '';
 $aws_region = getenv('AWS_REGION') ?: 'us-east-1';
-$sender_email = getenv('SENDER_EMAIL') ?: 'YOUR_SENDER_EMAIL';
+$sender_email = getenv('SENDER_EMAIL') ?: 'tefinitely@gmail.com';
 
 // --- Debug Logging Function ---
 // function debug_log($message) {
