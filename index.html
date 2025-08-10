@@ -231,7 +231,26 @@
     margin-left: 0.5rem;
   }
 </style>
-<script src="https://www.paypal.com/sdk/js?client-id=AUWWl6fyDnYoKr4N77ugdDKP7IKYv0-ObG_Zj-vFhmJ_HlEUc34ZYAY983je8c4syTpSl1L_Dn2M8ddP&currency=USD"></script>
+<script>
+    // Dynamically load PayPal SDK
+    (async () => {
+        try {
+            const response = await fetch('api/paypal/get_config.php');
+            const config = await response.json();
+            if (config.client_id && config.client_id !== 'YOUR_PAYPAL_CLIENT_ID') {
+                const script = document.createElement('script');
+                script.src = `https://www.paypal.com/sdk/js?client-id=${config.client_id}&currency=CAD&intent=subscription&vault=true`;
+                script.setAttribute('data-plan-id', config.plan_id);
+                script.id = 'paypal-sdk-script';
+                document.head.appendChild(script);
+            } else {
+                console.error('PayPal client_id is not configured.');
+            }
+        } catch (error) {
+            console.error('Failed to load PayPal config:', error);
+        }
+    })();
+</script>
 </head>
 <body>
 <header>
@@ -479,43 +498,59 @@
   const mainContentDiv = document.getElementById('main-content');
   const paypalContainer = document.getElementById('paypal-button-container');
 
-  // --- PayPal Button Rendering ---
-  function renderPayPalButton() {
-      paypal.Buttons({
-          // Call your server to set up the transaction
-          createOrder: async function(data, actions) {
-              const response = await fetch('api/paypal/create_payment.php', { method: 'POST' });
-              const order = await response.json();
-              if (order.status === 'success') {
-                  return order.orderID;
-              } else {
-                  showToast('Error creating PayPal order: ' + order.message, 'error');
-                  return null;
-              }
-          },
+  // --- PayPal Subscription Button Rendering ---
+  function renderPayPalSubscriptionButton() {
+    const paypalScript = document.getElementById('paypal-sdk-script');
+    if (!paypalScript) {
+        console.error("PayPal SDK script not found.");
+        authMessage.textContent = 'Payment system failed to load. Please refresh.';
+        return;
+    }
+    const planId = paypalScript.getAttribute('data-plan-id');
 
-          // Call your server to finalize the transaction
-          onApprove: async function(data, actions) {
-              const response = await fetch('api/paypal/capture_payment.php', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ orderID: data.orderID })
-              });
-              const captureDetails = await response.json();
-              if (captureDetails.status === 'success') {
-                  showToast('Payment successful! Your subscription is now active.', 'success');
-                  // Reload the page to reflect the new status
-                  setTimeout(() => { window.location.reload(); }, 2000);
-              } else {
-                  showToast('Payment failed: ' + captureDetails.message, 'error');
-              }
-          },
+    if (!planId || planId === 'YOUR_PAYPAL_PLAN_ID') {
+        authMessage.textContent = 'Subscription plan is not configured. Please contact support.';
+        return;
+    }
 
-          onError: function(err) {
-              console.error('PayPal button error:', err);
-              showToast('An error occurred with the PayPal button.', 'error');
-          }
-      }).render('#paypal-button-container');
+    paypal.Buttons({
+        style: {
+            shape: 'rect',
+            color: 'gold',
+            layout: 'vertical',
+            label: 'subscribe'
+        },
+        createSubscription: function(data, actions) {
+            return actions.subscription.create({
+                'plan_id': planId
+            });
+        },
+        onApprove: async function(data, actions) {
+            showToast('Subscription approved! Finalizing...', 'info');
+            // I will implement the 'capture_subscription.php' endpoint in a later step.
+            // For now, this will fail, which is expected.
+            try {
+                const response = await fetch('api/paypal/capture_subscription.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ subscriptionID: data.subscriptionID })
+                });
+                const result = await response.json();
+                if (result.status === 'success') {
+                    showToast('Subscription successful! You now have access.', 'success');
+                    setTimeout(() => { window.location.reload(); }, 2000);
+                } else {
+                    showToast('Failed to activate subscription: ' + (result.message || 'Unknown error'), 'error');
+                }
+            } catch (error) {
+                showToast('An error occurred while finalizing your subscription.', 'error');
+            }
+        },
+        onError: function(err) {
+            console.error('PayPal button error:', err);
+            showToast('An error occurred with the PayPal button.', 'error');
+        }
+    }).render('#paypal-button-container');
   }
 
   // --- Dynamic Topic Loading ---
@@ -584,7 +619,13 @@
                   authMessage.textContent = 'Your subscription is inactive. Please subscribe to get access.';
                   authLink.style.display = 'none'; // Hide the old link
                   authPromptDiv.style.display = 'block';
-                  renderPayPalButton(); // Render the PayPal button
+                  // Wait for PayPal SDK to be loaded
+                  const checkPayPal = setInterval(() => {
+                    if (typeof paypal !== 'undefined') {
+                        clearInterval(checkPayPal);
+                        renderPayPalSubscriptionButton();
+                    }
+                  }, 100);
               }
           } else {
               // User is not logged in
