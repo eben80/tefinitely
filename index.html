@@ -830,7 +830,6 @@
         console.log('Speech recognition error:', event);
         recordingResult.textContent = 'Speech recognition error: ' + event.error;
         startRecordBtn.disabled = false;
-        stopRecordBtn.disabled = true;
       };
 
       recognition.onspeechend = () => {
