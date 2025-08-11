@@ -230,6 +230,50 @@
   .tour-popup .buttons button {
     margin-left: 0.5rem;
   }
+
+  /* --- Subscription Prompt Styles --- */
+  .subscription-prompt {
+    max-width: 600px;
+    margin: 4rem auto;
+    background: #fff;
+    padding: 2rem 2.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    text-align: center;
+  }
+  .subscription-prompt h2 {
+    font-size: 1.8rem;
+    color: #004d99;
+    margin-bottom: 1rem;
+  }
+  .subscription-prompt .lead {
+    font-size: 1.1rem;
+    color: #666;
+    margin-bottom: 2rem;
+  }
+  .subscription-prompt .benefits-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0 auto 2rem auto;
+    text-align: left;
+    max-width: 350px;
+  }
+  .subscription-prompt .benefits-list li {
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+  }
+  .subscription-prompt .benefits-list li::before {
+    content: '✓';
+    color: #28a745;
+    font-size: 1.5rem;
+    margin-right: 1rem;
+  }
+  #paypal-button-container {
+      max-width: 300px;
+      margin: 1rem auto 0 auto;
+  }
 </style>
 <script>
     // Dynamically load PayPal SDK
@@ -265,12 +309,17 @@
     <button id="logoutBtn">Logout</button>
 </div>
 
-<div id="auth-prompt" style="display: none; text-align: center; margin-top: 5rem;">
-    <h2 id="auth-message"></h2>
-    <!-- This link is now a fallback, PayPal button is the main action -->
-    <a id="auth-link" href="login.html"></a>
+<div id="auth-prompt" class="subscription-prompt" style="display: none;">
+    <h2>Unlock Your Full Potential</h2>
+    <p class="lead">Your subscription is inactive. Subscribe now to get full access to all our training features.</p>
+    <ul class="benefits-list">
+        <li>Access all training modules</li>
+        <li>Practice with unlimited phrases</li>
+        <li>Track your progress</li>
+        <li>Cancel anytime</li>
+    </ul>
     <!-- PayPal button will be rendered here -->
-    <div id="paypal-button-container" style="margin-top: 1rem;"></div>
+    <div id="paypal-button-container"></div>
 </div>
 
 <div id="tour-overlay" class="tour-overlay">
@@ -616,8 +665,6 @@
                   }
               } else {
                   // Logged in but no active subscription
-                  authMessage.textContent = 'Your subscription is inactive. Please subscribe to get access.';
-                  authLink.style.display = 'none'; // Hide the old link
                   authPromptDiv.style.display = 'block';
                   // Wait for PayPal SDK to be loaded
                   const checkPayPal = setInterval(() => {
