@@ -2,3 +2,4 @@
 /logs/
 /db/logs/
 db/logs/php_debug.log
+db/paypal_config.php
