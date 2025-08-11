@@ -3,3 +3,5 @@
 /db/logs/
 db/logs/php_debug.log
 db/paypal_config.php
+db/paypal_config.php
+db/db_config.php
