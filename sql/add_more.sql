@@ -63,3 +63,36 @@ INSERT INTO phrases (french_text, english_translation, theme, section) VALUES
 ('Acceptez-vous les paiements par virement ?', 'Do you accept bank transfers?', 'second_hand', 'section_a'),
 ('L’objet est-il encore disponible ?', 'Is the item still available?', 'second_hand', 'section_a'),
 ('Avez-vous la facture originale ?', 'Do you have the original invoice?', 'second_hand', 'section_a');
+
+-- Insert phrases for General theme
+INSERT INTO phrases (french_text, english_translation, theme, section) VALUES
+-- Introductions
+('Bonjour, [Votre nom] à l''appareil.', 'Hello, [Your Name] speaking.', 'General', 'section_a'),
+('Je vous appelle au sujet de...', 'I am calling you about...', 'General', 'section_a'),
+('Serait-il possible de parler à [Nom de la personne]?', 'Would it be possible to speak to [Person''s Name]?', 'General', 'section_a'),
+
+-- Asking about the ad
+('Est-ce que je parle bien à la personne qui a posté l''annonce ?', 'Am I speaking with the person who posted the ad?', 'General', 'section_a'),
+('C''est bien vous qui avez publié l''annonce pour [sujet de l''annonce]?', 'Are you the one who published the ad for [subject of the ad]?', 'General', 'section_a'),
+
+-- Asking for time
+('Auriez-vous quelques instants à m''accorder pour quelques questions ?', 'Would you have a few moments for a few questions?', 'General', 'section_a'),
+('Seriez-vous disponible pour répondre à quelques questions ?', 'Would you be available to answer a few questions?', 'General', 'section_a'),
+('Cela ne vous prendra que quelques minutes.', 'It will only take a few minutes.', 'General', 'section_a'),
+
+-- Interjections
+('D''accord, je vois.', 'Okay, I see.', 'General', 'section_a'),
+('C''est noté.', 'Noted.', 'General', 'section_a'),
+('Parfait.', 'Perfect.', 'General', 'section_a'),
+('Intéressant.', 'Interesting.', 'General', 'section_a'),
+('Absolument.', 'Absolutely.', 'General', 'section_a'),
+('Ça a l''air bien.', 'That sounds good.', 'General', 'section_a'),
+('Ça semble intéressant.', 'That seems interesting.', 'General', 'section_a'),
+
+
+-- Closing the call
+('Je vous remercie pour votre temps et pour les informations.', 'Thank you for your time and for the information.', 'General', 'section_a'),
+('Merci beaucoup pour votre aide.', 'Thank you very much for your help.', 'General', 'section_a'),
+('Je vais étudier la question et je vous recontacterai.', 'I will consider the matter and get back to you.', 'General', 'section_a'),
+('Passez une excellente journée.', 'Have an excellent day.', 'General', 'section_a'),
+('Au revoir, Madame/Monsieur.', 'Goodbye, Madam/Sir.', 'General', 'section_a');
