@@ -818,9 +818,13 @@
           }
       } catch (error) {
           console.error('Session check failed:', error);
+          // Gracefully handle the error by showing the landing page with an error message
           authContainer.style.display = 'block';
-          loginMessage.textContent = 'An error occurred. Please try again later.';
           loginPrompt.style.display = 'block';
+          const heroH1 = loginPrompt.querySelector('.hero h1');
+          const heroP = loginPrompt.querySelector('.hero p');
+          if (heroH1) heroH1.textContent = 'Oops! Something went wrong.';
+          if (heroP) heroP.textContent = 'We couldn\'t load the page properly. Please try refreshing. If the problem persists, please contact support.';
       }
   });
 
