@@ -349,6 +349,22 @@
       margin: 1rem 0.5rem 0 0.5rem;
       font-size: 1rem;
   }
+
+  /* --- Copied from main flashcard for sample animation --- */
+  @keyframes slide-out-left {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(-100px); opacity: 0; }
+  }
+  @keyframes slide-out-right {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(100px); opacity: 0; }
+  }
+  .slide-out-left {
+      animation: slide-out-left 0.3s forwards;
+  }
+  .slide-out-right {
+      animation: slide-out-right 0.3s forwards;
+  }
   #paypal-button-container {
       max-width: 300px;
       margin: 1rem auto 0 auto;
@@ -395,7 +411,7 @@
             <h1>Master the TEF Canada Speaking Test</h1>
             <p>Go from hesitant to fluent with TEFinitely. Our unique, phased training system builds your confidence and skills for real-world conversations.</p>
             <div class="cta-buttons">
-                <a href="register.html">Get Started for Free</a>
+                <a href="register.html">Get Started</a>
                 <a href="login.html" class="secondary">Already have an account?</a>
             </div>
         </section>
@@ -433,10 +449,14 @@
                 </div>
             </div>
             <div id="sample-nav">
-                <button id="sample-prev-btn" disabled>&lt; Previous</button>
+                <button id="sample-first-btn">&lt;&lt;</button>
+                <button id="sample-prev-btn" disabled>Previous</button>
                 <button id="sample-flip-btn">Flip</button>
-                <button id="sample-play-btn">Play Audio</button>
-                <button id="sample-next-btn">Next &gt;</button>
+                <button id="sample-play-btn">Play Phrase</button>
+                <button id="sample-next-btn">Next</button>
+            </div>
+            <div id="sample-pagination-display" style="text-align: center; margin-top: 1rem; font-weight: bold;">
+                <span id="sample-current-card"></span> / <span id="sample-total-cards"></span>
             </div>
         </section>
     </div>
@@ -852,6 +872,9 @@
   const sampleNextBtn = document.getElementById('sample-next-btn');
   const sampleFlipBtn = document.getElementById('sample-flip-btn');
   const samplePlayBtn = document.getElementById('sample-play-btn');
+  const sampleFirstBtn = document.getElementById('sample-first-btn');
+  const sampleCurrentCard = document.getElementById('sample-current-card');
+  const sampleTotalCards = document.getElementById('sample-total-cards');
 
   function displaySamplePhrase(index) {
       if (!sampleEnglish) return; // Guard against running when elements aren't visible
@@ -859,8 +882,13 @@
       sampleEnglish.textContent = phrase.english;
       sampleFrench.textContent = phrase.french;
       sampleFlashcard.classList.remove('is-flipped');
+
       samplePrevBtn.disabled = index === 0;
+      sampleFirstBtn.disabled = index === 0;
       sampleNextBtn.disabled = index === samplePhrases.length - 1;
+
+      sampleCurrentCard.textContent = index + 1;
+      sampleTotalCards.textContent = samplePhrases.length;
   }
 
   if(sampleFlipBtn) {
@@ -871,17 +899,32 @@
         sampleFlashcard.classList.toggle('is-flipped');
     });
 
+    sampleFirstBtn.addEventListener('click', () => {
+        if (currentSampleIndex > 0) {
+            currentSampleIndex = 0;
+            displaySamplePhrase(currentSampleIndex);
+        }
+    });
+
     samplePrevBtn.addEventListener('click', () => {
         if (currentSampleIndex > 0) {
-            currentSampleIndex--;
-            displaySamplePhrase(currentSampleIndex);
+            sampleFlashcard.classList.add('slide-out-right');
+            setTimeout(() => {
+                currentSampleIndex--;
+                displaySamplePhrase(currentSampleIndex);
+                sampleFlashcard.classList.remove('slide-out-right');
+            }, 300);
         }
     });
 
     sampleNextBtn.addEventListener('click', () => {
         if (currentSampleIndex < samplePhrases.length - 1) {
-            currentSampleIndex++;
-            displaySamplePhrase(currentSampleIndex);
+            sampleFlashcard.classList.add('slide-out-left');
+            setTimeout(() => {
+                currentSampleIndex++;
+                displaySamplePhrase(currentSampleIndex);
+                sampleFlashcard.classList.remove('slide-out-left');
+            }, 300);
         }
     });
 
@@ -900,6 +943,39 @@
 
     // Initial display
     displaySamplePhrase(0);
+
+    // --- Swipe Gestures for Sample ---
+    let touchstartX = 0;
+    let touchendX = 0;
+    let touchstartY = 0;
+    let touchendY = 0;
+
+    sampleFlashcard.addEventListener('touchstart', e => {
+        touchstartX = e.changedTouches[0].screenX;
+        touchstartY = e.changedTouches[0].screenY;
+    });
+
+    sampleFlashcard.addEventListener('touchend', e => {
+        touchendX = e.changedTouches[0].screenX;
+        touchendY = e.changedTouches[0].screenY;
+        handleSampleSwipe();
+    });
+
+    function handleSampleSwipe() {
+        const threshold = 50; // Minimum swipe distance
+        const deltaX = touchendX - touchstartX;
+        const deltaY = touchendY - touchstartY;
+
+        if (Math.abs(deltaX) > Math.abs(deltaY)) { // Horizontal swipe
+            if (Math.abs(deltaX) > threshold) {
+                if (deltaX < 0) {
+                    sampleNextBtn.click();
+                } else {
+                    samplePrevBtn.click();
+                }
+            }
+        }
+    }
   }
 
   // Logout functionality
