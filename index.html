@@ -309,17 +309,26 @@
     <button id="logoutBtn">Logout</button>
 </div>
 
-<div id="auth-prompt" class="subscription-prompt" style="display: none;">
-    <h2>Unlock Your Full Potential</h2>
-    <p class="lead">Your subscription is inactive. Subscribe now to get full access to all our training features.</p>
-    <ul class="benefits-list">
-        <li>Access all training modules</li>
-        <li>Practice with unlimited phrases</li>
-        <li>Track your progress</li>
-        <li>Cancel anytime</li>
-    </ul>
-    <!-- PayPal button will be rendered here -->
-    <div id="paypal-button-container"></div>
+<div id="auth-container" style="display: none;">
+    <!-- Prompt for logged-out users -->
+    <div id="login-prompt" style="display: none; text-align: center; margin-top: 5rem;">
+        <h2 id="login-message"></h2>
+        <a id="login-link" href="login.html">Login</a>
+    </div>
+
+    <!-- Prompt for logged-in but non-subscribed users -->
+    <div id="subscription-prompt" class="subscription-prompt" style="display: none;">
+        <h2>Unlock Your Full Potential</h2>
+        <p class="lead">Your subscription is inactive. Subscribe now to get full access to all our training features.</p>
+        <ul class="benefits-list">
+            <li>Access all training modules</li>
+            <li>Practice with unlimited phrases</li>
+            <li>Track your progress</li>
+            <li>Cancel anytime</li>
+        </ul>
+        <!-- PayPal button will be rendered here -->
+        <div id="paypal-button-container"></div>
+    </div>
 </div>
 
 <div id="tour-overlay" class="tour-overlay">
@@ -541,9 +550,10 @@
   const userStatusDiv = document.getElementById('user-status');
   const firstNameDisplay = document.getElementById('first-name-display');
   const logoutBtn = document.getElementById('logoutBtn');
-  const authPromptDiv = document.getElementById('auth-prompt');
-  const authMessage = document.getElementById('auth-message');
-  const authLink = document.getElementById('auth-link');
+  const authContainer = document.getElementById('auth-container');
+  const loginPrompt = document.getElementById('login-prompt');
+  const loginMessage = document.getElementById('login-message');
+  const subscriptionPrompt = document.getElementById('subscription-prompt');
   const mainContentDiv = document.getElementById('main-content');
   const paypalContainer = document.getElementById('paypal-button-container');
 
@@ -665,7 +675,8 @@
                   }
               } else {
                   // Logged in but no active subscription
-                  authPromptDiv.style.display = 'block';
+                  authContainer.style.display = 'block';
+                  subscriptionPrompt.style.display = 'block';
                   // Wait for PayPal SDK to be loaded
                   const checkPayPal = setInterval(() => {
                     if (typeof paypal !== 'undefined') {
@@ -676,15 +687,15 @@
               }
           } else {
               // User is not logged in
-              authMessage.textContent = 'Please log in to access the content.';
-              authLink.textContent = 'Login';
-              authLink.href = 'login.html';
-              authPromptDiv.style.display = 'block';
+              authContainer.style.display = 'block';
+              loginMessage.textContent = 'Please log in to access the content.';
+              loginPrompt.style.display = 'block';
           }
       } catch (error) {
           console.error('Session check failed:', error);
-          authMessage.textContent = 'An error occurred. Please try again later.';
-          authPromptDiv.style.display = 'block';
+          authContainer.style.display = 'block';
+          loginMessage.textContent = 'An error occurred. Please try again later.';
+          loginPrompt.style.display = 'block';
       }
   });
 
