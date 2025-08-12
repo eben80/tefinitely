@@ -160,6 +160,13 @@
         display: block;
         margin: 0 0 1rem 0;
     }
+    .landing-page .hero {
+        padding: 2rem 0;
+    }
+    .landing-page .features, .landing-page .sample-section {
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+    }
     body {
       margin: 1rem;
     }
@@ -415,29 +422,11 @@
     <!-- Landing Page for logged-out users -->
     <div id="login-prompt" class="landing-page" style="display: none;">
         <section class="hero">
-            <h1>Master the TEF Canada Speaking Test</h1>
+            <h1>Master the TEF Canada Exam</h1>
             <p>Go from hesitant to fluent with TEFinitely. Our unique, phased training system builds your confidence and skills for real-world conversations.</p>
             <div class="cta-buttons">
                 <a href="register.html">Get Started</a>
                 <a href="login.html" class="secondary">Already have an account?</a>
-            </div>
-        </section>
-
-        <section class="features">
-            <h2>Why TEFinitely Works</h2>
-            <div class="features-grid">
-                <div class="feature-item">
-                    <h3>Phase-Based Learning</h3>
-                    <p>Our 5-phase system takes you from basic shadowing to spontaneous conversation, ensuring a solid foundation and rapid progress.</p>
-                </div>
-                <div class="feature-item">
-                    <h3>Interactive Practice</h3>
-                    <p>Engage with flashcards, pronunciation checks, and semi-guided roleplays that simulate the real test environment.</p>
-                </div>
-                <div class="feature-item">
-                    <h3>Personalized Feedback</h3>
-                    <p>Save your own scripts, get analytical feedback, and track your improvement over time on your personal dashboard.</p>
-                </div>
             </div>
         </section>
 
@@ -464,6 +453,24 @@
             </div>
             <div id="sample-pagination-display" style="text-align: center; margin-top: 1rem; font-weight: bold;">
                 <span id="sample-current-card"></span> / <span id="sample-total-cards"></span>
+            </div>
+        </section>
+
+        <section class="features">
+            <h2>Why TEFinitely Works</h2>
+            <div class="features-grid">
+                <div class="feature-item">
+                    <h3>Phase-Based Learning</h3>
+                    <p>Our 5-phase system takes you from basic shadowing to spontaneous conversation, ensuring a solid foundation and rapid progress.</p>
+                </div>
+                <div class="feature-item">
+                    <h3>Interactive Practice</h3>
+                    <p>Engage with flashcards, pronunciation checks, and semi-guided roleplays that simulate the real test environment.</p>
+                </div>
+                <div class="feature-item">
+                    <h3>Personalized Feedback</h3>
+                    <p>Save your own scripts, get analytical feedback, and track your improvement over time on your personal dashboard.</p>
+                </div>
             </div>
         </section>
     </div>
@@ -891,8 +898,16 @@
           sampleTotalCards.textContent = samplePhrases.length;
       }
 
-      sampleFlipBtn.addEventListener('click', () => { sampleFlashcard.classList.toggle('is-flipped'); });
-      sampleFlashcard.addEventListener('click', () => { sampleFlashcard.classList.toggle('is-flipped'); });
+  sampleFlipBtn.addEventListener('click', () => {
+      sampleFlashcard.classList.toggle('is-flipped');
+  });
+  sampleFlashcard.addEventListener('click', (event) => {
+      // Do not flip if the click was on a button inside the card
+      if (event.target.closest('button')) {
+          return;
+      }
+      sampleFlashcard.classList.toggle('is-flipped');
+  });
       sampleFirstBtn.addEventListener('click', () => {
           if (currentSampleIndex > 0) {
               currentSampleIndex = 0;
