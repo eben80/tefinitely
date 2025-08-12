@@ -797,48 +797,49 @@
 
       try {
           const response = await fetch('api/check_session.php');
-          const data = await response.json();
 
-          if (response.ok && data.loggedIn) {
-              // User is logged in
-              firstNameDisplay.textContent = `Welcome, ${data.user.first_name}`;
-              userStatusDiv.style.display = 'block';
+          if (response.ok) {
+              const data = await response.json();
+              if (data.loggedIn) {
+                  // User is logged in
+                  firstNameDisplay.textContent = `Welcome, ${data.user.first_name}`;
+                  userStatusDiv.style.display = 'block';
+                  if (data.user.role === 'admin') {
+                      document.getElementById('admin-link').style.display = 'inline';
+                  }
 
-              // Show admin link if user is an admin
-              if (data.user.role === 'admin') {
-                  document.getElementById('admin-link').style.display = 'inline';
-              }
-
-              if (data.user.subscription_status === 'active') {
-                  // Active subscription, show the main content
-                  mainContentDiv.style.display = 'block';
-                  if (!data.user.tour_completed) {
-                      showTourStep(0);
-                  } else if (data.user.last_topic) {
-                      topicSelect.value = data.user.last_topic;
-                      loadPhrases(data.user.last_topic, data.user.last_card_index);
+                  if (data.user.subscription_status === 'active') {
+                      mainContentDiv.style.display = 'block';
+                      if (!data.user.tour_completed) {
+                          showTourStep(0);
+                      } else if (data.user.last_topic) {
+                          topicSelect.value = data.user.last_topic;
+                          loadPhrases(data.user.last_topic, data.user.last_card_index);
+                      }
+                  } else {
+                      // Logged in but not subscribed
+                      authContainer.style.display = 'block';
+                      subscriptionPrompt.style.display = 'block';
+                      const checkPayPal = setInterval(() => {
+                          if (typeof paypal !== 'undefined') {
+                              clearInterval(checkPayPal);
+                              renderPayPalSubscriptionButton();
+                          }
+                      }, 100);
                   }
               } else {
-                  // Logged in but no active subscription
+                  // Should not happen with a 200 OK, but as a fallback
                   authContainer.style.display = 'block';
-                  subscriptionPrompt.style.display = 'block';
-                  // Wait for PayPal SDK to be loaded
-                  const checkPayPal = setInterval(() => {
-                    if (typeof paypal !== 'undefined') {
-                        clearInterval(checkPayPal);
-                        renderPayPalSubscriptionButton();
-                    }
-                  }, 100);
+                  loginPrompt.style.display = 'block';
               }
           } else {
-              // User is not logged in
+              // Handle non-ok responses (like 401, 500) as a logged-out state
               authContainer.style.display = 'block';
-              loginMessage.textContent = 'Please log in to access the content.';
               loginPrompt.style.display = 'block';
           }
       } catch (error) {
-          console.error('Session check failed:', error);
-          // Gracefully handle the error by showing the landing page with an error message
+          // This catch block is now only for genuine network errors
+          console.error('Session check failed due to a network error:', error);
           authContainer.style.display = 'block';
           loginPrompt.style.display = 'block';
           const heroH1 = loginPrompt.querySelector('.hero h1');
