@@ -270,6 +270,85 @@
     font-size: 1.5rem;
     margin-right: 1rem;
   }
+
+  /* --- Logged-out Landing Page Styles --- */
+  .landing-page {
+    text-align: center;
+    padding: 0 2rem;
+  }
+  .landing-page .hero {
+    padding: 4rem 0;
+  }
+  .landing-page .hero h1 {
+    font-size: 3rem;
+    color: #004d99;
+    margin-bottom: 1rem;
+  }
+  .landing-page .hero p {
+    font-size: 1.25rem;
+    color: #555;
+    max-width: 700px;
+    margin: 0 auto 2rem auto;
+  }
+  .landing-page .cta-buttons a {
+    text-decoration: none;
+    color: white;
+    background: #007bff;
+    padding: 1rem 2rem;
+    border-radius: 5px;
+    font-size: 1.1rem;
+    margin: 0 0.5rem;
+    transition: background-color 0.3s;
+  }
+  .landing-page .cta-buttons a.secondary {
+    background: #6c757d;
+  }
+  .landing-page .cta-buttons a:hover {
+    background: #0056b3;
+  }
+  .landing-page .cta-buttons a.secondary:hover {
+    background: #5a6268;
+  }
+
+  .landing-page .features {
+    padding: 3rem 0;
+    background: #fff;
+    border-radius: 8px;
+    margin-bottom: 3rem;
+  }
+  .landing-page .features h2 {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+  }
+  .landing-page .features-grid {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+  .landing-page .feature-item {
+    max-width: 300px;
+  }
+  .landing-page .feature-item h3 {
+    font-size: 1.5rem;
+    color: #004d99;
+  }
+
+  .landing-page .sample-section {
+    padding: 3rem 0;
+  }
+  .landing-page .sample-section h2 {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+  }
+  #sample-flashcard-container .flashcard {
+      cursor: pointer;
+  }
+  #sample-nav button {
+      padding: 0.4rem 1rem;
+      margin: 1rem 0.5rem 0 0.5rem;
+      font-size: 1rem;
+  }
   #paypal-button-container {
       max-width: 300px;
       margin: 1rem auto 0 auto;
@@ -310,10 +389,56 @@
 </div>
 
 <div id="auth-container" style="display: none;">
-    <!-- Prompt for logged-out users -->
-    <div id="login-prompt" style="display: none; text-align: center; margin-top: 5rem;">
-        <h2 id="login-message"></h2>
-        <a id="login-link" href="login.html">Login</a>
+    <!-- Landing Page for logged-out users -->
+    <div id="login-prompt" class="landing-page" style="display: none;">
+        <section class="hero">
+            <h1>Master the TEF Canada Speaking Test</h1>
+            <p>Go from hesitant to fluent with TEFinitely. Our unique, phased training system builds your confidence and skills for real-world conversations.</p>
+            <div class="cta-buttons">
+                <a href="register.html">Get Started for Free</a>
+                <a href="login.html" class="secondary">Already have an account?</a>
+            </div>
+        </section>
+
+        <section class="features">
+            <h2>Why TEFinitely Works</h2>
+            <div class="features-grid">
+                <div class="feature-item">
+                    <h3>Phase-Based Learning</h3>
+                    <p>Our 5-phase system takes you from basic shadowing to spontaneous conversation, ensuring a solid foundation and rapid progress.</p>
+                </div>
+                <div class="feature-item">
+                    <h3>Interactive Practice</h3>
+                    <p>Engage with flashcards, pronunciation checks, and semi-guided roleplays that simulate the real test environment.</p>
+                </div>
+                <div class="feature-item">
+                    <h3>Personalized Feedback</h3>
+                    <p>Save your own scripts, get analytical feedback, and track your improvement over time on your personal dashboard.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="sample-section">
+            <h2>Try a Sample</h2>
+            <div id="sample-flashcard-container">
+                <div class="flashcard">
+                    <div class="flashcard-inner">
+                        <div class="flashcard-front">
+                            <p id="sample-english"></p>
+                        </div>
+                        <div class="flashcard-back">
+                            <p id="sample-french"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="sample-nav">
+                <button id="sample-prev-btn" disabled>&lt; Previous</button>
+                <button id="sample-flip-btn">Flip</button>
+                <button id="sample-play-btn">Play Audio</button>
+                <button id="sample-next-btn">Next &gt;</button>
+            </div>
+        </section>
     </div>
 
     <!-- Prompt for logged-in but non-subscribed users -->
@@ -698,6 +823,80 @@
           loginPrompt.style.display = 'block';
       }
   });
+
+  // --- Landing Page Sample Flashcard Logic (Global Scope for Testing) ---
+  const samplePhrases = [
+    {
+      english: 'Hello, I am calling about the advertisement.',
+      french: 'Bonjour, je vous appelle au sujet de l’annonce.'
+    },
+    {
+      english: 'Could you give me more information?',
+      french: 'Pourriez-vous me donner plus d’informations ?'
+    },
+    {
+      english: 'What are the opening hours?',
+      french: 'Quels sont les horaires d’ouverture ?'
+    }
+  ];
+  let currentSampleIndex = 0;
+
+  const sampleEnglish = document.getElementById('sample-english');
+  const sampleFrench = document.getElementById('sample-french');
+  const sampleFlashcard = document.querySelector('#sample-flashcard-container .flashcard');
+  const samplePrevBtn = document.getElementById('sample-prev-btn');
+  const sampleNextBtn = document.getElementById('sample-next-btn');
+  const sampleFlipBtn = document.getElementById('sample-flip-btn');
+  const samplePlayBtn = document.getElementById('sample-play-btn');
+
+  function displaySamplePhrase(index) {
+      if (!sampleEnglish) return; // Guard against running when elements aren't visible
+      const phrase = samplePhrases[index];
+      sampleEnglish.textContent = phrase.english;
+      sampleFrench.textContent = phrase.french;
+      sampleFlashcard.classList.remove('is-flipped');
+      samplePrevBtn.disabled = index === 0;
+      sampleNextBtn.disabled = index === samplePhrases.length - 1;
+  }
+
+  if(sampleFlipBtn) {
+    sampleFlipBtn.addEventListener('click', () => {
+        sampleFlashcard.classList.toggle('is-flipped');
+    });
+    sampleFlashcard.addEventListener('click', () => {
+        sampleFlashcard.classList.toggle('is-flipped');
+    });
+
+    samplePrevBtn.addEventListener('click', () => {
+        if (currentSampleIndex > 0) {
+            currentSampleIndex--;
+            displaySamplePhrase(currentSampleIndex);
+        }
+    });
+
+    sampleNextBtn.addEventListener('click', () => {
+        if (currentSampleIndex < samplePhrases.length - 1) {
+            currentSampleIndex++;
+            displaySamplePhrase(currentSampleIndex);
+        }
+    });
+
+    samplePlayBtn.addEventListener('click', () => {
+        const text = samplePhrases[currentSampleIndex].french;
+        const utterance = new SpeechSynthesisUtterance(text);
+        const voices = speechSynthesis.getVoices();
+        let frenchVoice = voices.find(voice => voice.lang === 'fr-FR');
+        if (frenchVoice) {
+            utterance.voice = frenchVoice;
+        }
+        utterance.lang = 'fr-FR';
+        utterance.rate = 1.0; // Use default rate for sample
+        speechSynthesis.speak(utterance);
+    });
+
+    // Initial display
+    displaySamplePhrase(0);
+  }
 
   // Logout functionality
   logoutBtn.addEventListener('click', async () => {
