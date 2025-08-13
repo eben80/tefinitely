@@ -622,6 +622,7 @@ function initializeMainFlashcard() {
         phraseEnglish.textContent = p.english_translation;
         flashcard.classList.remove('is-flipped');
         updateNavButtons();
+        currentCardSpan.textContent = idx + 1;
     }
 
     function updateNavButtons() {
@@ -653,13 +654,19 @@ function initializeMainFlashcard() {
     flipCardBtn.addEventListener('click', (e) => { e.stopPropagation(); flashcard.classList.toggle('is-flipped'); });
     flashcard.addEventListener('click', () => flashcard.classList.toggle('is-flipped'));
     playPhraseBtn.addEventListener('click', () => { if (phraseFrench.textContent) speakFrench(phraseFrench.textContent, speechRate); });
-    firstCardBtn.addEventListener('click', () => { if (currentPhraseIndex > 0) displayPhrase(0); });
+    firstCardBtn.addEventListener('click', () => {
+        if (currentPhraseIndex > 0) {
+            currentPhraseIndex = 0;
+            displayPhrase(0);
+        }
+    });
 
     prevPhraseBtn.addEventListener('click', () => {
         if (currentPhraseIndex > 0) {
             phraseBox.classList.add('slide-out-right');
             setTimeout(() => {
-                displayPhrase(currentPhraseIndex - 1);
+                currentPhraseIndex--;
+                displayPhrase(currentPhraseIndex);
                 phraseBox.classList.remove('slide-out-right');
             }, 300);
         }
@@ -669,7 +676,8 @@ function initializeMainFlashcard() {
         if (currentPhraseIndex < phrases.length - 1) {
             phraseBox.classList.add('slide-out-left');
             setTimeout(() => {
-                displayPhrase(currentPhraseIndex + 1);
+                currentPhraseIndex++;
+                displayPhrase(currentPhraseIndex);
                 phraseBox.classList.remove('slide-out-left');
             }, 300);
         }
