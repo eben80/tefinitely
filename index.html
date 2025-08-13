@@ -549,138 +549,74 @@
 
 <script src="js/toast.js"></script>
 <script>
-  // Existing script variables
-  const topicSelect = document.getElementById('topicSelect');
-  const speechRateInput = document.getElementById('speechRate');
-  const rateDisplay = document.getElementById('rateDisplay');
-  const phraseBox = document.getElementById('phraseBox');
-  const phraseFrench = document.getElementById('phraseFrench');
-  const phraseEnglish = document.getElementById('phraseEnglish');
-  const playPhraseBtn = document.getElementById('playPhraseBtn');
-  const firstCardBtn = document.getElementById('firstCardBtn');
-  const prevPhraseBtn = document.getElementById('prevPhraseBtn');
-  const nextPhraseBtn = document.getElementById('nextPhraseBtn');
-  const flipCardBtn = document.getElementById('flipCardBtn');
-  const flashcard = document.querySelector('.flashcard');
-  const recordingSection = document.getElementById('recordingSection');
-  const startRecordBtn = document.getElementById('startRecordBtn');
-  const userAudio = document.getElementById('userAudio');
-  const recordingResult = document.getElementById('recordingResult');
-  const currentCardSpan = document.getElementById('current-card');
-  const totalCardsSpan = document.getElementById('total-cards');
-
-  const tourSteps = [
-    {
-      title: 'Welcome to TEFinitely!',
-      content: 'This guided tour will walk you through the features of the site. You can skip this at any time by clicking the "Skip" button.',
-      target: null
-    },
-    {
-      title: 'Select a Topic',
-      content: 'Start by selecting a topic from this dropdown menu. The phrases for the selected topic will be loaded automatically.',
-      target: '#topicSelect'
-    },
-    {
-      title: 'The Flashcard',
-      content: 'This is the flashcard. The English translation is shown on the front. Click the "Flip" button or the card itself to see the French text.',
-      target: '#phraseBox'
-    },
-    {
-      title: 'Navigation',
-      content: 'Use these buttons to navigate between cards. You can also swipe left and right on the card on a touch device.',
-      target: '#navButtons'
-    },
-    {
-      title: 'Listen to the Phrase',
-      content: 'Click this button to hear the French phrase spoken.',
-      target: '#playPhraseBtn'
-    },
-    {
-      title: 'Check Your Pronunciation',
-      content: 'Click the "Speak" button and say the French phrase. We\'ll let you know how you did.',
-      target: '#recordingSection'
-    },
-    {
-      title: 'Adjust Speech Speed',
-      content: 'You can adjust the speed of the text-to-speech voice here.',
-      target: '#speechRate'
-    },
-    {
-      title: 'Ready to Go!',
-      content: 'You\'re all set! You can restart this tour at any time from your profile page.',
-      target: null
-    }
-  ];
-
+  // --- Main App State ---
   let phrases = [];
   let currentPhraseIndex = 0;
   let currentTopic = '';
+  let speechRate = 1.0;
   let currentTourStep = 0;
 
-  const tourOverlay = document.getElementById('tour-overlay');
-  const tourPopup = document.getElementById('tour-popup');
-  const tourTitle = document.getElementById('tour-title');
-  const tourContent = document.getElementById('tour-content');
-  const tourSkip = document.getElementById('tour-skip');
-  const tourNext = document.getElementById('tour-next');
-
-  function showTourStep(stepIndex) {
-    if (stepIndex === 0) {
-        // Load the first topic by default
-        if (topicSelect.options.length > 1) {
-          topicSelect.selectedIndex = 1;
-          loadPhrases(topicSelect.value);
-        }
+  // --- Main App Functions ---
+  function speakFrench(text, rate) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    const voices = speechSynthesis.getVoices();
+    let frenchVoice = voices.find(voice => voice.lang === 'fr-FR');
+    if (frenchVoice) {
+      utterance.voice = frenchVoice;
     }
-    const step = tourSteps[stepIndex];
-    tourTitle.textContent = step.title;
-    tourContent.textContent = step.content;
-
-    if (step.target) {
-      const targetElement = document.querySelector(step.target);
-      targetElement.style.zIndex = '1002';
-      targetElement.style.position = 'relative';
-    }
-
-    tourOverlay.style.display = 'block';
+    utterance.lang = 'fr-FR';
+    utterance.rate = rate;
+    speechSynthesis.speak(utterance);
   }
 
-  function hideTourStep(stepIndex) {
-    const step = tourSteps[stepIndex];
-    if (step.target) {
-      const targetElement = document.querySelector(step.target);
-      targetElement.style.zIndex = '';
-      targetElement.style.position = '';
-    }
+  async function loadPhrases(topicValue, initialCardIndex = 0) {
+      currentTopic = topicValue;
+      savePosition(currentTopic, initialCardIndex);
+      const [section, theme] = topicValue.split('-');
+      if (!section || !theme) return;
+
+      const mainContentDiv = document.getElementById('main-content');
+      const phraseBox = mainContentDiv.querySelector('#phraseBox');
+      const recordingSection = mainContentDiv.querySelector('#recordingSection');
+      const totalCardsSpan = mainContentDiv.querySelector('#total-cards');
+
+      try {
+          const res = await fetch(`api/get_phrases.php?theme=${encodeURIComponent(theme)}&section=${encodeURIComponent(section)}`);
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.message || 'Network response was not OK');
+
+          phrases = data;
+          if (phrases.length === 0) {
+              showToast('No phrases found for this selection.', 'error');
+              phraseBox.style.display = 'none';
+              recordingSection.style.display = 'none';
+              return;
+          }
+          totalCardsSpan.textContent = phrases.length;
+          currentPhraseIndex = initialCardIndex || 0;
+          if (currentPhraseIndex >= phrases.length) {
+              currentPhraseIndex = 0;
+          }
+
+          const { displayPhrase, updateNavButtons } = initializeMainFlashcard();
+          displayPhrase(currentPhraseIndex);
+          updateNavButtons();
+
+          phraseBox.style.display = 'block';
+          recordingSection.style.display = 'block';
+          recordingSection.querySelector('#recordingResult').textContent = '';
+          const userAudio = recordingSection.querySelector('#userAudio');
+          userAudio.style.display = 'none';
+          userAudio.src = '';
+
+      } catch (e) {
+          showToast('Error loading phrases: ' + e.message, 'error');
+          if (e.message.includes('Access denied')) {
+              setTimeout(() => { window.location.href = 'login.html'; }, 2000);
+          }
+      }
   }
 
-  tourNext.addEventListener('click', () => {
-    hideTourStep(currentTourStep);
-    currentTourStep++;
-    if (currentTourStep < tourSteps.length) {
-      showTourStep(currentTourStep);
-    } else {
-      tourOverlay.style.display = 'none';
-      fetch('api/profile/update_user_details.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tour_completed: true })
-      });
-    }
-  });
-
-  tourSkip.addEventListener('click', () => {
-    hideTourStep(currentTourStep);
-    tourOverlay.style.display = 'none';
-    fetch('api/profile/update_user_details.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tour_completed: true })
-    });
-  });
-  let speechRate = 1.0; // Default value
-
-  // --- Position Persistence ---
   function savePosition(topic, index) {
     fetch('api/profile/update_user_details.php', {
       method: 'POST',
@@ -689,64 +625,279 @@
     });
   }
 
-  // --- Speech Rate Handling ---
-  function loadSpeechRate() {
-      const savedRate = localStorage.getItem('savedSpeechRate');
-      if (savedRate) {
-          speechRate = parseFloat(savedRate);
-          speechRateInput.value = savedRate;
-          rateDisplay.textContent = parseFloat(savedRate).toFixed(1);
+  // --- Initializers ---
+  function initializeSampleFlashcard() {
+      const samplePhrasesData = [
+        { english: 'Hello, I am calling about the advertisement.', french: 'Bonjour, je vous appelle au sujet de l’annonce.' },
+        { english: 'Could you give me more information?', french: 'Pourriez-vous me donner plus d’informations ?' },
+        { english: 'What are the opening hours?', french: 'Quels sont les horaires d’ouverture ?' }
+      ];
+      let currentSampleIndex = 0;
+
+      const container = document.querySelector('#login-prompt');
+      if (!container) return;
+
+      const sampleEnglish = container.querySelector('#sample-english');
+      const sampleFrench = container.querySelector('#sample-french');
+      const sampleFlashcard = container.querySelector('#sample-flashcard-container .flashcard');
+      const samplePrevBtn = container.querySelector('#sample-prev-btn');
+      const sampleNextBtn = container.querySelector('#sample-next-btn');
+      const sampleFlipBtn = container.querySelector('#sample-flip-btn');
+      const samplePlayBtn = container.querySelector('#sample-play-btn');
+      const sampleFirstBtn = container.querySelector('#sample-first-btn');
+      const sampleCurrentCard = container.querySelector('#sample-current-card');
+      const sampleTotalCards = container.querySelector('#sample-total-cards');
+
+      if (!sampleFlashcard) return;
+
+      function displaySamplePhrase(index) {
+          const phrase = samplePhrasesData[index];
+          sampleEnglish.textContent = phrase.english;
+          sampleFrench.textContent = phrase.french;
+          sampleFlashcard.classList.remove('is-flipped');
+          samplePrevBtn.disabled = index === 0;
+          sampleFirstBtn.disabled = index === 0;
+          sampleNextBtn.disabled = index === samplePhrasesData.length - 1;
+          sampleCurrentCard.textContent = index + 1;
+          sampleTotalCards.textContent = samplePhrasesData.length;
       }
+
+      sampleFlipBtn.addEventListener('click', (event) => {
+          event.stopPropagation();
+          sampleFlashcard.classList.toggle('is-flipped');
+      });
+      sampleFlashcard.addEventListener('click', () => {
+          sampleFlashcard.classList.toggle('is-flipped');
+      });
+
+      sampleFirstBtn.addEventListener('click', () => {
+          if (currentSampleIndex > 0) { currentSampleIndex = 0; displaySamplePhrase(currentSampleIndex); }
+      });
+      samplePrevBtn.addEventListener('click', () => {
+          if (currentSampleIndex > 0) {
+              sampleFlashcard.classList.add('slide-out-right');
+              setTimeout(() => {
+                  currentSampleIndex--;
+                  displaySamplePhrase(currentSampleIndex);
+                  sampleFlashcard.classList.remove('slide-out-right');
+              }, 300);
+          }
+      });
+      sampleNextBtn.addEventListener('click', () => {
+          if (currentSampleIndex < samplePhrasesData.length - 1) {
+              sampleFlashcard.classList.add('slide-out-left');
+              setTimeout(() => {
+                  currentSampleIndex++;
+                  displaySamplePhrase(currentSampleIndex);
+                  sampleFlashcard.classList.remove('slide-out-left');
+              }, 300);
+          }
+      });
+      samplePlayBtn.addEventListener('click', () => {
+          const text = samplePhrasesData[currentSampleIndex].french;
+          speakFrench(text, 1.0);
+      });
+
+      let touchstartX = 0, touchendX = 0;
+      sampleFlashcard.addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; });
+      sampleFlashcard.addEventListener('touchend', e => {
+          touchendX = e.changedTouches[0].screenX;
+          if (Math.abs(touchendX - touchstartX) > 50) {
+              if (touchendX < touchstartX) sampleNextBtn.click();
+              else samplePrevBtn.click();
+          }
+      });
+
+      displaySamplePhrase(0);
   }
 
-  speechRateInput.addEventListener('input', () => {
-      speechRate = parseFloat(speechRateInput.value);
-      rateDisplay.textContent = speechRate.toFixed(1);
-      localStorage.setItem('savedSpeechRate', speechRate);
+  function initializeMainFlashcard() {
+      const mainContentDiv = document.getElementById('main-content');
+      const phraseBox = mainContentDiv.querySelector('#phraseBox');
+      const phraseFrench = mainContentDiv.querySelector('#phraseFrench');
+      const phraseEnglish = mainContentDiv.querySelector('#phraseEnglish');
+      const playPhraseBtn = mainContentDiv.querySelector('#playPhraseBtn');
+      const firstCardBtn = mainContentDiv.querySelector('#firstCardBtn');
+      const prevPhraseBtn = mainContentDiv.querySelector('#prevPhraseBtn');
+      const nextPhraseBtn = mainContentDiv.querySelector('#nextPhraseBtn');
+      const flipCardBtn = mainContentDiv.querySelector('#flipCardBtn');
+      const flashcard = mainContentDiv.querySelector('#phraseBox .flashcard');
+      const currentCardSpan = mainContentDiv.querySelector('#current-card');
+      const totalCardsSpan = mainContentDiv.querySelector('#total-cards');
+      const topicSelect = document.getElementById('topicSelect');
+
+      topicSelect.addEventListener('change', () => {
+          if (topicSelect.value) loadPhrases(topicSelect.value);
+      });
+
+      flipCardBtn.addEventListener('click', (event) => {
+          event.stopPropagation();
+          flashcard.classList.toggle('is-flipped');
+      });
+      flashcard.addEventListener('click', () => {
+          flashcard.classList.toggle('is-flipped');
+      });
+
+      firstCardBtn.onclick = () => {
+        if (currentPhraseIndex > 0) {
+            currentPhraseIndex = 0;
+            displayPhrase(currentPhraseIndex);
+        }
+      };
+      prevPhraseBtn.onclick = () => {
+        if (currentPhraseIndex > 0) {
+            phraseBox.classList.add('slide-out-right');
+            setTimeout(() => {
+                currentPhraseIndex--;
+                displayPhrase(currentPhraseIndex);
+            }, 300);
+        }
+      };
+      nextPhraseBtn.onclick = () => {
+        if (currentPhraseIndex < phrases.length - 1) {
+            flashcard.classList.remove('is-flipped');
+            phraseBox.classList.add('slide-out-left');
+            setTimeout(() => {
+                currentPhraseIndex++;
+                displayPhrase(currentPhraseIndex);
+            }, 300);
+        }
+      };
+      playPhraseBtn.addEventListener('click', () => {
+        if (phraseFrench.textContent) speakFrench(phraseFrench.textContent, speechRate);
+      });
+
+      let touchstartX = 0, touchendX = 0;
+      flashcard.addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; });
+      flashcard.addEventListener('touchend', e => {
+          touchendX = e.changedTouches[0].screenX;
+          if (Math.abs(touchendX - touchstartX) > 50) {
+              if (touchendX < touchstartX) nextPhraseBtn.click();
+              else prevPhraseBtn.click();
+          }
+      });
+
+      function displayPhrase(idx) {
+          flashcard.classList.remove('is-flipped');
+          currentCardSpan.textContent = idx + 1;
+          const p = phrases[idx];
+          phraseFrench.textContent = p.french_text;
+          phraseEnglish.textContent = p.english_translation;
+          updateNavButtons();
+      }
+      function updateNavButtons() {
+          firstCardBtn.disabled = (currentPhraseIndex === 0);
+          prevPhraseBtn.disabled = (currentPhraseIndex === 0);
+          nextPhraseBtn.disabled = (currentPhraseIndex === phrases.length - 1);
+      }
+
+      return { displayPhrase, updateNavButtons };
+  }
+
+  // --- Page Load and Session Logic ---
+  document.addEventListener('DOMContentLoaded', async () => {
+    const speechRateInput = document.getElementById('speechRate');
+    const rateDisplay = document.getElementById('rateDisplay');
+    const userStatusDiv = document.getElementById('user-status');
+    const firstNameDisplay = document.getElementById('first-name-display');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const authContainer = document.getElementById('auth-container');
+    const loginPrompt = document.getElementById('login-prompt');
+    const subscriptionPrompt = document.getElementById('subscription-prompt');
+    const mainContentDiv = document.getElementById('main-content');
+    const topicSelect = document.getElementById('topicSelect');
+
+    function loadSpeechRate() {
+        const savedRate = localStorage.getItem('savedSpeechRate');
+        if (savedRate) {
+            speechRate = parseFloat(savedRate);
+            speechRateInput.value = savedRate;
+            rateDisplay.textContent = parseFloat(savedRate).toFixed(1);
+        }
+    }
+    speechRateInput.addEventListener('input', () => {
+        speechRate = parseFloat(speechRateInput.value);
+        rateDisplay.textContent = speechRate.toFixed(1);
+        localStorage.setItem('savedSpeechRate', speechRate);
+    });
+    loadSpeechRate();
+
+    logoutBtn.addEventListener('click', async () => {
+        const response = await fetch('api/logout.php');
+        if (response.ok) {
+            showToast('You have been logged out.', 'success');
+            setTimeout(() => { window.location.href = 'login.html'; }, 1000);
+        } else {
+            showToast('Logout failed. Please try again.', 'error');
+        }
+    });
+
+    try {
+        const response = await fetch('api/check_session.php');
+        if (response.ok) {
+            const data = await response.json();
+            if (data.loggedIn) {
+                firstNameDisplay.textContent = `Welcome, ${data.user.first_name}`;
+                userStatusDiv.style.display = 'block';
+                if (data.user.role === 'admin') {
+                    document.getElementById('admin-link').style.display = 'inline';
+                }
+
+                if (data.user.subscription_status === 'active') {
+                    mainContentDiv.style.display = 'block';
+                    initializeMainFlashcard();
+                    await populateTopics();
+                    if (!data.user.tour_completed) {
+                        // showTourStep(0);
+                    } else if (data.user.last_topic) {
+                        topicSelect.value = data.user.last_topic;
+                        loadPhrases(data.user.last_topic, data.user.last_card_index);
+                    }
+                } else {
+                    authContainer.style.display = 'block';
+                    subscriptionPrompt.style.display = 'block';
+                    renderPayPalSubscriptionButton();
+                }
+            } else {
+                authContainer.style.display = 'block';
+                loginPrompt.style.display = 'block';
+                initializeSampleFlashcard();
+            }
+        } else {
+            authContainer.style.display = 'block';
+            loginPrompt.style.display = 'block';
+            initializeSampleFlashcard();
+        }
+    } catch (error) {
+        console.error('Session check failed:', error);
+        authContainer.style.display = 'block';
+        loginPrompt.style.display = 'block';
+        const heroH1 = loginPrompt.querySelector('.hero h1');
+        const heroP = loginPrompt.querySelector('.hero p');
+        if (heroH1) heroH1.textContent = 'Oops! Something went wrong.';
+        if (heroP) heroP.textContent = 'We couldn\'t load the page properly. Please try refreshing.';
+    }
   });
 
-  // New auth-related elements
-  const userStatusDiv = document.getElementById('user-status');
-  const firstNameDisplay = document.getElementById('first-name-display');
-  const logoutBtn = document.getElementById('logoutBtn');
-  const authContainer = document.getElementById('auth-container');
-  const loginPrompt = document.getElementById('login-prompt');
-  const loginMessage = document.getElementById('login-message');
-  const subscriptionPrompt = document.getElementById('subscription-prompt');
-  const mainContentDiv = document.getElementById('main-content');
-  const paypalContainer = document.getElementById('paypal-button-container');
-
-  // --- PayPal Subscription Button Rendering ---
+  // --- Other Functions (Tour, PayPal, etc.) ---
   function renderPayPalSubscriptionButton() {
     const paypalScript = document.getElementById('paypal-sdk-script');
     if (!paypalScript) {
         console.error("PayPal SDK script not found.");
-        authMessage.textContent = 'Payment system failed to load. Please refresh.';
         return;
     }
     const planId = paypalScript.getAttribute('data-plan-id');
-
     if (!planId || planId === 'YOUR_PAYPAL_PLAN_ID') {
-        authMessage.textContent = 'Subscription plan is not configured. Please contact support.';
+        console.error('Subscription plan is not configured.');
         return;
     }
-
     paypal.Buttons({
-        style: {
-            shape: 'rect',
-            color: 'gold',
-            layout: 'vertical',
-            label: 'subscribe'
-        },
+        style: { shape: 'rect', color: 'gold', layout: 'vertical', label: 'subscribe' },
         createSubscription: function(data, actions) {
-            return actions.subscription.create({
-                'plan_id': planId
-            });
+            return actions.subscription.create({ 'plan_id': planId });
         },
         onApprove: async function(data, actions) {
             showToast('Subscription approved! Finalizing...', 'info');
-            // I will implement the 'capture_subscription.php' endpoint in a later step.
-            // For now, this will fail, which is expected.
             try {
                 const response = await fetch('api/paypal/capture_subscription.php', {
                     method: 'POST',
@@ -771,12 +922,8 @@
     }).render('#paypal-button-container');
   }
 
-  // --- Dynamic Topic Loading ---
-  function formatName(name) {
-      return name.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
-  }
-
   async function populateTopics() {
+      const topicSelect = document.getElementById('topicSelect');
       try {
           const response = await fetch('api/get_topics.php');
           const data = await response.json();
@@ -784,17 +931,15 @@
               const topics = data.topics;
               for (const section in topics) {
                   const optgroup = document.createElement('optgroup');
-                  optgroup.label = formatName(section);
-
+                  optgroup.label = section.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
                   topics[section].forEach(theme => {
                       const option = document.createElement('option');
                       option.value = `${section}-${theme}`;
-                      option.textContent = formatName(theme);
+                      option.textContent = theme.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
                       optgroup.appendChild(option);
                   });
                   topicSelect.appendChild(optgroup);
               };
-              //
           } else {
               showToast('Failed to load topics.', 'error');
           }
@@ -804,531 +949,7 @@
       }
   }
 
-  // Check session on page load
-  document.addEventListener('DOMContentLoaded', async () => {
-      loadSpeechRate(); // Load saved speech rate
-      await populateTopics();
-
-      try {
-          const response = await fetch('api/check_session.php');
-
-          if (response.ok) {
-              const data = await response.json();
-              if (data.loggedIn) {
-                  // User is logged in
-                  firstNameDisplay.textContent = `Welcome, ${data.user.first_name}`;
-                  userStatusDiv.style.display = 'block';
-                  if (data.user.role === 'admin') {
-                      document.getElementById('admin-link').style.display = 'inline';
-                  }
-
-                  if (data.user.subscription_status === 'active') {
-                      mainContentDiv.style.display = 'block';
-                      initializeMainFlashcard(); // Initialize main app listeners
-                      if (!data.user.tour_completed) {
-                          showTourStep(0);
-                      } else if (data.user.last_topic) {
-                          topicSelect.value = data.user.last_topic;
-                          loadPhrases(data.user.last_topic, data.user.last_card_index);
-                      }
-                  } else {
-                      // Logged in but not subscribed
-                      authContainer.style.display = 'block';
-                      subscriptionPrompt.style.display = 'block';
-                      const checkPayPal = setInterval(() => {
-                          if (typeof paypal !== 'undefined') {
-                              clearInterval(checkPayPal);
-                              renderPayPalSubscriptionButton();
-                          }
-                      }, 100);
-                  }
-              } else {
-                  // Should not happen with a 200 OK, but as a fallback
-                  authContainer.style.display = 'block';
-                  loginPrompt.style.display = 'block';
-                  initializeSampleFlashcard();
-              }
-          } else {
-              // Handle non-ok responses (like 401, 500) as a logged-out state
-              authContainer.style.display = 'block';
-              loginPrompt.style.display = 'block';
-              initializeSampleFlashcard();
-          }
-      } catch (error) {
-          // This catch block is now only for genuine network errors
-          console.error('Session check failed due to a network error:', error);
-          authContainer.style.display = 'block';
-          loginPrompt.style.display = 'block';
-          const heroH1 = loginPrompt.querySelector('.hero h1');
-          const heroP = loginPrompt.querySelector('.hero p');
-          if (heroH1) heroH1.textContent = 'Oops! Something went wrong.';
-          if (heroP) heroP.textContent = 'We couldn\'t load the page properly. Please try refreshing. If the problem persists, please contact support.';
-      }
-  });
-
-  // --- Landing Page Sample Flashcard Logic ---
-  function initializeSampleFlashcard() {
-      const samplePhrases = [
-        { english: 'Hello, I am calling about the advertisement.', french: 'Bonjour, je vous appelle au sujet de l’annonce.' },
-        { english: 'Could you give me more information?', french: 'Pourriez-vous me donner plus d’informations ?' },
-        { english: 'What are the opening hours?', french: 'Quels sont les horaires d’ouverture ?' }
-      ];
-      let currentSampleIndex = 0;
-
-      const sampleEnglish = document.getElementById('sample-english');
-      const sampleFrench = document.getElementById('sample-french');
-      const sampleFlashcard = document.querySelector('#sample-flashcard-container .flashcard');
-      const samplePrevBtn = document.getElementById('sample-prev-btn');
-      const sampleNextBtn = document.getElementById('sample-next-btn');
-      const sampleFlipBtn = document.getElementById('sample-flip-btn');
-      const samplePlayBtn = document.getElementById('sample-play-btn');
-      const sampleFirstBtn = document.getElementById('sample-first-btn');
-      const sampleCurrentCard = document.getElementById('sample-current-card');
-      const sampleTotalCards = document.getElementById('sample-total-cards');
-
-      if (!sampleFlashcard) return; // Do not run if the elements are not on the page
-
-      function displaySamplePhrase(index) {
-          const phrase = samplePhrases[index];
-          sampleEnglish.textContent = phrase.english;
-          sampleFrench.textContent = phrase.french;
-          sampleFlashcard.classList.remove('is-flipped');
-          samplePrevBtn.disabled = index === 0;
-          sampleFirstBtn.disabled = index === 0;
-          sampleNextBtn.disabled = index === samplePhrases.length - 1;
-          sampleCurrentCard.textContent = index + 1;
-          sampleTotalCards.textContent = samplePhrases.length;
-      }
-
-  sampleFlipBtn.addEventListener('click', () => {
-      sampleFlashcard.classList.toggle('is-flipped');
-  });
-  sampleFlashcard.addEventListener('click', (event) => {
-      // Do not flip if the click was on a button inside the card
-      if (event.target.closest('button')) {
-          return;
-      }
-      sampleFlashcard.classList.toggle('is-flipped');
-  });
-      sampleFirstBtn.addEventListener('click', () => {
-          if (currentSampleIndex > 0) {
-              currentSampleIndex = 0;
-              displaySamplePhrase(currentSampleIndex);
-          }
-      });
-      samplePrevBtn.addEventListener('click', () => {
-          if (currentSampleIndex > 0) {
-              sampleFlashcard.classList.add('slide-out-right');
-              setTimeout(() => {
-                  currentSampleIndex--;
-                  displaySamplePhrase(currentSampleIndex);
-                  sampleFlashcard.classList.remove('slide-out-right');
-              }, 300);
-          }
-      });
-      sampleNextBtn.addEventListener('click', () => {
-          if (currentSampleIndex < samplePhrases.length - 1) {
-              sampleFlashcard.classList.add('slide-out-left');
-              setTimeout(() => {
-                  currentSampleIndex++;
-                  displaySamplePhrase(currentSampleIndex);
-                  sampleFlashcard.classList.remove('slide-out-left');
-              }, 300);
-          }
-      });
-      samplePlayBtn.addEventListener('click', () => {
-          const text = samplePhrases[currentSampleIndex].french;
-          const utterance = new SpeechSynthesisUtterance(text);
-          const voices = speechSynthesis.getVoices();
-          let frenchVoice = voices.find(voice => voice.lang === 'fr-FR');
-          if (frenchVoice) utterance.voice = frenchVoice;
-          utterance.lang = 'fr-FR';
-          utterance.rate = 1.0;
-          speechSynthesis.speak(utterance);
-      });
-
-      let touchstartX = 0, touchendX = 0, touchstartY = 0, touchendY = 0;
-      sampleFlashcard.addEventListener('touchstart', e => {
-          touchstartX = e.changedTouches[0].screenX;
-          touchstartY = e.changedTouches[0].screenY;
-      });
-      sampleFlashcard.addEventListener('touchend', e => {
-          touchendX = e.changedTouches[0].screenX;
-          touchendY = e.changedTouches[0].screenY;
-          handleSampleSwipe();
-      });
-      function handleSampleSwipe() {
-          const threshold = 50;
-          const deltaX = touchendX - touchstartX;
-          if (Math.abs(deltaX) > threshold) {
-              if (deltaX < 0) sampleNextBtn.click();
-              else samplePrevBtn.click();
-          }
-      }
-
-      displaySamplePhrase(0);
-  }
-
-  // --- Main App Flashcard Logic ---
-  function initializeMainFlashcard() {
-      topicSelect.addEventListener('change', () => {
-          const selectedValue = topicSelect.value;
-          if (selectedValue) {
-              loadPhrases(selectedValue);
-          }
-      });
-
-      flipCardBtn.addEventListener('click', () => {
-          flashcard.classList.toggle('is-flipped');
-      });
-      flashcard.addEventListener('click', (event) => {
-          if (event.target.closest('button')) {
-              return;
-          }
-          flashcard.classList.toggle('is-flipped');
-      });
-
-      let touchstartX = 0;
-      let touchendX = 0;
-      let touchstartY = 0;
-      let touchendY = 0;
-      flashcard.addEventListener('touchstart', e => {
-          touchstartX = e.changedTouches[0].screenX;
-          touchstartY = e.changedTouches[0].screenY;
-      });
-      flashcard.addEventListener('touchend', e => {
-          touchendX = e.changedTouches[0].screenX;
-          touchendY = e.changedTouches[0].screenY;
-          handleSwipe();
-      });
-      function handleSwipe() {
-          const threshold = 50;
-          const deltaX = touchendX - touchstartX;
-          const deltaY = touchendY - touchstartY;
-          if (Math.abs(deltaX) > Math.abs(deltaY)) {
-              if (Math.abs(deltaX) > threshold) {
-                  if (deltaX < 0) {
-                      nextPhraseBtn.click();
-                  } else {
-                      prevPhraseBtn.click();
-                  }
-              }
-          }
-      }
-      prevPhraseBtn.onclick = () => {
-        if (currentPhraseIndex > 0) {
-            phraseBox.classList.add('slide-out-right');
-            setTimeout(() => {
-                currentPhraseIndex--;
-                displayPhrase(currentPhraseIndex);
-                updateNavButtons();
-                phraseBox.classList.remove('slide-out-right');
-            }, 300);
-        }
-      };
-      firstCardBtn.onclick = () => {
-        if (currentPhraseIndex > 0) {
-            currentPhraseIndex = 0;
-            displayPhrase(currentPhraseIndex);
-            updateNavButtons();
-        }
-      };
-      nextPhraseBtn.onclick = () => {
-        if (currentPhraseIndex < phrases.length - 1) {
-            flashcard.classList.remove('is-flipped');
-            phraseBox.classList.add('slide-out-left');
-            setTimeout(() => {
-                currentPhraseIndex++;
-                displayPhrase(currentPhraseIndex);
-                updateNavButtons();
-                phraseBox.classList.remove('slide-out-left');
-            }, 300);
-        }
-      };
-      playPhraseBtn.addEventListener('click', () => {
-        if (!phraseFrench.textContent) return;
-        if (speechSynthesis.getVoices().length === 0) {
-            speechSynthesis.onvoiceschanged = () => {
-                speakFrench(phraseFrench.textContent);
-            };
-        } else {
-            speakFrench(phraseFrench.textContent);
-        }
-      });
-  }
-
-  // Logout functionality
-  logoutBtn.addEventListener('click', async () => {
-      const response = await fetch('api/logout.php');
-      if (response.ok) {
-          showToast('You have been logged out.', 'success');
-          setTimeout(() => { window.location.href = 'login.html'; }, 1000);
-      } else {
-          showToast('Logout failed. Please try again.', 'error');
-      }
-  });
-
-  async function loadPhrases(topicValue, initialCardIndex = 0) {
-      currentTopic = topicValue; // Set the current topic
-      savePosition(currentTopic, initialCardIndex);
-      const [section, theme] = topicValue.split('-');
-      if (!section || !theme) return;
-
-      try {
-          const res = await fetch(`api/get_phrases.php?theme=${encodeURIComponent(theme)}&section=${encodeURIComponent(section)}`);
-          const data = await res.json();
-
-          if (!res.ok) {
-              throw new Error(data.message || 'Network response was not OK');
-          }
-
-          phrases = data;
-          if (phrases.length === 0) {
-              showToast('No phrases found for this selection.', 'error');
-              phraseBox.style.display = 'none';
-              recordingSection.style.display = 'none';
-              return;
-          }
-          totalCardsSpan.textContent = phrases.length;
-          currentPhraseIndex = initialCardIndex || 0;
-          if (currentPhraseIndex >= phrases.length) {
-              currentPhraseIndex = 0; // Reset if saved index is out of bounds
-          }
-          displayPhrase(currentPhraseIndex);
-          phraseBox.style.display = 'block';
-          recordingSection.style.display = 'block';
-          recordingResult.textContent = '';
-          userAudio.style.display = 'none';
-          userAudio.src = '';
-          updateNavButtons();
-      } catch (e) {
-          showToast('Error loading phrases: ' + e.message, 'error');
-          if (e.message.includes('Access denied')) {
-              setTimeout(() => { window.location.href = 'login.html'; }, 2000);
-          }
-      }
-  }
-
-  // Display phrase
-  function displayPhrase(idx) {
-    // Reset card flip state
-    flashcard.classList.remove('is-flipped');
-
-    // Update pagination
-    currentCardSpan.textContent = idx + 1;
-    savePosition(currentTopic, idx);
-
-    const p = phrases[idx];
-    phraseFrench.textContent = p.french_text;
-    phraseEnglish.textContent = p.english_translation;
-    recordingResult.textContent = '';
-    userAudio.style.display = 'none';
-    userAudio.src = '';
-  }
-
-  // Update nav button states
-  function updateNavButtons() {
-    firstCardBtn.disabled = (currentPhraseIndex === 0);
-    prevPhraseBtn.disabled = (currentPhraseIndex === 0);
-    nextPhraseBtn.disabled = (currentPhraseIndex === phrases.length - 1);
-  }
-
-  prevPhraseBtn.onclick = () => {
-    if (currentPhraseIndex > 0) {
-        phraseBox.classList.add('slide-out-right');
-        setTimeout(() => {
-            currentPhraseIndex--;
-            displayPhrase(currentPhraseIndex);
-            updateNavButtons();
-            phraseBox.classList.remove('slide-out-right');
-        }, 300); // Match animation duration
-    }
-  };
-
-  firstCardBtn.onclick = () => {
-    if (currentPhraseIndex > 0) {
-        currentPhraseIndex = 0;
-        displayPhrase(currentPhraseIndex);
-        updateNavButtons();
-    }
-  };
-
-  nextPhraseBtn.onclick = () => {
-    if (currentPhraseIndex < phrases.length - 1) {
-        // Flip card back to front before sliding
-        flashcard.classList.remove('is-flipped');
-
-        phraseBox.classList.add('slide-out-left');
-        setTimeout(() => {
-            currentPhraseIndex++;
-            displayPhrase(currentPhraseIndex);
-            updateNavButtons();
-            phraseBox.classList.remove('slide-out-left');
-        }, 300); // Match animation duration
-    }
-  };
-
-  flipCardBtn.addEventListener('click', () => {
-      flashcard.classList.toggle('is-flipped');
-  });
-
-  flashcard.addEventListener('click', () => {
-      flashcard.classList.toggle('is-flipped');
-  });
-
-  let touchstartX = 0;
-  let touchendX = 0;
-  let touchstartY = 0;
-  let touchendY = 0;
-
-  flashcard.addEventListener('touchstart', e => {
-      touchstartX = e.changedTouches[0].screenX;
-      touchstartY = e.changedTouches[0].screenY;
-  });
-
-  flashcard.addEventListener('touchend', e => {
-      touchendX = e.changedTouches[0].screenX;
-      touchendY = e.changedTouches[0].screenY;
-      handleSwipe();
-  });
-
-  function handleSwipe() {
-      const threshold = 50; // Minimum swipe distance
-      const deltaX = touchendX - touchstartX;
-      const deltaY = touchendY - touchstartY;
-
-      if (Math.abs(deltaX) > Math.abs(deltaY)) { // Horizontal swipe
-          if (Math.abs(deltaX) > threshold) {
-              if (deltaX < 0) {
-                  nextPhraseBtn.click();
-              } else {
-                  prevPhraseBtn.click();
-              }
-          }
-      }
-  }
-
-  // Play phrase text to speech
-  function speakFrench(text) {
-    const utterance = new SpeechSynthesisUtterance(text);
-    const voices = speechSynthesis.getVoices();
-    let frenchVoice;
-
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    if (isIOS) {
-        frenchVoice = voices.find(voice => voice.name === 'Thomas' && voice.lang === 'fr-FR');
-    }
-
-    if (!frenchVoice) {
-      frenchVoice = voices.find(voice => voice.lang === 'fr-FR');
-    }
-
-    if (frenchVoice) {
-      utterance.voice = frenchVoice;
-    }
-
-    utterance.lang = 'fr-FR';
-    utterance.rate = speechRate;
-    speechSynthesis.speak(utterance);
-  }
-
-  speechSynthesis.onvoiceschanged = () => {
-    // This is to ensure voices are loaded on some browsers.
-  };
-
-  playPhraseBtn.addEventListener('click', () => {
-    if (!phraseFrench.textContent) return;
-    if (speechSynthesis.getVoices().length === 0) {
-        speechSynthesis.onvoiceschanged = () => {
-            speakFrench(phraseFrench.textContent);
-        };
-    } else {
-        speakFrench(phraseFrench.textContent);
-    }
-  });
-
-  // ======= Recording & Pronunciation Check =======
-  let mediaRecorder;
-  let audioChunks = [];
-  let recognition;
-  startRecordBtn.onclick = () => {
-    if (!('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
-      alert("Sorry, your browser does not support Speech Recognition.");
-      return;
-    }
-    startRecordBtn.disabled = true;
-    recordingResult.textContent = "Recording... speak now.";
-
-    // Temporarily disabled MediaRecorder to debug mobile issues.
-    // The SpeechRecognition API should handle microphone access on its own.
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    recognition = new SpeechRecognition();
-    recognition.lang = 'fr-FR';
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-
-    recognition.onstart = () => console.log('Speech recognition started.');
-    recognition.onaudiostart = () => console.log('Audio capturing started.');
-    recognition.onsoundstart = () => console.log('Sound has been detected.');
-    recognition.onspeechstart = () => console.log('Speech has been detected.');
-    recognition.onspeechend = () => {
-      console.log('Speech has stopped being detected.');
-      stopRecording();
-    };
-    recognition.onsoundend = () => console.log('Sound has stopped being detected.');
-    recognition.onaudioend = () => console.log('Audio capturing ended.');
-    recognition.onnomatch = () => console.log('Speech not recognized.');
-
-    recognition.onresult = (event) => {
-      console.log('Speech recognition result:', event);
-      const transcript = event.results[0][0].transcript.toLowerCase();
-      checkPronunciation(transcript);
-    };
-    recognition.onerror = (event) => {
-      console.log('Speech recognition error:', event);
-      recordingResult.textContent = 'Speech recognition error: ' + event.error;
-      startRecordBtn.disabled = false;
-    };
-    recognition.onend = () => {
-      console.log('Speech recognition ended.');
-      startRecordBtn.disabled = false;
-    };
-
-    recognition.start();
-
-    // iOS/Safari has a bug where it doesn't fire onspeechend and doesn't return a result
-    // until recognition.stop() is called. This timeout is a workaround to force it.
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    if (isIOS) {
-      console.log('iOS device detected. Setting 5s timeout to stop recognition.');
-      setTimeout(() => {
-        // Check if recognition is still active before stopping
-        if (recognition) {
-          console.log('iOS timeout reached. Forcing recognition.stop().');
-          recognition.stop();
-        }
-      }, 5000);
-    }
-  };
-
-  function stopRecording() {
-    startRecordBtn.disabled = false;
-
-    // MediaRecorder functionality is temporarily disabled to debug mobile speech recognition.
-    // if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-    //   mediaRecorder.stop();
-    //   mediaRecorder.onstop = () => {
-    //     const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-    //     const audioUrl = URL.createObjectURL(audioBlob);
-    //     userAudio.src = audioUrl;
-    //     // userAudio.style.display = 'block';
-    //   };
-    // }
-
-    if (recognition) {
-      recognition.stop();
-    }
-  }
+  // --- Recording and Pronunciation Check ---
   function checkPronunciation(userTranscript) {
     const target = phrases[currentPhraseIndex].french_text.toLowerCase();
     const targetWords = target.split(/\s+/);
@@ -1342,12 +963,12 @@
     let resultText = '';
     if (ratio > 0.6) {
       resultText = 'Good pronunciation!';
-      recordingResult.style.color = 'green';
+      document.getElementById('recordingResult').style.color = 'green';
     } else {
       resultText = 'Pronunciation could be improved. Try again.';
-      recordingResult.style.color = 'red';
+      document.getElementById('recordingResult').style.color = 'red';
     }
-    recordingResult.textContent = `${resultText} (Score: ${score}%)`;
+    document.getElementById('recordingResult').textContent = `${resultText} (Score: ${score}%)`;
 
     fetch('api/profile/store_progress.php', {
       method: 'POST',
@@ -1359,6 +980,5 @@
     });
   }
 </script>
-
 </body>
 </html>
