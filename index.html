@@ -655,7 +655,7 @@ function initializeMainFlashcard() {
     playPhraseBtn.addEventListener('click', () => { if (phraseFrench.textContent) speakFrench(phraseFrench.textContent, speechRate); });
     firstCardBtn.addEventListener('click', () => { if (currentPhraseIndex > 0) displayPhrase(0); });
 
-    prevBtn.addEventListener('click', () => {
+    prevPhraseBtn.addEventListener('click', () => {
         if (currentPhraseIndex > 0) {
             phraseBox.classList.add('slide-out-right');
             setTimeout(() => {
@@ -665,7 +665,7 @@ function initializeMainFlashcard() {
         }
     });
 
-    nextBtn.addEventListener('click', () => {
+    nextPhraseBtn.addEventListener('click', () => {
         if (currentPhraseIndex < phrases.length - 1) {
             phraseBox.classList.add('slide-out-left');
             setTimeout(() => {
@@ -680,8 +680,8 @@ function initializeMainFlashcard() {
     flashcard.addEventListener('touchend', e => {
         const touchendX = e.changedTouches[0].screenX;
         if (Math.abs(touchendX - touchstartX) > 50) {
-            if (touchendX < touchstartX) nextBtn.click();
-            else prevBtn.click();
+            if (touchendX < touchstartX) nextPhraseBtn.click();
+            else prevPhraseBtn.click();
         }
     });
 
