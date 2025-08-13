@@ -549,82 +549,60 @@
 
 <script src="js/toast.js"></script>
 <script>
-  // --- Application State ---
-  let phrases = [];
-  let currentPhraseIndex = 0;
-  let currentTopic = '';
-  let speechRate = 1.0;
+// --- Application State ---
+let phrases = [];
+let currentPhraseIndex = 0;
+let currentTopic = '';
+let speechRate = 1.0;
 
-  // --- Utility Functions ---
-  function speakFrench(text, rate) {
+// --- Utility Functions ---
+function speakFrench(text, rate) {
     const utterance = new SpeechSynthesisUtterance(text);
     const voices = speechSynthesis.getVoices();
-    let frenchVoice = voices.find(voice => voice.lang === 'fr-FR');
+    const frenchVoice = voices.find(voice => voice.lang === 'fr-FR');
     if (frenchVoice) {
-      utterance.voice = frenchVoice;
+        utterance.voice = frenchVoice;
     }
     utterance.lang = 'fr-FR';
     utterance.rate = rate;
     speechSynthesis.speak(utterance);
-  }
+}
 
-  async function populateTopics(topicSelect) {
-      if (!topicSelect) return;
-      try {
-          const response = await fetch('api/get_topics.php');
-          const data = await response.json();
-          if (response.ok && data.status === 'success') {
-              const topics = data.topics;
-              for (const section in topics) {
-                  const optgroup = document.createElement('optgroup');
-                  optgroup.label = section.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
-                  topics[section].forEach(theme => {
-                      const option = document.createElement('option');
-                      option.value = `${section}-${theme}`;
-                      option.textContent = theme.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
-                      optgroup.appendChild(option);
-                  });
-                  topicSelect.appendChild(optgroup);
-              };
-          }
-      } catch (error) {
-          console.error('Error fetching topics:', error);
-      }
-  }
-
-  function savePosition(topic, index) {
+function savePosition(topic, index) {
     fetch('api/profile/update_user_details.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ last_topic: topic, last_card_index: index })
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ last_topic: topic, last_card_index: index })
     });
-  }
+}
 
-  // --- Flashcard Component Factory ---
-  function createFlashcardComponent(containerSelector) {
-    const container = document.querySelector(containerSelector);
+// --- Component Initializer ---
+function initializeFlashcardComponent(options) {
+    const container = document.querySelector(options.container);
     if (!container) {
-        console.error(`Flashcard container not found: ${containerSelector}`);
-        return null;
+        console.error("Flashcard container not found:", options.container);
+        return;
     }
 
-    // Safely query for elements within the container
-    const flashcardEl = container.querySelector('.flashcard');
-    const englishEl = container.querySelector('[id$="-english"]');
-    const frenchEl = container.querySelector('[id$="-french"]');
-    const flipBtn = container.querySelector('[id$="-flip-btn"]');
-    const nextBtn = container.querySelector('[id$="-next-btn"]');
-    const prevBtn = container.querySelector('[id$="-prev-btn"]');
-    const firstBtn = container.querySelector('[id$="-first-btn"]');
-    const playBtn = container.querySelector('[id$="-play-btn"]');
-    const currentCardEl = container.querySelector('[id$="-current-card"]');
-    const totalCardsEl = container.querySelector('[id$="-total-cards"]');
-    const phraseBox = container.closest('#phraseBox, .sample-section');
+    const elements = {
+        flashcard: container.querySelector('.flashcard'),
+        english: container.querySelector(options.selectors.english),
+        french: container.querySelector(options.selectors.french),
+        flipBtn: container.querySelector(options.selectors.flipBtn),
+        nextBtn: container.querySelector(options.selectors.nextBtn),
+        prevBtn: container.querySelector(options.selectors.prevBtn),
+        firstBtn: container.querySelector(options.selectors.firstBtn),
+        playBtn: container.querySelector(options.selectors.playBtn),
+        currentCard: container.querySelector(options.selectors.currentCard),
+        totalCards: container.querySelector(options.selectors.totalCards),
+        animationBox: options.animationBox ? container.querySelector(options.animationBox) : container
+    };
 
-    // Check if all essential elements were found
-    if (!flashcardEl || !englishEl || !frenchEl || !flipBtn || !nextBtn || !prevBtn || !firstBtn || !playBtn || !currentCardEl || !totalCardsEl) {
-        console.error(`One or more flashcard elements are missing in ${containerSelector}`);
-        return null;
+    for (const key in elements) {
+        if (!elements[key]) {
+            console.error(`Flashcard element missing for key '${key}' in container '${options.container}'`);
+            return;
+        }
     }
 
     let localPhrases = [];
@@ -634,18 +612,18 @@
         if (index < 0 || index >= localPhrases.length) return;
         localCurrentIndex = index;
         const phrase = localPhrases[index];
-        englishEl.textContent = phrase.english;
-        frenchEl.textContent = phrase.french;
-        flashcardEl.classList.remove('is-flipped');
+        elements.english.textContent = phrase.english;
+        elements.french.textContent = phrase.french;
+        elements.flashcard.classList.remove('is-flipped');
         updateNav();
     }
 
     function updateNav() {
-        currentCardEl.textContent = localCurrentIndex + 1;
-        totalCardsEl.textContent = localPhrases.length;
-        prevBtn.disabled = localCurrentIndex === 0;
-        firstBtn.disabled = localCurrentIndex === 0;
-        nextBtn.disabled = localCurrentIndex >= localPhrases.length - 1;
+        elements.currentCard.textContent = localCurrentIndex + 1;
+        elements.totalCards.textContent = localPhrases.length;
+        elements.prevBtn.disabled = localCurrentIndex === 0;
+        elements.firstBtn.disabled = localCurrentIndex === 0;
+        elements.nextBtn.disabled = localCurrentIndex >= localPhrases.length - 1;
     }
 
     function setPhrases(newPhrases, startIndex = 0) {
@@ -653,61 +631,60 @@
         display(startIndex);
     }
 
-    // Attach listeners
-    flipBtn.addEventListener('click', (e) => {
+    elements.flipBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        flashcardEl.classList.toggle('is-flipped');
+        elements.flashcard.classList.toggle('is-flipped');
     });
-    flashcardEl.addEventListener('click', () => {
-        flashcardEl.classList.toggle('is-flipped');
+    elements.flashcard.addEventListener('click', () => {
+        elements.flashcard.classList.toggle('is-flipped');
     });
 
-    playBtn.addEventListener('click', () => {
-        if (frenchEl.textContent) {
-            const currentRate = containerSelector === '#phraseBox' ? speechRate : 1.0;
-            speakFrench(frenchEl.textContent, currentRate);
+    elements.playBtn.addEventListener('click', () => {
+        if (elements.french.textContent) {
+            speakFrench(elements.french.textContent, options.speechRate);
         }
     });
 
-    firstBtn.addEventListener('click', () => {
+    elements.firstBtn.addEventListener('click', () => {
         if (localCurrentIndex > 0) display(0);
     });
 
-    prevBtn.addEventListener('click', () => {
+    elements.prevBtn.addEventListener('click', () => {
         if (localCurrentIndex > 0) {
-            phraseBox.classList.add('slide-out-right');
+            elements.animationBox.classList.add('slide-out-right');
             setTimeout(() => {
                 display(localCurrentIndex - 1);
-                phraseBox.classList.remove('slide-out-right');
+                elements.animationBox.classList.remove('slide-out-right');
             }, 300);
         }
     });
 
-    nextBtn.addEventListener('click', () => {
+    elements.nextBtn.addEventListener('click', () => {
         if (localCurrentIndex < localPhrases.length - 1) {
-            phraseBox.classList.add('slide-out-left');
+            elements.animationBox.classList.add('slide-out-left');
             setTimeout(() => {
                 display(localCurrentIndex + 1);
-                phraseBox.classList.remove('slide-out-left');
+                elements.animationBox.classList.remove('slide-out-left');
             }, 300);
         }
     });
 
     let touchstartX = 0;
-    flashcardEl.addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; });
-    flashcardEl.addEventListener('touchend', e => {
+    elements.flashcard.addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; });
+    elements.flashcard.addEventListener('touchend', e => {
         const touchendX = e.changedTouches[0].screenX;
         if (Math.abs(touchendX - touchstartX) > 50) {
-            if (touchendX < touchstartX) nextBtn.click();
-            else prevBtn.click();
+            if (touchendX < touchstartX) elements.nextBtn.click();
+            else elements.prevBtn.click();
         }
     });
 
-    return { setPhrases, display };
-  }
+    return { setPhrases };
+}
 
-  // --- Page Load and Session Logic ---
-  document.addEventListener('DOMContentLoaded', async () => {
+
+// --- Page Load & Session Logic ---
+document.addEventListener('DOMContentLoaded', async () => {
     const userStatusDiv = document.getElementById('user-status');
     const firstNameDisplay = document.getElementById('first-name-display');
     const logoutBtn = document.getElementById('logoutBtn');
@@ -743,8 +720,6 @@
         }
     });
 
-    let mainFlashcard;
-
     async function loadMainPhrases(topicValue, initialCardIndex = 0) {
         currentTopic = topicValue;
         savePosition(currentTopic, initialCardIndex);
@@ -761,6 +736,8 @@
         }
     }
 
+    let mainFlashcard;
+
     try {
         const response = await fetch('api/check_session.php');
         if (response.ok) {
@@ -774,7 +751,23 @@
 
                 if (data.user.subscription_status === 'active') {
                     mainContentDiv.style.display = 'block';
-                    mainFlashcard = createFlashcardComponent('#phraseBox');
+                    mainFlashcard = initializeFlashcardComponent({
+                        container: '#phraseBox',
+                        animationBox: '#phraseBox',
+                        speechRate: speechRate,
+                        selectors: {
+                            english: '#phraseEnglish',
+                            french: '#phraseFrench',
+                            flipBtn: '#flipCardBtn',
+                            nextBtn: '#nextPhraseBtn',
+                            prevBtn: '#prevPhraseBtn',
+                            firstBtn: '#firstCardBtn',
+                            playBtn: '#playPhraseBtn',
+                            currentCard: '#current-card',
+                            totalCards: '#total-cards'
+                        }
+                    });
+
                     const topicSelect = document.getElementById('topicSelect');
                     topicSelect.addEventListener('change', () => {
                         if (topicSelect.value) loadMainPhrases(topicSelect.value);
@@ -794,7 +787,22 @@
             } else {
                 authContainer.style.display = 'block';
                 loginPrompt.style.display = 'block';
-                const sampleFlashcard = createFlashcardComponent('.sample-section');
+                const sampleFlashcard = initializeFlashcardComponent({
+                    container: '.sample-section',
+                    animationBox: '.sample-section .flashcard',
+                    speechRate: 1.0,
+                    selectors: {
+                        english: '#sample-english',
+                        french: '#sample-french',
+                        flipBtn: '#sample-flip-btn',
+                        nextBtn: '#sample-next-btn',
+                        prevBtn: '#sample-prev-btn',
+                        firstBtn: '#sample-first-btn',
+                        playBtn: '#sample-play-btn',
+                        currentCard: '#sample-current-card',
+                        totalCards: '#sample-total-cards'
+                    }
+                });
                 const sampleData = [
                     { english: 'Hello, I am calling about the advertisement.', french: 'Bonjour, je vous appelle au sujet de l’annonce.' },
                     { english: 'Could you give me more information?', french: 'Pourriez-vous me donner plus d’informations ?' },
@@ -805,7 +813,22 @@
         } else {
             authContainer.style.display = 'block';
             loginPrompt.style.display = 'block';
-            const sampleFlashcard = createFlashcardComponent('.sample-section');
+            const sampleFlashcard = initializeFlashcardComponent({
+                container: '.sample-section',
+                animationBox: '.sample-section .flashcard',
+                speechRate: 1.0,
+                selectors: {
+                    english: '#sample-english',
+                    french: '#sample-french',
+                    flipBtn: '#sample-flip-btn',
+                    nextBtn: '#sample-next-btn',
+                    prevBtn: '#sample-prev-btn',
+                    firstBtn: '#sample-first-btn',
+                    playBtn: '#sample-play-btn',
+                    currentCard: '#sample-current-card',
+                    totalCards: '#sample-total-cards'
+                }
+            });
             const sampleData = [
                 { english: 'Hello, I am calling about the advertisement.', french: 'Bonjour, je vous appelle au sujet de l’annonce.' },
                 { english: 'Could you give me more information?', french: 'Pourriez-vous me donner plus d’informations ?' },
@@ -865,37 +888,6 @@
             showToast('An error occurred with the PayPal button.', 'error');
         }
     }).render('#paypal-button-container');
-  }
-
-  // --- Recording and Pronunciation Check ---
-  function checkPronunciation(userTranscript) {
-    const target = phrases[currentPhraseIndex].french_text.toLowerCase();
-    const targetWords = target.split(/\s+/);
-    const userWords = userTranscript.split(/\s+/);
-    let matchCount = 0;
-    targetWords.forEach(w => {
-      if (userWords.includes(w)) matchCount++;
-    });
-    const ratio = matchCount / targetWords.length;
-    const score = (ratio * 100).toFixed(2);
-    let resultText = '';
-    if (ratio > 0.6) {
-      resultText = 'Good pronunciation!';
-      document.getElementById('recordingResult').style.color = 'green';
-    } else {
-      resultText = 'Pronunciation could be improved. Try again.';
-      document.getElementById('recordingResult').style.color = 'red';
-    }
-    document.getElementById('recordingResult').textContent = `${resultText} (Score: ${score}%)`;
-
-    fetch('api/profile/store_progress.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        phrase_id: phrases[currentPhraseIndex].id,
-        matching_quality: ratio
-      })
-    });
   }
 </script>
 </body>
