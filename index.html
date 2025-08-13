@@ -568,8 +568,7 @@
     speechSynthesis.speak(utterance);
   }
 
-  async function populateTopics() {
-      const topicSelect = document.getElementById('topicSelect');
+  async function populateTopics(topicSelect) {
       if (!topicSelect) return;
       try {
           const response = await fetch('api/get_topics.php');
@@ -593,24 +592,40 @@
       }
   }
 
-  // --- Flashcard Component Factories ---
+  function savePosition(topic, index) {
+    fetch('api/profile/update_user_details.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ last_topic: topic, last_card_index: index })
+    });
+  }
 
-  function createFlashcardComponent(containerSelector, isSample = false) {
+  // --- Flashcard Component Factory ---
+  function createFlashcardComponent(containerSelector) {
     const container = document.querySelector(containerSelector);
-    if (!container) return null;
+    if (!container) {
+        console.error(`Flashcard container not found: ${containerSelector}`);
+        return null;
+    }
 
-    // Selectors are now scoped to the container
+    // Safely query for elements within the container
     const flashcardEl = container.querySelector('.flashcard');
-    const englishEl = container.querySelector(isSample ? '#sample-english' : '#phraseEnglish');
-    const frenchEl = container.querySelector(isSample ? '#sample-french' : '#phraseFrench');
-    const flipBtn = container.querySelector(isSample ? '#sample-flip-btn' : '#flipCardBtn');
-    const nextBtn = container.querySelector(isSample ? '#sample-next-btn' : '#nextPhraseBtn');
-    const prevBtn = container.querySelector(isSample ? '#sample-prev-btn' : '#prevPhraseBtn');
-    const firstBtn = container.querySelector(isSample ? '#sample-first-btn' : '#firstCardBtn');
-    const playBtn = container.querySelector(isSample ? '#sample-play-btn' : '#playPhraseBtn');
-    const currentCardEl = container.querySelector(isSample ? '#sample-current-card' : '#current-card');
-    const totalCardsEl = container.querySelector(isSample ? '#sample-total-cards' : '#total-cards');
-    const phraseBox = container.closest('#phraseBox') || container;
+    const englishEl = container.querySelector('[id$="-english"]');
+    const frenchEl = container.querySelector('[id$="-french"]');
+    const flipBtn = container.querySelector('[id$="-flip-btn"]');
+    const nextBtn = container.querySelector('[id$="-next-btn"]');
+    const prevBtn = container.querySelector('[id$="-prev-btn"]');
+    const firstBtn = container.querySelector('[id$="-first-btn"]');
+    const playBtn = container.querySelector('[id$="-play-btn"]');
+    const currentCardEl = container.querySelector('[id$="-current-card"]');
+    const totalCardsEl = container.querySelector('[id$="-total-cards"]');
+    const phraseBox = container.closest('#phraseBox, .sample-section');
+
+    // Check if all essential elements were found
+    if (!flashcardEl || !englishEl || !frenchEl || !flipBtn || !nextBtn || !prevBtn || !firstBtn || !playBtn || !currentCardEl || !totalCardsEl) {
+        console.error(`One or more flashcard elements are missing in ${containerSelector}`);
+        return null;
+    }
 
     let localPhrases = [];
     let localCurrentIndex = 0;
@@ -638,7 +653,7 @@
         display(startIndex);
     }
 
-    // Attach listeners ONCE
+    // Attach listeners
     flipBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         flashcardEl.classList.toggle('is-flipped');
@@ -649,8 +664,8 @@
 
     playBtn.addEventListener('click', () => {
         if (frenchEl.textContent) {
-            const rate = isSample ? 1.0 : speechRate;
-            speakFrench(frenchEl.textContent, rate);
+            const currentRate = containerSelector === '#phraseBox' ? speechRate : 1.0;
+            speakFrench(frenchEl.textContent, currentRate);
         }
     });
 
@@ -678,10 +693,10 @@
         }
     });
 
-    let touchstartX = 0, touchendX = 0;
+    let touchstartX = 0;
     flashcardEl.addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; });
     flashcardEl.addEventListener('touchend', e => {
-        touchendX = e.changedTouches[0].screenX;
+        const touchendX = e.changedTouches[0].screenX;
         if (Math.abs(touchendX - touchstartX) > 50) {
             if (touchendX < touchstartX) nextBtn.click();
             else prevBtn.click();
@@ -728,7 +743,6 @@
         }
     });
 
-    // This is the main controller for the logged-in flashcard
     let mainFlashcard;
 
     async function loadMainPhrases(topicValue, initialCardIndex = 0) {
@@ -760,13 +774,13 @@
 
                 if (data.user.subscription_status === 'active') {
                     mainContentDiv.style.display = 'block';
-                    mainFlashcard = createFlashcardComponent('#phraseBox', false);
+                    mainFlashcard = createFlashcardComponent('#phraseBox');
                     const topicSelect = document.getElementById('topicSelect');
                     topicSelect.addEventListener('change', () => {
                         if (topicSelect.value) loadMainPhrases(topicSelect.value);
                     });
 
-                    await populateTopics();
+                    await populateTopics(topicSelect);
 
                     if (data.user.last_topic) {
                         topicSelect.value = data.user.last_topic;
@@ -780,7 +794,7 @@
             } else {
                 authContainer.style.display = 'block';
                 loginPrompt.style.display = 'block';
-                const sampleFlashcard = createFlashcardComponent('#sample-flashcard-container', true);
+                const sampleFlashcard = createFlashcardComponent('.sample-section');
                 const sampleData = [
                     { english: 'Hello, I am calling about the advertisement.', french: 'Bonjour, je vous appelle au sujet de l’annonce.' },
                     { english: 'Could you give me more information?', french: 'Pourriez-vous me donner plus d’informations ?' },
@@ -791,7 +805,7 @@
         } else {
             authContainer.style.display = 'block';
             loginPrompt.style.display = 'block';
-            const sampleFlashcard = createFlashcardComponent('#sample-flashcard-container', true);
+            const sampleFlashcard = createFlashcardComponent('.sample-section');
             const sampleData = [
                 { english: 'Hello, I am calling about the advertisement.', french: 'Bonjour, je vous appelle au sujet de l’annonce.' },
                 { english: 'Could you give me more information?', french: 'Pourriez-vous me donner plus d’informations ?' },
@@ -851,30 +865,6 @@
             showToast('An error occurred with the PayPal button.', 'error');
         }
     }).render('#paypal-button-container');
-  }
-
-  async function populateTopics() {
-      const topicSelect = document.getElementById('topicSelect');
-      try {
-          const response = await fetch('api/get_topics.php');
-          const data = await response.json();
-          if (response.ok && data.status === 'success') {
-              const topics = data.topics;
-              for (const section in topics) {
-                  const optgroup = document.createElement('optgroup');
-                  optgroup.label = section.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
-                  topics[section].forEach(theme => {
-                      const option = document.createElement('option');
-                      option.value = `${section}-${theme}`;
-                      option.textContent = theme.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
-                      optgroup.appendChild(option);
-                  });
-                  topicSelect.appendChild(optgroup);
-              };
-          }
-      } catch (error) {
-          console.error('Error fetching topics:', error);
-      }
   }
 
   // --- Recording and Pronunciation Check ---
