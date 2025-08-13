@@ -663,6 +663,7 @@ function initializeMainFlashcard() {
 
     prevPhraseBtn.addEventListener('click', () => {
         if (currentPhraseIndex > 0) {
+            flashcard.classList.remove('is-flipped');
             phraseBox.classList.add('slide-out-right');
             setTimeout(() => {
                 currentPhraseIndex--;
@@ -674,6 +675,7 @@ function initializeMainFlashcard() {
 
     nextPhraseBtn.addEventListener('click', () => {
         if (currentPhraseIndex < phrases.length - 1) {
+            flashcard.classList.remove('is-flipped');
             phraseBox.classList.add('slide-out-left');
             setTimeout(() => {
                 currentPhraseIndex++;
