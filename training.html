@@ -325,24 +325,124 @@ document.addEventListener('DOMContentLoaded', () => {
 
     loadSpeechRate(); // Load the saved rate on page load
 
+    let recognition;
+
+    function stopRecording() {
+        if (recognition) {
+            recognition.stop();
+        }
+    }
+
+    function checkPronunciation(userTranscript, targetText, resultElement) {
+        const target = targetText.toLowerCase().replace(/[.,!?;]/g, '');
+        const userWords = userTranscript.toLowerCase().replace(/[.,!?;]/g, '').split(/\s+/);
+        const targetWords = target.split(/\s+/);
+
+        let matchCount = 0;
+        targetWords.forEach(w => {
+          if (userWords.includes(w)) matchCount++;
+        });
+
+        const ratio = targetWords.length > 0 ? matchCount / targetWords.length : 0;
+        const score = (ratio * 100).toFixed(2);
+        let resultText = '';
+        if (ratio > 0.6) {
+          resultText = 'Good!';
+          resultElement.style.color = 'green';
+        } else {
+          resultText = 'Try again.';
+          resultElement.style.color = 'red';
+        }
+        resultElement.textContent = ` ${resultText} (Score: ${score}%)`;
+
+        setTimeout(() => {
+            resultElement.textContent = '';
+        }, 5000);
+    }
+
+    function startPronunciationCheck(targetText, resultElement) {
+        if (!('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
+            alert("Sorry, your browser does not support Speech Recognition.");
+            return;
+        }
+
+        document.querySelectorAll('.check-pronunciation-btn').forEach(b => b.disabled = true);
+        resultElement.textContent = " Listening...";
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.lang = 'fr-FR';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript.toLowerCase();
+            checkPronunciation(transcript, targetText, resultElement);
+        };
+
+        recognition.onerror = (event) => {
+            resultElement.textContent = ' Error: ' + event.error;
+        };
+
+        recognition.onend = () => {
+            document.querySelectorAll('.check-pronunciation-btn').forEach(b => b.disabled = false);
+        };
+
+        recognition.onspeechend = () => {
+            recognition.stop();
+        };
+
+        recognition.start();
+
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        if (isIOS) {
+            setTimeout(() => {
+                if (recognition) {
+                    recognition.stop();
+                }
+            }, 5000);
+        }
+    }
+
     // --- Phase 1: Shadowing ---
     const dialogueSelect = document.getElementById('dialogueSelect');
     const dialogueContent = document.getElementById('dialogue-content');
     const playFullDialogueBtn = document.getElementById('play-full-dialogue-btn');
 
-    function speakFrench(text) {
+    function speakFrench(text, onEndCallback) {
         const utterance = new SpeechSynthesisUtterance(text);
-        const voices = speechSynthesis.getVoices();
-        let frenchVoice = voices.find(voice => voice.lang === 'fr-FR');
-        if (frenchVoice) {
-            utterance.voice = frenchVoice;
+        if (onEndCallback) {
+            utterance.onend = onEndCallback;
         }
-        utterance.lang = 'fr-FR';
-        utterance.rate = speechRate;
-        speechSynthesis.speak(utterance);
-    }
 
-    speechSynthesis.onvoiceschanged = () => {}; // Ensure voices are loaded
+        const setVoiceAndSpeak = () => {
+            const voices = speechSynthesis.getVoices();
+            let frenchVoice;
+
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            if (isIOS) {
+                frenchVoice = voices.find(voice => voice.name === 'Thomas' && voice.lang === 'fr-FR');
+            }
+
+            if (!frenchVoice) {
+              frenchVoice = voices.find(voice => voice.lang === 'fr-FR');
+            }
+
+            if (frenchVoice) {
+              utterance.voice = frenchVoice;
+            }
+
+            utterance.lang = 'fr-FR';
+            utterance.rate = speechRate;
+            speechSynthesis.speak(utterance);
+        };
+
+        if (speechSynthesis.getVoices().length > 0) {
+            setVoiceAndSpeak();
+        } else {
+            speechSynthesis.onvoiceschanged = setVoiceAndSpeak;
+        }
+    }
 
     async function loadDialogueList() {
         try {
@@ -393,7 +493,10 @@ document.addEventListener('DOMContentLoaded', () => {
         dialogueContent.innerHTML = `<h3>${dialogue.name}</h3>`;
         dialogue.lines.forEach((line, index) => {
             const lineEl = document.createElement('p');
-            lineEl.innerHTML = `<strong>${line.speaker}:</strong> ${line.line} <button class="play-line-btn" data-line-index="${index}">▶️</button>`;
+            lineEl.innerHTML = `<strong>${line.speaker}:</strong> ${line.line}
+                <button class="play-line-btn" data-line-index="${index}">▶️</button>
+                <button class="check-pronunciation-btn" data-line-index="${index}">🎤</button>
+                <span class="pronunciation-result" data-line-index="${index}"></span>`;
             dialogueContent.appendChild(lineEl);
         });
 
@@ -402,6 +505,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 const lineIndex = e.target.getAttribute('data-line-index');
                 const lineText = dialogue.lines[lineIndex].line;
                 speakFrench(lineText);
+            });
+        });
+
+        document.querySelectorAll('.check-pronunciation-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const lineIndex = e.target.getAttribute('data-line-index');
+                const lineText = dialogue.lines[lineIndex].line;
+                const resultSpan = dialogueContent.querySelector(`.pronunciation-result[data-line-index="${lineIndex}"]`);
+                startPronunciationCheck(lineText, resultSpan);
             });
         });
     }
@@ -423,15 +535,12 @@ document.addEventListener('DOMContentLoaded', () => {
             let currentLine = 0;
             function playNextLine() {
                 if (currentLine < dialogue.lines.length) {
-                    const utterance = new SpeechSynthesisUtterance(dialogue.lines[currentLine].line);
-                    utterance.lang = 'fr-FR';
-                    utterance.rate = speechRate;
-                    // When one utterance ends, play the next
-                    utterance.onend = () => {
+                    const lineText = dialogue.lines[currentLine].line;
+                    const onEnd = () => {
                         currentLine++;
                         playNextLine();
                     };
-                    speechSynthesis.speak(utterance);
+                    speakFrench(lineText, onEnd);
                 }
             }
             playNextLine();
@@ -875,14 +984,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (currentLine < lines.length) {
                 // Extract only the dialogue text, removing "Speaker: " part
                 const dialogueText = lines[currentLine].substring(lines[currentLine].indexOf(':') + 1).trim();
-                const utterance = new SpeechSynthesisUtterance(dialogueText);
-                utterance.lang = 'fr-FR';
-                utterance.rate = speechRate;
-                utterance.onend = () => {
+                const onEnd = () => {
                     currentLine++;
                     playNextScriptLine();
                 };
-                speechSynthesis.speak(utterance);
+                speakFrench(dialogueText, onEnd);
             }
         }
         playNextScriptLine();

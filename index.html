@@ -554,18 +554,82 @@ let phrases = [];
 let currentPhraseIndex = 0;
 let currentTopic = '';
 let speechRate = 1.0;
+let recognition;
 
 // --- Utility Functions ---
 function speakFrench(text, rate) {
     const utterance = new SpeechSynthesisUtterance(text);
-    const voices = speechSynthesis.getVoices();
-    const frenchVoice = voices.find(voice => voice.lang === 'fr-FR');
-    if (frenchVoice) {
-        utterance.voice = frenchVoice;
+
+    const setVoiceAndSpeak = () => {
+        const voices = speechSynthesis.getVoices();
+        let frenchVoice;
+
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        if (isIOS) {
+            frenchVoice = voices.find(voice => voice.name === 'Thomas' && voice.lang === 'fr-FR');
+        }
+
+        if (!frenchVoice) {
+          frenchVoice = voices.find(voice => voice.lang === 'fr-FR');
+        }
+
+        if (frenchVoice) {
+          utterance.voice = frenchVoice;
+        }
+
+        utterance.lang = 'fr-FR';
+        utterance.rate = rate;
+        speechSynthesis.speak(utterance);
+    };
+
+    if (speechSynthesis.getVoices().length > 0) {
+        setVoiceAndSpeak();
+    } else {
+        speechSynthesis.onvoiceschanged = setVoiceAndSpeak;
     }
-    utterance.lang = 'fr-FR';
-    utterance.rate = rate;
-    speechSynthesis.speak(utterance);
+}
+
+function stopRecording() {
+    if (recognition) {
+      recognition.stop();
+    }
+}
+
+function checkPronunciation(userTranscript) {
+    const recordingResult = document.getElementById('recordingResult');
+    if (!recordingResult) return;
+
+    const target = phrases[currentPhraseIndex].french_text.toLowerCase().replace(/[.,!?;]/g, '');
+    const userWords = userTranscript.toLowerCase().replace(/[.,!?;]/g, '').split(/\s+/);
+    const targetWords = target.split(/\s+/);
+
+    let matchCount = 0;
+    targetWords.forEach(w => {
+      if (userWords.includes(w)) matchCount++;
+    });
+
+    const ratio = targetWords.length > 0 ? matchCount / targetWords.length : 0;
+    const score = (ratio * 100).toFixed(2);
+    let resultText = '';
+    if (ratio > 0.6) {
+      resultText = 'Good pronunciation!';
+      recordingResult.style.color = 'green';
+    } else {
+      resultText = 'Pronunciation could be improved. Try again.';
+      recordingResult.style.color = 'red';
+    }
+    recordingResult.textContent = `${resultText} (Score: ${score}%)`;
+
+    if (phrases[currentPhraseIndex]) {
+        fetch('api/profile/store_progress.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            phrase_id: phrases[currentPhraseIndex].id,
+            matching_quality: ratio
+          })
+        });
+    }
 }
 
 function savePosition(topic, index) {
@@ -615,6 +679,58 @@ function initializeMainFlashcard() {
     const flashcard = mainContent.querySelector('.flashcard');
     const currentCardSpan = mainContent.querySelector('#current-card');
     const totalCardsSpan = mainContent.querySelector('#total-cards');
+    const startRecordBtn = mainContent.querySelector('#startRecordBtn');
+    const recordingResult = mainContent.querySelector('#recordingResult');
+
+    if(startRecordBtn) {
+        startRecordBtn.onclick = () => {
+            if (!('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
+              alert("Sorry, your browser does not support Speech Recognition.");
+              return;
+            }
+            startRecordBtn.disabled = true;
+            recordingResult.textContent = "Recording... speak now.";
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.lang = 'fr-FR';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            recognition.onstart = () => console.log('Speech recognition started.');
+            recognition.onspeechend = () => {
+              console.log('Speech has stopped being detected.');
+              recognition.stop();
+            };
+            recognition.onnomatch = () => console.log('Speech not recognized.');
+
+            recognition.onresult = (event) => {
+              const transcript = event.results[0][0].transcript.toLowerCase();
+              checkPronunciation(transcript);
+            };
+            recognition.onerror = (event) => {
+              console.log('Speech recognition error:', event);
+              recordingResult.textContent = 'Speech recognition error: ' + event.error;
+            };
+            recognition.onend = () => {
+              console.log('Speech recognition ended.');
+              if (startRecordBtn) startRecordBtn.disabled = false;
+            };
+
+            recognition.start();
+
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            if (isIOS) {
+              console.log('iOS device detected. Setting 5s timeout to stop recognition.');
+              setTimeout(() => {
+                if (recognition) {
+                  console.log('iOS timeout reached. Forcing recognition.stop().');
+                  stopRecording();
+                }
+              }, 5000);
+            }
+        };
+    }
 
     function displayPhrase(idx) {
         const p = phrases[idx];
