@@ -256,4 +256,60 @@ document.addEventListener('DOMContentLoaded', () => {
             showToast('An error occurred while updating the user.', 'error');
         }
     }
+
+    // --- Email Sender Logic ---
+    const emailTarget = document.getElementById('email-target');
+    const manualEmailsContainer = document.getElementById('manual-emails-container');
+    const sendEmailsBtn = document.getElementById('send-emails-btn');
+    const emailStatus = document.getElementById('email-status');
+
+    if (emailTarget) {
+        emailTarget.addEventListener('change', () => {
+            if (emailTarget.value === 'manual') {
+                manualEmailsContainer.style.display = 'block';
+            } else {
+                manualEmailsContainer.style.display = 'none';
+            }
+        });
+    }
+
+    if (sendEmailsBtn) {
+        sendEmailsBtn.addEventListener('click', async () => {
+            const target = document.getElementById('email-target').value;
+            const subject = document.getElementById('email-subject').value;
+            const body = document.getElementById('email-body').value;
+            const manual_emails = document.getElementById('manual-emails').value;
+
+            if (!subject || !body) {
+                showToast('Email subject and body cannot be empty.', 'error');
+                return;
+            }
+
+            if (target === 'manual' && !manual_emails) {
+                showToast('Please provide a list of manual emails.', 'error');
+                return;
+            }
+
+            sendEmailsBtn.disabled = true;
+            emailStatus.textContent = 'Sending...';
+
+            try {
+                const response = await fetch('api/admin/send_email.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ target: target, subject: subject, body: body, manual_emails: manual_emails })
+                });
+
+                const result = await response.json();
+                showToast(result.message, response.ok ? 'success' : 'error');
+
+            } catch (error) {
+                console.error('Error sending emails:', error);
+                showToast('An unexpected error occurred while sending emails.', 'error');
+            } finally {
+                sendEmailsBtn.disabled = false;
+                emailStatus.textContent = '';
+            }
+        });
+    }
 });

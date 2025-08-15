@@ -44,8 +44,8 @@ try {
             $_SESSION['role'] = $user['role'];
             $_SESSION['subscription_status'] = $user['subscription_status'];
 
-            debug_log('Login successful. Session data set for user: ' . $email);
-            debug_log($_SESSION);
+            // debug_log('Login successful. Session data set for user: ' . $email);
+            // debug_log($_SESSION);
 
             http_response_code(200);
             echo json_encode([
@@ -71,7 +71,7 @@ try {
 
 } catch (Exception $e) {
     // Log the actual error
-    debug_log("Login Error: " . $e->getMessage());
+    // debug_log("Login Error: " . $e->getMessage());
 
     // Send a generic, valid JSON error response
     $http_code = ($e->getCode() > 0) ? $e->getCode() : 500;

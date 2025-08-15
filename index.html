@@ -153,6 +153,20 @@
 
   /* --- Responsive Design --- */
   @media (max-width: 640px) {
+    .landing-page .hero h1 {
+        font-size: 2.5rem;
+    }
+    .landing-page .cta-buttons a {
+        display: block;
+        margin: 0 0 1rem 0;
+    }
+    .landing-page .hero {
+        padding: 2rem 0;
+    }
+    .landing-page .features, .landing-page .sample-section {
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+    }
     body {
       margin: 1rem;
     }
@@ -230,27 +244,250 @@
   .tour-popup .buttons button {
     margin-left: 0.5rem;
   }
+
+  /* --- Subscription Prompt Styles --- */
+  .subscription-prompt {
+    max-width: 600px;
+    margin: 4rem auto;
+    background: #fff;
+    padding: 2rem 2.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    text-align: center;
+  }
+  .subscription-prompt h2 {
+    font-size: 1.8rem;
+    color: #004d99;
+    margin-bottom: 1rem;
+  }
+  .subscription-prompt .lead {
+    font-size: 1.1rem;
+    color: #666;
+    margin-bottom: 2rem;
+  }
+  .subscription-prompt .benefits-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0 auto 2rem auto;
+    text-align: left;
+    max-width: 350px;
+  }
+  .subscription-prompt .benefits-list li {
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+  }
+  .subscription-prompt .benefits-list li::before {
+    content: '✓';
+    color: #28a745;
+    font-size: 1.5rem;
+    margin-right: 1rem;
+  }
+
+  /* --- Logged-out Landing Page Styles --- */
+  .landing-page {
+    text-align: center;
+    padding: 0 2rem;
+  }
+  .landing-page .hero {
+    padding: 4rem 0;
+  }
+  .landing-page .hero h1 {
+    font-size: 3rem;
+    color: #004d99;
+    margin-bottom: 1rem;
+  }
+  .landing-page .hero p {
+    font-size: 1.25rem;
+    color: #555;
+    max-width: 700px;
+    margin: 0 auto 2rem auto;
+  }
+  .landing-page .cta-buttons a {
+    text-decoration: none;
+    color: white;
+    background: #007bff;
+    padding: 1rem 2rem;
+    border-radius: 5px;
+    font-size: 1.1rem;
+    margin: 0 0.5rem;
+    transition: background-color 0.3s;
+  }
+  .landing-page .cta-buttons a.secondary {
+    background: #6c757d;
+  }
+  .landing-page .cta-buttons a:hover {
+    background: #0056b3;
+  }
+  .landing-page .cta-buttons a.secondary:hover {
+    background: #5a6268;
+  }
+
+  .landing-page .features {
+    padding: 3rem 0;
+    background: #fff;
+    border-radius: 8px;
+    margin-bottom: 3rem;
+  }
+  .landing-page .features h2 {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+  }
+  .landing-page .features-grid {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+  .landing-page .feature-item {
+    max-width: 300px;
+  }
+  .landing-page .feature-item h3 {
+    font-size: 1.5rem;
+    color: #004d99;
+  }
+
+  .landing-page .sample-section {
+    padding: 3rem 0;
+  }
+  .landing-page .sample-section h2 {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+  }
+  #sample-flashcard-container .flashcard {
+      cursor: pointer;
+  }
+  #sample-nav button {
+      padding: 0.4rem 1rem;
+      margin: 1rem 0.5rem 0 0.5rem;
+      font-size: 1rem;
+  }
+
+  /* --- Copied from main flashcard for sample animation --- */
+  @keyframes slide-out-left {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(-100px); opacity: 0; }
+  }
+  @keyframes slide-out-right {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(100px); opacity: 0; }
+  }
+  .slide-out-left {
+      animation: slide-out-left 0.3s forwards;
+  }
+  .slide-out-right {
+      animation: slide-out-right 0.3s forwards;
+  }
+  #paypal-button-container {
+      max-width: 300px;
+      margin: 1rem auto 0 auto;
+  }
 </style>
-<script src="https://www.paypal.com/sdk/js?client-id=AUWWl6fyDnYoKr4N77ugdDKP7IKYv0-ObG_Zj-vFhmJ_HlEUc34ZYAY983je8c4syTpSl1L_Dn2M8ddP&currency=USD"></script>
+<script>
+    // Dynamically load PayPal SDK
+    (async () => {
+        try {
+            const response = await fetch('api/paypal/get_config.php');
+            const config = await response.json();
+            if (config.client_id && config.client_id !== 'YOUR_PAYPAL_CLIENT_ID') {
+                const script = document.createElement('script');
+                script.src = `https://www.paypal.com/sdk/js?client-id=${config.client_id}&currency=CAD&intent=subscription&vault=true`;
+                script.setAttribute('data-plan-id', config.plan_id);
+                script.id = 'paypal-sdk-script';
+                document.head.appendChild(script);
+            } else {
+                console.error('PayPal client_id is not configured.');
+            }
+        } catch (error) {
+            console.error('Failed to load PayPal config:', error);
+        }
+    })();
+</script>
 </head>
 <body>
 <header>
-    <img src="img/top_logo_light.png" alt="TEFinitely Logo" class="logo">
+    <a href="index.html"><img src="img/top_logo_light.png" alt="TEFinitely Logo" class="logo"></a>
 </header>
 <div id="toast-container"></div>
 <div id="user-status" style="display: none;">
     <span id="first-name-display"></span> |
     <a href="profile.html">Profile</a> |
+    <a href="training.html">New Training</a> |
     <a id="admin-link" href="admin.html" style="display: none;">Admin Portal</a> |
     <button id="logoutBtn">Logout</button>
 </div>
 
-<div id="auth-prompt" style="display: none; text-align: center; margin-top: 5rem;">
-    <h2 id="auth-message"></h2>
-    <!-- This link is now a fallback, PayPal button is the main action -->
-    <a id="auth-link" href="login.html"></a>
-    <!-- PayPal button will be rendered here -->
-    <div id="paypal-button-container" style="margin-top: 1rem;"></div>
+<div id="auth-container" style="display: none;">
+    <!-- Landing Page for logged-out users -->
+    <div id="login-prompt" class="landing-page" style="display: none;">
+        <section class="hero">
+            <h1>Master the TEF Canada Exam</h1>
+            <p>Go from hesitant to fluent with TEFinitely. Our unique, phased training system builds your confidence and skills for real-world conversations.</p>
+            <div class="cta-buttons">
+                <a href="register.html">Get Started</a>
+                <a href="login.html" class="secondary">Already have an account?</a>
+            </div>
+        </section>
+
+        <section class="sample-section">
+            <h2>Try a Sample</h2>
+            <div id="sample-flashcard-container">
+                <div class="flashcard">
+                    <div class="flashcard-inner">
+                        <div class="flashcard-front">
+                            <p id="sample-english"></p>
+                        </div>
+                        <div class="flashcard-back">
+                            <p id="sample-french"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="sample-nav">
+                <button id="sample-first-btn">&lt;&lt;</button>
+                <button id="sample-prev-btn" disabled>Previous</button>
+                <button id="sample-flip-btn">Flip</button>
+                <button id="sample-play-btn">Play Phrase</button>
+                <button id="sample-next-btn">Next</button>
+            </div>
+            <div id="sample-pagination-display" style="text-align: center; margin-top: 1rem; font-weight: bold;">
+                <span id="sample-current-card"></span> / <span id="sample-total-cards"></span>
+            </div>
+        </section>
+
+        <section class="features">
+            <h2>Why TEFinitely Works</h2>
+            <div class="features-grid">
+                <div class="feature-item">
+                    <h3>Phase-Based Learning</h3>
+                    <p>Our 5-phase system takes you from basic shadowing to spontaneous conversation, ensuring a solid foundation and rapid progress.</p>
+                </div>
+                <div class="feature-item">
+                    <h3>Interactive Practice</h3>
+                    <p>Engage with flashcards, pronunciation checks, and semi-guided roleplays that simulate the real test environment.</p>
+                </div>
+                <div class="feature-item">
+                    <h3>Personalized Feedback</h3>
+                    <p>Save your own scripts, get analytical feedback, and track your improvement over time on your personal dashboard.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Prompt for logged-in but non-subscribed users -->
+    <div id="subscription-prompt" class="subscription-prompt" style="display: none;">
+        <h2>Unlock Your Full Potential</h2>
+        <p class="lead">Your subscription is inactive. Subscribe now to get full access to all our training features.</p>
+        <ul class="benefits-list">
+            <li>Access all training modules</li>
+            <li>Practice with unlimited phrases</li>
+            <li>Track your progress</li>
+            <li>Cancel anytime</li>
+        </ul>
+        <!-- PayPal button will be rendered here -->
+        <div id="paypal-button-container"></div>
+    </div>
 </div>
 
 <div id="tour-overlay" class="tour-overlay">
@@ -312,564 +549,66 @@
 
 <script src="js/toast.js"></script>
 <script>
-  // Existing script variables
-  const topicSelect = document.getElementById('topicSelect');
-  const speechRateInput = document.getElementById('speechRate');
-  const rateDisplay = document.getElementById('rateDisplay');
-  const phraseBox = document.getElementById('phraseBox');
-  const phraseFrench = document.getElementById('phraseFrench');
-  const phraseEnglish = document.getElementById('phraseEnglish');
-  const playPhraseBtn = document.getElementById('playPhraseBtn');
-  const firstCardBtn = document.getElementById('firstCardBtn');
-  const prevPhraseBtn = document.getElementById('prevPhraseBtn');
-  const nextPhraseBtn = document.getElementById('nextPhraseBtn');
-  const flipCardBtn = document.getElementById('flipCardBtn');
-  const flashcard = document.querySelector('.flashcard');
-  const recordingSection = document.getElementById('recordingSection');
-  const startRecordBtn = document.getElementById('startRecordBtn');
-  const userAudio = document.getElementById('userAudio');
-  const recordingResult = document.getElementById('recordingResult');
-  const currentCardSpan = document.getElementById('current-card');
-  const totalCardsSpan = document.getElementById('total-cards');
+// --- Application State ---
+let phrases = [];
+let currentPhraseIndex = 0;
+let currentTopic = '';
+let speechRate = 1.0;
+let recognition;
 
-  const tourSteps = [
-    {
-      title: 'Welcome to TEFinitely!',
-      content: 'This guided tour will walk you through the features of the site. You can skip this at any time by clicking the "Skip" button.',
-      target: null
-    },
-    {
-      title: 'Select a Topic',
-      content: 'Start by selecting a topic from this dropdown menu. The phrases for the selected topic will be loaded automatically.',
-      target: '#topicSelect'
-    },
-    {
-      title: 'The Flashcard',
-      content: 'This is the flashcard. The English translation is shown on the front. Click the "Flip" button or the card itself to see the French text.',
-      target: '#phraseBox'
-    },
-    {
-      title: 'Navigation',
-      content: 'Use these buttons to navigate between cards. You can also swipe left and right on the card on a touch device.',
-      target: '#navButtons'
-    },
-    {
-      title: 'Listen to the Phrase',
-      content: 'Click this button to hear the French phrase spoken.',
-      target: '#playPhraseBtn'
-    },
-    {
-      title: 'Check Your Pronunciation',
-      content: 'Click the "Speak" button and say the French phrase. We\'ll let you know how you did.',
-      target: '#recordingSection'
-    },
-    {
-      title: 'Adjust Speech Speed',
-      content: 'You can adjust the speed of the text-to-speech voice here.',
-      target: '#speechRate'
-    },
-    {
-      title: 'Ready to Go!',
-      content: 'You\'re all set! You can restart this tour at any time from your profile page.',
-      target: null
-    }
-  ];
-
-  let phrases = [];
-  let currentPhraseIndex = 0;
-  let currentTopic = '';
-  let currentTourStep = 0;
-
-  const tourOverlay = document.getElementById('tour-overlay');
-  const tourPopup = document.getElementById('tour-popup');
-  const tourTitle = document.getElementById('tour-title');
-  const tourContent = document.getElementById('tour-content');
-  const tourSkip = document.getElementById('tour-skip');
-  const tourNext = document.getElementById('tour-next');
-
-  function showTourStep(stepIndex) {
-    if (stepIndex === 0) {
-        // Load the first topic by default
-        if (topicSelect.options.length > 1) {
-          topicSelect.selectedIndex = 1;
-          loadPhrases(topicSelect.value);
-        }
-    }
-    const step = tourSteps[stepIndex];
-    tourTitle.textContent = step.title;
-    tourContent.textContent = step.content;
-
-    if (step.target) {
-      const targetElement = document.querySelector(step.target);
-      targetElement.style.zIndex = '1002';
-      targetElement.style.position = 'relative';
-    }
-
-    tourOverlay.style.display = 'block';
-  }
-
-  function hideTourStep(stepIndex) {
-    const step = tourSteps[stepIndex];
-    if (step.target) {
-      const targetElement = document.querySelector(step.target);
-      targetElement.style.zIndex = '';
-      targetElement.style.position = '';
-    }
-  }
-
-  tourNext.addEventListener('click', () => {
-    hideTourStep(currentTourStep);
-    currentTourStep++;
-    if (currentTourStep < tourSteps.length) {
-      showTourStep(currentTourStep);
-    } else {
-      tourOverlay.style.display = 'none';
-      fetch('api/profile/update_user_details.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tour_completed: true })
-      });
-    }
-  });
-
-  tourSkip.addEventListener('click', () => {
-    hideTourStep(currentTourStep);
-    tourOverlay.style.display = 'none';
-    fetch('api/profile/update_user_details.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tour_completed: true })
-    });
-  });
-  let speechRate = 1.0; // Default value
-
-  // --- Position Persistence ---
-  function savePosition(topic, index) {
-    fetch('api/profile/update_user_details.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ last_topic: topic, last_card_index: index })
-    });
-  }
-
-  // --- Speech Rate Handling ---
-  function loadSpeechRate() {
-      const savedRate = localStorage.getItem('savedSpeechRate');
-      if (savedRate) {
-          speechRate = parseFloat(savedRate);
-          speechRateInput.value = savedRate;
-          rateDisplay.textContent = parseFloat(savedRate).toFixed(1);
-      }
-  }
-
-  speechRateInput.addEventListener('input', () => {
-      speechRate = parseFloat(speechRateInput.value);
-      rateDisplay.textContent = speechRate.toFixed(1);
-      localStorage.setItem('savedSpeechRate', speechRate);
-  });
-
-  // New auth-related elements
-  const userStatusDiv = document.getElementById('user-status');
-  const firstNameDisplay = document.getElementById('first-name-display');
-  const logoutBtn = document.getElementById('logoutBtn');
-  const authPromptDiv = document.getElementById('auth-prompt');
-  const authMessage = document.getElementById('auth-message');
-  const authLink = document.getElementById('auth-link');
-  const mainContentDiv = document.getElementById('main-content');
-  const paypalContainer = document.getElementById('paypal-button-container');
-
-  // --- PayPal Button Rendering ---
-  function renderPayPalButton() {
-      paypal.Buttons({
-          // Call your server to set up the transaction
-          createOrder: async function(data, actions) {
-              const response = await fetch('api/paypal/create_payment.php', { method: 'POST' });
-              const order = await response.json();
-              if (order.status === 'success') {
-                  return order.orderID;
-              } else {
-                  showToast('Error creating PayPal order: ' + order.message, 'error');
-                  return null;
-              }
-          },
-
-          // Call your server to finalize the transaction
-          onApprove: async function(data, actions) {
-              const response = await fetch('api/paypal/capture_payment.php', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ orderID: data.orderID })
-              });
-              const captureDetails = await response.json();
-              if (captureDetails.status === 'success') {
-                  showToast('Payment successful! Your subscription is now active.', 'success');
-                  // Reload the page to reflect the new status
-                  setTimeout(() => { window.location.reload(); }, 2000);
-              } else {
-                  showToast('Payment failed: ' + captureDetails.message, 'error');
-              }
-          },
-
-          onError: function(err) {
-              console.error('PayPal button error:', err);
-              showToast('An error occurred with the PayPal button.', 'error');
-          }
-      }).render('#paypal-button-container');
-  }
-
-  // --- Dynamic Topic Loading ---
-  function formatName(name) {
-      return name.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
-  }
-
-  async function populateTopics() {
-      try {
-          const response = await fetch('api/get_topics.php');
-          const data = await response.json();
-          if (response.ok && data.status === 'success') {
-              const topics = data.topics;
-              for (const section in topics) {
-                  const optgroup = document.createElement('optgroup');
-                  optgroup.label = formatName(section);
-
-                  topics[section].forEach(theme => {
-                      const option = document.createElement('option');
-                      option.value = `${section}-${theme}`;
-                      option.textContent = formatName(theme);
-                      optgroup.appendChild(option);
-                  });
-                  topicSelect.appendChild(optgroup);
-              };
-              //
-          } else {
-              showToast('Failed to load topics.', 'error');
-          }
-      } catch (error) {
-          console.error('Error fetching topics:', error);
-          showToast('Could not fetch topics.', 'error');
-      }
-  }
-
-  // Check session on page load
-  document.addEventListener('DOMContentLoaded', async () => {
-      loadSpeechRate(); // Load saved speech rate
-      await populateTopics();
-
-      try {
-          const response = await fetch('api/check_session.php');
-          const data = await response.json();
-
-          if (response.ok && data.loggedIn) {
-              // User is logged in
-              firstNameDisplay.textContent = `Welcome, ${data.user.first_name}`;
-              userStatusDiv.style.display = 'block';
-
-              // Show admin link if user is an admin
-              if (data.user.role === 'admin') {
-                  document.getElementById('admin-link').style.display = 'inline';
-              }
-
-              if (data.user.subscription_status === 'active') {
-                  // Active subscription, show the main content
-                  mainContentDiv.style.display = 'block';
-                  if (!data.user.tour_completed) {
-                      showTourStep(0);
-                  } else if (data.user.last_topic) {
-                      topicSelect.value = data.user.last_topic;
-                      loadPhrases(data.user.last_topic, data.user.last_card_index);
-                  }
-              } else {
-                  // Logged in but no active subscription
-                  authMessage.textContent = 'Your subscription is inactive. Please subscribe to get access.';
-                  authLink.style.display = 'none'; // Hide the old link
-                  authPromptDiv.style.display = 'block';
-                  renderPayPalButton(); // Render the PayPal button
-              }
-          } else {
-              // User is not logged in
-              authMessage.textContent = 'Please log in to access the content.';
-              authLink.textContent = 'Login';
-              authLink.href = 'login.html';
-              authPromptDiv.style.display = 'block';
-          }
-      } catch (error) {
-          console.error('Session check failed:', error);
-          authMessage.textContent = 'An error occurred. Please try again later.';
-          authPromptDiv.style.display = 'block';
-      }
-  });
-
-  // Logout functionality
-  logoutBtn.addEventListener('click', async () => {
-      const response = await fetch('api/logout.php');
-      if (response.ok) {
-          showToast('You have been logged out.', 'success');
-          setTimeout(() => { window.location.href = 'login.html'; }, 1000);
-      } else {
-          showToast('Logout failed. Please try again.', 'error');
-      }
-  });
-
-  // Auto-load phrases on dropdown change
-  topicSelect.addEventListener('change', () => {
-      const selectedValue = topicSelect.value;
-      if (selectedValue) {
-          loadPhrases(selectedValue);
-      }
-  });
-
-  async function loadPhrases(topicValue, initialCardIndex = 0) {
-      currentTopic = topicValue; // Set the current topic
-      savePosition(currentTopic, initialCardIndex);
-      const [section, theme] = topicValue.split('-');
-      if (!section || !theme) return;
-
-      try {
-          const res = await fetch(`api/get_phrases.php?theme=${encodeURIComponent(theme)}&section=${encodeURIComponent(section)}`);
-          const data = await res.json();
-
-          if (!res.ok) {
-              throw new Error(data.message || 'Network response was not OK');
-          }
-
-          phrases = data;
-          if (phrases.length === 0) {
-              showToast('No phrases found for this selection.', 'error');
-              phraseBox.style.display = 'none';
-              recordingSection.style.display = 'none';
-              return;
-          }
-          totalCardsSpan.textContent = phrases.length;
-          currentPhraseIndex = initialCardIndex || 0;
-          if (currentPhraseIndex >= phrases.length) {
-              currentPhraseIndex = 0; // Reset if saved index is out of bounds
-          }
-          displayPhrase(currentPhraseIndex);
-          phraseBox.style.display = 'block';
-          recordingSection.style.display = 'block';
-          recordingResult.textContent = '';
-          userAudio.style.display = 'none';
-          userAudio.src = '';
-          updateNavButtons();
-      } catch (e) {
-          showToast('Error loading phrases: ' + e.message, 'error');
-          if (e.message.includes('Access denied')) {
-              setTimeout(() => { window.location.href = 'login.html'; }, 2000);
-          }
-      }
-  }
-
-  // Display phrase
-  function displayPhrase(idx) {
-    // Reset card flip state
-    flashcard.classList.remove('is-flipped');
-
-    // Update pagination
-    currentCardSpan.textContent = idx + 1;
-    savePosition(currentTopic, idx);
-
-    const p = phrases[idx];
-    phraseFrench.textContent = p.french_text;
-    phraseEnglish.textContent = p.english_translation;
-    recordingResult.textContent = '';
-    userAudio.style.display = 'none';
-    userAudio.src = '';
-  }
-
-  // Update nav button states
-  function updateNavButtons() {
-    firstCardBtn.disabled = (currentPhraseIndex === 0);
-    prevPhraseBtn.disabled = (currentPhraseIndex === 0);
-    nextPhraseBtn.disabled = (currentPhraseIndex === phrases.length - 1);
-  }
-
-  prevPhraseBtn.onclick = () => {
-    if (currentPhraseIndex > 0) {
-        phraseBox.classList.add('slide-out-right');
-        setTimeout(() => {
-            currentPhraseIndex--;
-            displayPhrase(currentPhraseIndex);
-            updateNavButtons();
-            phraseBox.classList.remove('slide-out-right');
-        }, 300); // Match animation duration
-    }
-  };
-
-  firstCardBtn.onclick = () => {
-    if (currentPhraseIndex > 0) {
-        currentPhraseIndex = 0;
-        displayPhrase(currentPhraseIndex);
-        updateNavButtons();
-    }
-  };
-
-  nextPhraseBtn.onclick = () => {
-    if (currentPhraseIndex < phrases.length - 1) {
-        // Flip card back to front before sliding
-        flashcard.classList.remove('is-flipped');
-
-        phraseBox.classList.add('slide-out-left');
-        setTimeout(() => {
-            currentPhraseIndex++;
-            displayPhrase(currentPhraseIndex);
-            updateNavButtons();
-            phraseBox.classList.remove('slide-out-left');
-        }, 300); // Match animation duration
-    }
-  };
-
-  flipCardBtn.addEventListener('click', () => {
-      flashcard.classList.toggle('is-flipped');
-  });
-
-  flashcard.addEventListener('click', () => {
-      flashcard.classList.toggle('is-flipped');
-  });
-
-  let touchstartX = 0;
-  let touchendX = 0;
-  let touchstartY = 0;
-  let touchendY = 0;
-
-  flashcard.addEventListener('touchstart', e => {
-      touchstartX = e.changedTouches[0].screenX;
-      touchstartY = e.changedTouches[0].screenY;
-  });
-
-  flashcard.addEventListener('touchend', e => {
-      touchendX = e.changedTouches[0].screenX;
-      touchendY = e.changedTouches[0].screenY;
-      handleSwipe();
-  });
-
-  function handleSwipe() {
-      const threshold = 50; // Minimum swipe distance
-      const deltaX = touchendX - touchstartX;
-      const deltaY = touchendY - touchstartY;
-
-      if (Math.abs(deltaX) > Math.abs(deltaY)) { // Horizontal swipe
-          if (Math.abs(deltaX) > threshold) {
-              if (deltaX < 0) {
-                  nextPhraseBtn.click();
-              } else {
-                  prevPhraseBtn.click();
-              }
-          }
-      }
-  }
-
-  // Play phrase text to speech
-  function speakFrench(text) {
+// --- Utility Functions ---
+function speakFrench(text, rate) {
     const utterance = new SpeechSynthesisUtterance(text);
-    const voices = speechSynthesis.getVoices();
-    let frenchVoice;
 
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    if (isIOS) {
-        frenchVoice = voices.find(voice => voice.name === 'Thomas' && voice.lang === 'fr-FR');
-    }
+    const setVoiceAndSpeak = () => {
+        const voices = speechSynthesis.getVoices();
+        let frenchVoice;
 
-    if (!frenchVoice) {
-      frenchVoice = voices.find(voice => voice.lang === 'fr-FR');
-    }
-
-    if (frenchVoice) {
-      utterance.voice = frenchVoice;
-    }
-
-    utterance.lang = 'fr-FR';
-    utterance.rate = speechRate;
-    speechSynthesis.speak(utterance);
-  }
-
-  speechSynthesis.onvoiceschanged = () => {
-    // This is to ensure voices are loaded on some browsers.
-  };
-
-  playPhraseBtn.addEventListener('click', () => {
-    if (!phraseFrench.textContent) return;
-    if (speechSynthesis.getVoices().length === 0) {
-        speechSynthesis.onvoiceschanged = () => {
-            speakFrench(phraseFrench.textContent);
-        };
-    } else {
-        speakFrench(phraseFrench.textContent);
-    }
-  });
-
-  // ======= Recording & Pronunciation Check =======
-  let mediaRecorder;
-  let audioChunks = [];
-  let recognition;
-  startRecordBtn.onclick = async () => {
-    if (!('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
-      alert("Sorry, your browser does not support Speech Recognition.");
-      return;
-    }
-    startRecordBtn.disabled = true;
-    recordingResult.textContent = "Recording... speak now.";
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorder = new MediaRecorder(stream);
-      audioChunks = [];
-      mediaRecorder.start();
-      mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      recognition = new SpeechRecognition();
-      recognition.lang = 'fr-FR';
-      recognition.interimResults = false;
-      recognition.maxAlternatives = 1;
-      recognition.start();
-      recognition.onresult = (event) => {
-        const transcript = event.results[0][0].transcript.toLowerCase();
-        checkPronunciation(transcript);
-      };
-      recognition.onerror = (event) => {
-        recordingResult.textContent = 'Speech recognition error: ' + event.error;
-        startRecordBtn.disabled = false;
-        stopRecordBtn.disabled = true;
-      };
-
-      recognition.onspeechend = () => {
-        stopRecording();
-      };
-
-      recognition.onend = () => {
-        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-        if (isMobile) {
-            stopRecording();
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        if (isIOS) {
+            frenchVoice = voices.find(voice => voice.name === 'Thomas' && voice.lang === 'fr-FR');
         }
-      };
-    } catch (err) {
-      recordingResult.textContent = 'Microphone access denied or error: ' + err.message;
-      startRecordBtn.disabled = false;
-    }
-  };
 
-  function stopRecording() {
-    startRecordBtn.disabled = false;
-    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-      mediaRecorder.stop();
-      mediaRecorder.onstop = () => {
-        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-        const audioUrl = URL.createObjectURL(audioBlob);
-        userAudio.src = audioUrl;
-        // userAudio.style.display = 'block';
-      };
+        if (!frenchVoice) {
+          frenchVoice = voices.find(voice => voice.lang === 'fr-FR');
+        }
+
+        if (frenchVoice) {
+          utterance.voice = frenchVoice;
+        }
+
+        utterance.lang = 'fr-FR';
+        utterance.rate = rate;
+        speechSynthesis.speak(utterance);
+    };
+
+    if (speechSynthesis.getVoices().length > 0) {
+        setVoiceAndSpeak();
+    } else {
+        speechSynthesis.onvoiceschanged = setVoiceAndSpeak;
     }
+}
+
+function stopRecording() {
     if (recognition) {
       recognition.stop();
     }
-  }
-  function checkPronunciation(userTranscript) {
-    const target = phrases[currentPhraseIndex].french_text.toLowerCase();
+}
+
+function checkPronunciation(userTranscript) {
+    const recordingResult = document.getElementById('recordingResult');
+    if (!recordingResult) return;
+
+    const target = phrases[currentPhraseIndex].french_text.toLowerCase().replace(/[.,!?;]/g, '');
+    const userWords = userTranscript.toLowerCase().replace(/[.,!?;]/g, '').split(/\s+/);
     const targetWords = target.split(/\s+/);
-    const userWords = userTranscript.split(/\s+/);
+
     let matchCount = 0;
     targetWords.forEach(w => {
       if (userWords.includes(w)) matchCount++;
     });
-    const ratio = matchCount / targetWords.length;
+
+    const ratio = targetWords.length > 0 ? matchCount / targetWords.length : 0;
     const score = (ratio * 100).toFixed(2);
     let resultText = '';
     if (ratio > 0.6) {
@@ -881,16 +620,399 @@
     }
     recordingResult.textContent = `${resultText} (Score: ${score}%)`;
 
-    fetch('api/profile/store_progress.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        phrase_id: phrases[currentPhraseIndex].id,
-        matching_quality: ratio
-      })
+    if (phrases[currentPhraseIndex]) {
+        fetch('api/profile/store_progress.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            phrase_id: phrases[currentPhraseIndex].id,
+            matching_quality: ratio
+          })
+        });
+    }
+}
+
+function savePosition(topic, index) {
+    fetch('api/profile/update_user_details.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ last_topic: topic, last_card_index: index })
     });
+}
+
+async function populateTopics(topicSelect) {
+    if (!topicSelect) return;
+    try {
+        const response = await fetch('api/get_topics.php');
+        const data = await response.json();
+        if (response.ok && data.status === 'success') {
+            const topics = data.topics;
+            for (const section in topics) {
+                const optgroup = document.createElement('optgroup');
+                optgroup.label = section.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
+                topics[section].forEach(theme => {
+                    const option = document.createElement('option');
+                    option.value = `${section}-${theme}`;
+                    option.textContent = theme.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
+                    optgroup.appendChild(option);
+                });
+                topicSelect.appendChild(optgroup);
+            }
+        }
+    } catch (error) {
+        console.error('Error fetching topics:', error);
+    }
+}
+
+// --- Initializers ---
+function initializeMainFlashcard() {
+    const mainContent = document.getElementById('main-content');
+    const topicSelect = mainContent.querySelector('#topicSelect');
+    const phraseBox = mainContent.querySelector('#phraseBox');
+    const phraseFrench = mainContent.querySelector('#phraseFrench');
+    const phraseEnglish = mainContent.querySelector('#phraseEnglish');
+    const playPhraseBtn = mainContent.querySelector('#playPhraseBtn');
+    const firstCardBtn = mainContent.querySelector('#firstCardBtn');
+    const prevPhraseBtn = mainContent.querySelector('#prevPhraseBtn');
+    const nextPhraseBtn = mainContent.querySelector('#nextPhraseBtn');
+    const flipCardBtn = mainContent.querySelector('#flipCardBtn');
+    const flashcard = mainContent.querySelector('.flashcard');
+    const currentCardSpan = mainContent.querySelector('#current-card');
+    const totalCardsSpan = mainContent.querySelector('#total-cards');
+    const startRecordBtn = mainContent.querySelector('#startRecordBtn');
+    const recordingResult = mainContent.querySelector('#recordingResult');
+
+    if(startRecordBtn) {
+        startRecordBtn.onclick = () => {
+            if (!('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
+              alert("Sorry, your browser does not support Speech Recognition.");
+              return;
+            }
+            startRecordBtn.disabled = true;
+            recordingResult.textContent = "Recording... speak now.";
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.lang = 'fr-FR';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            recognition.onstart = () => console.log('Speech recognition started.');
+            recognition.onspeechend = () => {
+              console.log('Speech has stopped being detected.');
+              recognition.stop();
+            };
+            recognition.onnomatch = () => console.log('Speech not recognized.');
+
+            recognition.onresult = (event) => {
+              const transcript = event.results[0][0].transcript.toLowerCase();
+              checkPronunciation(transcript);
+            };
+            recognition.onerror = (event) => {
+              console.log('Speech recognition error:', event);
+              recordingResult.textContent = 'Speech recognition error: ' + event.error;
+            };
+            recognition.onend = () => {
+              console.log('Speech recognition ended.');
+              if (startRecordBtn) startRecordBtn.disabled = false;
+            };
+
+            recognition.start();
+
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            if (isIOS) {
+              console.log('iOS device detected. Setting 5s timeout to stop recognition.');
+              setTimeout(() => {
+                if (recognition) {
+                  console.log('iOS timeout reached. Forcing recognition.stop().');
+                  stopRecording();
+                }
+              }, 5000);
+            }
+        };
+    }
+
+    function displayPhrase(idx) {
+        const p = phrases[idx];
+        phraseFrench.textContent = p.french_text;
+        phraseEnglish.textContent = p.english_translation;
+        flashcard.classList.remove('is-flipped');
+        updateNavButtons();
+        currentCardSpan.textContent = idx + 1;
+    }
+
+    function updateNavButtons() {
+        firstCardBtn.disabled = (currentPhraseIndex === 0);
+        prevPhraseBtn.disabled = (currentPhraseIndex === 0);
+        nextPhraseBtn.disabled = (currentPhraseIndex >= phrases.length - 1);
+    }
+
+    async function loadPhrases(topicValue, initialCardIndex = 0) {
+        currentTopic = topicValue;
+        savePosition(currentTopic, initialCardIndex);
+        const [section, theme] = topicValue.split('-');
+        if (!section || !theme) return;
+        try {
+            const res = await fetch(`api/get_phrases.php?theme=${encodeURIComponent(theme)}&section=${encodeURIComponent(section)}`);
+            phrases = await res.json();
+            totalCardsSpan.textContent = phrases.length;
+            currentPhraseIndex = initialCardIndex || 0;
+            if (currentPhraseIndex >= phrases.length) currentPhraseIndex = 0;
+            displayPhrase(currentPhraseIndex);
+            phraseBox.style.display = 'block';
+            mainContent.querySelector('#recordingSection').style.display = 'block';
+        } catch (e) {
+            showToast('Error loading phrases: ' + e.message, 'error');
+        }
+    }
+
+    topicSelect.addEventListener('change', () => loadPhrases(topicSelect.value));
+    flipCardBtn.addEventListener('click', (e) => { e.stopPropagation(); flashcard.classList.toggle('is-flipped'); });
+    flashcard.addEventListener('click', () => flashcard.classList.toggle('is-flipped'));
+    playPhraseBtn.addEventListener('click', () => { if (phraseFrench.textContent) speakFrench(phraseFrench.textContent, speechRate); });
+    firstCardBtn.addEventListener('click', () => {
+        if (currentPhraseIndex > 0) {
+            currentPhraseIndex = 0;
+            displayPhrase(0);
+        }
+    });
+
+    prevPhraseBtn.addEventListener('click', () => {
+        if (currentPhraseIndex > 0) {
+            flashcard.classList.remove('is-flipped');
+            phraseBox.classList.add('slide-out-right');
+            setTimeout(() => {
+                currentPhraseIndex--;
+                displayPhrase(currentPhraseIndex);
+                phraseBox.classList.remove('slide-out-right');
+            }, 300);
+        }
+    });
+
+    nextPhraseBtn.addEventListener('click', () => {
+        if (currentPhraseIndex < phrases.length - 1) {
+            flashcard.classList.remove('is-flipped');
+            phraseBox.classList.add('slide-out-left');
+            setTimeout(() => {
+                currentPhraseIndex++;
+                displayPhrase(currentPhraseIndex);
+                phraseBox.classList.remove('slide-out-left');
+            }, 300);
+        }
+    });
+
+    let touchstartX = 0;
+    flashcard.addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; });
+    flashcard.addEventListener('touchend', e => {
+        const touchendX = e.changedTouches[0].screenX;
+        if (Math.abs(touchendX - touchstartX) > 50) {
+            if (touchendX < touchstartX) nextPhraseBtn.click();
+            else prevPhraseBtn.click();
+        }
+    });
+
+    // Return the function to load phrases so it can be called after topics are populated
+    return { loadPhrases };
+}
+
+
+function initializeSampleFlashcard() {
+    const container = document.querySelector('.sample-section');
+    if (!container) return;
+
+    const phrases = [
+        { english: 'Hello, I am calling about the advertisement.', french: 'Bonjour, je vous appelle au sujet de l’annonce.' },
+        { english: 'Could you give me more information?', french: 'Pourriez-vous me donner plus d’informations ?' },
+        { english: 'What are the opening hours?', french: 'Quels sont les horaires d’ouverture ?' }
+    ];
+    let currentIndex = 0;
+
+    const englishEl = container.querySelector('#sample-english');
+    const frenchEl = container.querySelector('#sample-french');
+    const flashcardEl = container.querySelector('.flashcard');
+    const prevBtn = container.querySelector('#sample-prev-btn');
+    const nextBtn = container.querySelector('#sample-next-btn');
+    const flipBtn = container.querySelector('#sample-flip-btn');
+    const playBtn = container.querySelector('#sample-play-btn');
+    const firstBtn = container.querySelector('#sample-first-btn');
+    const currentCardEl = container.querySelector('#sample-current-card');
+    const totalCardsEl = container.querySelector('#sample-total-cards');
+
+    function display(index) {
+        currentIndex = index;
+        const phrase = phrases[index];
+        englishEl.textContent = phrase.english;
+        frenchEl.textContent = phrase.french;
+        flashcardEl.classList.remove('is-flipped');
+        currentCardEl.textContent = currentIndex + 1;
+        totalCardsEl.textContent = phrases.length;
+        prevBtn.disabled = currentIndex === 0;
+        firstBtn.disabled = currentIndex === 0;
+        nextBtn.disabled = currentIndex >= phrases.length - 1;
+    }
+
+    flipBtn.addEventListener('click', (e) => { e.stopPropagation(); flashcardEl.classList.toggle('is-flipped'); });
+    flashcardEl.addEventListener('click', () => flashcardEl.classList.toggle('is-flipped'));
+    playBtn.addEventListener('click', () => speakFrench(phrases[currentIndex].french, 1.0));
+    firstBtn.addEventListener('click', () => display(0));
+
+    prevBtn.addEventListener('click', () => {
+        if (currentIndex > 0) {
+            flashcardEl.classList.add('slide-out-right');
+            setTimeout(() => {
+                display(currentIndex - 1);
+                flashcardEl.classList.remove('slide-out-right');
+            }, 300);
+        }
+    });
+
+    nextBtn.addEventListener('click', () => {
+        if (currentIndex < phrases.length - 1) {
+            flashcardEl.classList.add('slide-out-left');
+            setTimeout(() => {
+                display(currentIndex + 1);
+                flashcardEl.classList.remove('slide-out-left');
+            }, 300);
+        }
+    });
+
+    let touchstartX = 0;
+    flashcardEl.addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; });
+    flashcardEl.addEventListener('touchend', e => {
+        const touchendX = e.changedTouches[0].screenX;
+        if (Math.abs(touchendX - touchstartX) > 50) {
+            if (touchendX < touchstartX) nextBtn.click();
+            else prevBtn.click();
+        }
+    });
+
+    display(0);
+}
+
+// --- Page Load and Session Logic ---
+document.addEventListener('DOMContentLoaded', async () => {
+    const userStatusDiv = document.getElementById('user-status');
+    const firstNameDisplay = document.getElementById('first-name-display');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const authContainer = document.getElementById('auth-container');
+    const loginPrompt = document.getElementById('login-prompt');
+    const subscriptionPrompt = document.getElementById('subscription-prompt');
+    const mainContentDiv = document.getElementById('main-content');
+    const speechRateInput = document.getElementById('speechRate');
+    const rateDisplay = document.getElementById('rateDisplay');
+
+    speechRateInput.addEventListener('input', () => {
+        speechRate = parseFloat(speechRateInput.value);
+        rateDisplay.textContent = speechRate.toFixed(1);
+        localStorage.setItem('savedSpeechRate', speechRate);
+    });
+
+    const savedRate = localStorage.getItem('savedSpeechRate');
+    if (savedRate) {
+        speechRate = parseFloat(savedRate);
+        speechRateInput.value = savedRate;
+        rateDisplay.textContent = parseFloat(savedRate).toFixed(1);
+    }
+
+    logoutBtn.addEventListener('click', async () => {
+        const response = await fetch('api/logout.php');
+        if (response.ok) {
+            showToast('You have been logged out.', 'success');
+            setTimeout(() => { window.location.href = 'login.html'; }, 1000);
+        } else {
+            showToast('Logout failed. Please try again.', 'error');
+        }
+    });
+
+    try {
+        const response = await fetch('api/check_session.php');
+        if (response.ok) {
+            const data = await response.json();
+            if (data.loggedIn) {
+                firstNameDisplay.textContent = `Welcome, ${data.user.first_name}`;
+                userStatusDiv.style.display = 'block';
+                if (data.user.role === 'admin') {
+                    document.getElementById('admin-link').style.display = 'inline';
+                }
+
+                if (data.user.subscription_status === 'active') {
+                    mainContentDiv.style.display = 'block';
+                    const mainFlashcard = initializeMainFlashcard();
+                    const topicSelect = document.getElementById('topicSelect');
+                    await populateTopics(topicSelect);
+                    if (data.user.last_topic) {
+                        topicSelect.value = data.user.last_topic;
+                        // Trigger the change event to load phrases
+                        topicSelect.dispatchEvent(new Event('change'));
+                    }
+                } else {
+                    authContainer.style.display = 'block';
+                    subscriptionPrompt.style.display = 'block';
+                    renderPayPalSubscriptionButton();
+                }
+            } else {
+                authContainer.style.display = 'block';
+                loginPrompt.style.display = 'block';
+                initializeSampleFlashcard();
+            }
+        } else {
+            authContainer.style.display = 'block';
+            loginPrompt.style.display = 'block';
+            initializeSampleFlashcard();
+        }
+    } catch (error) {
+        console.error('Session check failed:', error);
+        authContainer.style.display = 'block';
+        loginPrompt.style.display = 'block';
+        const heroH1 = loginPrompt.querySelector('.hero h1');
+        const heroP = loginPrompt.querySelector('.hero p');
+        if (heroH1) heroH1.textContent = 'Oops! Something went wrong.';
+        if (heroP) heroP.textContent = 'We couldn\'t load the page properly. Please try refreshing.';
+    }
+  });
+
+  // --- Other Functions (PayPal, etc.) ---
+  function renderPayPalSubscriptionButton() {
+    const paypalScript = document.getElementById('paypal-sdk-script');
+    if (!paypalScript) {
+        console.error("PayPal SDK script not found.");
+        return;
+    }
+    const planId = paypalScript.getAttribute('data-plan-id');
+    if (!planId || planId === 'YOUR_PAYPAL_PLAN_ID') {
+        console.error('Subscription plan is not configured.');
+        return;
+    }
+    paypal.Buttons({
+        style: { shape: 'rect', color: 'gold', layout: 'vertical', label: 'subscribe' },
+        createSubscription: function(data, actions) {
+            return actions.subscription.create({ 'plan_id': planId });
+        },
+        onApprove: async function(data, actions) {
+            showToast('Subscription approved! Finalizing...', 'info');
+            try {
+                const response = await fetch('api/paypal/capture_subscription.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ subscriptionID: data.subscriptionID })
+                });
+                const result = await response.json();
+                if (result.status === 'success') {
+                    showToast('Subscription successful! You now have access.', 'success');
+                    setTimeout(() => { window.location.reload(); }, 2000);
+                } else {
+                    showToast('Failed to activate subscription: ' + (result.message || 'Unknown error'), 'error');
+                }
+            } catch (error) {
+                showToast('An error occurred while finalizing your subscription.', 'error');
+            }
+        },
+        onError: function(err) {
+            console.error('PayPal button error:', err);
+            showToast('An error occurred with the PayPal button.', 'error');
+        }
+    }).render('#paypal-button-container');
   }
 </script>
-
 </body>
 </html>

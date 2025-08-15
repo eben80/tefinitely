@@ -11,7 +11,7 @@ if ($argc < 2) {
 }
 
 $new_password = $argv[1];
-$admin_username = 'admin@example.com';
+$admin_username = 'sbmail246@gmail.com';
 
 if (strlen($new_password) < 8) {
     echo "Error: Password must be at least 8 characters long.\n";

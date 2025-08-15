@@ -18,14 +18,18 @@ CREATE TABLE users (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Create subscriptions table
+-- Create subscriptions table with recurring subscription support
 CREATE TABLE subscriptions (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
-    paypal_transaction_id VARCHAR(255) NOT NULL,
+    paypal_subscription_id VARCHAR(255) NOT NULL,
     subscription_start_date DATETIME NOT NULL,
     subscription_end_date DATETIME NOT NULL,
+    status VARCHAR(50) NOT NULL DEFAULT 'inactive',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE KEY `user_id_unique` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Insert a default admin user
