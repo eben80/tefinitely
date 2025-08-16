@@ -87,33 +87,6 @@
             </tbody>
             </table>
         </div>
-
-        <div id="email-sender-section" style="margin-top: 3rem; background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-            <h2>Email Broadcaster</h2>
-            <form id="email-form">
-                <label for="email-target">Select Target Audience</label><br>
-                <select id="email-target" style="width: 100%; padding: 0.5rem; margin-bottom: 1rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 4px;">
-                    <option value="active">Active Subscribers</option>
-                    <option value="inactive">Inactive Subscribers</option>
-                    <option value="all">All Users</option>
-                    <option value="manual">Manual List</option>
-                </select>
-
-                <div id="manual-emails-container" style="display: none;">
-                    <label for="manual-emails">Enter Email Addresses (comma-separated)</label><br>
-                    <textarea id="manual-emails" rows="4" style="width: 100%; padding: 0.5rem; margin-bottom: 1rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;"></textarea>
-                </div>
-
-                <label for="email-subject">Email Subject</label><br>
-                <input type="text" id="email-subject" style="width: 100%; padding: 0.5rem; margin-bottom: 1rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
-
-                <label for="email-body">Email Body (HTML is supported)</label><br>
-                <textarea id="email-body" rows="10" style="width: 100%; padding: 0.5rem; margin-bottom: 1rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;"></textarea>
-
-                <button type="button" id="send-emails-btn" class="action-btn">Send Emails</button>
-                <span id="email-status" style="margin-left: 1rem; font-weight: bold;"></span>
-            </form>
-        </div>
     </div>
     <div id="auth-error" style="display: none; text-align: center; margin-top: 5rem;">
         <h2>Access Denied</h2>
