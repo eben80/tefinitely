@@ -252,6 +252,26 @@
     </div>
 </div>
 
+<div id="phase-intro-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <h2 id="modal-title"></h2>
+        <p><strong>Method:</strong></p>
+        <p id="modal-method"></p>
+        <p><strong>Benefit:</strong></p>
+        <p id="modal-benefit"></p>
+    </div>
+</div>
+
+<style>
+    .modal { position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; }
+    .modal-content { background-color: #fefefe; margin: auto; padding: 2rem; border: 1px solid #888; width: 90%; max-width: 600px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); position: relative; }
+    .modal-content h2 { margin-top: 0; }
+    .modal-content p { font-size: 1.1rem; line-height: 1.6; }
+    .close-btn { position: absolute; top: 10px; right: 20px; color: #aaa; font-size: 28px; font-weight: bold; }
+    .close-btn:hover, .close-btn:focus { color: black; text-decoration: none; cursor: pointer; }
+</style>
+
 <script src="js/toast.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
@@ -290,18 +310,75 @@ document.addEventListener('DOMContentLoaded', () => {
     const navButtons = document.querySelectorAll('.training-nav button');
     const modules = document.querySelectorAll('.training-module');
 
+    const phaseInfo = {
+        'phase1': {
+            title: 'Phase 1: Shadowing',
+            method: 'Listen to each line of a real-world dialogue, then repeat it. Use the "Play" button (▶️) to listen and the "mic" button (🎤) to check your pronunciation.',
+            benefit: 'This technique, also known as "parroting," is fantastic for improving your pronunciation, rhythm, and intonation. It helps you sound more like a native speaker by focusing purely on the sounds of the language.'
+        },
+        'phase2': {
+            title: 'Phase 2: Question Drills',
+            method: 'You\'ll be given an English question and some French vocabulary hints. Your goal is to form the French question correctly within the time limit. Flip the card to see the expected answer.',
+            benefit: 'This phase builds your ability to construct grammatically correct questions quickly and accurately, a crucial skill for Section A of the TEF exam where you need to ask for information.'
+        },
+        'phase3': {
+            title: 'Phase 3: Semi-Guided Roleplays',
+            method: 'Engage in a cloze (fill-in-the-blanks) activity based on a realistic scenario. You\'ll need to provide the missing lines in the dialogue.',
+            benefit: 'This bridges the gap between structured drills and spontaneous conversation. It helps you practice using appropriate vocabulary and grammar in a specific context, improving your conversational flow.'
+        },
+        'phase4': {
+            title: 'Phase 4: Spontaneity Drills',
+            method: 'Select a scenario, then roll the dice to get a question word (e.g., "Où", "Quand"). Your task is to form a relevant question based on the scenario and the question word as quickly as possible.',
+            benefit: 'This drill is designed to improve your mental agility and ability to react spontaneously in a conversation, which is essential for real-world interactions and high-level fluency.'
+        },
+        'phase5': {
+            title: 'Phase 5: Script Writing & Reuse',
+            method: 'Write your own dialogues based on a topic or scenario. You can save your scripts, perform them using the text-to-speech engine, and get simple analytical feedback.',
+            benefit: 'This is the ultimate practice for active language production. By creating your own content, you move from a passive learner to an active user of the language, reinforcing vocabulary and sentence structures in a way that is meaningful to you.'
+        }
+    };
+
+    const introModal = document.getElementById('phase-intro-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalMethod = document.getElementById('modal-method');
+    const modalBenefit = document.getElementById('modal-benefit');
+    const closeModalBtn = introModal.querySelector('.close-btn');
+
+    function showPhaseIntroPopup(phase) {
+        const hasSeen = localStorage.getItem(`hasSeen${phase}Popup`);
+        if (hasSeen) {
+            return;
+        }
+
+        const info = phaseInfo[phase];
+        if (info) {
+            modalTitle.textContent = info.title;
+            modalMethod.textContent = info.method;
+            modalBenefit.textContent = info.benefit;
+            introModal.style.display = 'flex';
+        }
+    }
+
+    closeModalBtn.addEventListener('click', () => {
+        introModal.style.display = 'none';
+        const activePhase = document.querySelector('.training-nav button.active').id.replace('-btn', '');
+        localStorage.setItem(`hasSeen${activePhase}Popup`, 'true');
+    });
+
     navButtons.forEach(button => {
         button.addEventListener('click', () => {
-            // Deactivate all buttons and modules
             navButtons.forEach(btn => btn.classList.remove('active'));
             modules.forEach(module => module.classList.remove('active'));
 
-            // Activate the clicked button and corresponding module
             button.classList.add('active');
             const phase = button.id.replace('-btn', '');
             document.getElementById(`${phase}-module`).classList.add('active');
+            showPhaseIntroPopup(phase);
         });
     });
+
+    // Show popup for the default active phase on page load
+    showPhaseIntroPopup('phase1');
 
     // --- Global Controls ---
     const speechRateInput = document.getElementById('speechRate');
@@ -333,7 +410,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function checkPronunciation(userTranscript, targetText, resultElement) {
+    function checkPronunciation(userTranscript, targetText, resultElement, dialogueId, lineId) {
         const target = targetText.toLowerCase().replace(/[.,!?;]/g, '');
         const userWords = userTranscript.toLowerCase().replace(/[.,!?;]/g, '').split(/\s+/);
         const targetWords = target.split(/\s+/);
@@ -355,12 +432,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         resultElement.textContent = ` ${resultText} (Score: ${score}%)`;
 
+        // Save the progress
+        fetch('api/profile/store_dialogue_progress.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                dialogue_id: dialogueId,
+                line_id: lineId,
+                score: ratio
+            })
+        });
+
         setTimeout(() => {
             resultElement.textContent = '';
         }, 5000);
     }
 
-    function startPronunciationCheck(targetText, resultElement) {
+    function startPronunciationCheck(targetText, resultElement, dialogueId, lineId) {
         if (!('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
             alert("Sorry, your browser does not support Speech Recognition.");
             return;
@@ -377,7 +465,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         recognition.onresult = (event) => {
             const transcript = event.results[0][0].transcript.toLowerCase();
-            checkPronunciation(transcript, targetText, resultElement);
+            checkPronunciation(transcript, targetText, resultElement, dialogueId, lineId);
         };
 
         recognition.onerror = (event) => {
@@ -511,9 +599,9 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.check-pronunciation-btn').forEach(button => {
             button.addEventListener('click', (e) => {
                 const lineIndex = e.target.getAttribute('data-line-index');
-                const lineText = dialogue.lines[lineIndex].line;
+                const line = dialogue.lines[lineIndex];
                 const resultSpan = dialogueContent.querySelector(`.pronunciation-result[data-line-index="${lineIndex}"]`);
-                startPronunciationCheck(lineText, resultSpan);
+                startPronunciationCheck(line.line, resultSpan, dialogue.id, line.id);
             });
         });
     }
