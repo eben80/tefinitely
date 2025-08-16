@@ -590,6 +590,9 @@ function speakFrench(text, rate) {
 }
 
 function stopRecording() {
+    const startRecordBtn = document.getElementById('startRecordBtn');
+    if (startRecordBtn) startRecordBtn.disabled = false;
+
     if (recognition) {
       recognition.stop();
     }
