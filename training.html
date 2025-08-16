@@ -349,8 +349,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function checkPronunciation(userTranscript, targetText, resultElement, dialogueId, lineId) {
         const target = targetText.toLowerCase().replace(/[.,!?;]/g, '');
-        const userWords = userTranscript.toLowerCase().replace(/[.,!?;]/g, '').split(/\\s+/);
-        const targetWords = target.split(/\\s+/);
+        const userWords = userTranscript.toLowerCase().replace(/[.,!?;]/g, '').split(/\s+/);
+        const targetWords = target.split(/\s+/);
 
         let matchCount = 0;
         targetWords.forEach(w => {
