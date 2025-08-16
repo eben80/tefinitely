@@ -93,9 +93,15 @@
 
         <div class="form-section">
             <h2>Your Progress</h2>
+            <h3>Flashcard Progress</h3>
             <div id="progress-container"></div>
-            <div style="margin-top: 1rem;">
-                <button id="reset-stats-btn" style="background-color: #dc3545;">Reset Stats</button>
+            <div style="margin-top: 1rem; margin-bottom: 2rem;">
+                <button id="reset-stats-btn" style="background-color: #dc3545;">Reset Flashcard Stats</button>
+            </div>
+
+            <h3>Phase 1: Shadowing Performance</h3>
+            <div id="dialogue-progress-container">
+                <!-- Dialogue progress will be loaded here -->
             </div>
         </div>
     </div>
@@ -150,6 +156,35 @@
         }
 
         fetchProgress();
+
+        async function fetchDialogueProgress() {
+            const response = await fetch('api/profile/get_dialogue_progress.php');
+            const data = await response.json();
+
+            if (data.status === 'success') {
+                const progressContainer = document.getElementById('dialogue-progress-container');
+                if (data.progress.length === 0) {
+                    progressContainer.innerHTML = '<p>No progress yet for Phase 1. Start practicing!</p>';
+                    return;
+                }
+
+                let html = '<table>';
+                html += '<tr><th>Dialogue</th><th>Coverage</th><th>Average Score</th></tr>';
+                data.progress.forEach(item => {
+                    const coveragePercent = (item.coverage * 100).toFixed(0);
+                    const scorePercent = (item.average_score * 100).toFixed(2);
+                    html += `<tr>
+                                <td>${item.dialogue_name}</td>
+                                <td>${coveragePercent}% (${item.attempted_lines}/${item.total_lines} lines)</td>
+                                <td>${scorePercent}%</td>
+                             </tr>`;
+                });
+                html += '</table>';
+                progressContainer.innerHTML = html;
+            }
+        }
+
+        fetchDialogueProgress();
 
         document.getElementById('reset-stats-btn').addEventListener('click', async () => {
             if (confirm('Are you sure you want to reset your stats? This action cannot be undone.')) {

@@ -510,6 +510,7 @@
           <option value="">--Please choose a topic--</option>
           <!-- Options will be dynamically populated -->
       </select>
+      <span id="topic-progress-display" style="margin-left: 1rem; font-weight: bold; font-size: 0.9rem;"></span>
       <br />
       <label for="speechRate">Speech Speed:</label><br />
       <input type="range" id="speechRate" min="0.5" max="1.2" value="1.0" step="0.1" />
@@ -555,6 +556,19 @@ let currentPhraseIndex = 0;
 let currentTopic = '';
 let speechRate = 1.0;
 let recognition;
+let userProgress = [];
+
+async function fetchProgress() {
+    try {
+        const response = await fetch('api/profile/get_progress.php');
+        const data = await response.json();
+        if (data.status === 'success') {
+            userProgress = data.progress;
+        }
+    } catch (error) {
+        console.error('Failed to fetch user progress:', error);
+    }
+}
 
 // --- Utility Functions ---
 function speakFrench(text, rate) {
@@ -769,7 +783,26 @@ function initializeMainFlashcard() {
         }
     }
 
-    topicSelect.addEventListener('change', () => loadPhrases(topicSelect.value));
+    topicSelect.addEventListener('change', () => {
+        loadPhrases(topicSelect.value);
+
+        const selectedTopic = topicSelect.value;
+        const progressDisplay = document.getElementById('topic-progress-display');
+        if (!selectedTopic) {
+            progressDisplay.textContent = '';
+            return;
+        }
+        const [section, theme] = selectedTopic.split('-');
+
+        const topicProgress = userProgress.find(p => p.section === section && p.theme === theme);
+
+        if (topicProgress) {
+            const scorePercent = (topicProgress.average_matching_quality * 100).toFixed(0);
+            progressDisplay.textContent = `Progress: ${topicProgress.phrases_covered}/${topicProgress.total_phrases} phrases, Avg Score: ${scorePercent}%`;
+        } else {
+            progressDisplay.textContent = 'No progress yet.';
+        }
+    });
     flipCardBtn.addEventListener('click', (e) => { e.stopPropagation(); flashcard.classList.toggle('is-flipped'); });
     flashcard.addEventListener('click', () => flashcard.classList.toggle('is-flipped'));
     playPhraseBtn.addEventListener('click', () => { if (phraseFrench.textContent) speakFrench(phraseFrench.textContent, speechRate); });
@@ -943,6 +976,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const mainFlashcard = initializeMainFlashcard();
                     const topicSelect = document.getElementById('topicSelect');
                     await populateTopics(topicSelect);
+                    await fetchProgress(); // Fetch progress data
                     if (data.user.last_topic) {
                         topicSelect.value = data.user.last_topic;
                         // Trigger the change event to load phrases
