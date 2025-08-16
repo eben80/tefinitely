@@ -158,6 +158,7 @@
             <select id="dialogueSelect">
                 <!-- Options will be populated dynamically -->
             </select>
+            <span id="dialogue-progress-display" style="margin-left: 1rem; font-weight: bold; font-size: 0.9rem;"></span>
             <button id="play-full-dialogue-btn">Play Full Dialogue</button>
         </div>
         <div id="dialogue-content" style="margin-top: 1rem; padding: 1rem; background: #fff; border-radius: 8px;">
@@ -326,6 +327,19 @@ document.addEventListener('DOMContentLoaded', () => {
     loadSpeechRate(); // Load the saved rate on page load
 
     let recognition;
+    let dialogueProgress = [];
+
+    async function fetchDialogueProgress() {
+        try {
+            const response = await fetch('api/profile/get_dialogue_progress.php');
+            const data = await response.json();
+            if (data.status === 'success') {
+                dialogueProgress = data.progress;
+            }
+        } catch (error) {
+            console.error('Failed to fetch dialogue progress:', error);
+        }
+    }
 
     function stopRecording() {
         if (recognition) {
@@ -333,7 +347,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function checkPronunciation(userTranscript, targetText, resultElement) {
+    function checkPronunciation(userTranscript, targetText, resultElement, dialogueId, lineId) {
         const target = targetText.toLowerCase().replace(/[.,!?;]/g, '');
         const userWords = userTranscript.toLowerCase().replace(/[.,!?;]/g, '').split(/\\s+/);
         const targetWords = target.split(/\\s+/);
@@ -355,12 +369,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         resultElement.textContent = ` ${resultText} (Score: ${score}%)`;
 
+        // Save the progress
+        fetch('api/profile/store_dialogue_progress.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                dialogue_id: dialogueId,
+                line_id: lineId,
+                score: ratio
+            })
+        });
+
         setTimeout(() => {
             resultElement.textContent = '';
         }, 5000);
     }
 
-    function startPronunciationCheck(targetText, resultElement) {
+    function startPronunciationCheck(targetText, resultElement, dialogueId, lineId) {
         if (!('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
             alert("Sorry, your browser does not support Speech Recognition.");
             return;
@@ -377,7 +402,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         recognition.onresult = (event) => {
             const transcript = event.results[0][0].transcript.toLowerCase();
-            checkPronunciation(transcript, targetText, resultElement);
+            checkPronunciation(transcript, targetText, resultElement, dialogueId, lineId);
         };
 
         recognition.onerror = (event) => {
@@ -511,15 +536,32 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.check-pronunciation-btn').forEach(button => {
             button.addEventListener('click', (e) => {
                 const lineIndex = e.target.getAttribute('data-line-index');
-                const lineText = dialogue.lines[lineIndex].line;
+                const line = dialogue.lines[lineIndex];
                 const resultSpan = dialogueContent.querySelector(`.pronunciation-result[data-line-index="${lineIndex}"]`);
-                startPronunciationCheck(lineText, resultSpan);
+                startPronunciationCheck(line.line, resultSpan, dialogue.id, line.id);
             });
         });
     }
 
     dialogueSelect.addEventListener('change', () => {
         loadDialogue(dialogueSelect.value);
+
+        const selectedDialogueId = dialogueSelect.value;
+        const progressDisplay = document.getElementById('dialogue-progress-display');
+        if (!selectedDialogueId) {
+            progressDisplay.textContent = '';
+            return;
+        }
+
+        const progress = dialogueProgress.find(p => p.dialogue_id == selectedDialogueId);
+
+        if (progress && progress.attempted_lines > 0) {
+            const coveragePercent = (progress.coverage * 100).toFixed(0);
+            const scorePercent = (progress.average_score * 100).toFixed(0);
+            progressDisplay.textContent = `Coverage: ${coveragePercent}%, Avg Score: ${scorePercent}%`;
+        } else {
+            progressDisplay.textContent = 'No progress yet.';
+        }
     });
 
     playFullDialogueBtn.addEventListener('click', async () => {
@@ -548,7 +590,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Initial load
-    loadDialogueList();
+    (async () => {
+        await fetchDialogueProgress();
+        await loadDialogueList();
+
+        // Since a dialogue is loaded automatically, trigger the change event to show its progress
+        if (dialogueSelect.value) {
+            dialogueSelect.dispatchEvent(new Event('change'));
+        }
+    })();
 
     // --- Phase 2: Question Drills ---
     const startDrillBtn = document.getElementById('start-drill-btn');

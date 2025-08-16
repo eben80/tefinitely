@@ -18,7 +18,7 @@ require_once '../db/db_config.php';
 $dialogue_id = $_GET['id'] ?? 1; // Default to the first dialogue
 
 $stmt = $conn->prepare(
-    "SELECT d.dialogue_name, dl.speaker, dl.line_text, dl.line_order
+    "SELECT d.id as dialogue_id, d.dialogue_name, dl.id as line_id, dl.speaker, dl.line_text, dl.line_order
      FROM dialogues d
      JOIN dialogue_lines dl ON d.id = dl.dialogue_id
      WHERE d.id = ?
@@ -29,6 +29,7 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 $dialogue = [
+    'id' => $dialogue_id,
     'name' => '',
     'lines' => []
 ];
@@ -40,6 +41,7 @@ while ($row = $result->fetch_assoc()) {
         $first_row = false;
     }
     $dialogue['lines'][] = [
+        'id' => $row['line_id'],
         'speaker' => $row['speaker'],
         'line' => $row['line_text']
     ];
