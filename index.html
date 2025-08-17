@@ -720,6 +720,23 @@ async function populateTopics(topicSelect) {
 }
 
 // --- Initializers ---
+function updateTopicProgressDisplay(topicValue) {
+    const progressDisplay = document.getElementById('topic-progress-display');
+    if (!topicValue) {
+        progressDisplay.textContent = '';
+        return;
+    }
+    const [section, theme] = topicValue.split('-');
+    const topicProgress = userProgress.find(p => p.section === section && p.theme === theme);
+
+    if (topicProgress) {
+        const scorePercent = (topicProgress.average_matching_quality * 100).toFixed(0);
+        progressDisplay.textContent = `Progress: ${topicProgress.phrases_covered}/${topicProgress.total_phrases} phrases, Avg Score: ${scorePercent}%`;
+    } else {
+        progressDisplay.textContent = 'No progress yet.';
+    }
+}
+
 function initializeMainFlashcard() {
     const mainContent = document.getElementById('main-content');
     const topicSelect = mainContent.querySelector('#topicSelect');
@@ -818,23 +835,6 @@ function initializeMainFlashcard() {
             mainContent.querySelector('#recordingSection').style.display = 'block';
         } catch (e) {
             showToast('Error loading phrases: ' + e.message, 'error');
-        }
-    }
-
-    function updateTopicProgressDisplay(topicValue) {
-        const progressDisplay = document.getElementById('topic-progress-display');
-        if (!topicValue) {
-            progressDisplay.textContent = '';
-            return;
-        }
-        const [section, theme] = topicValue.split('-');
-        const topicProgress = userProgress.find(p => p.section === section && p.theme === theme);
-
-        if (topicProgress) {
-            const scorePercent = (topicProgress.average_matching_quality * 100).toFixed(0);
-            progressDisplay.textContent = `Progress: ${topicProgress.phrases_covered}/${topicProgress.total_phrases} phrases, Avg Score: ${scorePercent}%`;
-        } else {
-            progressDisplay.textContent = 'No progress yet.';
         }
     }
 
