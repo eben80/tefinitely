@@ -244,6 +244,12 @@
   .tour-popup .buttons button {
     margin-left: 0.5rem;
   }
+  .tour-highlight {
+    z-index: 1002;
+    position: relative;
+    box-shadow: 0 0 0 9999px rgba(0,0,0,0.5);
+    border-radius: 4px;
+  }
 
   /* --- Subscription Prompt Styles --- */
   .subscription-prompt {
@@ -928,14 +934,14 @@ function initializeSampleFlashcard() {
 
 function initializeTour() {
     const tourSteps = [
-        { title: 'Welcome to TEFinitely!', content: 'This guided tour will walk you through the features of the site.' },
-        { title: 'Select a Topic', content: 'Start by selecting a topic from this dropdown menu.' },
-        { title: 'The Flashcard', content: 'This is the flashcard. The English translation is shown on the front. Click the "Flip" button or the card itself to see the French text.' },
-        { title: 'Navigation', content: 'Use these buttons to navigate between cards.' },
-        { title: 'Listen to the Phrase', content: 'Click this button to hear the French phrase spoken.' },
-        { title: 'Check Your Pronunciation', content: 'Click the "Speak" button and say the French phrase.' },
-        { title: 'Adjust Speech Speed', content: 'You can adjust the speed of the text-to-speech voice here.' },
-        { title: 'Ready to Go!', content: 'You\'re all set! You can restart this tour at any time from your profile page.' }
+      { title: 'Welcome to TEFinitely!', content: 'This guided tour will walk you through the features of the site. You can skip this at any time by clicking the "Skip" button.', target: null },
+      { title: 'Select a Topic', content: 'Start by selecting a topic from this dropdown menu. The phrases for the selected topic will be loaded automatically.', target: '#topicSelect' },
+      { title: 'The Flashcard', content: 'This is the flashcard. The English translation is shown on the front. Click the "Flip" button or the card itself to see the French text.', target: '#phraseBox' },
+      { title: 'Navigation', content: 'Use these buttons to navigate between cards. You can also swipe left and right on the card on a touch device.', target: '#navButtons' },
+      { title: 'Listen to the Phrase', content: 'Click this button to hear the French phrase spoken.', target: '#playPhraseBtn' },
+      { title: 'Check Your Pronunciation', content: 'Click the "Speak" button and say the French phrase. We\'ll let you know how you did.', target: '#recordingSection' },
+      { title: 'Adjust Speech Speed', content: 'You can adjust the speed of the text-to-speech voice here.', target: '#speechRate' },
+      { title: 'Ready to Go!', content: 'You\'re all set! You can restart this tour at any time from your profile page.', target: null }
     ];
 
     let currentTourStep = 0;
@@ -947,18 +953,24 @@ function initializeTour() {
     const tourNext = document.getElementById('tour-next');
 
     function showTourStep(stepIndex) {
-        if (stepIndex >= tourSteps.length) {
-            endTour();
-            return;
-        }
         const step = tourSteps[stepIndex];
         tourTitle.textContent = step.title;
         tourContent.textContent = step.content;
+
+        document.querySelectorAll('.tour-highlight').forEach(el => el.classList.remove('tour-highlight'));
+
+        if (step.target) {
+            const targetElement = document.querySelector(step.target);
+            if (targetElement) {
+                targetElement.classList.add('tour-highlight');
+            }
+        }
         tourOverlay.style.display = 'block';
     }
 
     function endTour() {
         tourOverlay.style.display = 'none';
+        document.querySelectorAll('.tour-highlight').forEach(el => el.classList.remove('tour-highlight'));
         fetch('api/profile/update_user_details.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -968,7 +980,11 @@ function initializeTour() {
 
     tourNext.addEventListener('click', () => {
         currentTourStep++;
-        showTourStep(currentTourStep);
+        if (currentTourStep < tourSteps.length) {
+            showTourStep(currentTourStep);
+        } else {
+            endTour();
+        }
     });
 
     tourSkip.addEventListener('click', endTour);
