@@ -234,12 +234,38 @@ a {
 }
 
 /* --- Responsive Design --- */
-@media (max-width: 640px) {
-  .landing-nav {
+@media (max-width: 768px) { /* Increased breakpoint for tablets */
+  .landing-nav, .main-nav {
       flex-direction: column;
       gap: 1rem;
+      padding: 1rem;
+  }
+  .main-nav .nav-links, .landing-nav .nav-links {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      text-align: center;
+      gap: 0.5rem;
+  }
+  .main-nav .nav-links a, .landing-nav .nav-links a {
+      padding: 0.75rem;
+      border-bottom: 1px solid #eee;
+      width: 100%;
+  }
+  .main-nav .nav-links a:last-child, .landing-nav .nav-links a:last-child {
+      border-bottom: none;
+  }
+  .main-nav .nav-user {
+      width: 100%;
+      justify-content: center;
+      border-top: 1px solid #eee;
+      padding-top: 1rem;
+      margin-top: 0.5rem;
   }
   .landing-page .hero h1 {
       font-size: 2.2rem;
+  }
+  .container {
+      padding: 1rem;
   }
 }
