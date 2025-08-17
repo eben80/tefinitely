@@ -1,305 +1,235 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<base href="/">
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>TEF Canada Training - New Methods</title>
-<link rel="icon" href="img/favicon/favicon.ico" sizes="any">
-<link rel="icon" href="img/favicon/favicon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="img/favicon/apple-touch-icon.png">
-<link rel="manifest" href="img/favicon/site.webmanifest">
-<link rel="stylesheet" href="css/toast.css">
-<link rel="stylesheet" href="css/main.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-<style>
-  .logo {
-    width: 100%;
-    max-width: 500px;
-    margin: 1rem 0 2rem 0;
-  }
-  body {
-    font-family: Arial, sans-serif;
-    margin: 2rem;
-    background: #f4f1ea;
-  }
-  h1 {
-    margin-bottom: 1rem;
-    color: #333;
-  }
-  #main-content {
-      padding: 1rem;
-  }
-  .training-nav {
-      margin-bottom: 2rem;
-      text-align: center;
-  }
-  .training-nav button {
-      padding: 0.8rem 1.2rem;
-      font-size: 1rem;
-      margin: 0 0.5rem;
-      cursor: pointer;
-      border: 1px solid #ccc;
-      background-color: #fff;
-      border-radius: 5px;
-  }
-  .training-nav button.active {
-      background-color: #004d99;
-      color: white;
-      border-color: #004d99;
-  }
-  .training-module {
-      display: none; /* Hidden by default */
-  }
-  .training-module.active {
-      display: block; /* Shown when active */
-  }
-
-  /* --- Flashcard Styles --- */
-  .flashcard {
-      background-color: transparent;
-      width: 100%;
-      max-width: 600px;
-      height: 200px;
-      perspective: 1000px;
-      margin: auto;
-      margin-bottom: 1rem;
-  }
-  .flashcard-inner {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      text-align: center;
-      transition: transform 0.6s;
-      transform-style: preserve-3d;
-      box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
-  }
-  .flashcard.is-flipped .flashcard-inner {
-      transform: rotateY(180deg);
-  }
-  .flashcard-front, .flashcard-back {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      -webkit-backface-visibility: hidden;
-      backface-visibility: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 8px;
-      background-color: #fff;
-      padding: 1rem;
-      box-sizing: border-box;
-  }
-  .flashcard-back {
-      transform: rotateY(180deg);
-  }
-
-  /* --- Responsive Design --- */
-  @media (max-width: 640px) {
-    body {
-      margin: 1rem;
-    }
-    h1 {
-      font-size: 1.5rem;
-    }
-    .flashcard {
-        height: 180px; /* Adjust height for smaller screens */
-    }
-    #user-status {
-      position: static;
-      text-align: center;
-      margin-bottom: 1rem;
-      padding: 0.5rem;
-      background: #e9ecef;
-      border-radius: 4px;
-    }
-    #user-status a, #user-status button {
-        margin: 0 0.5rem;
-    }
-  }
-</style>
+    <base href="/">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TEF Canada Training - New Methods</title>
+    <link rel="icon" href="img/favicon/favicon.ico" sizes="any">
+    <link rel="icon" href="img/favicon/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="img/favicon/apple-touch-icon.png">
+    <link rel="manifest" href="img/favicon/site.webmanifest">
+    <link rel="stylesheet" href="css/toast.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <style>
+      /* --- Flashcard Styles --- */
+      .flashcard {
+          background-color: transparent;
+          width: 100%;
+          max-width: 600px;
+          height: 200px;
+          perspective: 1000px;
+          margin: auto;
+          margin-bottom: 1rem;
+      }
+      .flashcard-inner {
+          position: relative;
+          width: 100%;
+          height: 100%;
+          text-align: center;
+          transition: transform 0.6s;
+          transform-style: preserve-3d;
+          box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+      }
+      .flashcard.is-flipped .flashcard-inner {
+          transform: rotateY(180deg);
+      }
+      .flashcard-front, .flashcard-back {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          -webkit-backface-visibility: hidden;
+          backface-visibility: hidden;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 8px;
+          background-color: #fff;
+          padding: 1rem;
+          box-sizing: border-box;
+      }
+      .flashcard-back {
+          transform: rotateY(180deg);
+      }
+    </style>
 </head>
 <body>
-<header>
-    <a href="/"><img src="img/top_logo_light.png" alt="TEFinitely Logo" class="logo"></a>
-</header>
 <div id="toast-container"></div>
-<nav class="main-nav" id="user-status" style="display: none;">
-    <div class="nav-links">
-        <a href="index.html">Flashcards</a>
-        <a href="training.html">Phased Training</a>
-        <a href="profile.html">Profile</a>
-        <a id="admin-link" href="admin.html" style="display: none;">Admin Portal</a>
-    </div>
-    <div class="nav-user">
-        <span id="first-name-display"></span>
-        <button id="logoutBtn">Logout</button>
-    </div>
-</nav>
-
-<div id="main-content">
-    <h1>New Training Methods</h1>
-    <div id="global-controls" style="margin-bottom: 2rem;">
-        <label for="speechRate">Speech Speed:</label>
-        <input type="range" id="speechRate" min="0.5" max="1.2" value="1.0" step="0.1" />
-        <span id="rateDisplay">1.0</span>x
-    </div>
-    <div class="training-nav">
-        <button id="phase1-btn" class="active">Phase 1: Shadowing</button>
-        <button id="phase2-btn">Phase 2: Question Drills</button>
-        <button id="phase3-btn">Phase 3: Roleplays</button>
-        <button id="phase4-btn">Phase 4: Spontaneity</button>
-        <button id="phase5-btn">Phase 5: Script Writing</button>
-    </div>
-
-    <div id="phase1-module" class="training-module active">
-        <h2>Phase 1: Shadowing Practice</h2>
-        <p>Familiarize yourself with the structure of TEF Section A. Listen to the dialogues and repeat each line.</p>
-        <div id="dialogue-controls">
-            <label for="dialogueSelect">Choose a dialogue:</label>
-            <select id="dialogueSelect">
-                <!-- Options will be populated dynamically -->
-            </select>
-            <span id="dialogue-progress-display" style="margin-left: 1rem; font-weight: bold; font-size: 0.9rem;"></span>
-            <button id="play-full-dialogue-btn">Play Full Dialogue</button>
-        </div>
-        <div id="dialogue-content" style="margin-top: 1rem; padding: 1rem; background: #fff; border-radius: 8px;">
-            <!-- Dialogue will be rendered here -->
-        </div>
-    </div>
-
-    <div id="phase2-module" class="training-module">
-        <h2>Phase 2: Controlled Question Practice</h2>
-        <p>Build varied question types using vocabulary templates.</p>
-        <button id="start-drill-btn">Start Drill</button>
-        <div id="drill-container" style="display: none;">
-            <div id="drill-timer">Time left: <span id="timer-display">15</span>s</div>
-            <div class="flashcard" id="drill-flashcard">
-                <div class="flashcard-inner">
-                    <div class="flashcard-front" id="drill-card-front">
-                        <!-- English question here -->
-                    </div>
-                    <div class="flashcard-back" id="drill-card-back">
-                        <!-- Hints and answer here -->
-                    </div>
+<header class="main-header">
+    <nav class="main-nav" id="main-nav">
+        <a href="index.html" class="nav-brand">
+            <img src="img/top_logo_light.png" alt="TEFinitely Logo">
+        </a>
+        <button class="nav-toggle" aria-label="Toggle navigation">
+            <i class="bi bi-list"></i>
+        </button>
+        <div class="nav-links">
+            <!-- Logged-out users see this -->
+            <div id="guest-links" style="display: none;">
+                <a href="login.html" class="nav-button-secondary">Log In</a>
+                <a href="signup.html" class="nav-button-primary">Sign Up</a>
+            </div>
+            <!-- Logged-in users see this -->
+            <div id="user-links" style="display: none;">
+                <a href="index.html">Flashcards</a>
+                <a href="training.html" class="active">Phased Training</a>
+                <a href="profile.html">Profile</a>
+                <a id="admin-link" href="admin.html" style="display: none;">Admin</a>
+                <div class="nav-user">
+                    <span id="user-name-display"></span>
+                    <button id="logoutBtn">Logout</button>
                 </div>
             </div>
-            <div id="drill-nav">
-                <button id="drill-prev-btn">Previous</button>
-                <button id="drill-flip-btn">Flip</button>
-                <button id="drill-next-btn">Next</button>
+        </div>
+    </nav>
+</header>
+
+<div class="page-container">
+    <main class="main-content">
+        <h1>New Training Methods</h1>
+        <div id="global-controls" style="margin-bottom: 2rem;">
+            <label for="speechRate">Speech Speed:</label>
+            <input type="range" id="speechRate" min="0.5" max="1.2" value="1.0" step="0.1" />
+            <span id="rateDisplay">1.0</span>x
+        </div>
+        <div class="training-nav">
+            <button id="phase1-btn" class="active">Phase 1: Shadowing</button>
+            <button id="phase2-btn">Phase 2: Question Drills</button>
+            <button id="phase3-btn">Phase 3: Roleplays</button>
+            <button id="phase4-btn">Phase 4: Spontaneity</button>
+            <button id="phase5-btn">Phase 5: Script Writing</button>
+        </div>
+
+        <div id="phase1-module" class="training-module active">
+            <h2>Phase 1: Shadowing Practice</h2>
+            <p>Familiarize yourself with the structure of TEF Section A. Listen to the dialogues and repeat each line.</p>
+            <div id="dialogue-controls">
+                <label for="dialogueSelect">Choose a dialogue:</label>
+                <select id="dialogueSelect">
+                    <!-- Options will be populated dynamically -->
+                </select>
+                <span id="dialogue-progress-display" style="margin-left: 1rem; font-weight: bold; font-size: 0.9rem;"></span>
+                <button id="play-full-dialogue-btn">Play Full Dialogue</button>
             </div>
-            <div id="drill-pagination"></div>
-        </div>
-    </div>
-
-    <div id="phase3-module" class="training-module">
-        <h2>Phase 3: Semi-Guided Roleplays</h2>
-        <p>Practice fluid, realistic dialogue in context. Start with a cloze (fill-in-the-blanks) activity.</p>
-        <div id="roleplay-setup">
-            <label for="roleplay-scenario-select">Choose a scenario:</label>
-            <select id="roleplay-scenario-select"></select>
-            <button id="start-roleplay-btn">Start Cloze Activity</button>
-        </div>
-        <div id="roleplay-container" style="display: none; margin-top: 1rem; padding: 1rem; background: #fff; border-radius: 8px;">
-            <h3 id="roleplay-title"></h3>
-            <div id="roleplay-script-content"></div>
-            <button id="check-roleplay-answers-btn" style="margin-top: 1rem;">Check Answers</button>
-        </div>
-    </div>
-
-    <div id="phase4-module" class="training-module">
-        <h2>Phase 4: Spontaneity Drills</h2>
-        <p>Build your real-time reaction ability. Select a scenario, roll the dice, and form a question in 10-15 seconds.</p>
-        <div id="dice-game-setup">
-            <label for="dice-game-scenario-select">Select Scenario:</label>
-            <select id="dice-game-scenario-select">
-                <!-- Options will be populated by JS -->
-            </select>
-        </div>
-        <div id="dice-game-main" style="margin-top: 1rem; text-align: center;">
-            <button id="roll-dice-btn" style="padding: 1rem 2rem; font-size: 1.2rem;">Roll Dice</button>
-            <div id="dice-result-display" style="font-size: 2rem; font-weight: bold; margin-top: 1rem; padding: 2rem; background: #fff; border-radius: 8px; min-height: 50px;">
-                ?
+            <div id="dialogue-content" style="margin-top: 1rem; padding: 1rem; background: #fff; border-radius: 8px;">
+                <!-- Dialogue will be rendered here -->
             </div>
         </div>
-    </div>
 
-    <div id="phase5-module" class="training-module">
-        <h2>Phase 5: Script Writing & Reuse</h2>
-        <p>Write your own dialogues, save them, and get feedback.</p>
-        <div id="script-manager">
-            <div id="script-loader" style="margin-bottom: 1rem;">
-                <label for="user-script-select">Load a saved script:</label>
-                <select id="user-script-select">
-                    <option value="">-- My Scripts --</option>
-                    <!-- User's scripts will be loaded here -->
+        <div id="phase2-module" class="training-module">
+            <h2>Phase 2: Controlled Question Practice</h2>
+            <p>Build varied question types using vocabulary templates.</p>
+            <button id="start-drill-btn">Start Drill</button>
+            <div id="drill-container" style="display: none;">
+                <div id="drill-timer">Time left: <span id="timer-display">15</span>s</div>
+                <div class="flashcard" id="drill-flashcard">
+                    <div class="flashcard-inner">
+                        <div class="flashcard-front" id="drill-card-front">
+                            <!-- English question here -->
+                        </div>
+                        <div class="flashcard-back" id="drill-card-back">
+                            <!-- Hints and answer here -->
+                        </div>
+                    </div>
+                </div>
+                <div id="drill-nav">
+                    <button id="drill-prev-btn">Previous</button>
+                    <button id="drill-flip-btn">Flip</button>
+                    <button id="drill-next-btn">Next</button>
+                </div>
+                <div id="drill-pagination"></div>
+            </div>
+        </div>
+
+        <div id="phase3-module" class="training-module">
+            <h2>Phase 3: Semi-Guided Roleplays</h2>
+            <p>Practice fluid, realistic dialogue in context. Start with a cloze (fill-in-the-blanks) activity.</p>
+            <div id="roleplay-setup">
+                <label for="roleplay-scenario-select">Choose a scenario:</label>
+                <select id="roleplay-scenario-select"></select>
+                <button id="start-roleplay-btn">Start Cloze Activity</button>
+            </div>
+            <div id="roleplay-container" style="display: none; margin-top: 1rem; padding: 1rem; background: #fff; border-radius: 8px;">
+                <h3 id="roleplay-title"></h3>
+                <div id="roleplay-script-content"></div>
+                <button id="check-roleplay-answers-btn" style="margin-top: 1rem;">Check Answers</button>
+            </div>
+        </div>
+
+        <div id="phase4-module" class="training-module">
+            <h2>Phase 4: Spontaneity Drills</h2>
+            <p>Build your real-time reaction ability. Select a scenario, roll the dice, and form a question in 10-15 seconds.</p>
+            <div id="dice-game-setup">
+                <label for="dice-game-scenario-select">Select Scenario:</label>
+                <select id="dice-game-scenario-select">
+                    <!-- Options will be populated by JS -->
                 </select>
             </div>
-            <div id="script-editor">
-                <input type="text" id="script-name-input" placeholder="Enter script name" style="width: 100%; margin-bottom: 0.5rem; padding: 0.5rem; box-sizing: border-box;">
-                <textarea id="script-content-textarea" rows="10" placeholder="Write your script here...&#10;Example:&#10;Person A: Bonjour!&#10;Person B: Bonjour, comment ça va?" style="width: 100%; padding: 0.5rem; box-sizing: border-box;"></textarea>
-                <div id="script-actions" style="margin-top: 1rem; text-align: right;">
-                    <button id="save-script-btn">Save Script</button>
-                    <button id="delete-script-btn" style="background-color: #dc3545;">Delete Script</button>
-                    <button id="perform-script-btn">Perform Script</button>
-                </div>
-            </div>
-            <div id="script-feedback-container" style="margin-top: 1.5rem; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
-                <h4>Script Analysis</h4>
-                <div id="script-feedback-content">
-                    <!-- Feedback will be displayed here -->
+            <div id="dice-game-main" style="margin-top: 1rem; text-align: center;">
+                <button id="roll-dice-btn" style="padding: 1rem 2rem; font-size: 1.2rem;">Roll Dice</button>
+                <div id="dice-result-display" style="font-size: 2rem; font-weight: bold; margin-top: 1rem; padding: 2rem; background: #fff; border-radius: 8px; min-height: 50px;">
+                    ?
                 </div>
             </div>
         </div>
-    </div>
+
+        <div id="phase5-module" class="training-module">
+            <h2>Phase 5: Script Writing & Reuse</h2>
+            <p>Write your own dialogues, save them, and get feedback.</p>
+            <div id="script-manager">
+                <div id="script-loader" style="margin-bottom: 1rem;">
+                    <label for="user-script-select">Load a saved script:</label>
+                    <select id="user-script-select">
+                        <option value="">-- My Scripts --</option>
+                        <!-- User's scripts will be loaded here -->
+                    </select>
+                </div>
+                <div id="script-editor">
+                    <input type="text" id="script-name-input" placeholder="Enter script name" style="width: 100%; margin-bottom: 0.5rem; padding: 0.5rem; box-sizing: border-box;">
+                    <textarea id="script-content-textarea" rows="10" placeholder="Write your script here...&#10;Example:&#10;Person A: Bonjour!&#10;Person B: Bonjour, comment ça va?" style="width: 100%; padding: 0.5rem; box-sizing: border-box;"></textarea>
+                    <div id="script-actions" style="margin-top: 1rem; text-align: right;">
+                        <button id="save-script-btn">Save Script</button>
+                        <button id="delete-script-btn" style="background-color: #dc3545;">Delete Script</button>
+                        <button id="perform-script-btn">Perform Script</button>
+                    </div>
+                </div>
+                <div id="script-feedback-container" style="margin-top: 1.5rem; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                    <h4>Script Analysis</h4>
+                    <div id="script-feedback-content">
+                        <!-- Feedback will be displayed here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
 </div>
 
-<footer class="landing-footer">
-    <div class="footer-grid">
-        <div class="footer-column">
-            <img src="img/top_logo_light.png" alt="TEFinitely Logo" class="footer-logo">
-            <p>Your guide to succeeding on the TEF Canada exam.</p>
-        </div>
-        <div class="footer-column">
-            <h4>Quick Links</h4>
-            <ul>
-                <li><a href="index.html">Flashcards</a></li>
-                <li><a href="training.html">Phased Training</a></li>
-                <li><a href="profile.html">Profile</a></li>
-            </ul>
-        </div>
-        <div class="footer-column">
-            <h4>Contact</h4>
-            <p>Email us at<br><a href="mailto:support@tefinitely.com">support@tefinitely.com</a></p>
-        </div>
-    </div>
-    <div class="footer-bottom">
-        <p>© 2025 TEFinitely.ca | All Rights Reserved</p>
-    </div>
+<footer class="site-footer">
+    <p>© 2025 TEFinitely.ca | All Rights Reserved</p>
 </footer>
 
 <script src="js/toast.js"></script>
+<script src="js/main.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    // Basic session check and user status update
-    const userStatusDiv = document.getElementById('user-status');
-    const firstNameDisplay = document.getElementById('first-name-display');
+    // Session check and UI setup
+    const guestLinks = document.getElementById('guest-links');
+    const userLinks = document.getElementById('user-links');
+    const userNameDisplay = document.getElementById('user-name-display');
     const logoutBtn = document.getElementById('logoutBtn');
-    const mainContentDiv = document.getElementById('main-content');
+    const adminLink = document.getElementById('admin-link');
 
     fetch('api/check_session.php')
         .then(response => response.json())
         .then(data => {
             if (data.loggedIn && data.user.subscription_status === 'active') {
-                firstNameDisplay.textContent = `Welcome, ${data.user.first_name}`;
-                userStatusDiv.style.display = 'flex'; // Changed to flex for new nav
+                userLinks.style.display = 'flex';
+                userNameDisplay.textContent = data.user.first_name;
                 if (data.user.role === 'admin') {
-                    document.getElementById('admin-link').style.display = 'inline';
+                    adminLink.style.display = 'block';
                 }
             } else {
-                // Redirect to login if not logged in or subscribed
                 window.location.href = 'login.html';
             }
         })
@@ -314,17 +244,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Tab navigation
+     // Tab navigation
     const navButtons = document.querySelectorAll('.training-nav button');
     const modules = document.querySelectorAll('.training-module');
 
     navButtons.forEach(button => {
         button.addEventListener('click', () => {
-            // Deactivate all buttons and modules
             navButtons.forEach(btn => btn.classList.remove('active'));
             modules.forEach(module => module.classList.remove('active'));
-
-            // Activate the clicked button and corresponding module
             button.classList.add('active');
             const phase = button.id.replace('-btn', '');
             document.getElementById(`${phase}-module`).classList.add('active');
@@ -351,7 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('savedSpeechRate', speechRate);
     });
 
-    loadSpeechRate(); // Load the saved rate on page load
+    loadSpeechRate();
 
     let recognition;
     let dialogueProgress = [];
@@ -584,7 +511,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (progress && progress.attempted_lines > 0) {
             const coveragePercent = (progress.coverage * 100).toFixed(0);
-            const scorePercent = (progress.average_score * 100).toFixed(0);
+            const scorePercent = (progress.average_score * 100).toFixed(2);
             progressDisplay.textContent = `Coverage: ${coveragePercent}%, Avg Score: ${scorePercent}%`;
         } else {
             progressDisplay.textContent = 'No progress yet.';
@@ -1072,6 +999,5 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 </script>
-
 </body>
 </html>

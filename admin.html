@@ -14,17 +14,15 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
-        .container { max-width: 1200px; }
-        h1, h2 { color: #333; }
         table { width: 100%; border-collapse: collapse; margin-top: 1rem; background: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         th, td { padding: 0.8rem; text-align: left; border-bottom: 1px solid #ddd; }
-        th { background-color: #007bff; color: white; }
+        th { background-color: var(--primary-color); color: white; }
         tr:hover { background-color: #f1f1f1; }
         select { padding: 0.3rem; font-size: 0.9rem; }
-        .status-active { color: green; font-weight: bold; }
-        .status-inactive { color: red; font-weight: bold; }
+        .status-active { color: #28a745; font-weight: bold; }
+        .status-inactive { color: #dc3545; font-weight: bold; }
         .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        .header-with-button { display: flex; justify-content: space-between; align-items: center; }
+        .header-with-button { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;}
         .action-btn { background-color: #28a745; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem; }
         .action-btn:hover { background-color: #218838; }
         .delete-user-btn { background-color: #dc3545; color: white; }
@@ -33,153 +31,186 @@
         .edit-user-btn:hover { background-color: #0069d9; }
         td button { padding: 0.3rem 0.6rem; border: none; border-radius: 4px; cursor: pointer; margin-right: 0.3rem; }
         .modal { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); }
-        .modal-content { background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px; border-radius: 8px; }
+        .modal-content { background-color: #fefefe; margin: 10% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px; border-radius: 8px; }
         .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; }
         .close-btn:hover, .close-btn:focus { color: black; text-decoration: none; cursor: pointer; }
-        .modal input { width: 100%; padding: 0.5rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; margin-bottom: 1rem; }
+        .modal input, .modal select { width: 100%; padding: 0.5rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; margin-bottom: 1rem; }
         .modal button { width: 100%; }
         .modal hr { margin: 1.5rem 0; }
+        .admin-section {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
     </style>
 </head>
 <body>
-    <header>
-        <a href="index.html"><img src="img/top_logo_light.png" alt="TEFinitely Logo" class="logo" style="display: block; margin-left: auto; margin-right: auto;"></a>
-    </header>
-    <div id="toast-container"></div>
-    <nav class="main-nav" id="user-status" style="display: none;">
+<div id="toast-container"></div>
+<header class="main-header">
+    <nav class="main-nav" id="main-nav">
+        <a href="index.html" class="nav-brand">
+            <img src="img/top_logo_light.png" alt="TEFinitely Logo">
+        </a>
+        <button class="nav-toggle" aria-label="Toggle navigation">
+            <i class="bi bi-list"></i>
+        </button>
         <div class="nav-links">
-            <a href="index.html">Flashcards</a>
-            <a href="training.html">Phased Training</a>
-            <a href="profile.html">Profile</a>
-            <a id="admin-link" href="admin.html" style="display: none;">Admin Portal</a>
-        </div>
-        <div class="nav-user">
-            <span id="first-name-display"></span>
-            <button id="logoutBtn">Logout</button>
+            <div id="guest-links" style="display: none;">
+                <a href="login.html" class="nav-button-secondary">Log In</a>
+                <a href="signup.html" class="nav-button-primary">Sign Up</a>
+            </div>
+            <div id="user-links" style="display: none;">
+                <a href="index.html">Flashcards</a>
+                <a href="training.html">Phased Training</a>
+                <a href="profile.html">Profile</a>
+                <a id="admin-link" href="admin.html" class="active">Admin</a>
+                <div class="nav-user">
+                    <span id="user-name-display"></span>
+                    <button id="logoutBtn">Logout</button>
+                </div>
+            </div>
         </div>
     </nav>
-    <div class="container">
+</header>
+
+<div class="page-container">
+    <main class="main-content">
         <div id="admin-dashboard" style="display: none;">
             <h1>Admin Dashboard</h1>
-            <div class="header-with-button">
-                <h2>User Management</h2>
-                <button id="add-user-btn" class="action-btn">Add New User</button>
-            </div>
-            <div class="table-container">
-                <table id="users-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                        <th>First Name</th>
-                        <th>Last Name</th>
-                        <th>Email</th>
-                        <th>Role</th>
-                        <th>Sub Status</th>
-                        <th>Sub End Date</th>
-                        <th>Created At</th>
-                        <th>Manage Sub</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="users-table-body">
-                    <!-- User rows will be inserted here by JavaScript -->
-                </tbody>
-                </table>
-            </div>
+
+            <!-- User Management Section -->
+            <section class="admin-section">
+                <div class="header-with-button">
+                    <h2>User Management</h2>
+                    <button id="add-user-btn" class="action-btn">Add New User</button>
+                </div>
+                <div class="table-container">
+                    <table id="users-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>First Name</th>
+                                <th>Last Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Sub Status</th>
+                                <th>Sub End Date</th>
+                                <th>Created At</th>
+                                <th>Manage Sub</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-table-body"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Email Broadcaster Section -->
+            <section class="admin-section">
+                <h2>Email Broadcaster</h2>
+                <form id="email-broadcaster-form">
+                    <div style="margin-bottom: 1rem;">
+                        <label for="email-recipient-group">Recipient Group:</label>
+                        <select id="email-recipient-group" style="padding: 0.5rem; border-radius: 4px;">
+                            <option value="all">All Users</option>
+                            <option value="active">Active Subscribers</option>
+                            <option value="inactive">Inactive / Expired</option>
+                            <option value="manual">Manual List</option>
+                        </select>
+                    </div>
+                    <div id="manual-email-list-container" style="display:none; margin-bottom: 1rem;">
+                        <label for="manual-email-list">Manual Email List (comma-separated):</label>
+                        <textarea id="manual-email-list" rows="3" style="width: 100%; padding: 0.5rem;"></textarea>
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <label for="email-subject">Subject:</label>
+                        <input type="text" id="email-subject" required style="width: 100%; padding: 0.5rem;">
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <label for="email-body">Body (HTML is supported):</label>
+                        <textarea id="email-body" rows="10" required style="width: 100%; padding: 0.5rem;"></textarea>
+                    </div>
+                    <button type="submit" class="action-btn" id="send-email-btn">Send Email</button>
+                </form>
+            </section>
         </div>
+
         <div id="auth-error" style="display: none; text-align: center; margin-top: 5rem;">
             <h2>Access Denied</h2>
             <p>You must be an administrator to view this page. <a href="login.html">Login as Admin</a></p>
         </div>
+    </main>
+</div>
+
+<footer class="site-footer">
+    <p>© 2025 TEFinitely.ca | All Rights Reserved</p>
+</footer>
+
+<!-- Modal for editing user -->
+<div id="edit-user-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <h2>Edit User: <span id="modal-user-name"></span></h2>
+        <form id="edit-email-form">
+            <label for="modal-email">Email Address</label>
+            <input type="email" id="modal-email" required>
+            <button type="submit">Update Email</button>
+        </form>
+        <hr>
+        <form id="edit-password-form">
+            <label for="modal-password">New Password (leave blank if no change)</label>
+            <input type="text" id="modal-password">
+            <button type="submit">Update Password</button>
+        </form>
+        <hr>
+        <form id="edit-subscription-form">
+            <label for="modal-sub-start">Subscription Start (YYYY-MM-DD)</label>
+            <input type="text" id="modal-sub-start" placeholder="YYYY-MM-DD HH:MM:SS">
+            <label for="modal-sub-end">Subscription End (YYYY-MM-DD)</label>
+            <input type="text" id="modal-sub-end" placeholder="YYYY-MM-DD HH:MM:SS">
+            <button type="submit">Update Subscription Dates</button>
+        </form>
     </div>
+</div>
 
-    <footer class="landing-footer">
-        <div class="footer-grid">
-            <div class="footer-column">
-                <img src="img/top_logo_light.png" alt="TEFinitely Logo" class="footer-logo">
-                <p>Your guide to succeeding on the TEF Canada exam.</p>
-            </div>
-            <div class="footer-column">
-                <h4>Quick Links</h4>
-                <ul>
-                    <li><a href="index.html">Flashcards</a></li>
-                    <li><a href="training.html">Phased Training</a></li>
-                    <li><a href="profile.html">Profile</a></li>
-                </ul>
-            </div>
-            <div class="footer-column">
-                <h4>Contact</h4>
-                <p>Email us at<br><a href="mailto:support@tefinitely.com">support@tefinitely.com</a></p>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>© 2025 TEFinitely.ca | All Rights Reserved</p>
-        </div>
-    </footer>
-
-    <!-- Modal for editing user -->
-    <div id="edit-user-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn">&times;</span>
-            <h2>Edit User: <span id="modal-user-name"></span></h2>
-            <form id="edit-email-form">
-                <label for="modal-email">Email Address</label>
-                <input type="email" id="modal-email" required>
-                <button type="submit">Update Email</button>
-            </form>
-            <hr>
-            <form id="edit-password-form">
-                <label for="modal-password">New Password (leave blank if no change)</label>
-                <input type="text" id="modal-password">
-                <button type="submit">Update Password</button>
-            </form>
-            <hr>
-            <form id="edit-subscription-form">
-                <label for="modal-sub-start">Subscription Start (YYYY-MM-DD)</label>
-                <input type="text" id="modal-sub-start" placeholder="YYYY-MM-DD HH:MM:SS">
-                <label for="modal-sub-end">Subscription End (YYYY-MM-DD)</label>
-                <input type="text" id="modal-sub-end" placeholder="YYYY-MM-DD HH:MM:SS">
-                <button type="submit">Update Subscription Dates</button>
-            </form>
-        </div>
+<!-- Modal for adding a new user -->
+<div id="add-user-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <h2>Add New User</h2>
+        <form id="add-user-form">
+            <label for="add-first-name">First Name</label>
+            <input type="text" id="add-first-name" required>
+            <label for="add-last-name">Last Name</label>
+            <input type="text" id="add-last-name" required>
+            <label for="add-email">Email Address</label>
+            <input type="email" id="add-email" required>
+            <label for="add-password">Password</label>
+            <input type="password" id="add-password" required>
+            <label for="add-role">Role</label>
+            <select id="add-role">
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+            </select>
+            <button type="button" id="create-user-btn">Create User</button>
+        </form>
     </div>
+</div>
 
-    <!-- Modal for adding a new user -->
-    <div id="add-user-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn">&times;</span>
-            <h2>Add New User</h2>
-            <form id="add-user-form">
-                <label for="add-first-name">First Name</label>
-                <input type="text" id="add-first-name" required>
-                <label for="add-last-name">Last Name</label>
-                <input type="text" id="add-last-name" required>
-                <label for="add-email">Email Address</label>
-                <input type="email" id="add-email" required>
-                <label for="add-password">Password</label>
-                <input type="password" id="add-password" required>
-                <label for="add-role">Role</label>
-                <select id="add-role">
-                    <option value="user">User</option>
-                    <option value="admin">Admin</option>
-                </select>
-                <button type="button" id="create-user-btn">Create User</button>
-            </form>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="js/toast.js"></script>
-    <script src="js/admin.js"></script>
-    <script>
-        flatpickr("#modal-sub-start", {
-            enableTime: true,
-            dateFormat: "Y-m-d H:i:S",
-        });
-        flatpickr("#modal-sub-end", {
-            enableTime: true,
-            dateFormat: "Y-m-d H:i:S",
-        });
-    </script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="js/toast.js"></script>
+<script src="js/admin.js"></script>
+<script>
+    flatpickr("#modal-sub-start", {
+        enableTime: true,
+        dateFormat: "Y-m-d H:i:S",
+    });
+    flatpickr("#modal-sub-end", {
+        enableTime: true,
+        dateFormat: "Y-m-d H:i:S",
+    });
+</script>
 </body>
 </html>

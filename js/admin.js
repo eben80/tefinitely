@@ -1,21 +1,31 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // --- Responsive Nav Toggle ---
+    const nav = document.getElementById('main-nav');
+    const navToggle = document.querySelector('.nav-toggle');
+    if (navToggle) {
+        navToggle.addEventListener('click', () => {
+            if(nav) nav.classList.toggle('is-active');
+        });
+    }
+
     // --- DOM Elements ---
     const adminDashboard = document.getElementById('admin-dashboard');
     const authErrorDiv = document.getElementById('auth-error');
     const usersTableBody = document.getElementById('users-table-body');
     const modal = document.getElementById('edit-user-modal');
-    const modalUsername = document.getElementById('modal-username');
     const modalEmailInput = document.getElementById('modal-email');
     const modalPasswordInput = document.getElementById('modal-password');
     const modalSubStartInput = document.getElementById('modal-sub-start');
     const modalSubEndInput = document.getElementById('modal-sub-end');
-    const editEmailForm = document.getElementById('edit-email-form');
-    const editPasswordForm = document.getElementById('edit-password-form');
-    const editSubscriptionForm = document.getElementById('edit-subscription-form');
     const addUserBtn = document.getElementById('add-user-btn');
     const addUserModal = document.getElementById('add-user-modal');
     const addUserForm = document.getElementById('add-user-form');
     const closeBtns = document.querySelectorAll('.close-btn');
+
+    // Email Broadcaster elements
+    const emailRecipientGroup = document.getElementById('email-recipient-group');
+    const manualEmailListContainer = document.getElementById('manual-email-list-container');
+    const emailBroadcasterForm = document.getElementById('email-broadcaster-form');
 
     let currentEditingUserId = null;
     let usersData = []; // Cache user data
@@ -61,23 +71,59 @@ document.addEventListener('DOMContentLoaded', () => {
             handlePasswordUpdate(event);
         } else if (event.target.id === 'edit-subscription-form') {
             handleSubscriptionUpdate(event);
+        } else if (event.target.id === 'email-broadcaster-form') {
+            handleSendBroadcastEmail(event);
         }
     });
 
+    if (emailRecipientGroup) {
+        emailRecipientGroup.addEventListener('change', () => {
+            if (emailRecipientGroup.value === 'manual') {
+                manualEmailListContainer.style.display = 'block';
+            } else {
+                manualEmailListContainer.style.display = 'none';
+            }
+        });
+    }
+
+
     // --- Functions ---
     async function checkAdminAccess() {
+        const userLinks = document.getElementById('user-links');
+        const guestLinks = document.getElementById('guest-links');
+        const userNameDisplay = document.getElementById('user-name-display');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const adminLink = document.getElementById('admin-link');
+
         try {
             const response = await fetch('api/check_session.php');
             const data = await response.json();
-            if (response.ok && data.loggedIn && data.user.role === 'admin') {
+
+            if (data.loggedIn && data.user.role === 'admin') {
+                if(userLinks) userLinks.style.display = 'flex';
+                if(guestLinks) guestLinks.style.display = 'none';
+                if(userNameDisplay) userNameDisplay.textContent = data.user.first_name;
+                if(adminLink) adminLink.style.display = 'block';
+
+                if(logoutBtn) {
+                    logoutBtn.addEventListener('click', () => {
+                        fetch('api/logout.php').then(() => {
+                            window.location.href = 'login.html';
+                        });
+                    });
+                }
+
                 adminDashboard.style.display = 'block';
+                authErrorDiv.style.display = 'none';
                 loadUsers();
+            } else if (data.loggedIn) {
+                window.location.href = 'profile.html';
             } else {
-                authErrorDiv.style.display = 'block';
+                window.location.href = 'login.html';
             }
         } catch (error) {
             console.error('Session check failed:', error);
-            authErrorDiv.style.display = 'block';
+            window.location.href = 'login.html';
         }
     }
 
@@ -86,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch('api/admin/manage_users.php');
             const data = await response.json();
             if (response.ok && data.status === 'success') {
-                usersData = data.users; // Cache the data
+                usersData = data.users;
                 populateTable(usersData);
             } else {
                 showToast('Failed to load users: ' + (data.message || 'Unknown error'), 'error');
@@ -98,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function populateTable(users) {
-        usersTableBody.innerHTML = ''; // Clear existing rows
+        usersTableBody.innerHTML = '';
         users.forEach(user => {
             const row = document.createElement('tr');
             const statusClass = user.subscription_status === 'active' ? 'status-active' : 'status-inactive';
@@ -127,7 +173,6 @@ document.addEventListener('DOMContentLoaded', () => {
             usersTableBody.appendChild(row);
         });
 
-        // Add event listeners to the new buttons and selects
         document.querySelectorAll('.status-select').forEach(select => {
             select.addEventListener('change', handleSubscriptionChange);
         });
@@ -146,7 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (user) {
             document.getElementById('modal-user-name').textContent = `${user.first_name} ${user.last_name}`;
             modalEmailInput.value = user.email;
-            modalPasswordInput.value = ''; // Clear password field
+            modalPasswordInput.value = '';
             modalSubStartInput.value = user.subscription_start_date || '';
             modalSubEndInput.value = user.subscription_end_date || '';
             modal.style.display = 'block';
@@ -161,7 +206,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function handleDeleteUser(event) {
         const userId = event.target.dataset.userid;
-        await updateUser('delete_user', { user_id: userId });
+        if (confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+            await updateUser('delete_user', { user_id: userId });
+        }
     }
 
     async function handleEmailUpdate(event) {
@@ -177,7 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
             showToast('Password must be at least 8 characters long.', 'error');
             return;
         }
-        if (newPassword) { // Only update if a new password is provided
+        if (newPassword) {
             await updateUser('update_password', { user_id: currentEditingUserId, password: newPassword });
         }
     }
@@ -210,6 +257,54 @@ document.addEventListener('DOMContentLoaded', () => {
         await addUser(userData);
     }
 
+    async function handleSendBroadcastEmail(event) {
+        event.preventDefault();
+        const recipientGroup = document.getElementById('email-recipient-group').value;
+        const manualEmailList = document.getElementById('manual-email-list').value;
+        const subject = document.getElementById('email-subject').value;
+        const body = document.getElementById('email-body').value;
+        const sendBtn = document.getElementById('send-email-btn');
+
+        if (!subject || !body) {
+            showToast('Subject and body are required.', 'error');
+            return;
+        }
+        if (recipientGroup === 'manual' && !manualEmailList) {
+            showToast('Manual email list cannot be empty.', 'error');
+            return;
+        }
+
+        sendBtn.disabled = true;
+        sendBtn.textContent = 'Sending...';
+
+        try {
+            const response = await fetch('api/admin/send_email.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    recipient_group: recipientGroup,
+                    manual_emails: manualEmailList,
+                    subject: subject,
+                    body: body
+                })
+            });
+            const result = await response.json();
+            if (response.ok) {
+                showToast(result.message, 'success');
+                emailBroadcasterForm.reset();
+                if(manualEmailListContainer) manualEmailListContainer.style.display = 'none';
+            } else {
+                showToast(result.message || 'Failed to send emails.', 'error');
+            }
+        } catch (error) {
+            console.error('Error sending email broadcast:', error);
+            showToast('An unexpected error occurred.', 'error');
+        } finally {
+            sendBtn.disabled = false;
+            sendBtn.textContent = 'Send Email';
+        }
+    }
+
     async function addUser(data) {
         const payload = { action: 'add_user', ...data };
         try {
@@ -235,10 +330,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function updateUser(action, data) {
         const payload = { action, ...data };
-        if (!confirm(`Are you sure you want to perform this action?`)) {
-            loadUsers();
-            return;
-        }
+
         try {
             const response = await fetch('api/admin/manage_users.php', {
                 method: 'POST',
@@ -248,7 +340,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await response.json();
             showToast(result.message, response.ok ? 'success' : 'error');
             if (response.ok && result.status === 'success') {
-                modal.style.display = 'none';
+                if(modal) modal.style.display = 'none';
                 loadUsers();
             }
         } catch (error) {
