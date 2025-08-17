@@ -926,6 +926,56 @@ function initializeSampleFlashcard() {
     display(0);
 }
 
+function initializeTour() {
+    const tourSteps = [
+        { title: 'Welcome to TEFinitely!', content: 'This guided tour will walk you through the features of the site.' },
+        { title: 'Select a Topic', content: 'Start by selecting a topic from this dropdown menu.' },
+        { title: 'The Flashcard', content: 'This is the flashcard. The English translation is shown on the front. Click the "Flip" button or the card itself to see the French text.' },
+        { title: 'Navigation', content: 'Use these buttons to navigate between cards.' },
+        { title: 'Listen to the Phrase', content: 'Click this button to hear the French phrase spoken.' },
+        { title: 'Check Your Pronunciation', content: 'Click the "Speak" button and say the French phrase.' },
+        { title: 'Adjust Speech Speed', content: 'You can adjust the speed of the text-to-speech voice here.' },
+        { title: 'Ready to Go!', content: 'You\'re all set! You can restart this tour at any time from your profile page.' }
+    ];
+
+    let currentTourStep = 0;
+    const tourOverlay = document.getElementById('tour-overlay');
+    const tourPopup = document.getElementById('tour-popup');
+    const tourTitle = document.getElementById('tour-title');
+    const tourContent = document.getElementById('tour-content');
+    const tourSkip = document.getElementById('tour-skip');
+    const tourNext = document.getElementById('tour-next');
+
+    function showTourStep(stepIndex) {
+        if (stepIndex >= tourSteps.length) {
+            endTour();
+            return;
+        }
+        const step = tourSteps[stepIndex];
+        tourTitle.textContent = step.title;
+        tourContent.textContent = step.content;
+        tourOverlay.style.display = 'block';
+    }
+
+    function endTour() {
+        tourOverlay.style.display = 'none';
+        fetch('api/profile/update_user_details.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tour_completed: true })
+        });
+    }
+
+    tourNext.addEventListener('click', () => {
+        currentTourStep++;
+        showTourStep(currentTourStep);
+    });
+
+    tourSkip.addEventListener('click', endTour);
+
+    showTourStep(0);
+}
+
 // --- Page Load and Session Logic ---
 document.addEventListener('DOMContentLoaded', async () => {
     const userStatusDiv = document.getElementById('user-status');
@@ -978,7 +1028,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const topicSelect = document.getElementById('topicSelect');
                     await populateTopics(topicSelect);
                     await fetchProgress(); // Fetch progress data
-                    if (data.user.last_topic) {
+
+                    if (data.user.tour_completed == 0) {
+                        initializeTour();
+                    } else if (data.user.last_topic) {
                         topicSelect.value = data.user.last_topic;
                         // Trigger the change event to load phrases
                         topicSelect.dispatchEvent(new Event('change'));
