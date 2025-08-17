@@ -1072,47 +1072,57 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (response.ok) {
             const data = await response.json();
             if (data.loggedIn) {
+                // Logged In State
+                userStatusDiv.style.display = 'flex';
                 firstNameDisplay.textContent = `Welcome, ${data.user.first_name}`;
-                userStatusDiv.style.display = 'block';
                 if (data.user.role === 'admin') {
                     document.getElementById('admin-link').style.display = 'inline';
                 }
 
                 if (data.user.subscription_status === 'active') {
+                    // Active Subscriber
+                    authContainer.style.display = 'none';
                     mainContentDiv.style.display = 'block';
+
                     const mainFlashcard = initializeMainFlashcard();
                     const topicSelect = document.getElementById('topicSelect');
                     await populateTopics(topicSelect);
-                    await fetchProgress(); // Fetch progress data
+                    await fetchProgress();
 
                     if (data.user.tour_completed == 0) {
                         initializeTour();
                     } else if (data.user.last_topic) {
                         topicSelect.value = data.user.last_topic;
-                        // Directly load phrases with the saved index
                         mainFlashcard.loadPhrases(data.user.last_topic, data.user.last_card_index);
-                        // Manually update the progress display for the initial load
                         updateTopicProgressDisplay(data.user.last_topic);
                     }
                 } else {
+                    // Inactive Subscriber
+                    mainContentDiv.style.display = 'none';
                     authContainer.style.display = 'block';
+                    loginPrompt.style.display = 'none';
                     subscriptionPrompt.style.display = 'block';
                     renderPayPalSubscriptionButton();
                 }
             } else {
+                // Logged Out State
+                userStatusDiv.style.display = 'none';
+                mainContentDiv.style.display = 'none';
                 authContainer.style.display = 'block';
                 loginPrompt.style.display = 'block';
+                subscriptionPrompt.style.display = 'none';
                 initializeSampleFlashcard();
             }
         } else {
-            authContainer.style.display = 'block';
-            loginPrompt.style.display = 'block';
-            initializeSampleFlashcard();
+            throw new Error('Session check failed with status ' + response.status);
         }
     } catch (error) {
         console.error('Session check failed:', error);
+        userStatusDiv.style.display = 'none';
+        mainContentDiv.style.display = 'none';
         authContainer.style.display = 'block';
         loginPrompt.style.display = 'block';
+        subscriptionPrompt.style.display = 'none';
         const heroH1 = loginPrompt.querySelector('.hero h1');
         const heroP = loginPrompt.querySelector('.hero p');
         if (heroH1) heroH1.textContent = 'Oops! Something went wrong.';
