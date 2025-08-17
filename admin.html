@@ -10,11 +10,12 @@
     <link rel="apple-touch-icon" href="img/favicon/apple-touch-icon.png">
     <link rel="manifest" href="img/favicon/site.webmanifest">
     <link rel="stylesheet" href="css/toast.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
-        .logo { width: 100%; max-width: 500px; margin: 1rem 0 2rem 0; }
-        body { font-family: Arial, sans-serif; margin: 2rem; background: #f4f1ea; }
-        h1 { color: #333; }
+        .container { max-width: 1200px; }
+        h1, h2 { color: #333; }
         table { width: 100%; border-collapse: collapse; margin-top: 1rem; background: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         th, td { padding: 0.8rem; text-align: left; border-bottom: 1px solid #ddd; }
         th { background-color: #007bff; color: white; }
@@ -22,29 +23,7 @@
         select { padding: 0.3rem; font-size: 0.9rem; }
         .status-active { color: green; font-weight: bold; }
         .status-inactive { color: red; font-weight: bold; }
-
-        .table-container {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-        }
-
-        @media (max-width: 768px) {
-            body {
-                margin: 1rem;
-                padding: 0;
-            }
-            h1 {
-                font-size: 1.5rem;
-            }
-            th, td {
-                padding: 0.6rem 0.8rem;
-                font-size: 0.9rem;
-            }
-            .modal-content {
-                margin: 10% auto;
-                width: 90%;
-            }
-        }
+        .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
         .header-with-button { display: flex; justify-content: space-between; align-items: center; }
         .action-btn { background-color: #28a745; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem; }
         .action-btn:hover { background-color: #218838; }
@@ -53,48 +32,93 @@
         .edit-user-btn { background-color: #007bff; color: white; }
         .edit-user-btn:hover { background-color: #0069d9; }
         td button { padding: 0.3rem 0.6rem; border: none; border-radius: 4px; cursor: pointer; margin-right: 0.3rem; }
+        .modal { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); }
+        .modal-content { background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px; border-radius: 8px; }
+        .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; }
+        .close-btn:hover, .close-btn:focus { color: black; text-decoration: none; cursor: pointer; }
+        .modal input { width: 100%; padding: 0.5rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; margin-bottom: 1rem; }
+        .modal button { width: 100%; }
+        .modal hr { margin: 1.5rem 0; }
     </style>
 </head>
 <body>
     <header>
-        <a href="index.html"><img src="img/top_logo_light.png" alt="TEFinitely Logo" class="logo"></a>
+        <a href="index.html"><img src="img/top_logo_light.png" alt="TEFinitely Logo" class="logo" style="display: block; margin-left: auto; margin-right: auto;"></a>
     </header>
     <div id="toast-container"></div>
-    <div id="admin-dashboard" style="display: none;">
-        <h1>Admin Dashboard</h1>
-        <div class="header-with-button">
-            <h2>User Management</h2>
-            <button id="add-user-btn" class="action-btn">Add New User</button>
+    <nav class="main-nav" id="user-status" style="display: none;">
+        <div class="nav-links">
+            <a href="index.html">Flashcards</a>
+            <a href="training.html">Phased Training</a>
+            <a href="profile.html">Profile</a>
+            <a id="admin-link" href="admin.html" style="display: none;">Admin Portal</a>
         </div>
-        <div class="table-container">
-            <table id="users-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                    <th>Email</th>
-                    <th>Role</th>
-                    <th>Sub Status</th>
-                    <th>Sub End Date</th>
-                    <th>Created At</th>
-                    <th>Manage Sub</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="users-table-body">
-                <!-- User rows will be inserted here by JavaScript -->
-            </tbody>
-            </table>
+        <div class="nav-user">
+            <span id="first-name-display"></span>
+            <button id="logoutBtn">Logout</button>
         </div>
-    </div>
-    <div id="auth-error" style="display: none; text-align: center; margin-top: 5rem;">
-        <h2>Access Denied</h2>
-        <p>You must be an administrator to view this page. <a href="login.html">Login as Admin</a></p>
+    </nav>
+    <div class="container">
+        <div id="admin-dashboard" style="display: none;">
+            <h1>Admin Dashboard</h1>
+            <div class="header-with-button">
+                <h2>User Management</h2>
+                <button id="add-user-btn" class="action-btn">Add New User</button>
+            </div>
+            <div class="table-container">
+                <table id="users-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Sub Status</th>
+                        <th>Sub End Date</th>
+                        <th>Created At</th>
+                        <th>Manage Sub</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="users-table-body">
+                    <!-- User rows will be inserted here by JavaScript -->
+                </tbody>
+                </table>
+            </div>
+        </div>
+        <div id="auth-error" style="display: none; text-align: center; margin-top: 5rem;">
+            <h2>Access Denied</h2>
+            <p>You must be an administrator to view this page. <a href="login.html">Login as Admin</a></p>
+        </div>
     </div>
 
+    <footer class="landing-footer">
+        <div class="footer-grid">
+            <div class="footer-column">
+                <img src="img/top_logo_light.png" alt="TEFinitely Logo" class="footer-logo">
+                <p>Your guide to succeeding on the TEF Canada exam.</p>
+            </div>
+            <div class="footer-column">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html">Flashcards</a></li>
+                    <li><a href="training.html">Phased Training</a></li>
+                    <li><a href="profile.html">Profile</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Contact</h4>
+                <p>Email us at<br><a href="mailto:support@tefinitely.com">support@tefinitely.com</a></p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2025 TEFinitely.ca | All Rights Reserved</p>
+        </div>
+    </footer>
+
     <!-- Modal for editing user -->
-    <div id="edit-user-modal" class="modal" style="display: none;">
+    <div id="edit-user-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn">&times;</span>
             <h2>Edit User: <span id="modal-user-name"></span></h2>
@@ -121,7 +145,7 @@
     </div>
 
     <!-- Modal for adding a new user -->
-    <div id="add-user-modal" class="modal" style="display: none;">
+    <div id="add-user-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn">&times;</span>
             <h2>Add New User</h2>
@@ -143,15 +167,6 @@
             </form>
         </div>
     </div>
-    <style>
-        .modal { position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); }
-        .modal-content { background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px; border-radius: 8px; }
-        .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; }
-        .close-btn:hover, .close-btn:focus { color: black; text-decoration: none; cursor: pointer; }
-        .modal input { width: 100%; padding: 0.5rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; margin-bottom: 1rem; }
-        .modal button { width: 100%; }
-        .modal hr { margin: 1.5rem 0; }
-    </style>
 
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="js/toast.js"></script>

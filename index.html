@@ -10,6 +10,7 @@
 <link rel="apple-touch-icon" href="img/favicon/apple-touch-icon.png">
 <link rel="manifest" href="img/favicon/site.webmanifest">
 <link rel="stylesheet" href="css/toast.css">
+<link rel="stylesheet" href="css/main.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 <style>
   .logo {
@@ -293,190 +294,7 @@
   }
 
   /* --- Logged-out Landing Page Styles --- */
-  .landing-page {
-    text-align: center;
-    padding: 0 2rem;
-  }
-  .landing-page .hero {
-    padding: 4rem 0;
-  }
-  .landing-page .hero h1 {
-    font-size: 3rem;
-    color: #004d99;
-    margin-bottom: 1rem;
-  }
-  .landing-page .hero p {
-    font-size: 1.25rem;
-    color: #555;
-    max-width: 700px;
-    margin: 0 auto 2rem auto;
-  }
-  .landing-page .cta-buttons a {
-    text-decoration: none;
-    color: white;
-    background: #007bff;
-    padding: 1rem 2rem;
-    border-radius: 5px;
-    font-size: 1.1rem;
-    margin: 0 0.5rem;
-    transition: background-color 0.3s;
-  }
-  .landing-page .cta-buttons a.secondary {
-    background: #6c757d;
-  }
-  .landing-page .cta-buttons a:hover {
-    background: #0056b3;
-  }
-  .landing-page .cta-buttons a.secondary:hover {
-    background: #5a6268;
-  }
-
-  .landing-page .features {
-    padding: 3rem 0;
-    background: #fff;
-    border-radius: 8px;
-    margin-bottom: 3rem;
-  }
-  .landing-page .features h2 {
-    font-size: 2.5rem;
-    margin-bottom: 2rem;
-  }
-  .landing-page .features-grid {
-    display: flex;
-    justify-content: center;
-    gap: 2rem;
-    flex-wrap: wrap;
-  }
-  .landing-page .feature-item {
-    max-width: 300px;
-  }
-  .landing-page .feature-item h3 {
-    font-size: 1.5rem;
-    color: #004d99;
-  }
-
-  /* New Landing Page Styles */
-  .landing-nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 2rem;
-    background: #fff;
-    border-radius: 8px;
-    margin-bottom: 2rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-  }
-  .landing-nav .nav-links a {
-    margin: 0 1rem;
-    text-decoration: none;
-    color: #333;
-    font-weight: bold;
-  }
-  .landing-nav .nav-auth .btn-login {
-    text-decoration: none;
-    color: white;
-    background: #007bff;
-    padding: 0.5rem 1.5rem;
-    border-radius: 5px;
-    font-weight: bold;
-  }
-  .landing-page .hero p {
-      max-width: 600px;
-  }
-  .landing-page .cta-buttons a {
-      padding: 0.8rem 2.5rem;
-  }
-  .features {
-      background: none !important; /* Override white background */
-      padding: 3rem 0 !important;
-  }
-  .features-grid {
-      max-width: 1200px;
-      margin: 0 auto;
-  }
-  .feature-item {
-      background: #fff;
-      padding: 2rem;
-      border-radius: 8px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-      border: 1px solid #eee;
-  }
-  .feature-icon {
-      font-size: 2.5rem;
-      color: #004d99;
-      margin-bottom: 1rem;
-  }
-  .testimonials {
-      padding: 3rem 0;
-  }
-   .testimonials h2 {
-    font-size: 2.5rem;
-    margin-bottom: 2rem;
-  }
-  .testimonial-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 2rem;
-      max-width: 1200px;
-      margin: 0 auto;
-  }
-  .testimonial-item {
-      background: #fff;
-      padding: 2rem;
-      border-radius: 8px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-      border: 1px solid #eee;
-      text-align: left;
-  }
-  .testimonial-item cite {
-      display: block;
-      margin-top: 1rem;
-      font-weight: bold;
-      color: #004d99;
-  }
-  .landing-footer {
-      background: #333;
-      color: #fff;
-      padding: 3rem 2rem;
-      margin-top: 4rem;
-      text-align: left;
-  }
-  .footer-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 2rem;
-      max-width: 1200px;
-      margin: 0 auto;
-      margin-bottom: 2rem;
-  }
-  .footer-column .footer-logo {
-      max-width: 180px;
-      margin-bottom: 1rem;
-  }
-  .footer-column h4 {
-      font-size: 1.2rem;
-      margin-bottom: 1rem;
-      color: #fff;
-  }
-  .footer-column ul {
-      list-style: none;
-      padding: 0;
-  }
-  .footer-column ul li a {
-      color: #ccc;
-      text-decoration: none;
-      line-height: 2;
-  }
-  .footer-column p, .footer-column a {
-      color: #ccc;
-      text-decoration: none;
-  }
-  .footer-bottom {
-      text-align: center;
-      border-top: 1px solid #555;
-      padding-top: 2rem;
-      margin-top: 2rem;
-  }
+  /* These styles are now in css/main.css */
 
   .landing-page .sample-section {
     padding: 3rem 0;
@@ -540,14 +358,18 @@
     <a href="index.html"><img src="img/top_logo_light.png" alt="TEFinitely Logo" class="logo"></a>
 </header>
 <div id="toast-container"></div>
-<div id="user-status" style="display: none;">
-    <span id="first-name-display"></span> |
-    <a href="profile.html">Profile</a> |
-    <a href="index.html">Flashcards</a> |
-    <a href="training.html">Phased Training</a> |
-    <a id="admin-link" href="admin.html" style="display: none;">Admin Portal</a> |
-    <button id="logoutBtn">Logout</button>
-</div>
+<nav class="main-nav" id="user-status" style="display: none;">
+    <div class="nav-links">
+        <a href="index.html">Flashcards</a>
+        <a href="training.html">Phased Training</a>
+        <a href="profile.html">Profile</a>
+        <a id="admin-link" href="admin.html" style="display: none;">Admin Portal</a>
+    </div>
+    <div class="nav-user">
+        <span id="first-name-display"></span>
+        <button id="logoutBtn">Logout</button>
+    </div>
+</nav>
 
 <div id="auth-container" style="display: none;">
     <!-- Landing Page for logged-out users -->
@@ -738,6 +560,30 @@
       <audio id="userAudio" controls style="display:none;"></audio>
       <p id="recordingResult"></p>
     </div>
+
+    <footer class="landing-footer">
+        <div class="footer-grid">
+            <div class="footer-column">
+                <img src="img/top_logo_light.png" alt="TEFinitely Logo" class="footer-logo">
+                <p>Your guide to succeeding on the TEF Canada exam.</p>
+            </div>
+            <div class="footer-column">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html">Flashcards</a></li>
+                    <li><a href="training.html">Phased Training</a></li>
+                    <li><a href="profile.html">Profile</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Contact</h4>
+                <p>Email us at<br><a href="mailto:support@tefinitely.com">support@tefinitely.com</a></p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2025 TEFinitely.ca | All Rights Reserved</p>
+        </div>
+    </footer>
 </div>
 
 <script src="js/toast.js"></script>
