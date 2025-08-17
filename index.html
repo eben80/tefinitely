@@ -821,17 +821,13 @@ function initializeMainFlashcard() {
         }
     }
 
-    topicSelect.addEventListener('change', () => {
-        loadPhrases(topicSelect.value);
-
-        const selectedTopic = topicSelect.value;
+    function updateTopicProgressDisplay(topicValue) {
         const progressDisplay = document.getElementById('topic-progress-display');
-        if (!selectedTopic) {
+        if (!topicValue) {
             progressDisplay.textContent = '';
             return;
         }
-        const [section, theme] = selectedTopic.split('-');
-
+        const [section, theme] = topicValue.split('-');
         const topicProgress = userProgress.find(p => p.section === section && p.theme === theme);
 
         if (topicProgress) {
@@ -840,6 +836,11 @@ function initializeMainFlashcard() {
         } else {
             progressDisplay.textContent = 'No progress yet.';
         }
+    }
+
+    topicSelect.addEventListener('change', () => {
+        loadPhrases(topicSelect.value);
+        updateTopicProgressDisplay(topicSelect.value);
     });
     flipCardBtn.addEventListener('click', (e) => { e.stopPropagation(); flashcard.classList.toggle('is-flipped'); });
     flashcard.addEventListener('click', () => flashcard.classList.toggle('is-flipped'));
@@ -1088,8 +1089,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                         initializeTour();
                     } else if (data.user.last_topic) {
                         topicSelect.value = data.user.last_topic;
-                        // Trigger the change event to load phrases
-                        topicSelect.dispatchEvent(new Event('change'));
+                        // Directly load phrases with the saved index
+                        mainFlashcard.loadPhrases(data.user.last_topic, data.user.last_card_index);
+                        // Manually update the progress display for the initial load
+                        updateTopicProgressDisplay(data.user.last_topic);
                     }
                 } else {
                     authContainer.style.display = 'block';
