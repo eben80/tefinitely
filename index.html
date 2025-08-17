@@ -10,6 +10,7 @@
 <link rel="apple-touch-icon" href="img/favicon/apple-touch-icon.png">
 <link rel="manifest" href="img/favicon/site.webmanifest">
 <link rel="stylesheet" href="css/toast.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 <style>
   .logo {
     width: 100%;
@@ -354,6 +355,129 @@
     color: #004d99;
   }
 
+  /* New Landing Page Styles */
+  .landing-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background: #fff;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  .landing-nav .nav-links a {
+    margin: 0 1rem;
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+  }
+  .landing-nav .nav-auth .btn-login {
+    text-decoration: none;
+    color: white;
+    background: #007bff;
+    padding: 0.5rem 1.5rem;
+    border-radius: 5px;
+    font-weight: bold;
+  }
+  .landing-page .hero p {
+      max-width: 600px;
+  }
+  .landing-page .cta-buttons a {
+      padding: 0.8rem 2.5rem;
+  }
+  .features {
+      background: none !important; /* Override white background */
+      padding: 3rem 0 !important;
+  }
+  .features-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+  }
+  .feature-item {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      border: 1px solid #eee;
+  }
+  .feature-icon {
+      font-size: 2.5rem;
+      color: #004d99;
+      margin-bottom: 1rem;
+  }
+  .testimonials {
+      padding: 3rem 0;
+  }
+   .testimonials h2 {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+  }
+  .testimonial-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+  }
+  .testimonial-item {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      border: 1px solid #eee;
+      text-align: left;
+  }
+  .testimonial-item cite {
+      display: block;
+      margin-top: 1rem;
+      font-weight: bold;
+      color: #004d99;
+  }
+  .landing-footer {
+      background: #333;
+      color: #fff;
+      padding: 3rem 2rem;
+      margin-top: 4rem;
+      text-align: left;
+  }
+  .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      margin-bottom: 2rem;
+  }
+  .footer-column .footer-logo {
+      max-width: 180px;
+      margin-bottom: 1rem;
+  }
+  .footer-column h4 {
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      color: #fff;
+  }
+  .footer-column ul {
+      list-style: none;
+      padding: 0;
+  }
+  .footer-column ul li a {
+      color: #ccc;
+      text-decoration: none;
+      line-height: 2;
+  }
+  .footer-column p, .footer-column a {
+      color: #ccc;
+      text-decoration: none;
+  }
+  .footer-bottom {
+      text-align: center;
+      border-top: 1px solid #555;
+      padding-top: 2rem;
+      margin-top: 2rem;
+  }
+
   .landing-page .sample-section {
     padding: 3rem 0;
   }
@@ -428,12 +552,48 @@
 <div id="auth-container" style="display: none;">
     <!-- Landing Page for logged-out users -->
     <div id="login-prompt" class="landing-page" style="display: none;">
+        <nav class="landing-nav">
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#testimonials">Testimonials</a>
+                <a href="mailto:support@tefinitely.com">Contact</a>
+            </div>
+            <div class="nav-auth">
+                <a href="login.html" class="btn-login">Login</a>
+            </div>
+        </nav>
+
         <section class="hero">
-            <h1>Master the TEF Canada Exam</h1>
-            <p>Go from hesitant to fluent with TEFinitely. Our unique, phased training system builds your confidence and skills for real-world conversations.</p>
+            <h1>Your Guide to Succeeding on the TEF Canada Exam</h1>
+            <p>Everything you need to succeed on the TEF Canada exam, all in one place. Go from hesitant to fluent with our unique, phased training system.</p>
             <div class="cta-buttons">
-                <a href="register.html">Get Started</a>
-                <a href="login.html" class="secondary">Already have an account?</a>
+                <a href="register.html">Get Started Now</a>
+            </div>
+        </section>
+
+        <section id="features" class="features">
+            <h2>Why Choose Our Platform</h2>
+            <div class="features-grid">
+                <div class="feature-item">
+                    <div class="feature-icon"><i class="bi bi-lightbulb"></i></div>
+                    <h3>Expert Guidance</h3>
+                    <p>Benefit from professional advice to maximize your TEF Canada exam prep.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon"><i class="bi bi-card-checklist"></i></div>
+                    <h3>Exam-Focused Prep</h3>
+                    <p>Practice with resources designed to align with the TEF Canada exam structure.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon"><i class="bi bi-ear"></i></div>
+                    <h3>Tailored Support</h3>
+                    <p>Get tailored feedback to enhance your performance in each exam section.</p>
+                </div>
+                 <div class="feature-item">
+                    <div class="feature-icon"><i class="bi bi-laptop"></i></div>
+                    <h3>Flexible Learning</h3>
+                    <p>Prepare at your own pace with accessible and convenient study options.</p>
+                </div>
             </div>
         </section>
 
@@ -463,23 +623,48 @@
             </div>
         </section>
 
-        <section class="features">
-            <h2>Why TEFinitely Works</h2>
-            <div class="features-grid">
-                <div class="feature-item">
-                    <h3>Phase-Based Learning</h3>
-                    <p>Our 5-phase system takes you from basic shadowing to spontaneous conversation, ensuring a solid foundation and rapid progress.</p>
+        <section id="testimonials" class="testimonials">
+            <h2>What Our Students Have To Say</h2>
+            <div class="testimonial-grid">
+                <div class="testimonial-item">
+                    <p>"Preparing for the TEF Canada exam was overwhelming until I found this site. The structured approach and practice topics saved me so much time and effort."</p>
+                    <cite>– Charlotte R.</cite>
                 </div>
-                <div class="feature-item">
-                    <h3>Interactive Practice</h3>
-                    <p>Engage with flashcards, pronunciation checks, and semi-guided roleplays that simulate the real test environment.</p>
+                <div class="testimonial-item">
+                    <p>"The speaking and writing resources were exactly what I needed. The personalized feedback was incredibly helpful and boosted my confidence for the exam."</p>
+                    <cite>– Isabella L.</cite>
                 </div>
-                <div class="feature-item">
-                    <h3>Personalized Feedback</h3>
-                    <p>Save your own scripts, get analytical feedback, and track your improvement over time on your personal dashboard.</p>
+                <div class="testimonial-item">
+                    <p>"I passed on my first attempt! The resources were clear, detailed, and perfectly aligned with the TEF Canada exam format. I couldn’t have done it without their expert guidance!"</p>
+                    <cite>– James D.</cite>
                 </div>
             </div>
         </section>
+
+        <footer class="landing-footer">
+            <div class="footer-grid">
+                <div class="footer-column">
+                    <img src="img/top_logo_light.png" alt="TEFinitely Logo" class="footer-logo">
+                    <p>Your guide to succeeding on the TEF Canada exam.</p>
+                </div>
+                <div class="footer-column">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#testimonials">Testimonials</a></li>
+                        <li><a href="register.html">Register</a></li>
+                        <li><a href="login.html">Login</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4>Contact</h4>
+                    <p>Email us at<br><a href="mailto:support@tefinitely.com">support@tefinitely.com</a></p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2025 TEFinitely.ca | All Rights Reserved</p>
+            </div>
+        </footer>
     </div>
 
     <!-- Prompt for logged-in but non-subscribed users -->
