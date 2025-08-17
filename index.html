@@ -811,6 +811,7 @@ function initializeMainFlashcard() {
         flashcard.classList.remove('is-flipped');
         updateNavButtons();
         currentCardSpan.textContent = idx + 1;
+        savePosition(currentTopic, idx);
     }
 
     function updateNavButtons() {
