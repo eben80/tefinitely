@@ -55,36 +55,49 @@ a {
 }
 
 /* --- Main App Navigation --- */
+.main-header {
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    padding: 0 2rem;
+}
 .main-nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 2rem;
-    background: #fff;
-    border-radius: 8px;
-    margin: 1rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    height: 70px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+.main-nav .nav-brand img {
+    height: 40px;
+    display: block;
+}
+.main-nav .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
 }
 .main-nav .nav-links a {
-    margin: 0 1rem;
     text-decoration: none;
     color: #333;
-    font-weight: bold;
+    font-weight: 600;
+    padding: 0.5rem 0;
+    position: relative;
+}
+.main-nav .nav-links a.active::after,
+.main-nav .nav-links a:hover::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: var(--primary-color);
 }
 .main-nav .nav-user {
     display: flex;
     align-items: center;
     gap: 1rem;
-}
-.main-nav .nav-user button {
-    background: #6c757d;
-    color: white;
-    border: none;
-    padding: 0.5rem 1.5rem;
-    border-radius: 5px;
-    font-weight: bold;
-    cursor: pointer;
-    margin: 0; /* Override default button margin */
 }
 
 .landing-page .hero {
@@ -101,26 +114,45 @@ a {
   max-width: 600px;
   margin: 0 auto 2rem auto;
 }
-.landing-page .cta-buttons a {
-  text-decoration: none;
-  color: white;
-  background: #007bff;
-  padding: 0.8rem 2.5rem;
+.nav-button-primary {
+  text-decoration: none !important;
+  color: white !important;
+  background-color: var(--primary-color);
+  padding: 0.6rem 1.5rem;
   border-radius: 5px;
-  font-size: 1.1rem;
+  font-size: 1rem;
   margin: 0 0.5rem;
   transition: background-color 0.3s;
+  border: 1px solid var(--primary-color);
 }
-.landing-page .cta-buttons a:hover {
-  background: #0056b3;
+.nav-button-primary:hover {
+  background-color: var(--primary-color-dark);
+  border-color: var(--primary-color-dark);
+}
+.nav-button-secondary {
+  text-decoration: none !important;
+  color: var(--primary-color) !important;
+  background-color: transparent;
+  padding: 0.6rem 1.5rem;
+  border-radius: 5px;
+  font-size: 1rem;
+  margin: 0 0.5rem;
+  transition: all 0.3s;
+  border: 1px solid var(--primary-color);
+}
+.nav-button-secondary:hover {
+  background-color: var(--primary-color);
+  color: white !important;
 }
 
-.features {
-    padding: 3rem 2rem;
+.features-section {
+    padding: 4rem 2rem;
+    background-color: #f8f9fa;
 }
-.features h2 {
+.features-section h2 {
   font-size: 2.5rem;
   margin-bottom: 2rem;
+  text-align: center;
 }
 .features-grid {
     display: grid;
@@ -135,24 +167,25 @@ a {
     border-radius: 8px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.05);
     border: 1px solid #eee;
+    text-align: center;
 }
-.feature-icon {
-    font-size: 2.5rem;
-    color: #004d99;
+.feature-item i {
+    font-size: 3rem;
+    color: var(--primary-color);
     margin-bottom: 1rem;
 }
 .feature-item h3 {
   font-size: 1.5rem;
-  color: #004d99;
+  color: #333;
 }
 
-.testimonials {
-    padding: 3rem 2rem;
-    background: #fff;
+.testimonials-section {
+    padding: 4rem 2rem;
 }
- .testimonials h2 {
+ .testimonials-section h2 {
   font-size: 2.5rem;
   margin-bottom: 2rem;
+  text-align: center;
 }
 .testimonial-grid {
     display: grid;
@@ -162,136 +195,100 @@ a {
     margin: 0 auto;
 }
 .testimonial-item {
-    background: #f8f9fa;
+    background: #fff;
     padding: 2rem;
     border-radius: 8px;
     border: 1px solid #eee;
-    text-align: left;
+}
+.testimonial-item blockquote {
+    margin: 0;
+    font-style: italic;
+    color: #555;
 }
 .testimonial-item cite {
     display: block;
     margin-top: 1rem;
     font-weight: bold;
-    color: #004d99;
-}
-
-.sample-section {
-  padding: 3rem 2rem;
-}
-.sample-section h2 {
-  font-size: 2.5rem;
-  margin-bottom: 2rem;
+    color: #333;
 }
 
 /* --- Footer --- */
-.landing-footer {
+.site-footer {
     background: #333;
-    color: #fff;
-    padding: 4rem 2rem;
-    margin-top: 4rem;
-    text-align: left;
-}
-.footer-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 2rem;
-    max-width: 1200px;
-    margin: 0 auto;
-    margin-bottom: 2rem;
-}
-.footer-column .footer-logo {
-    max-width: 180px;
-    margin-bottom: 1rem;
-    filter: invert(1) grayscale(1) brightness(2);
-}
-.footer-column h4 {
-    font-size: 1.2rem;
-    margin-bottom: 1rem;
-    color: #fff;
-}
-.footer-column ul {
-    list-style: none;
-    padding: 0;
-}
-.footer-column ul li a {
-    color: #ccc;
-    text-decoration: none;
-    line-height: 2;
-    transition: color 0.2s;
-}
-.footer-column ul li a:hover {
-    color: #fff;
-}
-.footer-column p, .footer-column a {
-    color: #ccc;
-    text-decoration: none;
-}
-.footer-bottom {
+    color: #aaa;
+    padding: 2rem;
     text-align: center;
-    border-top: 1px solid #555;
-    padding-top: 2rem;
-    margin-top: 2rem;
 }
 
 .nav-toggle {
-    display: none; /* Hidden by default on desktop */
-    font-size: 1.5rem;
-    background: none;
+    display: none;
+    font-size: 2rem;
+    background: transparent;
     border: none;
     cursor: pointer;
+    color: #333;
+    z-index: 1001;
 }
 
-/* --- Responsive Design --- */
+/* --- Responsive --- */
 @media (max-width: 768px) {
-  .nav-toggle {
-      display: block; /* Show on mobile */
-  }
-  .landing-nav, .main-nav {
-      flex-direction: row;
-      justify-content: space-between;
-      position: relative;
-  }
-  .main-nav .nav-links, .landing-nav .nav-links {
-      display: none; /* Hide the links by default */
-      position: absolute;
-      top: 100%;
-      left: 0;
-      width: 100%;
-      background: #fff;
-      flex-direction: column;
-      text-align: center;
-      gap: 0;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      border-radius: 0 0 8px 8px;
-      z-index: 1000;
-  }
-  .main-nav.is-active .nav-links, .landing-nav.is-active .nav-links {
-      display: flex; /* Show when active */
-  }
-  .main-nav .nav-links a, .landing-nav .nav-links a {
-      padding: 1rem;
-      border-bottom: 1px solid #eee;
-      width: 100%;
-      margin: 0;
-  }
-  /* Ensure user/auth sections inside the mobile menu flow correctly */
-  .main-nav .nav-user, .landing-nav .nav-auth {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 1rem;
-      border-bottom: 1px solid #eee;
-      width: 100%;
-      gap: 1rem;
-  }
-  .main-nav .nav-links a:last-child, .landing-nav .nav-links a:last-child,
-  .main-nav .nav-user, .landing-nav .nav-auth {
-      border-bottom: none;
-  }
-  .landing-page .hero h1 {
-      font-size: 2.2rem;
-  }
-  .container {
-      padding: 1rem;
-  }
+    .main-header {
+        padding: 0 1rem;
+    }
+
+    .nav-toggle {
+        display: block;
+    }
+
+    .main-nav .nav-links {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 70px; /* Position below the header */
+        left: 0;
+        right: 0;
+        background: #fff;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        z-index: 1000;
+        gap: 0;
+        border-top: 1px solid #f0f0f0;
+    }
+
+    .main-nav.is-active .nav-links {
+        display: flex;
+    }
+
+    .main-nav .nav-links a {
+        padding: 1rem;
+        text-align: center;
+        width: 100%;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .main-nav .nav-links a.active::after,
+    .main-nav .nav-links a:hover::after {
+        display: none; /* Hide underline on mobile dropdown */
+    }
+
+    .main-nav .nav-user,
+    #guest-links > a.nav-button-primary,
+    #guest-links > a.nav-button-secondary {
+        border-bottom: 1px solid #f0f0f0;
+        width: 100%;
+        padding: 1rem;
+        border-radius: 0;
+        margin: 0;
+    }
+
+    #guest-links, #user-links {
+        width: 100%;
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .main-nav .nav-user {
+        flex-direction: column;
+        padding: 1rem;
+        gap: 1rem;
+    }
 }
