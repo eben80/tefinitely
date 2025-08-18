@@ -12,47 +12,6 @@
     <link rel="stylesheet" href="css/toast.css">
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-    <style>
-      /* --- Flashcard Styles --- */
-      .flashcard {
-          background-color: transparent;
-          width: 100%;
-          max-width: 600px;
-          height: 200px;
-          perspective: 1000px;
-          margin: auto;
-          margin-bottom: 1rem;
-      }
-      .flashcard-inner {
-          position: relative;
-          width: 100%;
-          height: 100%;
-          text-align: center;
-          transition: transform 0.6s;
-          transform-style: preserve-3d;
-          box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
-      }
-      .flashcard.is-flipped .flashcard-inner {
-          transform: rotateY(180deg);
-      }
-      .flashcard-front, .flashcard-back {
-          position: absolute;
-          width: 100%;
-          height: 100%;
-          -webkit-backface-visibility: hidden;
-          backface-visibility: hidden;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border-radius: 8px;
-          background-color: #fff;
-          padding: 1rem;
-          box-sizing: border-box;
-      }
-      .flashcard-back {
-          transform: rotateY(180deg);
-      }
-    </style>
 </head>
 <body>
 <div id="toast-container"></div>
@@ -65,12 +24,10 @@
             <i class="bi bi-list"></i>
         </button>
         <div class="nav-links">
-            <!-- Logged-out users see this -->
             <div id="guest-links" style="display: none;">
                 <a href="login.html" class="nav-button-secondary">Log In</a>
                 <a href="signup.html" class="nav-button-primary">Sign Up</a>
             </div>
-            <!-- Logged-in users see this -->
             <div id="user-links" style="display: none;">
                 <a href="index.html">Flashcards</a>
                 <a href="training.html" class="active">Phased Training</a>
@@ -87,8 +44,8 @@
 
 <div class="page-container">
     <main class="main-content">
-        <h1>New Training Methods</h1>
-        <div id="global-controls" style="margin-bottom: 2rem;">
+        <h1>Phased Training Methods</h1>
+        <div id="global-controls" class="admin-section" style="margin-bottom: 2rem;">
             <label for="speechRate">Speech Speed:</label>
             <input type="range" id="speechRate" min="0.5" max="1.2" value="1.0" step="0.1" />
             <span id="rateDisplay">1.0</span>x
@@ -101,36 +58,28 @@
             <button id="phase5-btn">Phase 5: Script Writing</button>
         </div>
 
-        <div id="phase1-module" class="training-module active">
+        <div id="phase1-module" class="training-module active admin-section">
             <h2>Phase 1: Shadowing Practice</h2>
             <p>Familiarize yourself with the structure of TEF Section A. Listen to the dialogues and repeat each line.</p>
             <div id="dialogue-controls">
                 <label for="dialogueSelect">Choose a dialogue:</label>
-                <select id="dialogueSelect">
-                    <!-- Options will be populated dynamically -->
-                </select>
+                <select id="dialogueSelect"></select>
                 <span id="dialogue-progress-display" style="margin-left: 1rem; font-weight: bold; font-size: 0.9rem;"></span>
-                <button id="play-full-dialogue-btn">Play Full Dialogue</button>
+                <button id="play-full-dialogue-btn" class="btn-secondary">Play Full Dialogue</button>
             </div>
-            <div id="dialogue-content" style="margin-top: 1rem; padding: 1rem; background: #fff; border-radius: 8px;">
-                <!-- Dialogue will be rendered here -->
-            </div>
+            <div id="dialogue-content" style="margin-top: 1rem;"></div>
         </div>
 
-        <div id="phase2-module" class="training-module">
+        <div id="phase2-module" class="training-module admin-section">
             <h2>Phase 2: Controlled Question Practice</h2>
             <p>Build varied question types using vocabulary templates.</p>
-            <button id="start-drill-btn">Start Drill</button>
+            <button id="start-drill-btn" class="btn-primary">Start Drill</button>
             <div id="drill-container" style="display: none;">
                 <div id="drill-timer">Time left: <span id="timer-display">15</span>s</div>
                 <div class="flashcard" id="drill-flashcard">
                     <div class="flashcard-inner">
-                        <div class="flashcard-front" id="drill-card-front">
-                            <!-- English question here -->
-                        </div>
-                        <div class="flashcard-back" id="drill-card-back">
-                            <!-- Hints and answer here -->
-                        </div>
+                        <div class="flashcard-front" id="drill-card-front"></div>
+                        <div class="flashcard-back" id="drill-card-back"></div>
                     </div>
                 </div>
                 <div id="drill-nav">
@@ -142,63 +91,54 @@
             </div>
         </div>
 
-        <div id="phase3-module" class="training-module">
+        <div id="phase3-module" class="training-module admin-section">
             <h2>Phase 3: Semi-Guided Roleplays</h2>
             <p>Practice fluid, realistic dialogue in context. Start with a cloze (fill-in-the-blanks) activity.</p>
             <div id="roleplay-setup">
                 <label for="roleplay-scenario-select">Choose a scenario:</label>
                 <select id="roleplay-scenario-select"></select>
-                <button id="start-roleplay-btn">Start Cloze Activity</button>
+                <button id="start-roleplay-btn" class="btn-primary">Start Cloze Activity</button>
             </div>
-            <div id="roleplay-container" style="display: none; margin-top: 1rem; padding: 1rem; background: #fff; border-radius: 8px;">
+            <div id="roleplay-container" style="display: none; margin-top: 1rem;">
                 <h3 id="roleplay-title"></h3>
                 <div id="roleplay-script-content"></div>
-                <button id="check-roleplay-answers-btn" style="margin-top: 1rem;">Check Answers</button>
+                <button id="check-roleplay-answers-btn" class="btn-secondary" style="margin-top: 1rem;">Check Answers</button>
             </div>
         </div>
 
-        <div id="phase4-module" class="training-module">
+        <div id="phase4-module" class="training-module admin-section">
             <h2>Phase 4: Spontaneity Drills</h2>
             <p>Build your real-time reaction ability. Select a scenario, roll the dice, and form a question in 10-15 seconds.</p>
             <div id="dice-game-setup">
                 <label for="dice-game-scenario-select">Select Scenario:</label>
-                <select id="dice-game-scenario-select">
-                    <!-- Options will be populated by JS -->
-                </select>
+                <select id="dice-game-scenario-select"></select>
             </div>
             <div id="dice-game-main" style="margin-top: 1rem; text-align: center;">
-                <button id="roll-dice-btn" style="padding: 1rem 2rem; font-size: 1.2rem;">Roll Dice</button>
-                <div id="dice-result-display" style="font-size: 2rem; font-weight: bold; margin-top: 1rem; padding: 2rem; background: #fff; border-radius: 8px; min-height: 50px;">
-                    ?
-                </div>
+                <button id="roll-dice-btn" class="btn-primary" style="padding: 1rem 2rem; font-size: 1.2rem;">Roll Dice</button>
+                <div id="dice-result-display" class="card" style="font-size: 2rem; font-weight: bold; margin-top: 1rem; padding: 2rem; min-height: 50px;">?</div>
             </div>
         </div>
 
-        <div id="phase5-module" class="training-module">
+        <div id="phase5-module" class="training-module admin-section">
             <h2>Phase 5: Script Writing & Reuse</h2>
             <p>Write your own dialogues, save them, and get feedback.</p>
             <div id="script-manager">
                 <div id="script-loader" style="margin-bottom: 1rem;">
                     <label for="user-script-select">Load a saved script:</label>
-                    <select id="user-script-select">
-                        <option value="">-- My Scripts --</option>
-                        <!-- User's scripts will be loaded here -->
-                    </select>
+                    <select id="user-script-select"></select>
                 </div>
                 <div id="script-editor">
-                    <input type="text" id="script-name-input" placeholder="Enter script name" style="width: 100%; margin-bottom: 0.5rem; padding: 0.5rem; box-sizing: border-box;">
-                    <textarea id="script-content-textarea" rows="10" placeholder="Write your script here...&#10;Example:&#10;Person A: Bonjour!&#10;Person B: Bonjour, comment ça va?" style="width: 100%; padding: 0.5rem; box-sizing: border-box;"></textarea>
-                    <div id="script-actions" style="margin-top: 1rem; text-align: right;">
-                        <button id="save-script-btn">Save Script</button>
-                        <button id="delete-script-btn" style="background-color: #dc3545;">Delete Script</button>
-                        <button id="perform-script-btn">Perform Script</button>
+                    <input type="text" id="script-name-input" placeholder="Enter script name" class="form-control">
+                    <textarea id="script-content-textarea" rows="10" placeholder="Write your script here..." class="form-control"></textarea>
+                    <div id="script-actions" style="margin-top: 1rem; text-align: right; display:flex; gap: 1rem; justify-content: flex-end;">
+                        <button id="save-script-btn" class="btn-primary">Save Script</button>
+                        <button id="delete-script-btn" class="btn-danger">Delete Script</button>
+                        <button id="perform-script-btn" class="btn-secondary">Perform Script</button>
                     </div>
                 </div>
-                <div id="script-feedback-container" style="margin-top: 1.5rem; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                <div id="script-feedback-container" class="card" style="margin-top: 1.5rem;">
                     <h4>Script Analysis</h4>
-                    <div id="script-feedback-content">
-                        <!-- Feedback will be displayed here -->
-                    </div>
+                    <div id="script-feedback-content"></div>
                 </div>
             </div>
         </div>
@@ -211,793 +151,6 @@
 
 <script src="js/toast.js"></script>
 <script src="js/main.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    // Session check and UI setup
-    const guestLinks = document.getElementById('guest-links');
-    const userLinks = document.getElementById('user-links');
-    const userNameDisplay = document.getElementById('user-name-display');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const adminLink = document.getElementById('admin-link');
-
-    fetch('api/check_session.php')
-        .then(response => response.json())
-        .then(data => {
-            if (data.loggedIn && data.user.subscription_status === 'active') {
-                userLinks.style.display = 'flex';
-                userNameDisplay.textContent = data.user.first_name;
-                if (data.user.role === 'admin') {
-                    adminLink.style.display = 'block';
-                }
-            } else {
-                window.location.href = 'login.html';
-            }
-        })
-        .catch(error => {
-            console.error('Session check failed:', error);
-            window.location.href = 'login.html';
-        });
-
-    logoutBtn.addEventListener('click', () => {
-        fetch('api/logout.php').then(() => {
-            window.location.href = 'login.html';
-        });
-    });
-
-     // Tab navigation
-    const navButtons = document.querySelectorAll('.training-nav button');
-    const modules = document.querySelectorAll('.training-module');
-
-    navButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            navButtons.forEach(btn => btn.classList.remove('active'));
-            modules.forEach(module => module.classList.remove('active'));
-            button.classList.add('active');
-            const phase = button.id.replace('-btn', '');
-            document.getElementById(`${phase}-module`).classList.add('active');
-        });
-    });
-
-    // --- Global Controls ---
-    const speechRateInput = document.getElementById('speechRate');
-    const rateDisplay = document.getElementById('rateDisplay');
-    let speechRate = 1.0;
-
-    function loadSpeechRate() {
-        const savedRate = localStorage.getItem('savedSpeechRate');
-        if (savedRate) {
-            speechRate = parseFloat(savedRate);
-            speechRateInput.value = savedRate;
-            rateDisplay.textContent = parseFloat(savedRate).toFixed(1);
-        }
-    }
-
-    speechRateInput.addEventListener('input', () => {
-        speechRate = parseFloat(speechRateInput.value);
-        rateDisplay.textContent = speechRate.toFixed(1);
-        localStorage.setItem('savedSpeechRate', speechRate);
-    });
-
-    loadSpeechRate();
-
-    let recognition;
-    let dialogueProgress = [];
-
-    async function fetchDialogueProgress() {
-        try {
-            const response = await fetch('api/profile/get_dialogue_progress.php');
-            const data = await response.json();
-            if (data.status === 'success') {
-                dialogueProgress = data.progress;
-            }
-        } catch (error) {
-            console.error('Failed to fetch dialogue progress:', error);
-        }
-    }
-
-    function stopRecording() {
-        if (recognition) {
-            recognition.stop();
-        }
-    }
-
-    function checkPronunciation(userTranscript, targetText, resultElement, dialogueId, lineId) {
-        const target = targetText.toLowerCase().replace(/[.,!?;]/g, '');
-        const userWords = userTranscript.toLowerCase().replace(/[.,!?;]/g, '').split(/\s+/);
-        const targetWords = target.split(/\s+/);
-
-        let matchCount = 0;
-        targetWords.forEach(w => {
-          if (userWords.includes(w)) matchCount++;
-        });
-
-        const ratio = targetWords.length > 0 ? matchCount / targetWords.length : 0;
-        const score = (ratio * 100).toFixed(2);
-        let resultText = '';
-        if (ratio > 0.6) {
-          resultText = 'Good!';
-          resultElement.style.color = 'green';
-        } else {
-          resultText = 'Try again.';
-          resultElement.style.color = 'red';
-        }
-        resultElement.textContent = ` ${resultText} (Score: ${score}%)`;
-
-        // Save the progress
-        fetch('api/profile/store_dialogue_progress.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                dialogue_id: dialogueId,
-                line_id: lineId,
-                score: ratio
-            })
-        });
-
-        setTimeout(() => {
-            resultElement.textContent = '';
-        }, 5000);
-    }
-
-    function startPronunciationCheck(targetText, resultElement, dialogueId, lineId) {
-        if (!('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
-            alert("Sorry, your browser does not support Speech Recognition.");
-            return;
-        }
-
-        document.querySelectorAll('.check-pronunciation-btn').forEach(b => b.disabled = true);
-        resultElement.textContent = " Listening...";
-
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        recognition = new SpeechRecognition();
-        recognition.lang = 'fr-FR';
-        recognition.interimResults = false;
-        recognition.maxAlternatives = 1;
-
-        recognition.onresult = (event) => {
-            const transcript = event.results[0][0].transcript.toLowerCase();
-            checkPronunciation(transcript, targetText, resultElement, dialogueId, lineId);
-        };
-
-        recognition.onerror = (event) => {
-            resultElement.textContent = ' Error: ' + event.error;
-        };
-
-        recognition.onend = () => {
-            document.querySelectorAll('.check-pronunciation-btn').forEach(b => b.disabled = false);
-        };
-
-        recognition.onspeechend = () => {
-            recognition.stop();
-        };
-
-        recognition.start();
-
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-        if (isIOS) {
-            setTimeout(() => {
-                if (recognition) {
-                    recognition.stop();
-                }
-            }, 5000);
-        }
-    }
-
-    // --- Phase 1: Shadowing ---
-    const dialogueSelect = document.getElementById('dialogueSelect');
-    const dialogueContent = document.getElementById('dialogue-content');
-    const playFullDialogueBtn = document.getElementById('play-full-dialogue-btn');
-
-    function speakFrench(text, onEndCallback) {
-        const utterance = new SpeechSynthesisUtterance(text);
-        if (onEndCallback) {
-            utterance.onend = onEndCallback;
-        }
-
-        const setVoiceAndSpeak = () => {
-            const voices = speechSynthesis.getVoices();
-            let frenchVoice;
-
-            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-            if (isIOS) {
-                frenchVoice = voices.find(voice => voice.name === 'Thomas' && voice.lang === 'fr-FR');
-            }
-
-            if (!frenchVoice) {
-              frenchVoice = voices.find(voice => voice.lang === 'fr-FR');
-            }
-
-            if (frenchVoice) {
-              utterance.voice = frenchVoice;
-            }
-
-            utterance.lang = 'fr-FR';
-            utterance.rate = speechRate;
-            speechSynthesis.speak(utterance);
-        };
-
-        if (speechSynthesis.getVoices().length > 0) {
-            setVoiceAndSpeak();
-        } else {
-            speechSynthesis.onvoiceschanged = setVoiceAndSpeak;
-        }
-    }
-
-    async function loadDialogueList() {
-        try {
-            const response = await fetch('api/get_dialogues_list.php');
-            const dialogues = await response.json();
-            if (response.ok) {
-                dialogueSelect.innerHTML = '<option value="">-- Choose a dialogue --</option>';
-                dialogues.forEach(dialogue => {
-                    const option = document.createElement('option');
-                    option.value = dialogue.id;
-                    option.textContent = dialogue.dialogue_name;
-                    dialogueSelect.appendChild(option);
-                });
-                // Automatically load the first dialogue
-                if (dialogues.length > 0) {
-                    dialogueSelect.value = dialogues[0].id;
-                    loadDialogue(dialogues[0].id);
-                }
-            } else {
-                showToast('Failed to load dialogues.', 'error');
-            }
-        } catch (error) {
-            console.error('Error fetching dialogue list:', error);
-            showToast('Could not fetch dialogue list.', 'error');
-        }
-    }
-
-    async function loadDialogue(id) {
-        if (!id) {
-            dialogueContent.innerHTML = '';
-            return;
-        }
-        try {
-            const response = await fetch(`api/get_dialogue.php?id=${id}`);
-            const dialogue = await response.json();
-            if (response.ok) {
-                renderDialogue(dialogue);
-            } else {
-                showToast('Failed to load dialogue.', 'error');
-            }
-        } catch (error) {
-            console.error('Error fetching dialogue:', error);
-            showToast('Could not fetch dialogue.', 'error');
-        }
-    }
-
-    function renderDialogue(dialogue) {
-        dialogueContent.innerHTML = `<h3>${dialogue.name}</h3>`;
-        dialogue.lines.forEach((line, index) => {
-            const lineEl = document.createElement('p');
-            lineEl.innerHTML = `<strong>${line.speaker}:</strong> ${line.line}
-                <button class="play-line-btn" data-line-index="${index}">▶️</button>
-                <button class="check-pronunciation-btn" data-line-index="${index}">🎤</button>
-                <span class="pronunciation-result" data-line-index="${index}"></span>`;
-            dialogueContent.appendChild(lineEl);
-        });
-
-        document.querySelectorAll('.play-line-btn').forEach(button => {
-            button.addEventListener('click', (e) => {
-                const lineIndex = e.target.getAttribute('data-line-index');
-                const lineText = dialogue.lines[lineIndex].line;
-                speakFrench(lineText);
-            });
-        });
-
-        document.querySelectorAll('.check-pronunciation-btn').forEach(button => {
-            button.addEventListener('click', (e) => {
-                const lineIndex = e.target.getAttribute('data-line-index');
-                const line = dialogue.lines[lineIndex];
-                const resultSpan = dialogueContent.querySelector(`.pronunciation-result[data-line-index="${lineIndex}"]`);
-                startPronunciationCheck(line.line, resultSpan, dialogue.id, line.id);
-            });
-        });
-    }
-
-    dialogueSelect.addEventListener('change', () => {
-        loadDialogue(dialogueSelect.value);
-
-        const selectedDialogueId = dialogueSelect.value;
-        const progressDisplay = document.getElementById('dialogue-progress-display');
-        if (!selectedDialogueId) {
-            progressDisplay.textContent = '';
-            return;
-        }
-
-        const progress = dialogueProgress.find(p => p.dialogue_id == selectedDialogueId);
-
-        if (progress && progress.attempted_lines > 0) {
-            const coveragePercent = (progress.coverage * 100).toFixed(0);
-            const scorePercent = (progress.average_score * 100).toFixed(2);
-            progressDisplay.textContent = `Coverage: ${coveragePercent}%, Avg Score: ${scorePercent}%`;
-        } else {
-            progressDisplay.textContent = 'No progress yet.';
-        }
-    });
-
-    playFullDialogueBtn.addEventListener('click', async () => {
-        const id = dialogueSelect.value;
-        if (!id) return;
-
-        // Fetch the dialogue again to ensure we have the right one
-        const response = await fetch(`api/get_dialogue.php?id=${id}`);
-        const dialogue = await response.json();
-
-        if (response.ok) {
-            // Use a recursive function to play lines sequentially
-            let currentLine = 0;
-            function playNextLine() {
-                if (currentLine < dialogue.lines.length) {
-                    const lineText = dialogue.lines[currentLine].line;
-                    const onEnd = () => {
-                        currentLine++;
-                        playNextLine();
-                    };
-                    speakFrench(lineText, onEnd);
-                }
-            }
-            playNextLine();
-        }
-    });
-
-    // Initial load
-    (async () => {
-        await fetchDialogueProgress();
-        await loadDialogueList();
-
-        // Since a dialogue is loaded automatically, trigger the change event to show its progress
-        if (dialogueSelect.value) {
-            dialogueSelect.dispatchEvent(new Event('change'));
-        }
-    })();
-
-    // --- Phase 2: Question Drills ---
-    const startDrillBtn = document.getElementById('start-drill-btn');
-    const drillContainer = document.getElementById('drill-container');
-    const timerDisplay = document.getElementById('timer-display');
-    const drillFlashcard = document.getElementById('drill-flashcard');
-    const drillCardFront = document.getElementById('drill-card-front');
-    const drillCardBack = document.getElementById('drill-card-back');
-    const drillPrevBtn = document.getElementById('drill-prev-btn');
-    const drillFlipBtn = document.getElementById('drill-flip-btn');
-    const drillNextBtn = document.getElementById('drill-next-btn');
-    const drillPagination = document.getElementById('drill-pagination');
-
-    let drills = [];
-    let currentDrillIndex = 0;
-    let drillTimer;
-    const DRILL_TIME = 15;
-
-    async function startDrill() {
-        startDrillBtn.style.display = 'none';
-        drillContainer.style.display = 'block';
-
-        try {
-            const response = await fetch('api/get_question_drills.php');
-            drills = await response.json();
-            if (response.ok && drills.length > 0) {
-                currentDrillIndex = 0;
-                displayDrill(currentDrillIndex);
-            } else {
-                drillContainer.innerHTML = '<p>No drills found.</p>';
-            }
-        } catch (error) {
-            console.error('Error starting drill:', error);
-            drillContainer.innerHTML = '<p>Error loading drills.</p>';
-        }
-    }
-
-    function displayDrill(index) {
-        if (index < 0 || index >= drills.length) return;
-
-        drillFlashcard.classList.remove('is-flipped');
-        const drill = drills[index];
-        drillCardFront.innerHTML = `<p>${drill.english_question}</p>`;
-        drillCardBack.innerHTML = `
-            <div style="width: 100%; text-align: left;">
-                <p><strong>Hints:</strong> ${drill.french_vocab_hints}</p>
-                <div class="drill-answer" style="display: none;">
-                    <br><br>
-                    <p><strong>Expected:</strong> ${drill.expected_answer}</p>
-                </div>
-                <div style="text-align: center; margin-top: 1rem;">
-                    <button class="show-answer-btn">Show Answer</button>
-                </div>
-            </div>
-        `;
-        drillPagination.textContent = `Card ${index + 1} of ${drills.length}`;
-        updateDrillNav();
-        resetTimer();
-    }
-
-    function updateDrillNav() {
-        drillPrevBtn.disabled = currentDrillIndex === 0;
-        drillNextBtn.disabled = currentDrillIndex === drills.length - 1;
-    }
-
-    function flipDrillCard() {
-        drillFlashcard.classList.toggle('is-flipped');
-    }
-
-    function resetTimer() {
-        clearInterval(drillTimer);
-        let timeLeft = DRILL_TIME;
-        timerDisplay.textContent = timeLeft;
-        drillTimer = setInterval(() => {
-            timeLeft--;
-            timerDisplay.textContent = timeLeft;
-            if (timeLeft <= 0) {
-                clearInterval(drillTimer);
-                // Only flip if it's not already flipped
-                if (!drillFlashcard.classList.contains('is-flipped')) {
-                    drillFlashcard.classList.add('is-flipped');
-                }
-            }
-        }, 1000);
-    }
-
-    startDrillBtn.addEventListener('click', startDrill);
-    drillFlipBtn.addEventListener('click', flipDrillCard);
-    drillFlashcard.addEventListener('click', flipDrillCard);
-
-    drillNextBtn.addEventListener('click', () => {
-        if (currentDrillIndex < drills.length - 1) {
-            currentDrillIndex++;
-            displayDrill(currentDrillIndex);
-        }
-    });
-
-    drillCardBack.addEventListener('click', (e) => {
-        if (e.target.classList.contains('show-answer-btn')) {
-            e.stopPropagation(); // Prevent the click from bubbling up to the flashcard
-            const answerContainer = e.target.closest('.flashcard-back').querySelector('.drill-answer');
-            if (answerContainer) {
-                answerContainer.style.display = 'block';
-            }
-            e.target.style.display = 'none';
-        }
-    });
-
-    drillPrevBtn.addEventListener('click', () => {
-        if (currentDrillIndex > 0) {
-            currentDrillIndex--;
-            displayDrill(currentDrillIndex);
-        }
-    });
-
-    // --- Phase 3: Roleplays ---
-    const roleplayScenarioSelect = document.getElementById('roleplay-scenario-select');
-    const startRoleplayBtn = document.getElementById('start-roleplay-btn');
-    const roleplayContainer = document.getElementById('roleplay-container');
-    const roleplayTitle = document.getElementById('roleplay-title');
-    const roleplayScriptContent = document.getElementById('roleplay-script-content');
-    const checkRoleplayAnswersBtn = document.getElementById('check-roleplay-answers-btn');
-    let currentClozeScript = null;
-
-    async function populateScenarioDropdown(selectElement) {
-        if (!selectElement) return;
-        try {
-            const response = await fetch('api/get_roleplay_scenarios_list.php');
-            const scenarios = await response.json();
-            if (response.ok) {
-                selectElement.innerHTML = '<option value="">-- Choose a scenario --</option>';
-                scenarios.forEach(scenario => {
-                    const option = document.createElement('option');
-                    option.value = scenario.id;
-                    option.textContent = scenario.name;
-                    selectElement.appendChild(option);
-                });
-            }
-        } catch (error) {
-            console.error('Error loading scenarios:', error);
-        }
-    }
-
-    async function startRoleplay() {
-        const scenarioId = roleplayScenarioSelect.value;
-        if (!scenarioId) {
-            showToast('Please select a scenario first.', 'error');
-            return;
-        }
-
-        try {
-            const response = await fetch(`api/get_roleplay_scenario.php?id=${scenarioId}`);
-            const scenario = await response.json();
-            if (response.ok) {
-                currentClozeScript = scenario.cloze_script_json;
-                renderClozeScript(currentClozeScript);
-                roleplayContainer.style.display = 'block';
-            } else {
-                showToast('Failed to load scenario.', 'error');
-            }
-        } catch (error) {
-            console.error('Error starting roleplay:', error);
-        }
-    }
-
-    function renderClozeScript(script) {
-        roleplayTitle.textContent = script.title;
-        roleplayScriptContent.innerHTML = '';
-        script.lines.forEach((line, index) => {
-            const lineEl = document.createElement('div');
-            lineEl.classList.add('script-line');
-            if (line.is_blank) {
-                lineEl.innerHTML = `<strong>${line.speaker}:</strong> <input type="text" class="cloze-input" data-line-index="${index}" placeholder="Your response here...">`;
-            } else {
-                lineEl.innerHTML = `<strong>${line.speaker}:</strong> ${line.line}`;
-            }
-            roleplayScriptContent.appendChild(lineEl);
-        });
-    }
-
-    function checkClozeAnswers() {
-        if (!currentClozeScript) return;
-
-        const inputs = document.querySelectorAll('.cloze-input');
-        let allCorrect = true;
-        inputs.forEach(input => {
-            const lineIndex = input.getAttribute('data-line-index');
-            const expectedAnswer = currentClozeScript.lines[lineIndex].expected;
-            // Simple case-insensitive comparison for now
-            if (input.value.trim().toLowerCase() === expectedAnswer.trim().toLowerCase()) {
-                input.style.backgroundColor = '#d4edda'; // Green for correct
-            } else {
-                input.style.backgroundColor = '#f8d7da'; // Red for incorrect
-                allCorrect = false;
-            }
-        });
-
-        if (allCorrect) {
-            showToast('Great job! All answers are correct.', 'success');
-        } else {
-            showToast('Some answers are incorrect. Please review them.', 'error');
-        }
-    }
-
-    startRoleplayBtn.addEventListener('click', startRoleplay);
-    checkRoleplayAnswersBtn.addEventListener('click', checkClozeAnswers);
-
-    // Initial load for Phase 3
-    populateScenarioDropdown(roleplayScenarioSelect);
-
-    // --- Phase 4: Dice Game ---
-    const diceGameScenarioSelect = document.getElementById('dice-game-scenario-select');
-    const rollDiceBtn = document.getElementById('roll-dice-btn');
-    const diceResultDisplay = document.getElementById('dice-result-display');
-
-    const diceWords = ['Où', 'Quand', 'Qui', 'Comment', 'Combien', 'Pourquoi', 'Est-ce que...'];
-
-    rollDiceBtn.addEventListener('click', () => {
-        if (!diceGameScenarioSelect.value) {
-            showToast('Please select a scenario first.', 'error');
-            return;
-        }
-        const randomIndex = Math.floor(Math.random() * diceWords.length);
-        const randomWord = diceWords[randomIndex];
-        diceResultDisplay.textContent = randomWord;
-    });
-
-    // Initial load for Phase 4
-    populateScenarioDropdown(diceGameScenarioSelect);
-
-    // --- Phase 5: Script Writing ---
-    const userScriptSelect = document.getElementById('user-script-select');
-    const scriptNameInput = document.getElementById('script-name-input');
-    const scriptContentTextarea = document.getElementById('script-content-textarea');
-    const saveScriptBtn = document.getElementById('save-script-btn');
-
-    async function loadUserScripts() {
-        try {
-            const response = await fetch('api/get_user_scripts.php');
-            const scripts = await response.json();
-            if (response.ok) {
-                userScriptSelect.innerHTML = '<option value="">-- My Scripts --</option>';
-                scripts.forEach(script => {
-                    const option = document.createElement('option');
-                    option.value = script.id;
-                    option.textContent = script.script_name;
-                    userScriptSelect.appendChild(option);
-                });
-            }
-        } catch (error) {
-            console.error('Error loading user scripts:', error);
-        }
-    }
-
-    async function loadSpecificScript(id) {
-        if (!id) {
-            scriptNameInput.value = '';
-            scriptContentTextarea.value = '';
-            return;
-        }
-        try {
-            const response = await fetch(`api/get_user_scripts.php?id=${id}`);
-            const script = await response.json();
-            if (response.ok) {
-                scriptNameInput.value = script.script_name;
-                scriptContentTextarea.value = script.script_content;
-            } else {
-                showToast('Failed to load script.', 'error');
-            }
-        } catch (error) {
-            console.error('Error loading specific script:', error);
-        }
-    }
-
-    async function saveScript() {
-        const name = scriptNameInput.value.trim();
-        const content = scriptContentTextarea.value.trim();
-
-        if (!name || !content) {
-            showToast('Script name and content cannot be empty.', 'error');
-            return;
-        }
-
-        try {
-            const response = await fetch('api/save_user_script.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ script_name: name, script_content: content })
-            });
-            const result = await response.json();
-            if (response.ok) {
-                showToast('Script saved successfully!', 'success');
-                loadUserScripts(); // Refresh the list
-            } else {
-                showToast(`Error: ${result.message}`, 'error');
-            }
-        } catch (error) {
-            console.error('Error saving script:', error);
-            showToast('An unexpected error occurred while saving.', 'error');
-        }
-    }
-
-    userScriptSelect.addEventListener('change', () => {
-        loadSpecificScript(userScriptSelect.value);
-    });
-
-    saveScriptBtn.addEventListener('click', saveScript);
-
-    const deleteScriptBtn = document.getElementById('delete-script-btn');
-
-    async function deleteScript() {
-        const scriptId = userScriptSelect.value;
-        if (!scriptId) {
-            showToast('Please select a script to delete.', 'error');
-            return;
-        }
-
-        if (!confirm('Are you sure you want to delete this script?')) {
-            return;
-        }
-
-        try {
-            const response = await fetch('api/delete_user_script.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ script_id: scriptId })
-            });
-            const result = await response.json();
-            if (response.ok) {
-                showToast('Script deleted successfully!', 'success');
-                scriptNameInput.value = '';
-                scriptContentTextarea.value = '';
-                loadUserScripts(); // Refresh the list
-            } else {
-                showToast(`Error: ${result.message}`, 'error');
-            }
-        } catch (error) {
-            console.error('Error deleting script:', error);
-            showToast('An unexpected error occurred while deleting.', 'error');
-        }
-    }
-
-    deleteScriptBtn.addEventListener('click', deleteScript);
-
-    // Initial load for Phase 5
-    loadUserScripts();
-
-    // --- Phase 5: Perform and Feedback Logic ---
-    const performScriptBtn = document.getElementById('perform-script-btn');
-    const scriptFeedbackContent = document.getElementById('script-feedback-content');
-
-    function analyzeScript(content) {
-        const lines = content.split('\n').filter(line => line.trim() !== '');
-        const words = content.toLowerCase().match(/\b(\w+)\b/g) || [];
-        const uniqueWords = new Set(words);
-
-        const questionWords = ['où', 'quand', 'qui', 'comment', 'combien', 'pourquoi', 'est-ce'];
-        let questionWordCount = 0;
-        questionWords.forEach(qw => {
-            const regex = new RegExp(`\\b${qw}\\b`, 'gi');
-            const matches = content.toLowerCase().match(regex);
-            if (matches) questionWordCount += matches.length;
-        });
-
-        const questionMarkCount = (content.match(/\?/g) || []).length;
-
-        return {
-            lineCount: lines.length,
-            wordCount: words.length,
-            uniqueWordCount: uniqueWords.size,
-            questionCount: questionMarkCount,
-            questionWordCount: questionWordCount
-        };
-    }
-
-    function displayFeedback(stats) {
-        scriptFeedbackContent.innerHTML = `
-            <ul>
-                <li><strong>Lines:</strong> ${stats.lineCount}</li>
-                <li><strong>Total Words:</strong> ${stats.wordCount}</li>
-                <li><strong>Unique Words:</strong> ${stats.uniqueWordCount}</li>
-                <li><strong>Questions (by '?'):</strong> ${stats.questionCount}</li>
-                <li><strong>Question Words:</strong> ${stats.questionWordCount}</li>
-            </ul>
-        `;
-    }
-
-    // Update the saveScript function to include feedback
-    async function saveScript() {
-        const name = scriptNameInput.value.trim();
-        const content = scriptContentTextarea.value.trim();
-
-        if (!name || !content) {
-            showToast('Script name and content cannot be empty.', 'error');
-            return;
-        }
-
-        try {
-            const response = await fetch('api/save_user_script.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ script_name: name, script_content: content })
-            });
-            const result = await response.json();
-            if (response.ok) {
-                showToast('Script saved successfully!', 'success');
-                loadUserScripts(); // Refresh the list
-                const stats = analyzeScript(content);
-                displayFeedback(stats);
-            } else {
-                showToast(`Error: ${result.message}`, 'error');
-            }
-        } catch (error) {
-            console.error('Error saving script:', error);
-            showToast('An unexpected error occurred while saving.', 'error');
-        }
-    }
-    // Re-assign the event listener to the updated function
-    saveScriptBtn.addEventListener('click', saveScript);
-
-
-    performScriptBtn.addEventListener('click', () => {
-        const content = scriptContentTextarea.value;
-        const lines = content.split('\n').filter(line => line.trim() !== '');
-
-        if (lines.length === 0) {
-            showToast('There is no script content to perform.', 'error');
-            return;
-        }
-
-        let currentLine = 0;
-        function playNextScriptLine() {
-            if (currentLine < lines.length) {
-                // Extract only the dialogue text, removing "Speaker: " part
-                const dialogueText = lines[currentLine].substring(lines[currentLine].indexOf(':') + 1).trim();
-                const onEnd = () => {
-                    currentLine++;
-                    playNextScriptLine();
-                };
-                speakFrench(dialogueText, onEnd);
-            }
-        }
-        playNextScriptLine();
-    });
-});
-</script>
+<script src="js/training.js"></script>
 </body>
 </html>

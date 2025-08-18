@@ -265,7 +265,7 @@ a {
       border-radius: 0 0 8px 8px;
       z-index: 1000;
   }
-  .main-nav .nav-links.is-active, .landing-nav .nav-links.is-active {
+  .main-nav.is-active .nav-links, .landing-nav.is-active .nav-links {
       display: flex; /* Show when active */
   }
   .main-nav .nav-links a, .landing-nav .nav-links a {
@@ -274,11 +274,19 @@ a {
       width: 100%;
       margin: 0;
   }
-  .main-nav .nav-links a:last-child, .landing-nav .nav-links a:last-child {
-      border-bottom: none;
-  }
+  /* Ensure user/auth sections inside the mobile menu flow correctly */
   .main-nav .nav-user, .landing-nav .nav-auth {
-      display: none; /* Hide these on mobile, they will be in the menu */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem;
+      border-bottom: 1px solid #eee;
+      width: 100%;
+      gap: 1rem;
+  }
+  .main-nav .nav-links a:last-child, .landing-nav .nav-links a:last-child,
+  .main-nav .nav-user, .landing-nav .nav-auth {
+      border-bottom: none;
   }
   .landing-page .hero h1 {
       font-size: 2.2rem;
