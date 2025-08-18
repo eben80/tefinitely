@@ -75,7 +75,7 @@ a {
 .main-nav .nav-links {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
+    gap: 2.5rem;
 }
 .main-nav .nav-links a {
     text-decoration: none;

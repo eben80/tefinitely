@@ -146,6 +146,26 @@ async function initializeFlashcardApp(user) {
     prevPhraseBtn.addEventListener('click', () => { if (currentPhraseIndex > 0) displayPhrase(currentPhraseIndex - 1); });
     nextPhraseBtn.addEventListener('click', () => { if (currentPhraseIndex < phrases.length - 1) displayPhrase(currentPhraseIndex + 1); });
 
+    // Add swipe listeners
+    let touchstartX = 0;
+    flashcard.addEventListener('touchstart', e => {
+        touchstartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    flashcard.addEventListener('touchend', e => {
+        const touchendX = e.changedTouches[0].screenX;
+        const deltaX = touchendX - touchstartX;
+        if (Math.abs(deltaX) > 50) { // Threshold for swipe
+            if (deltaX < 0) {
+                // Swiped left
+                nextPhraseBtn.click();
+            } else {
+                // Swiped right
+                prevPhraseBtn.click();
+            }
+        }
+    }, { passive: true });
+
     // Initial population
     await populateTopics(topicSelect);
     await fetchProgress();
