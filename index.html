@@ -652,7 +652,7 @@ function stopRecording() {
     }
 }
 
-function checkPronunciation(userTranscript) {
+async function checkPronunciation(userTranscript) {
     const recordingResult = document.getElementById('recordingResult');
     if (!recordingResult) return;
 
@@ -678,14 +678,23 @@ function checkPronunciation(userTranscript) {
     recordingResult.textContent = `${resultText} (Score: ${score}%)`;
 
     if (phrases[currentPhraseIndex]) {
-        fetch('api/profile/store_progress.php', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            phrase_id: phrases[currentPhraseIndex].id,
-            matching_quality: ratio
-          })
-        });
+        try {
+            await fetch('api/profile/store_progress.php', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                phrase_id: phrases[currentPhraseIndex].id,
+                matching_quality: ratio
+              })
+            });
+            // After storing progress, re-fetch and update the display
+            await fetchProgress();
+            const topicSelect = document.getElementById('topicSelect');
+            updateTopicProgressDisplay(topicSelect.value);
+        } catch (error) {
+            console.error('Failed to store or fetch progress:', error);
+            showToast('Could not update progress.', 'error');
+        }
     }
 }
 
@@ -757,7 +766,7 @@ function initializeMainFlashcard() {
     const recordingResult = mainContent.querySelector('#recordingResult');
 
     if(startRecordBtn) {
-        startRecordBtn.onclick = () => {
+        startRecordBtn.onclick = async () => {
             if (!('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
               alert("Sorry, your browser does not support Speech Recognition.");
               return;
@@ -778,9 +787,9 @@ function initializeMainFlashcard() {
             };
             recognition.onnomatch = () => console.log('Speech not recognized.');
 
-            recognition.onresult = (event) => {
+            recognition.onresult = async (event) => {
               const transcript = event.results[0][0].transcript.toLowerCase();
-              checkPronunciation(transcript);
+              await checkPronunciation(transcript);
             };
             recognition.onerror = (event) => {
               console.log('Speech recognition error:', event);
@@ -1096,9 +1105,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                     if (data.user.tour_completed == 0) {
                         initializeTour();
                     } else if (data.user.last_topic) {
-                        topicSelect.value = `${data.user.last_section}-${data.user.last_topic}-${data.user.last_level}`;
-                        mainFlashcard.loadPhrases(topicSelect.value, data.user.last_card_index);
-                        updateTopicProgressDisplay(topicSelect.value);
+                        const lastTopicValue = `${data.user.last_section}-${data.user.last_topic}-${data.user.last_level}`;
+                        // Check if the option exists before setting it
+                        if ([...topicSelect.options].some(option => option.value === lastTopicValue)) {
+                            topicSelect.value = lastTopicValue;
+                            await mainFlashcard.loadPhrases(topicSelect.value, data.user.last_card_index);
+                            updateTopicProgressDisplay(topicSelect.value);
+                        } else {
+                            console.warn('Last saved topic not found in dropdown:', lastTopicValue);
+                        }
                     }
                 } else {
                     // Inactive Subscriber
