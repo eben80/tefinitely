@@ -14,6 +14,8 @@ $data = json_decode(file_get_contents('php://input'), true);
 $tour_completed = isset($data['tour_completed']) ? ($data['tour_completed'] ? 1 : 0) : null;
 $last_topic = isset($data['last_topic']) ? $data['last_topic'] : null;
 $last_card_index = isset($data['last_card_index']) ? $data['last_card_index'] : null;
+$last_section = isset($data['last_section']) ? $data['last_section'] : null;
+$last_level = isset($data['last_level']) ? $data['last_level'] : null;
 $first_name = isset($data['first_name']) ? trim($data['first_name']) : null;
 $last_name = isset($data['last_name']) ? trim($data['last_name']) : null;
 
@@ -49,6 +51,18 @@ if ($last_card_index !== null) {
     $sql .= "last_card_index = ?, ";
     $params[] = $last_card_index;
     $types .= "i";
+}
+
+if ($last_section !== null) {
+    $sql .= "last_section = ?, ";
+    $params[] = $last_section;
+    $types .= "s";
+}
+
+if ($last_level !== null) {
+    $sql .= "last_level = ?, ";
+    $params[] = $last_level;
+    $types .= "s";
 }
 
 $sql = rtrim($sql, ', ');

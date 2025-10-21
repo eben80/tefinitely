@@ -592,6 +592,8 @@
 let phrases = [];
 let currentPhraseIndex = 0;
 let currentTopic = '';
+let currentLevel = '';
+let currentSection = '';
 let speechRate = 1.0;
 let recognition;
 let userProgress = [];
@@ -687,11 +689,11 @@ function checkPronunciation(userTranscript) {
     }
 }
 
-function savePosition(topic, index) {
+function savePosition(topic, section, level, index) {
     fetch('api/profile/update_user_details.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ last_topic: topic, last_card_index: index })
+        body: JSON.stringify({ last_topic: topic, last_section: section, last_level: level, last_card_index: index })
     });
 }
 
@@ -705,10 +707,10 @@ async function populateTopics(topicSelect) {
             for (const section in topics) {
                 const optgroup = document.createElement('optgroup');
                 optgroup.label = section.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
-                topics[section].forEach(theme => {
+                topics[section].forEach(topic => {
                     const option = document.createElement('option');
-                    option.value = `${section}-${theme}`;
-                    option.textContent = theme.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
+                    option.value = `${section}-${topic.theme}-${topic.level}`;
+                    option.textContent = `${topic.topic_en} / ${topic.topic_fr}`;
                     optgroup.appendChild(option);
                 });
                 topicSelect.appendChild(optgroup);
@@ -726,8 +728,8 @@ function updateTopicProgressDisplay(topicValue) {
         progressDisplay.textContent = '';
         return;
     }
-    const [section, theme] = topicValue.split('-');
-    const topicProgress = userProgress.find(p => p.section === section && p.theme === theme);
+    const [section, theme, level] = topicValue.split('-');
+    const topicProgress = userProgress.find(p => p.section === section && p.theme === theme && p.level === level);
 
     if (topicProgress) {
         const scorePercent = (topicProgress.average_matching_quality * 100).toFixed(0);
@@ -811,7 +813,7 @@ function initializeMainFlashcard() {
         flashcard.classList.remove('is-flipped');
         updateNavButtons();
         currentCardSpan.textContent = idx + 1;
-        savePosition(currentTopic, idx);
+        savePosition(currentTopic, currentSection, currentLevel, idx);
     }
 
     function updateNavButtons() {
@@ -821,12 +823,13 @@ function initializeMainFlashcard() {
     }
 
     async function loadPhrases(topicValue, initialCardIndex = 0) {
-        currentTopic = topicValue;
-        savePosition(currentTopic, initialCardIndex);
-        const [section, theme] = topicValue.split('-');
-        if (!section || !theme) return;
+        const [section, theme, level] = topicValue.split('-');
+        currentTopic = theme;
+        currentSection = section;
+        currentLevel = level;
+        if (!section || !theme || !level) return;
         try {
-            const res = await fetch(`api/get_phrases.php?theme=${encodeURIComponent(theme)}&section=${encodeURIComponent(section)}`);
+            const res = await fetch(`api/get_phrases.php?theme=${encodeURIComponent(theme)}&section=${encodeURIComponent(section)}&level=${encodeURIComponent(level)}`);
             phrases = await res.json();
             totalCardsSpan.textContent = phrases.length;
             currentPhraseIndex = initialCardIndex || 0;
@@ -942,7 +945,7 @@ function initializeSampleFlashcard() {
         }
     });
 
-    nextBtn.addEventListener('click', () => {
+    nextPhraseBtn.addEventListener('click', () => {
         if (currentIndex < phrases.length - 1) {
             flashcardEl.classList.add('slide-out-left');
             setTimeout(() => {
@@ -1093,9 +1096,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     if (data.user.tour_completed == 0) {
                         initializeTour();
                     } else if (data.user.last_topic) {
-                        topicSelect.value = data.user.last_topic;
-                        mainFlashcard.loadPhrases(data.user.last_topic, data.user.last_card_index);
-                        updateTopicProgressDisplay(data.user.last_topic);
+                        topicSelect.value = `${data.user.last_section}-${data.user.last_topic}-${data.user.last_level}`;
+                        mainFlashcard.loadPhrases(topicSelect.value, data.user.last_card_index);
+                        updateTopicProgressDisplay(topicSelect.value);
                     }
                 } else {
                     // Inactive Subscriber
