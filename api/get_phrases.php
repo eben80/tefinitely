@@ -15,10 +15,11 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['subscription_status']) || 
 require_once '../db/db_config.php';
 
 $theme = $_GET['theme'] ?? '';
-$section = $_GET['section'] ?? 'general';
+$section = $_GET['section'] ?? '';
+$level = $_GET['level'] ?? '';
 
-$stmt = $conn->prepare("SELECT id, french_text, english_translation FROM phrases WHERE theme = ? AND section = ?");
-$stmt->bind_param("ss", $theme, $section);
+$stmt = $conn->prepare("SELECT id, french_text, english_translation FROM phrases WHERE theme = ? AND section = ? AND level = ?");
+$stmt->bind_param("sss", $theme, $section, $level);
 $stmt->execute();
 $result = $stmt->get_result();
 
