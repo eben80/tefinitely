@@ -3,15 +3,13 @@
 -- Alter table structures
 -- Alter table structures (idempotent)
 -- Drop columns if they exist to ensure the script is re-runnable
-ALTER TABLE `phrases`
-  DROP COLUMN IF EXISTS `section`,
-  DROP COLUMN IF EXISTS `level`,
-  DROP COLUMN IF EXISTS `topic_fr`,
-  DROP COLUMN IF EXISTS `topic_en`;
+ALTER TABLE `phrases` DROP COLUMN IF EXISTS `section`;
+ALTER TABLE `phrases` DROP COLUMN IF EXISTS `level`;
+ALTER TABLE `phrases` DROP COLUMN IF EXISTS `topic_fr`;
+ALTER TABLE `phrases` DROP COLUMN IF EXISTS `topic_en`;
 
-ALTER TABLE `users`
-  DROP COLUMN IF EXISTS `last_section`,
-  DROP COLUMN IF EXISTS `last_level`;
+ALTER TABLE `users` DROP COLUMN IF EXISTS `last_section`;
+ALTER TABLE `users` DROP COLUMN IF EXISTS `last_level`;
 
 -- Add the new columns
 ALTER TABLE `phrases`
