@@ -14,8 +14,10 @@ ALTER TABLE `users`
   ADD COLUMN `last_level` VARCHAR(50) NULL DEFAULT NULL AFTER `last_section`;
 
 -- Step 2: Clear old data.
+SET FOREIGN_KEY_CHECKS=0;
 TRUNCATE TABLE `phrases`;
 TRUNCATE TABLE `user_progress`;
+SET FOREIGN_KEY_CHECKS=1;
 
 -- Step 3: Reset user progress to avoid foreign key issues and reflect new content.
 UPDATE `users` SET `last_topic` = NULL, `last_card_index` = NULL, `last_section` = NULL, `last_level` = NULL;
