@@ -1,0 +1,1652 @@
+[
+    {
+        "topic_fr": "Poser des questions dans un magasin de prêt sur gage",
+        "topic_en": "Ask questions about a pawn shop",
+        "questions": [
+            {
+                "fr": "Bonjour, acceptez-vous tous les types de bijoux ?",
+                "en": "Hello, do you accept all kinds of jewelry?"
+            },
+            {
+                "fr": "Comment évaluez-vous la valeur d’un bijou ?",
+                "en": "How do you determine the value of a piece of jewelry?"
+            },
+            {
+                "fr": "Est-ce que je peux vendre mes bijoux ou seulement les mettre en gage ?",
+                "en": "Can I sell my jewelry or only pawn it?"
+            },
+            {
+                "fr": "Combien de temps puis-je laisser mon bijou en gage ?",
+                "en": "How long can I leave my jewelry in pawn?"
+            },
+            {
+                "fr": "Y a-t-il des frais pour récupérer mon bijou ?",
+                "en": "Are there any fees to get my jewelry back?"
+            },
+            {
+                "fr": "Quels documents dois-je présenter pour faire une transaction ?",
+                "en": "What documents do I need to complete a transaction?"
+            },
+            {
+                "fr": "Acceptez-vous les montres ou seulement les bijoux en or ?",
+                "en": "Do you accept watches or only gold jewelry?"
+            },
+            {
+                "fr": "Offrez-vous une estimation gratuite ?",
+                "en": "Do you offer a free appraisal?"
+            },
+            {
+                "fr": "Puis-je recevoir l’argent immédiatement ?",
+                "en": "Can I receive the money immediately?"
+            },
+            {
+                "fr": "Est-ce que le prix dépend du poids ou du design du bijou ?",
+                "en": "Does the price depend on the weight or the design of the jewelry?"
+            },
+            {
+                "fr": "Avez-vous un service en ligne pour faire une estimation ?",
+                "en": "Do you have an online service to estimate items?"
+            },
+            {
+                "fr": "Puis-je récupérer mon bijou avant la date prévue ?",
+                "en": "Can I get my jewelry back before the agreed date?"
+            },
+            {
+                "fr": "Que se passe-t-il si je ne rembourse pas à temps ?",
+                "en": "What happens if I don’t repay on time?"
+            },
+            {
+                "fr": "Acceptez-vous les paiements par carte ?",
+                "en": "Do you accept card payments?"
+            },
+            {
+                "fr": "Quels sont vos horaires d’ouverture ?",
+                "en": "What are your opening hours?"
+            }
+        ]
+    },
+    {
+        "topic_fr": "Poser des questions concernant la location d’un bateau",
+        "topic_en": "Ask questions about renting a boat",
+        "questions": [
+            {
+                "fr": "Bonjour, quelles sortes de bateaux proposez-vous à la location ?",
+                "en": "Hello, what kinds of boats do you offer for rent?"
+            },
+            {
+                "fr": "Faut-il un permis pour louer un bateau chez vous ?",
+                "en": "Do I need a license to rent a boat here?"
+            },
+            {
+                "fr": "Quels sont les tarifs pour une demi-journée ou une journée entière ?",
+                "en": "What are the rates for half a day or a full day?"
+            },
+            {
+                "fr": "Le carburant est-il inclus dans le prix ?",
+                "en": "Is fuel included in the price?"
+            },
+            {
+                "fr": "Combien de personnes peuvent monter à bord ?",
+                "en": "How many people can go on board?"
+            },
+            {
+                "fr": "Proposez-vous des gilets de sauvetage ?",
+                "en": "Do you provide life jackets?"
+            },
+            {
+                "fr": "Est-ce possible de louer avec un skipper ?",
+                "en": "Is it possible to rent with a skipper?"
+            },
+            {
+                "fr": "Puis-je réserver en ligne ?",
+                "en": "Can I book online?"
+            },
+            {
+                "fr": "Y a-t-il une caution à payer ?",
+                "en": "Is there a deposit to pay?"
+            },
+            {
+                "fr": "Que se passe-t-il en cas de mauvais temps ?",
+                "en": "What happens in case of bad weather?"
+            },
+            {
+                "fr": "Acceptez-vous les enfants à bord ?",
+                "en": "Do you allow children on board?"
+            },
+            {
+                "fr": "Proposez-vous des excursions guidées ?",
+                "en": "Do you offer guided tours?"
+            },
+            {
+                "fr": "Quels documents dois-je présenter pour la location ?",
+                "en": "What documents do I need for the rental?"
+            },
+            {
+                "fr": "Puis-je annuler ma réservation sans frais ?",
+                "en": "Can I cancel my booking without fees?"
+            },
+            {
+                "fr": "À quelle heure faut-il rendre le bateau ?",
+                "en": "What time should I return the boat?"
+            }
+        ]
+    },
+    {
+        "topic_fr": "Poser des questions à propos d’une boutique en ligne qui vend des lunettes",
+        "topic_en": "Ask questions about an online store that sells eyeglasses",
+        "questions": [
+            {
+                "fr": "Bonjour, est-ce que vous vendez des lunettes de vue et de soleil ?",
+                "en": "Hello, do you sell prescription glasses and sunglasses?"
+            },
+            {
+                "fr": "Puis-je essayer les modèles virtuellement ?",
+                "en": "Can I try the models virtually?"
+            },
+            {
+                "fr": "Proposez-vous la livraison gratuite ?",
+                "en": "Do you offer free delivery?"
+            },
+            {
+                "fr": "Combien de temps faut-il pour recevoir les lunettes ?",
+                "en": "How long does it take to receive the glasses?"
+            },
+            {
+                "fr": "Acceptez-vous les ordonnances électroniques ?",
+                "en": "Do you accept electronic prescriptions?"
+            },
+            {
+                "fr": "Quels sont les moyens de paiement disponibles ?",
+                "en": "What payment methods are available?"
+            },
+            {
+                "fr": "Offrez-vous une garantie sur les verres ?",
+                "en": "Do you offer a warranty on the lenses?"
+            },
+            {
+                "fr": "Puis-je retourner un article s’il ne me va pas ?",
+                "en": "Can I return an item if it doesn’t fit?"
+            },
+            {
+                "fr": "Avez-vous un service client par téléphone ?",
+                "en": "Do you have a customer service phone line?"
+            },
+            {
+                "fr": "Est-ce que les montures sont de marques connues ?",
+                "en": "Are the frames from well-known brands?"
+            },
+            {
+                "fr": "Puis-je commander plusieurs modèles pour choisir ensuite ?",
+                "en": "Can I order several models and choose later?"
+            },
+            {
+                "fr": "Faites-vous des promotions régulièrement ?",
+                "en": "Do you offer regular promotions?"
+            },
+            {
+                "fr": "Les prix affichés incluent-ils les verres correcteurs ?",
+                "en": "Do the listed prices include corrective lenses?"
+            },
+            {
+                "fr": "Proposez-vous des verres anti-lumière bleue ?",
+                "en": "Do you offer blue light filter lenses?"
+            },
+            {
+                "fr": "Que faire si ma commande arrive endommagée ?",
+                "en": "What should I do if my order arrives damaged?"
+            }
+        ]
+    },
+    {
+        "topic_fr": "Poser des questions sur un service de bénévolat",
+        "topic_en": "Ask questions about a volunteer service",
+        "questions": [
+            {
+                "fr": "Bonjour, quels types d’activités proposez-vous aux bénévoles ?",
+                "en": "Hello, what types of activities do you offer for volunteers?"
+            },
+            {
+                "fr": "Faut-il une expérience particulière pour participer ?",
+                "en": "Do I need specific experience to take part?"
+            },
+            {
+                "fr": "Combien d’heures par semaine faut-il consacrer ?",
+                "en": "How many hours per week are required?"
+            },
+            {
+                "fr": "Proposez-vous une formation avant de commencer ?",
+                "en": "Do you offer training before starting?"
+            },
+            {
+                "fr": "Y a-t-il une limite d’âge pour les bénévoles ?",
+                "en": "Is there an age limit for volunteers?"
+            },
+            {
+                "fr": "Est-ce que je peux choisir les jours où je participe ?",
+                "en": "Can I choose the days when I volunteer?"
+            },
+            {
+                "fr": "Où se déroulent les activités ?",
+                "en": "Where do the activities take place?"
+            },
+            {
+                "fr": "Recevons-nous un certificat de participation ?",
+                "en": "Do we receive a participation certificate?"
+            },
+            {
+                "fr": "Puis-je venir avec un ami ?",
+                "en": "Can I come with a friend?"
+            },
+            {
+                "fr": "Faut-il parler français couramment ?",
+                "en": "Do I need to speak French fluently?"
+            },
+            {
+                "fr": "Est-ce que les frais de transport sont remboursés ?",
+                "en": "Are transportation costs reimbursed?"
+            },
+            {
+                "fr": "Proposez-vous des activités le week-end ?",
+                "en": "Do you offer activities on weekends?"
+            },
+            {
+                "fr": "Combien de bénévoles travaillent en même temps ?",
+                "en": "How many volunteers work at the same time?"
+            },
+            {
+                "fr": "Puis-je choisir le domaine d’action qui m’intéresse ?",
+                "en": "Can I choose the area of work that interests me?"
+            },
+            {
+                "fr": "À qui dois-je m’adresser pour m’inscrire ?",
+                "en": "Who should I contact to register?"
+            }
+        ]
+    },
+    {
+        "topic_fr": "Demander des renseignements sur une banque 100 % en ligne",
+        "topic_en": "Ask questions about a fully online bank",
+        "questions": [
+            {
+                "fr": "Bonjour, est-ce que votre banque fonctionne uniquement en ligne ?",
+                "en": "Hello, does your bank operate entirely online?"
+            },
+            {
+                "fr": "Quels types de comptes proposez-vous ?",
+                "en": "What types of accounts do you offer?"
+            },
+            {
+                "fr": "Y a-t-il des frais de gestion de compte ?",
+                "en": "Are there any account management fees?"
+            },
+            {
+                "fr": "Comment puis-je déposer de l’argent si vous n’avez pas d’agence ?",
+                "en": "How can I deposit money if you don’t have branches?"
+            },
+            {
+                "fr": "Est-ce que l’application mobile est gratuite ?",
+                "en": "Is the mobile app free?"
+            },
+            {
+                "fr": "Comment se passe l’ouverture d’un compte ?",
+                "en": "How does account opening work?"
+            },
+            {
+                "fr": "Proposez-vous des cartes de crédit ?",
+                "en": "Do you offer credit cards?"
+            },
+            {
+                "fr": "Y a-t-il un service client disponible par téléphone ?",
+                "en": "Is there customer service available by phone?"
+            },
+            {
+                "fr": "Puis-je faire un virement international ?",
+                "en": "Can I make an international transfer?"
+            },
+            {
+                "fr": "Offrez-vous des prêts personnels ?",
+                "en": "Do you offer personal loans?"
+            },
+            {
+                "fr": "Quels sont les avantages d’une banque 100 % en ligne ?",
+                "en": "What are the advantages of a fully online bank?"
+            },
+            {
+                "fr": "Comment protégez-vous mes informations personnelles ?",
+                "en": "How do you protect my personal information?"
+            },
+            {
+                "fr": "Puis-je ouvrir un compte joint ?",
+                "en": "Can I open a joint account?"
+            },
+            {
+                "fr": "Quels documents dois-je fournir pour m’inscrire ?",
+                "en": "What documents do I need to sign up?"
+            },
+            {
+                "fr": "Combien de temps faut-il pour activer le compte ?",
+                "en": "How long does it take to activate the account?"
+            }
+        ]
+    },
+    {
+        "topic_fr": "Demander des informations sur une bibliothèque numérique",
+        "topic_en": "Ask questions about a digital library",
+        "questions": [
+            {
+                "fr": "Bonjour, comment puis-je m’inscrire à votre bibliothèque numérique ?",
+                "en": "Hello, how can I register for your digital library?"
+            },
+            {
+                "fr": "Est-ce que l’inscription est gratuite ?",
+                "en": "Is the registration free?"
+            },
+            {
+                "fr": "Quels types de livres proposez-vous en ligne ?",
+                "en": "What types of books do you offer online?"
+            },
+            {
+                "fr": "Puis-je lire les livres sur mon téléphone ?",
+                "en": "Can I read the books on my phone?"
+            },
+            {
+                "fr": "Combien de livres puis-je emprunter à la fois ?",
+                "en": "How many books can I borrow at once?"
+            },
+            {
+                "fr": "Y a-t-il une limite de temps pour chaque emprunt ?",
+                "en": "Is there a time limit for each borrowing?"
+            },
+            {
+                "fr": "Proposez-vous des livres en plusieurs langues ?",
+                "en": "Do you offer books in multiple languages?"
+            },
+            {
+                "fr": "Faut-il installer une application spéciale ?",
+                "en": "Do I need to install a special app?"
+            },
+            {
+                "fr": "Est-ce que je peux télécharger les livres pour les lire hors ligne ?",
+                "en": "Can I download the books to read offline?"
+            },
+            {
+                "fr": "Y a-t-il aussi des magazines ou des journaux disponibles ?",
+                "en": "Are magazines or newspapers also available?"
+            },
+            {
+                "fr": "Puis-je recommander un livre à ajouter à la collection ?",
+                "en": "Can I recommend a book to add to the collection?"
+            },
+            {
+                "fr": "Offrez-vous une période d’essai gratuite ?",
+                "en": "Do you offer a free trial period?"
+            },
+            {
+                "fr": "Comment puis-je renouveler mon abonnement ?",
+                "en": "How can I renew my subscription?"
+            },
+            {
+                "fr": "Avez-vous des livres audio ?",
+                "en": "Do you have audiobooks?"
+            },
+            {
+                "fr": "Que faire si j’ai oublié mon mot de passe ?",
+                "en": "What should I do if I forget my password?"
+            }
+        ]
+    },
+    {
+        "topic_fr": "Demander des informations sur un spectacle musical avec hébergement possible",
+        "topic_en": "Ask questions about a musical show with overnight stay options",
+        "questions": [
+            {
+                "fr": "Bonjour, pouvez-vous me donner des détails sur le spectacle musical ?",
+                "en": "Hello, can you give me details about the musical show?"
+            },
+            {
+                "fr": "Combien de temps dure le spectacle ?",
+                "en": "How long does the show last?"
+            },
+            {
+                "fr": "Y a-t-il des places encore disponibles ?",
+                "en": "Are there still tickets available?"
+            },
+            {
+                "fr": "Est-ce que je peux rester une nuit ou deux sur place ?",
+                "en": "Can I stay one or two nights on-site?"
+            },
+            {
+                "fr": "Quel est le prix du séjour avec hébergement ?",
+                "en": "What is the price for the stay with accommodation?"
+            },
+            {
+                "fr": "Les repas sont-ils inclus dans le forfait ?",
+                "en": "Are meals included in the package?"
+            },
+            {
+                "fr": "Proposez-vous des chambres familiales ?",
+                "en": "Do you offer family rooms?"
+            },
+            {
+                "fr": "Puis-je réserver uniquement pour le spectacle sans hébergement ?",
+                "en": "Can I book just the show without accommodation?"
+            },
+            {
+                "fr": "Où se trouve exactement le lieu de l’événement ?",
+                "en": "Where exactly is the event located?"
+            },
+            {
+                "fr": "Y a-t-il un parking disponible ?",
+                "en": "Is parking available?"
+            },
+            {
+                "fr": "Le spectacle est-il adapté aux enfants ?",
+                "en": "Is the show suitable for children?"
+            },
+            {
+                "fr": "Faut-il réserver à l’avance ?",
+                "en": "Do I need to book in advance?"
+            },
+            {
+                "fr": "Quel type de musique est présenté ?",
+                "en": "What kind of music is performed?"
+            },
+            {
+                "fr": "Y a-t-il des réductions pour les groupes ?",
+                "en": "Are there discounts for groups?"
+            },
+            {
+                "fr": "Proposez-vous des activités autour du spectacle ?",
+                "en": "Do you offer activities around the show?"
+            }
+        ]
+    },
+    {
+        "topic_fr": "Demander des renseignements à une agence pour organiser une fête",
+        "topic_en": "Ask questions to an agency that organizes parties",
+        "questions": [
+            {
+                "fr": "Bonjour, organisez-vous des fêtes pour adultes et pour enfants ?",
+                "en": "Hello, do you organize parties for adults and children?"
+            },
+            {
+                "fr": "Quels services proposez-vous exactement ?",
+                "en": "What services do you offer exactly?"
+            },
+            {
+                "fr": "Pouvez-vous vous occuper de la décoration ?",
+                "en": "Can you take care of the decoration?"
+            },
+            {
+                "fr": "Est-ce que vous fournissez le matériel de sonorisation ?",
+                "en": "Do you provide sound equipment?"
+            },
+            {
+                "fr": "Proposez-vous un service de traiteur ?",
+                "en": "Do you offer catering services?"
+            },
+            {
+                "fr": "Combien de temps à l’avance faut-il réserver ?",
+                "en": "How long in advance should I book?"
+            },
+            {
+                "fr": "Quel est le budget minimum pour un événement ?",
+                "en": "What is the minimum budget for an event?"
+            },
+            {
+                "fr": "Pouvez-vous organiser la fête à domicile ?",
+                "en": "Can you organize the party at home?"
+            },
+            {
+                "fr": "Offrez-vous un service d’animation ou de musique ?",
+                "en": "Do you provide entertainment or music?"
+            },
+            {
+                "fr": "Y a-t-il des frais d’annulation ?",
+                "en": "Are there cancellation fees?"
+            },
+            {
+                "fr": "Combien de personnes peuvent participer ?",
+                "en": "How many people can participate?"
+            },
+            {
+                "fr": "Puis-je choisir un thème spécifique pour la fête ?",
+                "en": "Can I choose a specific theme for the party?"
+            },
+            {
+                "fr": "Fournissez-vous la vaisselle et les tables ?",
+                "en": "Do you provide dishes and tables?"
+            },
+            {
+                "fr": "Proposez-vous des formules tout compris ?",
+                "en": "Do you offer all-inclusive packages?"
+            },
+            {
+                "fr": "Avez-vous des photos d’événements déjà organisés ?",
+                "en": "Do you have photos of past events you organized?"
+            }
+        ]
+    },
+    {
+        "topic_fr": "Poser des questions pour un sondage",
+        "topic_en": "Ask questions for a survey",
+        "questions": [
+            {
+                "fr": "Bonjour, combien de personnes doivent participer à ce sondage ?",
+                "en": "Hello, how many people should participate in this survey?"
+            },
+            {
+                "fr": "Quel est le sujet principal du sondage ?",
+                "en": "What is the main topic of the survey?"
+            },
+            {
+                "fr": "Combien de temps dure le sondage ?",
+                "en": "How long does the survey take?"
+            },
+            {
+                "fr": "Est-ce un sondage anonyme ?",
+                "en": "Is this survey anonymous?"
+            },
+            {
+                "fr": "Puis-je répondre en ligne ?",
+                "en": "Can I answer online?"
+            },
+            {
+                "fr": "Y a-t-il une récompense pour la participation ?",
+                "en": "Is there a reward for participating?"
+            },
+            {
+                "fr": "Comment seront utilisées les réponses ?",
+                "en": "How will the answers be used?"
+            },
+            {
+                "fr": "Faut-il donner son nom et son adresse ?",
+                "en": "Do I need to give my name and address?"
+            },
+            {
+                "fr": "Le sondage est-il destiné à une tranche d’âge précise ?",
+                "en": "Is the survey for a specific age group?"
+            },
+            {
+                "fr": "Est-ce que les résultats seront publiés ?",
+                "en": "Will the results be published?"
+            },
+            {
+                "fr": "Combien de questions contient le sondage ?",
+                "en": "How many questions does the survey contain?"
+            },
+            {
+                "fr": "Puis-je recevoir une copie de mes réponses ?",
+                "en": "Can I get a copy of my answers?"
+            },
+            {
+                "fr": "Est-ce que le sondage se fait par téléphone ou en personne ?",
+                "en": "Is the survey done by phone or in person?"
+            },
+            {
+                "fr": "Y a-t-il une date limite pour répondre ?",
+                "en": "Is there a deadline to respond?"
+            },
+            {
+                "fr": "Est-ce que je peux poser des questions sur le sujet avant de répondre ?",
+                "en": "Can I ask questions about the topic before answering?"
+            }
+        ]
+    },
+    {
+        "topic_fr": "Se renseigner sur une activité de scooter nautique",
+        "topic_en": "Ask about a jet-ski activity",
+        "questions": [
+            {
+                "fr": "Bonjour, est-ce que vous proposez des locations de scooters nautiques ?",
+                "en": "Hello, do you offer jet-ski rentals?"
+            },
+            {
+                "fr": "Faut-il un permis pour en faire ?",
+                "en": "Do I need a license to ride one?"
+            },
+            {
+                "fr": "Quel est le prix pour une séance ?",
+                "en": "What is the price for one session?"
+            },
+            {
+                "fr": "Combien de temps dure une sortie ?",
+                "en": "How long does a ride last?"
+            },
+            {
+                "fr": "Peut-on être deux sur un scooter ?",
+                "en": "Can two people ride on one jet-ski?"
+            },
+            {
+                "fr": "Fournissez-vous les gilets de sauvetage ?",
+                "en": "Do you provide life jackets?"
+            },
+            {
+                "fr": "Faut-il réserver à l’avance ?",
+                "en": "Do I need to book in advance?"
+            },
+            {
+                "fr": "Est-ce que l’activité est encadrée par un moniteur ?",
+                "en": "Is the activity supervised by an instructor?"
+            },
+            {
+                "fr": "À partir de quel âge peut-on participer ?",
+                "en": "From what age can you participate?"
+            },
+            {
+                "fr": "Où se déroule l’activité exactement ?",
+                "en": "Where exactly does the activity take place?"
+            },
+            {
+                "fr": "Y a-t-il un casier pour garder nos affaires ?",
+                "en": "Is there a locker to store our belongings?"
+            },
+            {
+                "fr": "Que se passe-t-il en cas de mauvais temps ?",
+                "en": "What happens in case of bad weather?"
+            },
+            {
+                "fr": "Proposez-vous des tarifs pour les groupes ?",
+                "en": "Do you offer group rates?"
+            },
+            {
+                "fr": "Est-ce que des photos sont incluses dans le prix ?",
+                "en": "Are photos included in the price?"
+            },
+            {
+                "fr": "Quels vêtements faut-il porter pour l’activité ?",
+                "en": "What clothing should we wear for the activity?"
+            }
+        ]
+    },
+    {
+        "topic_fr": "Se renseigner sur un service d’entretien automobile",
+        "topic_en": "Inquire about a car maintenance service",
+        "questions": [
+            {
+                "fr": "Bonjour, quels types de services d’entretien proposez-vous ?",
+                "en": "Hello, what types of maintenance services do you offer?"
+            },
+            {
+                "fr": "Faut-il prendre rendez-vous à l’avance ?",
+                "en": "Do I need to make an appointment in advance?"
+            },
+            {
+                "fr": "Pouvez-vous faire la vidange et le changement de filtres ?",
+                "en": "Can you do the oil change and filter replacement?"
+            },
+            {
+                "fr": "Combien de temps dure une révision complète ?",
+                "en": "How long does a full inspection take?"
+            },
+            {
+                "fr": "Proposez-vous un devis gratuit ?",
+                "en": "Do you offer a free estimate?"
+            },
+            {
+                "fr": "Est-ce que vous utilisez des pièces d’origine ?",
+                "en": "Do you use original parts?"
+            },
+            {
+                "fr": "Puis-je attendre sur place pendant la réparation ?",
+                "en": "Can I wait on-site during the repair?"
+            },
+            {
+                "fr": "Quels sont vos horaires d’ouverture ?",
+                "en": "What are your opening hours?"
+            },
+            {
+                "fr": "Offrez-vous un service de dépannage ?",
+                "en": "Do you offer a breakdown service?"
+            },
+            {
+                "fr": "Acceptez-vous les paiements par carte ?",
+                "en": "Do you accept card payments?"
+            },
+            {
+                "fr": "Proposez-vous un lavage de voiture après la réparation ?",
+                "en": "Do you offer a car wash after the repair?"
+            },
+            {
+                "fr": "Faites-vous des contrôles techniques ?",
+                "en": "Do you perform vehicle inspections?"
+            },
+            {
+                "fr": "Puis-je apporter mes propres pièces ?",
+                "en": "Can I bring my own parts?"
+            },
+            {
+                "fr": "Y a-t-il une garantie sur vos services ?",
+                "en": "Is there a warranty on your services?"
+            },
+            {
+                "fr": "Quels sont vos tarifs pour une petite réparation ?",
+                "en": "What are your prices for a minor repair?"
+            }
+        ]
+    },
+    {
+        "topic_fr": "Poser des questions dans un magasin de costumes",
+        "topic_en": "Inquire about a costume clothing store",
+        "questions": [
+            {
+                "fr": "Bonjour, proposez-vous des costumes pour adultes et enfants ?",
+                "en": "Hello, do you offer costumes for adults and children?"
+            },
+            {
+                "fr": "Puis-je louer un costume au lieu de l’acheter ?",
+                "en": "Can I rent a costume instead of buying it?"
+            },
+            {
+                "fr": "Quels sont vos thèmes de costumes disponibles ?",
+                "en": "What costume themes do you have available?"
+            },
+            {
+                "fr": "Combien de temps puis-je garder un costume loué ?",
+                "en": "How long can I keep a rented costume?"
+            },
+            {
+                "fr": "Faut-il laisser une caution ?",
+                "en": "Do I need to leave a deposit?"
+            },
+            {
+                "fr": "Faites-vous des retouches si le costume ne va pas parfaitement ?",
+                "en": "Do you make adjustments if the costume doesn’t fit perfectly?"
+            },
+            {
+                "fr": "Est-ce que je peux réserver un costume à l’avance ?",
+                "en": "Can I reserve a costume in advance?"
+            },
+            {
+                "fr": "Avez-vous des accessoires comme des perruques ou des masques ?",
+                "en": "Do you have accessories like wigs or masks?"
+            },
+            {
+                "fr": "Proposez-vous des réductions pour les groupes ?",
+                "en": "Do you offer group discounts?"
+            },
+            {
+                "fr": "Puis-je rendre le costume par la poste ?",
+                "en": "Can I return the costume by mail?"
+            },
+            {
+                "fr": "Quels sont vos horaires d’ouverture ?",
+                "en": "What are your opening hours?"
+            },
+            {
+                "fr": "Acceptez-vous les paiements en ligne ?",
+                "en": "Do you accept online payments?"
+            },
+            {
+                "fr": "Est-ce que je peux essayer les costumes sur place ?",
+                "en": "Can I try the costumes on-site?"
+            },
+            {
+                "fr": "Avez-vous des costumes pour Halloween ?",
+                "en": "Do you have Halloween costumes?"
+            },
+            {
+                "fr": "Que se passe-t-il si j’abîme le costume ?",
+                "en": "What happens if I damage the costume?"
+            }
+        ]
+    },
+    {
+        "topic_fr": "Appeler et poser des questions sur un service de garde pour animaux",
+        "topic_en": "Call and ask about a pet-sitting service",
+        "questions": [
+            {
+                "fr": "Bonjour, quels types d’animaux acceptez-vous ?",
+                "en": "Hello, what types of animals do you accept?"
+            },
+            {
+                "fr": "Proposez-vous un service à domicile ?",
+                "en": "Do you offer home visits?"
+            },
+            {
+                "fr": "Combien de temps dure une visite par jour ?",
+                "en": "How long is each visit per day?"
+            },
+            {
+                "fr": "Est-ce que vous promenez les chiens ?",
+                "en": "Do you walk the dogs?"
+            },
+            {
+                "fr": "Quel est le tarif journalier ?",
+                "en": "What is the daily rate?"
+            },
+            {
+                "fr": "Puis-je visiter les lieux avant de confier mon animal ?",
+                "en": "Can I visit the place before leaving my pet?"
+            },
+            {
+                "fr": "Faut-il fournir la nourriture ?",
+                "en": "Do I need to provide the food?"
+            },
+            {
+                "fr": "Acceptez-vous les animaux malades ou âgés ?",
+                "en": "Do you accept sick or elderly animals?"
+            },
+            {
+                "fr": "Est-ce que les animaux dorment ensemble ou séparément ?",
+                "en": "Do the animals sleep together or separately?"
+            },
+            {
+                "fr": "Offrez-vous un service de toilettage ?",
+                "en": "Do you offer grooming services?"
+            },
+            {
+                "fr": "Puis-je recevoir des nouvelles ou des photos chaque jour ?",
+                "en": "Can I receive updates or photos every day?"
+            },
+            {
+                "fr": "Que se passe-t-il en cas d’urgence médicale ?",
+                "en": "What happens in case of a medical emergency?"
+            },
+            {
+                "fr": "Est-ce que le personnel est formé pour les soins animaliers ?",
+                "en": "Is the staff trained for animal care?"
+            },
+            {
+                "fr": "Y a-t-il des réductions pour les longues périodes ?",
+                "en": "Are there discounts for long stays?"
+            },
+            {
+                "fr": "Quels sont vos horaires de dépôt et de récupération ?",
+                "en": "What are your drop-off and pick-up times?"
+            }
+        ]
+    },
+    {
+        "topic_fr": "Appeler une boulangerie qui livre des petits-déjeuners",
+        "topic_en": "Call a bakery that delivers breakfast",
+        "questions": [
+            {
+                "fr": "Bonjour, proposez-vous la livraison de petit-déjeuner à domicile ?",
+                "en": "Hello, do you offer home delivery for breakfast?"
+            },
+            {
+                "fr": "Quels types de formules proposez-vous ?",
+                "en": "What types of breakfast packages do you offer?"
+            },
+            {
+                "fr": "Peut-on choisir les produits dans le menu ?",
+                "en": "Can we choose the items from the menu?"
+            },
+            {
+                "fr": "Faites-vous des options végétariennes ?",
+                "en": "Do you offer vegetarian options?"
+            },
+            {
+                "fr": "À quelle heure commencez-vous les livraisons ?",
+                "en": "What time do your deliveries start?"
+            },
+            {
+                "fr": "Est-ce qu’il faut commander la veille ?",
+                "en": "Do I need to order the day before?"
+            },
+            {
+                "fr": "Quel est le prix minimum pour une livraison ?",
+                "en": "What is the minimum order price for delivery?"
+            },
+            {
+                "fr": "Livrez-vous aussi les week-ends ?",
+                "en": "Do you deliver on weekends as well?"
+            },
+            {
+                "fr": "Proposez-vous du café ou des jus de fruits ?",
+                "en": "Do you offer coffee or fruit juices?"
+            },
+            {
+                "fr": "Puis-je envoyer un petit-déjeuner à une autre personne ?",
+                "en": "Can I send a breakfast to someone else?"
+            },
+            {
+                "fr": "Comment puis-je payer la commande ?",
+                "en": "How can I pay for the order?"
+            },
+            {
+                "fr": "Y a-t-il des réductions pour les grandes commandes ?",
+                "en": "Are there discounts for large orders?"
+            },
+            {
+                "fr": "Faites-vous des produits sans gluten ?",
+                "en": "Do you make gluten-free products?"
+            },
+            {
+                "fr": "Quel est votre produit le plus populaire ?",
+                "en": "What is your most popular product?"
+            },
+            {
+                "fr": "Que se passe-t-il si la livraison est en retard ?",
+                "en": "What happens if the delivery is late?"
+            }
+        ]
+    },
+    {
+        "topic_fr": "Poser des questions sur une exposition culinaire 'Un printemps de chefs'",
+        "topic_en": "Ask questions about a culinary art exhibition 'A Spring of Chefs'",
+        "questions": [
+            {
+                "fr": "Bonjour, pouvez-vous me parler de l’événement 'Un printemps de chefs' ?",
+                "en": "Hello, can you tell me about the 'A Spring of Chefs' event?"
+            },
+            {
+                "fr": "Où et quand aura lieu l’exposition ?",
+                "en": "Where and when will the exhibition take place?"
+            },
+            {
+                "fr": "Faut-il acheter les billets à l’avance ?",
+                "en": "Do we need to buy tickets in advance?"
+            },
+            {
+                "fr": "Combien coûte l’entrée ?",
+                "en": "How much is the entry fee?"
+            },
+            {
+                "fr": "Quels chefs célèbres seront présents ?",
+                "en": "Which famous chefs will be there?"
+            },
+            {
+                "fr": "Y aura-t-il des ateliers de cuisine ?",
+                "en": "Will there be cooking workshops?"
+            },
+            {
+                "fr": "Est-ce qu’on peut goûter les plats préparés ?",
+                "en": "Can we taste the dishes prepared?"
+            },
+            {
+                "fr": "Le concours est-il ouvert au public ?",
+                "en": "Is the competition open to the public?"
+            },
+            {
+                "fr": "Proposez-vous des activités pour les enfants ?",
+                "en": "Do you offer activities for children?"
+            },
+            {
+                "fr": "Est-ce que les places sont limitées ?",
+                "en": "Are the spots limited?"
+            },
+            {
+                "fr": "Y a-t-il des réductions pour les étudiants ?",
+                "en": "Are there discounts for students?"
+            },
+            {
+                "fr": "Combien de jours dure l’événement ?",
+                "en": "How many days does the event last?"
+            },
+            {
+                "fr": "Puis-je participer à un atelier sans inscription ?",
+                "en": "Can I join a workshop without registration?"
+            },
+            {
+                "fr": "Est-ce que les dégustations sont payantes ?",
+                "en": "Are the tastings free or paid?"
+            },
+            {
+                "fr": "Comment puis-je devenir bénévole pendant l’événement ?",
+                "en": "How can I volunteer during the event?"
+            }
+        ]
+    },
+    {
+        "topic_fr": "Poser des questions sur des vacances en train",
+        "topic_en": "Ask questions about spending vacation on a train",
+        "questions": [
+            {
+                "fr": "Bonjour, pouvez-vous m’expliquer en quoi consiste le séjour en train ?",
+                "en": "Hello, can you explain what the train vacation consists of?"
+            },
+            {
+                "fr": "Combien de jours dure le voyage ?",
+                "en": "How many days does the trip last?"
+            },
+            {
+                "fr": "Quels pays ou régions traverse le train ?",
+                "en": "Which countries or regions does the train pass through?"
+            },
+            {
+                "fr": "Les repas sont-ils inclus dans le prix ?",
+                "en": "Are meals included in the price?"
+            },
+            {
+                "fr": "Est-ce qu’il y a des arrêts touristiques pendant le trajet ?",
+                "en": "Are there tourist stops during the journey?"
+            },
+            {
+                "fr": "Peut-on dormir à bord du train ?",
+                "en": "Can we sleep on board the train?"
+            },
+            {
+                "fr": "Y a-t-il différentes classes de confort ?",
+                "en": "Are there different comfort classes?"
+            },
+            {
+                "fr": "Quel est le prix moyen pour une semaine ?",
+                "en": "What is the average price for a week?"
+            },
+            {
+                "fr": "Faut-il réserver longtemps à l’avance ?",
+                "en": "Do we need to book well in advance?"
+            },
+            {
+                "fr": "Proposez-vous des réductions pour les familles ?",
+                "en": "Do you offer discounts for families?"
+            },
+            {
+                "fr": "Y a-t-il des activités à bord ?",
+                "en": "Are there activities on board?"
+            },
+            {
+                "fr": "Est-ce que le train est accessible aux personnes à mobilité réduite ?",
+                "en": "Is the train accessible for people with reduced mobility?"
+            },
+            {
+                "fr": "Quelle est la meilleure saison pour ce voyage ?",
+                "en": "What is the best season for this trip?"
+            },
+            {
+                "fr": "Peut-on descendre du train et remonter plus tard ?",
+                "en": "Can we get off the train and rejoin it later?"
+            },
+            {
+                "fr": "Est-ce que les animaux sont acceptés ?",
+                "en": "Are pets allowed?"
+            }
+        ]
+    },
+    {
+        "topic_fr": "Demander des informations sur un festival de musique dans un parc",
+        "topic_en": "Ask questions about a music festival in a park",
+        "questions": [
+            {
+                "fr": "Bonjour, où se déroule le festival ?",
+                "en": "Hello, where is the festival taking place?"
+            },
+            {
+                "fr": "Combien de jours dure l’événement ?",
+                "en": "How many days does the event last?"
+            },
+            {
+                "fr": "Quels groupes vont se produire ?",
+                "en": "Which bands will perform?"
+            },
+            {
+                "fr": "Faut-il acheter les billets à l’avance ?",
+                "en": "Do we need to buy tickets in advance?"
+            },
+            {
+                "fr": "Est-ce qu’il y a une zone de restauration ?",
+                "en": "Is there a food area?"
+            },
+            {
+                "fr": "Peut-on apporter sa propre nourriture ?",
+                "en": "Can we bring our own food?"
+            },
+            {
+                "fr": "Y a-t-il un espace pour camper sur place ?",
+                "en": "Is there a camping area on-site?"
+            },
+            {
+                "fr": "Les enfants peuvent-ils participer ?",
+                "en": "Can children attend?"
+            },
+            {
+                "fr": "Quels sont les horaires des concerts ?",
+                "en": "What are the concert times?"
+            },
+            {
+                "fr": "Y aura-t-il des activités autres que la musique ?",
+                "en": "Will there be activities other than music?"
+            },
+            {
+                "fr": "Quels sont les moyens de transport pour y aller ?",
+                "en": "What transportation options are available to get there?"
+            },
+            {
+                "fr": "Est-ce que le festival est accessible aux personnes handicapées ?",
+                "en": "Is the festival accessible for people with disabilities?"
+            },
+            {
+                "fr": "Faut-il présenter une pièce d’identité à l’entrée ?",
+                "en": "Do we need to show an ID at the entrance?"
+            },
+            {
+                "fr": "Proposez-vous des billets à la journée ?",
+                "en": "Do you offer one-day tickets?"
+            },
+            {
+                "fr": "Est-ce que l’événement a lieu même en cas de pluie ?",
+                "en": "Does the event take place even if it rains?"
+            }
+        ]
+    },
+    {
+        "topic_fr": "Poser des questions sur une activité de football en bulle",
+        "topic_en": "Ask questions about a bubble football activity",
+        "questions": [
+            {
+                "fr": "Bonjour, comment fonctionne l’activité de football en bulle ?",
+                "en": "Hello, how does the bubble football activity work?"
+            },
+            {
+                "fr": "Faut-il une condition physique particulière ?",
+                "en": "Do we need a particular physical condition?"
+            },
+            {
+                "fr": "Combien de personnes peuvent jouer en même temps ?",
+                "en": "How many people can play at the same time?"
+            },
+            {
+                "fr": "Combien coûte une séance ?",
+                "en": "How much does a session cost?"
+            },
+            {
+                "fr": "Combien de temps dure une partie ?",
+                "en": "How long does a match last?"
+            },
+            {
+                "fr": "Faut-il réserver à l’avance ?",
+                "en": "Do we need to book in advance?"
+            },
+            {
+                "fr": "Fournissez-vous les équipements nécessaires ?",
+                "en": "Do you provide the required equipment?"
+            },
+            {
+                "fr": "Est-ce qu’il y a des vestiaires sur place ?",
+                "en": "Are there changing rooms on-site?"
+            },
+            {
+                "fr": "Proposez-vous des formules pour groupes ou entreprises ?",
+                "en": "Do you offer group or company packages?"
+            },
+            {
+                "fr": "Les enfants peuvent-ils participer ?",
+                "en": "Can children take part?"
+            },
+            {
+                "fr": "L’activité se fait-elle en intérieur ou en extérieur ?",
+                "en": "Is the activity indoors or outdoors?"
+            },
+            {
+                "fr": "Quelles sont vos mesures de sécurité ?",
+                "en": "What are your safety measures?"
+            },
+            {
+                "fr": "Puis-je annuler si le temps est mauvais ?",
+                "en": "Can I cancel if the weather is bad?"
+            },
+            {
+                "fr": "Proposez-vous des réductions pour les groupes ?",
+                "en": "Do you offer discounts for groups?"
+            },
+            {
+                "fr": "Comment puis-je payer la réservation ?",
+                "en": "How can I pay for the reservation?"
+            }
+        ]
+    },
+    {
+        "topic_fr": "Se renseigner sur un club de marche",
+        "topic_en": "Ask questions about a walking club",
+        "questions": [
+            {
+                "fr": "Bonjour, comment puis-je m’inscrire à votre club de marche ?",
+                "en": "Hello, how can I join your walking club?"
+            },
+            {
+                "fr": "Combien de fois par semaine faites-vous des sorties ?",
+                "en": "How many times a week do you go out walking?"
+            },
+            {
+                "fr": "À quelle heure commencent les marches ?",
+                "en": "What time do the walks start?"
+            },
+            {
+                "fr": "Où se trouvent les points de départ ?",
+                "en": "Where are the starting points?"
+            },
+            {
+                "fr": "Y a-t-il différents niveaux de difficulté ?",
+                "en": "Are there different levels of difficulty?"
+            },
+            {
+                "fr": "Combien coûte l’adhésion au club ?",
+                "en": "How much is the club membership?"
+            },
+            {
+                "fr": "Faut-il apporter son propre équipement ?",
+                "en": "Do we need to bring our own equipment?"
+            },
+            {
+                "fr": "Proposez-vous des sorties spéciales le week-end ?",
+                "en": "Do you organize special outings on weekends?"
+            },
+            {
+                "fr": "Le club accepte-t-il les débutants ?",
+                "en": "Does the club accept beginners?"
+            },
+            {
+                "fr": "Faut-il fournir un certificat médical ?",
+                "en": "Do we need to provide a medical certificate?"
+            },
+            {
+                "fr": "Combien de personnes participent en moyenne ?",
+                "en": "How many people usually participate?"
+            },
+            {
+                "fr": "Organisez-vous des randonnées dans d’autres villes ?",
+                "en": "Do you organize hikes in other cities?"
+            },
+            {
+                "fr": "Avez-vous une assurance en cas d’accident ?",
+                "en": "Do you have insurance in case of an accident?"
+            },
+            {
+                "fr": "Peut-on venir essayer avant de s’inscrire ?",
+                "en": "Can we try a session before signing up?"
+            },
+            {
+                "fr": "Comment restez-vous en contact avec les membres ?",
+                "en": "How do you keep in touch with members?"
+            }
+        ]
+    },
+    {
+        "topic_fr": "Demander des renseignements sur le nouveau catalogue d’une agence de voyage",
+        "topic_en": "Ask questions about a travel agency's new catalogue",
+        "questions": [
+            {
+                "fr": "Bonjour, quand sort votre nouveau catalogue de voyages ?",
+                "en": "Hello, when will your new travel catalogue be released?"
+            },
+            {
+                "fr": "Quels types de destinations proposez-vous cette année ?",
+                "en": "What kinds of destinations are you offering this year?"
+            },
+            {
+                "fr": "Est-il possible de recevoir le catalogue par la poste ?",
+                "en": "Is it possible to receive the catalogue by mail?"
+            },
+            {
+                "fr": "Peut-on le consulter en ligne ?",
+                "en": "Can we view it online?"
+            },
+            {
+                "fr": "Y a-t-il des offres spéciales ou des promotions ?",
+                "en": "Are there any special offers or promotions?"
+            },
+            {
+                "fr": "Proposez-vous des circuits pour familles ?",
+                "en": "Do you offer tours for families?"
+            },
+            {
+                "fr": "Avez-vous des voyages écologiques ou durables ?",
+                "en": "Do you have eco-friendly or sustainable trips?"
+            },
+            {
+                "fr": "Organisez-vous des séjours tout compris ?",
+                "en": "Do you organize all-inclusive stays?"
+            },
+            {
+                "fr": "Comment réserver un voyage à partir du catalogue ?",
+                "en": "How can we book a trip from the catalogue?"
+            },
+            {
+                "fr": "Peut-on payer en plusieurs fois ?",
+                "en": "Can we pay in installments?"
+            },
+            {
+                "fr": "Y a-t-il des réductions pour les groupes ?",
+                "en": "Are there discounts for groups?"
+            },
+            {
+                "fr": "Le catalogue comprend-il des photos des destinations ?",
+                "en": "Does the catalogue include photos of the destinations?"
+            },
+            {
+                "fr": "Faut-il créer un compte pour réserver ?",
+                "en": "Do we need to create an account to book?"
+            },
+            {
+                "fr": "Puis-je passer en agence pour plus d’informations ?",
+                "en": "Can I come to the agency for more information?"
+            },
+            {
+                "fr": "Quand aura lieu la prochaine mise à jour du catalogue ?",
+                "en": "When will the next update of the catalogue take place?"
+            }
+        ]
+    },
+    {
+        "topic_fr": "Se renseigner sur un séjour dans un château entre montagne et rivière",
+        "topic_en": "Inquire about a stay in a château between mountains and river",
+        "questions": [
+            {
+                "fr": "Bonjour, pouvez-vous me décrire le château et son emplacement ?",
+                "en": "Hello, can you describe the château and its location?"
+            },
+            {
+                "fr": "Quels types de chambres proposez-vous ?",
+                "en": "What types of rooms do you offer?"
+            },
+            {
+                "fr": "Le petit-déjeuner est-il inclus ?",
+                "en": "Is breakfast included?"
+            },
+            {
+                "fr": "Y a-t-il un restaurant sur place ?",
+                "en": "Is there a restaurant on-site?"
+            },
+            {
+                "fr": "Organisez-vous des visites guidées du château ?",
+                "en": "Do you organize guided tours of the château?"
+            },
+            {
+                "fr": "Quels sont les tarifs pour une nuit ?",
+                "en": "What are the rates for one night?"
+            },
+            {
+                "fr": "Proposez-vous des activités pour les enfants ?",
+                "en": "Do you offer activities for children?"
+            },
+            {
+                "fr": "Y a-t-il un spa ou un espace bien-être ?",
+                "en": "Is there a spa or wellness area?"
+            },
+            {
+                "fr": "Puis-je réserver un atelier gastronomique ?",
+                "en": "Can I book a cooking workshop?"
+            },
+            {
+                "fr": "Est-ce que les animaux sont acceptés ?",
+                "en": "Are pets allowed?"
+            },
+            {
+                "fr": "Offrez-vous des vues sur la rivière ou la montagne ?",
+                "en": "Do you offer views of the river or the mountains?"
+            },
+            {
+                "fr": "Avez-vous des réductions pour les longs séjours ?",
+                "en": "Do you offer discounts for long stays?"
+            },
+            {
+                "fr": "Le château est-il accessible en transport public ?",
+                "en": "Is the château accessible by public transport?"
+            },
+            {
+                "fr": "Proposez-vous des repas typiques de la région ?",
+                "en": "Do you offer local or regional meals?"
+            },
+            {
+                "fr": "Est-ce que je peux organiser un atelier pour enfants pendant le séjour ?",
+                "en": "Can I organize a workshop for children during the stay?"
+            }
+        ]
+    },
+    {
+        "topic_fr": "Appeler la bibliothèque locale pour obtenir des informations sur ses services",
+        "topic_en": "Call your local library to get information on its services",
+        "questions": [
+            {
+                "fr": "Bonjour, quels services propose votre bibliothèque ?",
+                "en": "Hello, what services does your library offer?"
+            },
+            {
+                "fr": "Peut-on réserver une salle de réunion ?",
+                "en": "Can we reserve a meeting room?"
+            },
+            {
+                "fr": "Quels types de livres puis-je emprunter ?",
+                "en": "What kinds of books can I borrow?"
+            },
+            {
+                "fr": "Combien de temps puis-je garder un livre ?",
+                "en": "How long can I keep a book?"
+            },
+            {
+                "fr": "Faut-il une carte spéciale pour emprunter ?",
+                "en": "Do I need a special card to borrow?"
+            },
+            {
+                "fr": "Proposez-vous des activités pour enfants ?",
+                "en": "Do you organize activities for children?"
+            },
+            {
+                "fr": "Y a-t-il un accès Internet ou Wi-Fi gratuit ?",
+                "en": "Is there free Internet or Wi-Fi access?"
+            },
+            {
+                "fr": "Puis-je emprunter des livres numériques ?",
+                "en": "Can I borrow digital books?"
+            },
+            {
+                "fr": "Quels sont vos horaires d’ouverture ?",
+                "en": "What are your opening hours?"
+            },
+            {
+                "fr": "Est-ce que la bibliothèque est ouverte le week-end ?",
+                "en": "Is the library open on weekends?"
+            },
+            {
+                "fr": "Faites-vous des formations ou ateliers pour adultes ?",
+                "en": "Do you offer workshops for adults?"
+            },
+            {
+                "fr": "Peut-on prolonger un emprunt en ligne ?",
+                "en": "Can we renew a loan online?"
+            },
+            {
+                "fr": "Y a-t-il un espace de travail calme ?",
+                "en": "Is there a quiet workspace available?"
+            },
+            {
+                "fr": "Acceptez-vous les dons de livres ?",
+                "en": "Do you accept book donations?"
+            },
+            {
+                "fr": "Comment puis-je devenir membre ?",
+                "en": "How can I become a member?"
+            }
+        ]
+    },
+    {
+        "topic_fr": "Demander des renseignements sur des cours de ski et de snowboard",
+        "topic_en": "Ask questions about skiing and snowboarding lessons",
+        "questions": [
+            {
+                "fr": "Bonjour, proposez-vous des cours pour débutants ?",
+                "en": "Hello, do you offer lessons for beginners?"
+            },
+            {
+                "fr": "Quels sont les tarifs pour une heure de cours ?",
+                "en": "What are the prices for a one-hour lesson?"
+            },
+            {
+                "fr": "Les cours sont-ils individuels ou en groupe ?",
+                "en": "Are the lessons individual or group?"
+            },
+            {
+                "fr": "Faut-il apporter son propre équipement ?",
+                "en": "Do we need to bring our own equipment?"
+            },
+            {
+                "fr": "L’équipement est-il inclus dans le prix ?",
+                "en": "Is equipment included in the price?"
+            },
+            {
+                "fr": "Y a-t-il des cours pour les enfants ?",
+                "en": "Are there lessons for children?"
+            },
+            {
+                "fr": "Combien de temps dure un cours débutant ?",
+                "en": "How long does a beginner lesson last?"
+            },
+            {
+                "fr": "Quels sont les horaires disponibles ?",
+                "en": "What times are available?"
+            },
+            {
+                "fr": "Est-ce que les moniteurs sont certifiés ?",
+                "en": "Are the instructors certified?"
+            },
+            {
+                "fr": "Peut-on réserver pour plusieurs jours ?",
+                "en": "Can we book for several days?"
+            },
+            {
+                "fr": "Y a-t-il un niveau minimum requis ?",
+                "en": "Is there a minimum skill level required?"
+            },
+            {
+                "fr": "Proposez-vous des forfaits famille ?",
+                "en": "Do you offer family packages?"
+            },
+            {
+                "fr": "Les cours sont-ils annulés en cas de mauvais temps ?",
+                "en": "Are lessons canceled in bad weather?"
+            },
+            {
+                "fr": "Est-ce que je peux payer sur place ?",
+                "en": "Can I pay on-site?"
+            },
+            {
+                "fr": "Faites-vous des stages pendant les vacances ?",
+                "en": "Do you organize camps during holidays?"
+            }
+        ]
+    },
+    {
+        "topic_fr": "Poser des questions sur une discothèque dans un bus",
+        "topic_en": "Ask questions about a discothèque bus",
+        "questions": [
+            {
+                "fr": "Bonjour, pouvez-vous m’expliquer le concept de la discothèque dans un bus ?",
+                "en": "Hello, can you explain the concept of the bus nightclub?"
+            },
+            {
+                "fr": "Combien de personnes peuvent monter à bord ?",
+                "en": "How many people can come on board?"
+            },
+            {
+                "fr": "Combien de temps dure la soirée ?",
+                "en": "How long does the party last?"
+            },
+            {
+                "fr": "Quel est le tarif d’entrée ?",
+                "en": "What is the entry fee?"
+            },
+            {
+                "fr": "Faut-il réserver à l’avance ?",
+                "en": "Do we need to book in advance?"
+            },
+            {
+                "fr": "Quels types de musique passez-vous ?",
+                "en": "What type of music do you play?"
+            },
+            {
+                "fr": "Y a-t-il un bar à bord ?",
+                "en": "Is there a bar on board?"
+            },
+            {
+                "fr": "Le bus s’arrête-t-il pour danser à l’extérieur ?",
+                "en": "Does the bus stop for dancing outside?"
+            },
+            {
+                "fr": "Y a-t-il un âge minimum pour participer ?",
+                "en": "Is there a minimum age to join?"
+            },
+            {
+                "fr": "Proposez-vous des soirées privées ?",
+                "en": "Do you offer private events?"
+            },
+            {
+                "fr": "Le trajet du bus est-il fixe ou change-t-il selon les soirées ?",
+                "en": "Is the bus route fixed or does it change depending on the night?"
+            },
+            {
+                "fr": "Quels sont les horaires de départ et d’arrivée ?",
+                "en": "What are the departure and arrival times?"
+            },
+            {
+                "fr": "Acceptez-vous les paiements sur place ?",
+                "en": "Do you accept payments on-site?"
+            },
+            {
+                "fr": "Est-ce que la musique est en direct ?",
+                "en": "Is the music live?"
+            },
+            {
+                "fr": "Le bus est-il climatisé ?",
+                "en": "Is the bus air-conditioned?"
+            }
+        ]
+    },
+    {
+        "topic_fr": "Poser des questions sur une bibliothèque numérique",
+        "topic_en": "Ask questions about a digital library",
+        "questions": [
+            {
+                "fr": "Bonjour, comment puis-je m’inscrire à votre bibliothèque numérique ?",
+                "en": "Hello, how can I register for your digital library?"
+            },
+            {
+                "fr": "Quels types de livres proposez-vous en ligne ?",
+                "en": "What types of books do you offer online?"
+            },
+            {
+                "fr": "Est-ce que l’inscription est gratuite ?",
+                "en": "Is registration free?"
+            },
+            {
+                "fr": "Puis-je lire les livres sur mon téléphone ?",
+                "en": "Can I read books on my phone?"
+            },
+            {
+                "fr": "Combien de livres puis-je emprunter à la fois ?",
+                "en": "How many books can I borrow at once?"
+            },
+            {
+                "fr": "Quelle est la durée d’un emprunt numérique ?",
+                "en": "How long can I keep a digital loan?"
+            },
+            {
+                "fr": "Faut-il télécharger une application spéciale ?",
+                "en": "Do I need to download a special app?"
+            },
+            {
+                "fr": "Proposez-vous aussi des magazines ou journaux ?",
+                "en": "Do you also offer magazines or newspapers?"
+            },
+            {
+                "fr": "Peut-on lire sans connexion Internet ?",
+                "en": "Can we read without an Internet connection?"
+            },
+            {
+                "fr": "Y a-t-il des livres en plusieurs langues ?",
+                "en": "Are there books in multiple languages?"
+            },
+            {
+                "fr": "Est-ce qu’il y a un service d’aide en ligne ?",
+                "en": "Is there an online help service?"
+            },
+            {
+                "fr": "Puis-je recommander un livre à ajouter ?",
+                "en": "Can I recommend a book to add?"
+            },
+            {
+                "fr": "Les livres sont-ils compatibles avec toutes les tablettes ?",
+                "en": "Are the books compatible with all tablets?"
+            },
+            {
+                "fr": "Est-ce que les enfants peuvent s’inscrire ?",
+                "en": "Can children register?"
+            },
+            {
+                "fr": "Comment prolonger un livre emprunté en ligne ?",
+                "en": "How can I renew a borrowed book online?"
+            }
+        ]
+    }
+]
