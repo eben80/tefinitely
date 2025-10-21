@@ -1,6 +1,19 @@
 -- This script updates the flashcard data for Section A, Level B1.
 
 -- Alter table structures
+-- Alter table structures (idempotent)
+-- Drop columns if they exist to ensure the script is re-runnable
+ALTER TABLE `phrases`
+  DROP COLUMN IF EXISTS `section`,
+  DROP COLUMN IF EXISTS `level`,
+  DROP COLUMN IF EXISTS `topic_fr`,
+  DROP COLUMN IF EXISTS `topic_en`;
+
+ALTER TABLE `users`
+  DROP COLUMN IF EXISTS `last_section`,
+  DROP COLUMN IF EXISTS `last_level`;
+
+-- Add the new columns
 ALTER TABLE `phrases`
   ADD COLUMN `section` VARCHAR(255) NULL DEFAULT NULL AFTER `id`,
   ADD COLUMN `level` VARCHAR(50) NULL DEFAULT NULL AFTER `theme`,
