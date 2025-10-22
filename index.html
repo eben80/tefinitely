@@ -703,16 +703,14 @@ async function populateTopics(topicSelect) {
         const data = await response.json();
         if (response.ok && data.status === 'success') {
             const topics = data.topics;
-            for (const section in topics) {
-                const optgroup = document.createElement('optgroup');
-                optgroup.label = section.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
-                topics[section].forEach(theme => {
+            // Filter for Section A topics specifically
+            if (topics['Section_A']) {
+                topics['Section_A'].forEach(topic => {
                     const option = document.createElement('option');
-                    option.value = `${section}-${theme}`;
-                    option.textContent = theme.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
-                    optgroup.appendChild(option);
+                    option.value = `Section_A-${topic.theme}`; // Use the theme directly
+                    option.textContent = topic.topic_en; // topic_en is now available
+                    topicSelect.appendChild(option);
                 });
-                topicSelect.appendChild(optgroup);
             }
         }
     } catch (error) {
@@ -822,11 +820,18 @@ function initializeMainFlashcard() {
     }
 
     async function loadPhrases(topicValue, initialCardIndex = 0) {
-        currentTopic = topicValue;
-        savePosition(currentTopic, initialCardIndex);
-        const [section, theme] = topicValue.split('-');
+        const parts = topicValue.split('-');
+        const section = parts.shift();
+        const theme = parts.join('-'); // Handles themes that might have hyphens
+
+        currentTopic = theme;
+        currentSection = section; // Keep track of section for other potential uses
         if (!section || !theme) return;
+
+        savePosition(topicValue, initialCardIndex); // Save the full original value
+
         try {
+            // The API expects section and theme, level is not used here for Section A
             const res = await fetch(`api/get_phrases.php?theme=${encodeURIComponent(theme)}&section=${encodeURIComponent(section)}`);
             phrases = await res.json();
             totalCardsSpan.textContent = phrases.length;
