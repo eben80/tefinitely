@@ -10,14 +10,13 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// 1. Fetch all unique themes, sections, levels, and their total phrase counts
+// 1. Fetch all unique themes and sections, and their total phrase counts
 $all_topics_sql = "SELECT
                         theme,
                         section,
-                        level,
                         COUNT(*) as total_phrases
                    FROM phrases
-                   GROUP BY theme, section, level";
+                   GROUP BY theme, section";
 $all_topics_result = $conn->query($all_topics_sql);
 $all_topics = [];
 while ($row = $all_topics_result->fetch_assoc()) {
@@ -28,13 +27,12 @@ while ($row = $all_topics_result->fetch_assoc()) {
 $user_progress_sql = "SELECT
                         p.theme,
                         p.section,
-                        p.level,
                         COUNT(DISTINCT up.phrase_id) as phrases_covered,
                         AVG(up.matching_quality) as average_matching_quality
                       FROM user_progress up
                       JOIN phrases p ON up.phrase_id = p.id
                       WHERE up.user_id = ?
-                      GROUP BY p.theme, p.section, p.level";
+                      GROUP BY p.theme, p.section";
 $stmt = $conn->prepare($user_progress_sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
@@ -42,7 +40,7 @@ $user_progress_result = $stmt->get_result();
 
 $user_progress_map = [];
 while ($row = $user_progress_result->fetch_assoc()) {
-    $key = $row['theme'] . '|' . $row['section'] . '|' . $row['level'];
+    $key = $row['theme'] . '|' . $row['section'];
     $user_progress_map[$key] = $row;
 }
 $stmt->close();
@@ -50,14 +48,13 @@ $stmt->close();
 // 3. Combine the two lists
 $final_progress = [];
 foreach ($all_topics as $topic) {
-    $key = $topic['theme'] . '|' . $topic['section'] . '|' . $topic['level'];
+    $key = $topic['theme'] . '|' . $topic['section'];
     if (isset($user_progress_map[$key])) {
         // User has progress for this topic
         $progress_item = $user_progress_map[$key];
         $final_progress[] = [
             'theme' => $topic['theme'],
             'section' => $topic['section'],
-            'level' => $topic['level'],
             'phrases_covered' => (int)$progress_item['phrases_covered'],
             'average_matching_quality' => (float)$progress_item['average_matching_quality'],
             'total_phrases' => (int)$topic['total_phrases']
@@ -67,7 +64,6 @@ foreach ($all_topics as $topic) {
         $final_progress[] = [
             'theme' => $topic['theme'],
             'section' => $topic['section'],
-            'level' => $topic['level'],
             'phrases_covered' => 0,
             'average_matching_quality' => 0,
             'total_phrases' => (int)$topic['total_phrases']
