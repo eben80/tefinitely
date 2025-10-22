@@ -594,6 +594,8 @@
 let phrases = [];
 let currentPhraseIndex = 0;
 let currentTopic = '';
+let currentSection = '';
+let currentLevel = '';
 let speechRate = 1.0;
 let recognition;
 let userProgress = [];
@@ -713,18 +715,14 @@ async function populateTopics(topicSelect) {
         const data = await response.json();
         if (response.ok && data.status === 'success') {
             const topics = data.topics;
-            for (const section in topics) {
-                if (section === 'Section_B') {
-                    const optgroup = document.createElement('optgroup');
-                    optgroup.label = section.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
-                    topics[section].forEach(topic => {
-                        const option = document.createElement('option');
-                        option.value = `${section}-${topic.theme}-${topic.level}`;
-                        option.textContent = `${topic.topic_en} / ${topic.topic_fr}`;
-                        optgroup.appendChild(option);
-                    });
-                    topicSelect.appendChild(optgroup);
-                }
+            if (topics['Section_B']) {
+                topics['Section_B'].forEach(topic => {
+                    const option = document.createElement('option');
+                    // The value now directly uses the theme from the API
+                    option.value = `Section_B-${topic.theme}-${topic.level}`;
+                    option.textContent = `${topic.topic_en} / ${topic.topic_fr}`;
+                    topicSelect.appendChild(option);
+                });
             }
         }
     } catch (error) {
@@ -834,13 +832,17 @@ function initializeMainFlashcard() {
     }
 
     async function loadPhrases(topicValue, initialCardIndex = 0) {
-        const [section, theme, level] = topicValue.split('-');
-        currentTopic = theme;
-        currentSection = section;
-        currentLevel = level;
-        if (!section || !theme || !level) return;
+        const parts = topicValue.split('-');
+        if (parts.length < 3) return;
+
+        currentSection = parts[0];
+        currentLevel = parts[parts.length - 1];
+        currentTopic = parts.slice(1, -1).join('-');
+
+        if (!currentSection || !currentTopic || !currentLevel) return;
+
         try {
-            const res = await fetch(`api/get_phrases.php?theme=${encodeURIComponent(theme)}&section=${encodeURIComponent(section)}&level=${encodeURIComponent(level)}`);
+            const res = await fetch(`api/get_phrases.php?theme=${encodeURIComponent(currentTopic)}&section=${encodeURIComponent(currentSection)}&level=${encodeURIComponent(currentLevel)}`);
             phrases = await res.json();
             totalCardsSpan.textContent = phrases.length;
             currentPhraseIndex = initialCardIndex || 0;
