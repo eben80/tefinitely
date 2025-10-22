@@ -727,8 +727,16 @@ function updateTopicProgressDisplay(topicValue) {
         progressDisplay.textContent = '';
         return;
     }
-    const [section, theme] = topicValue.split('-');
-    const topicProgress = userProgress.find(p => p.section === section && p.theme === theme);
+    const parts = topicValue.split('-');
+    if (parts.length < 3) {
+        progressDisplay.textContent = 'No progress yet.';
+        return;
+    }
+    const section = parts[0];
+    const level = parts[parts.length - 1];
+    const theme = parts.slice(1, -1).join('-');
+
+    const topicProgress = userProgress.find(p => p.section === section && p.theme === theme && p.level === level);
 
     if (topicProgress) {
         const scorePercent = (topicProgress.average_matching_quality * 100).toFixed(0);
