@@ -13,7 +13,8 @@ try {
 
     $topics = [];
     while ($row = $result->fetch_assoc()) {
-        $section = $row['section'];
+        // Standardize the section key to match frontend expectations (e.g., 'A' -> 'Section_A')
+        $section = 'Section_' . $row['section'];
 
         // Initialize the section array if it doesn't exist
         if (!isset($topics[$section])) {
