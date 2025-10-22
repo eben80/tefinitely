@@ -4,7 +4,7 @@
 <base href="/">
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>TEF Canada Training</title>
+<title>Section B - TEF Canada Training</title>
 <link rel="icon" href="img/favicon/favicon.ico" sizes="any">
 <link rel="icon" href="img/favicon/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="img/favicon/apple-touch-icon.png">
@@ -517,7 +517,7 @@
 </div>
 
 <div id="main-content" style="display: none;">
-    <h1>TEF Canada - Training</h1>
+    <h1>Section B - TEF Canada Training</h1>
 
     <div id="controls">
       <label for="topicSelect">Select Topic:</label><br />
@@ -575,6 +575,7 @@
                     <li><a href="training.html">Phased Training</a></li>
                     <li><a href="profile.html">Profile</a></li>
                 </ul>
+.
             </div>
             <div class="footer-column">
                 <h4>Contact</h4>
@@ -651,7 +652,7 @@ function stopRecording() {
     }
 }
 
-function checkPronunciation(userTranscript) {
+async function checkPronunciation(userTranscript) {
     const recordingResult = document.getElementById('recordingResult');
     if (!recordingResult) return;
 
@@ -677,22 +678,31 @@ function checkPronunciation(userTranscript) {
     recordingResult.textContent = `${resultText} (Score: ${score}%)`;
 
     if (phrases[currentPhraseIndex]) {
-        fetch('api/profile/store_progress.php', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            phrase_id: phrases[currentPhraseIndex].id,
-            matching_quality: ratio
-          })
-        });
+        try {
+            await fetch('api/profile/store_progress.php', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                phrase_id: phrases[currentPhraseIndex].id,
+                matching_quality: ratio
+              })
+            });
+            // After storing progress, re-fetch and update the display
+            await fetchProgress();
+            const topicSelect = document.getElementById('topicSelect');
+            updateTopicProgressDisplay(topicSelect.value);
+        } catch (error) {
+            console.error('Failed to store or fetch progress:', error);
+            showToast('Could not update progress.', 'error');
+        }
     }
 }
 
-function savePosition(topic, index) {
+function savePosition(topic, section, level, index) {
     fetch('api/profile/update_user_details.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ last_topic: topic, last_card_index: index })
+        body: JSON.stringify({ last_topic: topic, last_section: section, last_level: level, last_card_index: index })
     });
 }
 
@@ -704,15 +714,17 @@ async function populateTopics(topicSelect) {
         if (response.ok && data.status === 'success') {
             const topics = data.topics;
             for (const section in topics) {
-                const optgroup = document.createElement('optgroup');
-                optgroup.label = section.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
-                topics[section].forEach(theme => {
-                    const option = document.createElement('option');
-                    option.value = `${section}-${theme}`;
-                    option.textContent = theme.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
-                    optgroup.appendChild(option);
-                });
-                topicSelect.appendChild(optgroup);
+                if (section === 'Section_B') {
+                    const optgroup = document.createElement('optgroup');
+                    optgroup.label = section.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
+                    topics[section].forEach(topic => {
+                        const option = document.createElement('option');
+                        option.value = `${section}-${topic.theme}-${topic.level}`;
+                        option.textContent = `${topic.topic_en} / ${topic.topic_fr}`;
+                        optgroup.appendChild(option);
+                    });
+                    topicSelect.appendChild(optgroup);
+                }
             }
         }
     } catch (error) {
@@ -727,8 +739,8 @@ function updateTopicProgressDisplay(topicValue) {
         progressDisplay.textContent = '';
         return;
     }
-    const [section, theme] = topicValue.split('-');
-    const topicProgress = userProgress.find(p => p.section === section && p.theme === theme);
+    const [section, theme, level] = topicValue.split('-');
+    const topicProgress = userProgress.find(p => p.section === section && p.theme === theme && p.level === level);
 
     if (topicProgress) {
         const scorePercent = (topicProgress.average_matching_quality * 100).toFixed(0);
@@ -756,7 +768,7 @@ function initializeMainFlashcard() {
     const recordingResult = mainContent.querySelector('#recordingResult');
 
     if(startRecordBtn) {
-        startRecordBtn.onclick = () => {
+        startRecordBtn.onclick = async () => {
             if (!('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
               alert("Sorry, your browser does not support Speech Recognition.");
               return;
@@ -777,9 +789,9 @@ function initializeMainFlashcard() {
             };
             recognition.onnomatch = () => console.log('Speech not recognized.');
 
-            recognition.onresult = (event) => {
+            recognition.onresult = async (event) => {
               const transcript = event.results[0][0].transcript.toLowerCase();
-              checkPronunciation(transcript);
+              await checkPronunciation(transcript);
             };
             recognition.onerror = (event) => {
               console.log('Speech recognition error:', event);
@@ -812,7 +824,7 @@ function initializeMainFlashcard() {
         flashcard.classList.remove('is-flipped');
         updateNavButtons();
         currentCardSpan.textContent = idx + 1;
-        savePosition(currentTopic, idx);
+        savePosition(currentTopic, currentSection, currentLevel, idx);
     }
 
     function updateNavButtons() {
@@ -822,12 +834,13 @@ function initializeMainFlashcard() {
     }
 
     async function loadPhrases(topicValue, initialCardIndex = 0) {
-        currentTopic = topicValue;
-        savePosition(currentTopic, initialCardIndex);
-        const [section, theme] = topicValue.split('-');
-        if (!section || !theme) return;
+        const [section, theme, level] = topicValue.split('-');
+        currentTopic = theme;
+        currentSection = section;
+        currentLevel = level;
+        if (!section || !theme || !level) return;
         try {
-            const res = await fetch(`api/get_phrases.php?theme=${encodeURIComponent(theme)}&section=${encodeURIComponent(section)}`);
+            const res = await fetch(`api/get_phrases.php?theme=${encodeURIComponent(theme)}&section=${encodeURIComponent(section)}&level=${encodeURIComponent(level)}`);
             phrases = await res.json();
             totalCardsSpan.textContent = phrases.length;
             currentPhraseIndex = initialCardIndex || 0;
@@ -1093,10 +1106,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                     if (data.user.tour_completed == 0) {
                         initializeTour();
-                    } else if (data.user.last_topic) {
-                        topicSelect.value = data.user.last_topic;
-                        mainFlashcard.loadPhrases(data.user.last_topic, data.user.last_card_index);
-                        updateTopicProgressDisplay(data.user.last_topic);
+                    } else if (data.user.last_topic && data.user.last_section === 'Section_B') {
+                        const lastTopicValue = `${data.user.last_section}-${data.user.last_topic}-${data.user.last_level}`;
+                        // Check if the option exists before setting it
+                        if ([...topicSelect.options].some(option => option.value === lastTopicValue)) {
+                            topicSelect.value = lastTopicValue;
+                            await mainFlashcard.loadPhrases(topicSelect.value, data.user.last_card_index);
+                            updateTopicProgressDisplay(topicSelect.value);
+                        } else {
+                            console.warn('Last saved topic not found in dropdown:', lastTopicValue);
+                        }
                     }
                 } else {
                     // Inactive Subscriber

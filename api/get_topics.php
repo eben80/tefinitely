@@ -3,21 +3,18 @@ header('Content-Type: application/json; charset=utf-8');
 require_once '../db/db_config.php';
 
 try {
-    $query = "SELECT DISTINCT section, theme, topic_en, topic_fr, level FROM phrases ORDER BY section, theme";
+    $query = "SELECT DISTINCT section, theme FROM phrases ORDER BY section, theme";
     $result = $conn->query($query);
 
     $topics = [];
     while ($row = $result->fetch_assoc()) {
         $section = $row['section'];
+        $theme = $row['theme'];
+
         if (!isset($topics[$section])) {
             $topics[$section] = [];
         }
-        $topics[$section][] = [
-            'theme' => $row['theme'],
-            'topic_en' => $row['topic_en'],
-            'topic_fr' => $row['topic_fr'],
-            'level' => $row['level']
-        ];
+        $topics[$section][] = $theme;
     }
 
     http_response_code(200);

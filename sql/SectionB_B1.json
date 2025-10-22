@@ -4,8 +4,8 @@
         "topic_en": "Convince a friend to take part in or attend the opera",
         "sentences": [
             {
-                "fr": "Tu devrais venir à l’opéra, c’est une expérience culturelle unique.",
-                "en": "You should come to the opera, it’s a unique cultural experience."
+                "fr": "Tu devrais venir à l’opéra, c’est une expérience culturel le unique.",
+                "en": "You should come to the opera, it’s a unique cultural expe rience."
             },
             {
                 "fr": "Les costumes et la musique sont magnifiques.",
@@ -16,41 +16,43 @@
                 "en": "It’s an opportunity to discover great singers."
             },
             {
-                "fr": "On peut apprendre beaucoup sur l’histoire et la culture.",
+                "fr": "On peut apprendre beaucoup sur l’histoire et la culture."
+,
                 "en": "We can learn a lot about history and culture."
             },
             {
                 "fr": "C’est une sortie originale et différente du cinéma ou du théâtre.",
-                "en": "It’s an original outing, different from cinema or theater."
+                "en": "It’s an original outing, different from cinema or theater ."
             },
             {
                 "fr": "Le spectacle est très vivant et captivant.",
                 "en": "The show is very lively and captivating."
             },
             {
-                "fr": "Je peux t’accompagner pour rendre l’expérience plus agréable.",
-                "en": "I can come with you to make the experience more enjoyable."
+                "fr": "Je peux t’accompagner pour rendre l’expérience plus agréa ble.",
+                "en": "I can come with you to make the experience more enjoyable ."
             },
             {
                 "fr": "Les places ne sont pas chères si on réserve à l’avance.",
                 "en": "Tickets are not expensive if we book in advance."
             },
             {
-                "fr": "On pourra discuter de ce que nous avons vu après le spectacle.",
+                "fr": "On pourra discuter de ce que nous avons vu après le spect acle.",
                 "en": "We can discuss what we saw after the show."
             },
             {
-                "fr": "C’est une excellente façon de passer une soirée élégante.",
+                "fr": "C’est une excellente façon de passer une soirée élégante. ",
                 "en": "It’s a great way to spend an elegant evening."
             }
         ]
     },
     {
-        "topic_fr": "Convaincre un ami d’aller dans une retraite en pleine nature avec des loups",
-        "topic_en": "Convince a friend to go to a wilderness retreat where you can sleep outside with wolves",
+        "topic_fr": "Convaincre un ami d’aller dans une retraite en pleine natur e avec des loups",
+        "topic_en": "Convince a friend to go to a wilderness retreat where you c an sleep outside with wolves",
         "sentences": [
             {
-                "fr": "C’est une expérience unique de dormir près de la nature.",
+                "fr": "C’est une expérience unique de dormir près de la nature."
+,
                 "en": "It’s a unique experience to sleep close to nature."
             },
             {
@@ -62,11 +64,11 @@
                 "en": "It’s an activity that is different from our daily life."
             },
             {
-                "fr": "On apprendra à respecter et comprendre les animaux sauvages.",
+                "fr": "On apprendra à respecter et comprendre les animaux sauvag es.",
                 "en": "We will learn to respect and understand wild animals."
             },
             {
-                "fr": "C’est une occasion de se déconnecter du stress de la ville.",
+                "fr": "C’est une occasion de se déconnecter du stress de la vill e.",
                 "en": "It’s a chance to disconnect from city stress."
             },
             {
@@ -78,7 +80,7 @@
                 "en": "We can take beautiful photos of nature."
             },
             {
-                "fr": "Ce séjour est parfait pour se sentir libre et aventurier.",
+                "fr": "Ce séjour est parfait pour se sentir libre et aventurier. ",
                 "en": "This stay is perfect to feel free and adventurous."
             },
             {
@@ -86,13 +88,14 @@
                 "en": "We will share unique and memorable moments."
             },
             {
-                "fr": "Le prix est raisonnable pour une expérience si spéciale.",
+                "fr": "Le prix est raisonnable pour une expérience si spéciale."
+,
                 "en": "The price is reasonable for such a special experience."
             }
         ]
     },
     {
-        "topic_fr": "Convaincre un ami de faire du bénévolat pour s’occuper d’enfants pendant un voyage",
+        "topic_fr": "Convaincre un ami de faire du bénévolat pour s’occuper d’en fants pendant un voyage",
         "topic_en": "Convince a friend to volunteer to take care of kids during a trip",
         "sentences": [
             {
@@ -100,8 +103,8 @@
                 "en": "It’s a good way to spend time usefully during the trip."
             },
             {
-                "fr": "Tu auras l’occasion de rencontrer d’autres bénévoles sympas.",
-                "en": "You’ll have the chance to meet other friendly volunteers."
+                "fr": "Tu auras l’occasion de rencontrer d’autres bénévoles symp as.",
+                "en": "You’ll have the chance to meet other friendly volunteers. "
             },
             {
                 "fr": "C’est une expérience enrichissante et gratifiante.",
@@ -112,7 +115,7 @@
                 "en": "Tickets will be free for volunteers."
             },
             {
-                "fr": "Tu pourras apprendre de nouvelles compétences en travaillant avec des enfants.",
+                "fr": "Tu pourras apprendre de nouvelles compétences en travaill ant avec des enfants.",
                 "en": "You can learn new skills by working with children."
             },
             {
@@ -128,12 +131,12 @@
                 "en": "You will help families and trip organizers."
             },
             {
-                "fr": "C’est une activité qui valorise ton expérience sur ton CV.",
+                "fr": "C’est une activité qui valorise ton expérience sur ton CV .",
                 "en": "It’s an activity that enhances your CV experience."
             },
             {
-                "fr": "On pourra partager cette aventure ensemble et s’entraider.",
-                "en": "We can share this adventure together and help each other."
+                "fr": "On pourra partager cette aventure ensemble et s’entraider .",
+                "en": "We can share this adventure together and help each other. "
             }
         ]
     },
@@ -154,7 +157,7 @@
                 "en": "We can cook together and share our recipes."
             },
             {
-                "fr": "C’est un excellent moyen de rencontrer de nouvelles personnes.",
+                "fr": "C’est un excellent moyen de rencontrer de nouvelles perso nnes.",
                 "en": "It’s a great way to meet new people."
             },
             {
@@ -162,7 +165,7 @@
                 "en": "The teacher is very experienced and patient."
             },
             {
-                "fr": "Tu pourras impressionner ta famille avec tes nouvelles compétences.",
+                "fr": "Tu pourras impressionner ta famille avec tes nouvelles co mpétences.",
                 "en": "You can impress your family with your new skills."
             },
             {
@@ -175,7 +178,7 @@
             },
             {
                 "fr": "On peut suivre différents niveaux selon ton expérience.",
-                "en": "You can follow different levels depending on your experience."
+                "en": "You can follow different levels depending on your experie nce."
             },
             {
                 "fr": "Après le cours, on pourra goûter ce qu’on a préparé.",
@@ -184,8 +187,8 @@
         ]
     },
     {
-        "topic_fr": "Convaincre un ami de passer des vacances en roulotte chez un agriculteur",
-        "topic_en": "Convince a friend to spend a holiday in a caravan at a farmer’s place",
+        "topic_fr": "Convaincre un ami de passer des vacances en roulotte chez u n agriculteur",
+        "topic_en": "Convince a friend to spend a holiday in a caravan at a farm er’s place",
         "sentences": [
             {
                 "fr": "C’est une expérience originale et proche de la nature.",
@@ -220,7 +223,7 @@
                 "en": "The setting is very calm and relaxing."
             },
             {
-                "fr": "Tu pourras apprendre des techniques de la vie à la ferme.",
+                "fr": "Tu pourras apprendre des techniques de la vie à la ferme. ",
                 "en": "You can learn farming life techniques."
             },
             {
@@ -230,11 +233,11 @@
         ]
     },
     {
-        "topic_fr": "Convaincre un ami de vider son grenier de vêtements qu’il ne porte plus",
+        "topic_fr": "Convaincre un ami de vider son grenier de vêtements qu’il n e porte plus",
         "topic_en": "Convince a friend to clear out the attic of clothes they no longer wear",
         "sentences": [
             {
-                "fr": "Tu pourrais récupérer beaucoup de place dans ton grenier.",
+                "fr": "Tu pourrais récupérer beaucoup de place dans ton grenier. ",
                 "en": "You could free up a lot of space in your attic."
             },
             {
@@ -242,7 +245,7 @@
                 "en": "It’s a good opportunity to sort your things."
             },
             {
-                "fr": "On peut donner ou vendre les vêtements que tu ne portes plus.",
+                "fr": "On peut donner ou vendre les vêtements que tu ne portes p lus.",
                 "en": "We can donate or sell the clothes you no longer wear."
             },
             {
@@ -254,7 +257,7 @@
                 "en": "You might discover forgotten clothes."
             },
             {
-                "fr": "C’est aussi écologique de recycler ou donner les vêtements.",
+                "fr": "C’est aussi écologique de recycler ou donner les vêtement s.",
                 "en": "It’s also ecological to recycle or donate clothes."
             },
             {
@@ -262,7 +265,7 @@
                 "en": "We can do it together and it will be faster."
             },
             {
-                "fr": "Ça pourrait aider d’autres personnes avec des vêtements gratuits.",
+                "fr": "Ça pourrait aider d’autres personnes avec des vêtements g ratuits.",
                 "en": "It could help others with free clothes."
             },
             {
@@ -271,13 +274,13 @@
             },
             {
                 "fr": "Tu pourras mieux retrouver tes affaires importantes.",
-                "en": "You will be able to find your important things more easily."
+                "en": "You will be able to find your important things more easil y."
             }
         ]
     },
     {
-        "topic_fr": "Convaincre un ami d’être guide pour les étudiants de son village",
-        "topic_en": "Convince a friend to be a guide for students from their village",
+        "topic_fr": "Convaincre un ami d’être guide pour les étudiants de son vi llage",
+        "topic_en": "Convince a friend to be a guide for students from their vil lage",
         "sentences": [
             {
                 "fr": "Tu aideras les étudiants à mieux comprendre le village.",
@@ -304,7 +307,7 @@
                 "en": "It’s a fun and social activity."
             },
             {
-                "fr": "Tu pourras partager l’histoire et les traditions locales.",
+                "fr": "Tu pourras partager l’histoire et les traditions locales. ",
                 "en": "You can share local history and traditions."
             },
             {
@@ -316,7 +319,7 @@
                 "en": "It’s a good way to enhance your experience."
             },
             {
-                "fr": "Tu participeras à un projet éducatif utile pour la communauté.",
+                "fr": "Tu participeras à un projet éducatif utile pour la commun auté.",
                 "en": "You will participate in an educational project useful for the community."
             }
         ]
@@ -326,7 +329,7 @@
         "topic_en": "Convince a friend to do a side hustle",
         "sentences": [
             {
-                "fr": "Un side hustle peut t’aider à gagner un revenu supplémentaire.",
+                "fr": "Un side hustle peut t’aider à gagner un revenu supplément aire.",
                 "en": "A side hustle can help you earn extra income."
             },
             {
@@ -334,8 +337,8 @@
                 "en": "It’s a way to develop your skills."
             },
             {
-                "fr": "Tu peux travailler à ton rythme et selon tes disponibilités.",
-                "en": "You can work at your own pace and according to your availability."
+                "fr": "Tu peux travailler à ton rythme et selon tes disponibilit és.",
+                "en": "You can work at your own pace and according to your avail ability."
             },
             {
                 "fr": "Cela te permettra d’explorer de nouvelles passions.",
@@ -346,11 +349,11 @@
                 "en": "You could turn your hobby into income."
             },
             {
-                "fr": "C’est un bon moyen de rencontrer de nouvelles personnes.",
+                "fr": "C’est un bon moyen de rencontrer de nouvelles personnes. ",
                 "en": "It’s a good way to meet new people."
             },
             {
-                "fr": "Tu pourras améliorer ton CV et tes expériences professionnelles.",
+                "fr": "Tu pourras améliorer ton CV et tes expériences profession nelles.",
                 "en": "You can improve your CV and professional experiences."
             },
             {
@@ -358,7 +361,7 @@
                 "en": "It’s flexible and can become a real opportunity."
             },
             {
-                "fr": "Tu pourras tester une idée sans quitter ton emploi principal.",
+                "fr": "Tu pourras tester une idée sans quitter ton emploi princi pal.",
                 "en": "You can test an idea without leaving your main job."
             },
             {
@@ -376,7 +379,7 @@
                 "en": "You can learn music from home."
             },
             {
-                "fr": "Les cours en ligne sont flexibles et s’adaptent à ton emploi du temps.",
+                "fr": "Les cours en ligne sont flexibles et s’adaptent à ton emp loi du temps.",
                 "en": "Online courses are flexible and adapt to your schedule."
             },
             {
@@ -396,25 +399,25 @@
                 "en": "You can progress at your own pace."
             },
             {
-                "fr": "C’est une opportunité de découvrir différents styles de musique.",
+                "fr": "C’est une opportunité de découvrir différents styles de m usique.",
                 "en": "It’s an opportunity to discover different music styles."
             },
             {
-                "fr": "Tu peux pratiquer avec des supports interactifs et des exercices en ligne.",
-                "en": "You can practice with interactive tools and online exercises."
+                "fr": "Tu peux pratiquer avec des supports interactifs et des ex ercices en ligne.",
+                "en": "You can practice with interactive tools and online exerci ses."
             },
             {
-                "fr": "C’est pratique si tu habites loin d’une école de musique.",
+                "fr": "C’est pratique si tu habites loin d’une école de musique. ",
                 "en": "It’s practical if you live far from a music school."
             },
             {
-                "fr": "Tu pourras partager tes progrès avec un professeur et recevoir des conseils.",
-                "en": "You can share your progress with a teacher and receive feedback."
+                "fr": "Tu pourras partager tes progrès avec un professeur et rec evoir des conseils.",
+                "en": "You can share your progress with a teacher and receive fe edback."
             }
         ]
     },
     {
-        "topic_fr": "Convaincre une amie de s’inscrire à une activité de vélo en ville",
+        "topic_fr": "Convaincre une amie de s’inscrire à une activité de vélo en  ville",
         "topic_en": "Convince a friend to join an urban cycling activity",
         "sentences": [
             {
@@ -434,7 +437,7 @@
                 "en": "It’s an ecological activity and good for your health."
             },
             {
-                "fr": "On peut y participer en groupe et rencontrer d’autres cyclistes.",
+                "fr": "On peut y participer en groupe et rencontrer d’autres cyc listes.",
                 "en": "We can participate in a group and meet other cyclists."
             },
             {
@@ -447,21 +450,21 @@
             },
             {
                 "fr": "C’est une activité régulière qui motive à rester actif.",
-                "en": "It’s a regular activity that motivates you to stay active."
+                "en": "It’s a regular activity that motivates you to stay active ."
             },
             {
                 "fr": "Le matériel et les vélos sont fournis si nécessaire.",
                 "en": "Equipment and bikes are provided if needed."
             },
             {
-                "fr": "On peut découvrir des quartiers et lieux que l’on ne connaît pas.",
+                "fr": "On peut découvrir des quartiers et lieux que l’on ne conn aît pas.",
                 "en": "We can discover neighborhoods and places we don’t know."
             }
         ]
     },
     {
-        "topic_fr": "Convaincre une amie de participer à un marathon de cyclisme pour des raisons environnementales",
-        "topic_en": "Convince a friend to join a cycling marathon for environmental reasons",
+        "topic_fr": "Convaincre une amie de participer à un marathon de cyclisme  pour des raisons environnementales",
+        "topic_en": "Convince a friend to join a cycling marathon for environmen tal reasons",
         "sentences": [
             {
                 "fr": "C’est une excellente façon de soutenir l’environnement.",
@@ -488,7 +491,8 @@
                 "en": "The route is well organized and safe."
             },
             {
-                "fr": "Tu découvriras de nouveaux endroits pendant le marathon.",
+                "fr": "Tu découvriras de nouveaux endroits pendant le marathon."
+,
                 "en": "You will discover new places during the marathon."
             },
             {
@@ -506,15 +510,15 @@
         ]
     },
     {
-        "topic_fr": "Convaincre un ami d’offrir des services de jardinage en ligne",
+        "topic_fr": "Convaincre un ami d’offrir des services de jardinage en lig ne",
         "topic_en": "Convince a friend to offer gardening services online",
         "sentences": [
             {
-                "fr": "Tu pourrais gagner de l’argent facilement avec tes compétences.",
+                "fr": "Tu pourrais gagner de l’argent facilement avec tes compét ences.",
                 "en": "You could easily earn money with your skills."
             },
             {
-                "fr": "Les services en ligne touchent beaucoup de clients potentiels.",
+                "fr": "Les services en ligne touchent beaucoup de clients potent iels.",
                 "en": "Online services reach many potential clients."
             },
             {
@@ -522,27 +526,27 @@
                 "en": "It’s flexible and you choose your hours."
             },
             {
-                "fr": "Tu pourras proposer des services comme arroser les plantes ou enlever les mauvaises herbes.",
+                "fr": "Tu pourras proposer des services comme arroser les plante s ou enlever les mauvaises herbes.",
                 "en": "You can offer services like watering plants or weeding."
             },
             {
-                "fr": "C’est une bonne occasion de développer ton expérience professionnelle.",
-                "en": "It’s a good opportunity to develop your professional experience."
+                "fr": "C’est une bonne occasion de développer ton expérience pro fessionnelle.",
+                "en": "It’s a good opportunity to develop your professional expe rience."
             },
             {
-                "fr": "Tu peux travailler seul et gérer tes clients directement.",
+                "fr": "Tu peux travailler seul et gérer tes clients directement. ",
                 "en": "You can work alone and manage your clients directly."
             },
             {
-                "fr": "Tu auras plus de visibilité grâce aux plateformes en ligne.",
-                "en": "You will have more visibility thanks to online platforms."
+                "fr": "Tu auras plus de visibilité grâce aux plateformes en lign e.",
+                "en": "You will have more visibility thanks to online platforms. "
             },
             {
                 "fr": "C’est une activité gratifiante et utile.",
                 "en": "It’s a rewarding and useful activity."
             },
             {
-                "fr": "Tu pourras améliorer tes compétences et apprendre de nouvelles techniques.",
+                "fr": "Tu pourras améliorer tes compétences et apprendre de nouv elles techniques.",
                 "en": "You can improve your skills and learn new techniques."
             },
             {
@@ -552,19 +556,21 @@
         ]
     },
     {
-        "topic_fr": "Convaincre un ami de s’abonner à une bibliothèque en ligne",
+        "topic_fr": "Convaincre un ami de s’abonner à une bibliothèque en ligne"
+,
         "topic_en": "Convince a friend to subscribe to an online library",
         "sentences": [
             {
-                "fr": "Tu auras accès à des milliers de livres depuis chez toi.",
+                "fr": "Tu auras accès à des milliers de livres depuis chez toi."
+,
                 "en": "You will have access to thousands of books from home."
             },
             {
-                "fr": "C’est pratique et rapide pour trouver ce que tu veux lire.",
+                "fr": "C’est pratique et rapide pour trouver ce que tu veux lire .",
                 "en": "It’s practical and quick to find what you want to read."
             },
             {
-                "fr": "Les abonnements sont souvent moins chers que les livres papier.",
+                "fr": "Les abonnements sont souvent moins chers que les livres p apier.",
                 "en": "Subscriptions are often cheaper than paper books."
             },
             {
@@ -580,7 +586,7 @@
                 "en": "You can easily discover new authors."
             },
             {
-                "fr": "C’est idéal pour les étudiants et les passionnés de lecture.",
+                "fr": "C’est idéal pour les étudiants et les passionnés de lectu re.",
                 "en": "It’s ideal for students and reading enthusiasts."
             },
             {
@@ -588,11 +594,11 @@
                 "en": "You can borrow several books at once."
             },
             {
-                "fr": "Les livres numériques sont souvent interactifs et enrichissants.",
+                "fr": "Les livres numériques sont souvent interactifs et enrichi ssants.",
                 "en": "Digital books are often interactive and enriching."
             },
             {
-                "fr": "Tu peux annuler ou renouveler un livre facilement en ligne.",
+                "fr": "Tu peux annuler ou renouveler un livre facilement en lign e.",
                 "en": "You can cancel or renew a book easily online."
             }
         ]
@@ -626,11 +632,11 @@
                 "en": "It’s a way to develop your critical thinking."
             },
             {
-                "fr": "Tu pourras découvrir des films avant leur sortie officielle.",
+                "fr": "Tu pourras découvrir des films avant leur sortie officiel le.",
                 "en": "You can discover films before their official release."
             },
             {
-                "fr": "Tes critiques pourront aider le réalisateur à améliorer son travail.",
+                "fr": "Tes critiques pourront aider le réalisateur à améliorer s on travail.",
                 "en": "Your reviews can help the director improve their work."
             },
             {
@@ -644,11 +650,12 @@
         ]
     },
     {
-        "topic_fr": "Convaincre un ami d’aller dans un restaurant qui ne sert que des insectes",
-        "topic_en": "Convince a friend to go to a new restaurant that only serves insects",
+        "topic_fr": "Convaincre un ami d’aller dans un restaurant qui ne sert qu e des insectes",
+        "topic_en": "Convince a friend to go to a new restaurant that only serve s insects",
         "sentences": [
             {
-                "fr": "C’est une expérience culinaire originale et surprenante.",
+                "fr": "C’est une expérience culinaire originale et surprenante."
+,
                 "en": "It’s an original and surprising culinary experience."
             },
             {
@@ -660,20 +667,20 @@
                 "en": "It’s a modern and ecological gastronomic trend."
             },
             {
-                "fr": "Les insectes sont riches en protéines et bons pour la santé.",
+                "fr": "Les insectes sont riches en protéines et bons pour la san té.",
                 "en": "Insects are rich in protein and good for health."
             },
             {
-                "fr": "C’est amusant de découvrir des plats que peu de gens essaient.",
+                "fr": "C’est amusant de découvrir des plats que peu de gens essa ient.",
                 "en": "It’s fun to discover dishes few people try."
             },
             {
-                "fr": "Le restaurant est bien noté et recommandé par des critiques.",
+                "fr": "Le restaurant est bien noté et recommandé par des critiqu es.",
                 "en": "The restaurant is well rated and recommended by critics."
             },
             {
-                "fr": "On pourra partager cette expérience ensemble et en parler après.",
-                "en": "We can share this experience together and talk about it afterwards."
+                "fr": "On pourra partager cette expérience ensemble et en parler  après.",
+                "en": "We can share this experience together and talk about it a fterwards."
             },
             {
                 "fr": "C’est un moyen de sortir de sa zone de confort.",
@@ -690,7 +697,7 @@
         ]
     },
     {
-        "topic_fr": "Convaincre un ami de participer à une cuisine communautaire",
+        "topic_fr": "Convaincre un ami de participer à une cuisine communautaire ",
         "topic_en": "Convince a friend to take part in a community kitchen",
         "sentences": [
             {
@@ -710,7 +717,7 @@
                 "en": "You can meet other motivated volunteers."
             },
             {
-                "fr": "C’est une bonne expérience pour apprendre à travailler en équipe.",
+                "fr": "C’est une bonne expérience pour apprendre à travailler en  équipe.",
                 "en": "It’s a good experience to learn teamwork."
             },
             {
@@ -718,15 +725,15 @@
                 "en": "We can share recipes and creative ideas."
             },
             {
-                "fr": "C’est une activité qui valorise ton engagement personnel.",
+                "fr": "C’est une activité qui valorise ton engagement personnel. ",
                 "en": "It’s an activity that values your personal commitment."
             },
             {
-                "fr": "Tu pourras découvrir la cuisine locale et internationale.",
+                "fr": "Tu pourras découvrir la cuisine locale et internationale. ",
                 "en": "You can discover local and international cuisine."
             },
             {
-                "fr": "C’est gratifiant de voir les personnes profiter de ce que l’on prépare.",
+                "fr": "C’est gratifiant de voir les personnes profiter de ce que  l’on prépare.",
                 "en": "It’s rewarding to see people enjoy what we prepare."
             },
             {
@@ -736,8 +743,8 @@
         ]
     },
     {
-        "topic_fr": "Convaincre un ami de rejoindre un cours de théâtre d’improvisation pour surmonter la timidité",
-        "topic_en": "Convince a friend to join an improv theatre class to overcome shyness",
+        "topic_fr": "Convaincre un ami de rejoindre un cours de théâtre d’improv isation pour surmonter la timidité",
+        "topic_en": "Convince a friend to join an improv theatre class to overco me shyness",
         "sentences": [
             {
                 "fr": "C’est une excellente façon de surmonter sa timidité.",
@@ -752,7 +759,7 @@
                 "en": "The classes are fun and interactive."
             },
             {
-                "fr": "On peut rencontrer de nouvelles personnes et se faire des amis.",
+                "fr": "On peut rencontrer de nouvelles personnes et se faire des  amis.",
                 "en": "You can meet new people and make friends."
             },
             {
@@ -772,8 +779,8 @@
                 "en": "It’s a relaxing activity that reduces stress."
             },
             {
-                "fr": "Tu pourras participer à de petites représentations et montrer tes progrès.",
-                "en": "You can participate in small performances and show your progress."
+                "fr": "Tu pourras participer à de petites représentations et mon trer tes progrès.",
+                "en": "You can participate in small performances and show your p rogress."
             },
             {
                 "fr": "C’est un moyen amusant d’apprendre à mieux communiquer.",
@@ -782,12 +789,12 @@
         ]
     },
     {
-        "topic_fr": "Convaincre un ami de participer à une randonnée et au bénévolat pour installer des poubelles et collecteurs de pierres",
+        "topic_fr": "Convaincre un ami de participer à une randonnée et au bénév olat pour installer des poubelles et collecteurs de pierres",
         "topic_en": "Convince a friend to volunteer on a hiking trip to install bins and stone collectors",
         "sentences": [
             {
-                "fr": "C’est une façon de profiter de la nature tout en aidant l’environnement.",
-                "en": "It’s a way to enjoy nature while helping the environment."
+                "fr": "C’est une façon de profiter de la nature tout en aidant l ’environnement.",
+                "en": "It’s a way to enjoy nature while helping the environment. "
             },
             {
                 "fr": "Tu pourras rencontrer d’autres bénévoles motivés.",
@@ -814,7 +821,7 @@
                 "en": "The experience is different and original."
             },
             {
-                "fr": "Tu apprendras des techniques simples pour protéger la nature.",
+                "fr": "Tu apprendras des techniques simples pour protéger la nat ure.",
                 "en": "You will learn simple techniques to protect nature."
             },
             {
@@ -828,11 +835,11 @@
         ]
     },
     {
-        "topic_fr": "Convaincre un ami de venir à Bruxelles pour faire un tour en tuk-tuk",
+        "topic_fr": "Convaincre un ami de venir à Bruxelles pour faire un tour e n tuk-tuk",
         "topic_en": "Convince a friend to join a trip in Brussels and experience tuk-tuk rides",
         "sentences": [
             {
-                "fr": "C’est une manière originale et amusante de visiter la ville.",
+                "fr": "C’est une manière originale et amusante de visiter la vil le.",
                 "en": "It’s an original and fun way to explore the city."
             },
             {
@@ -840,7 +847,7 @@
                 "en": "We can see the main monuments quickly."
             },
             {
-                "fr": "C’est une activité différente du bus touristique classique.",
+                "fr": "C’est une activité différente du bus touristique classiqu e.",
                 "en": "It’s an activity different from a classic tourist bus."
             },
             {
@@ -848,16 +855,17 @@
                 "en": "The tuk-tuk is ecological and practical for the city."
             },
             {
-                "fr": "On pourra prendre des photos originales pendant le trajet.",
+                "fr": "On pourra prendre des photos originales pendant le trajet .",
                 "en": "We can take original photos during the ride."
             },
             {
-                "fr": "C’est une expérience mémorable à partager avec des amis.",
+                "fr": "C’est une expérience mémorable à partager avec des amis."
+,
                 "en": "It’s a memorable experience to share with friends."
             },
             {
-                "fr": "Le guide peut donner des informations sur l’histoire et la culture.",
-                "en": "The guide can give information about history and culture."
+                "fr": "Le guide peut donner des informations sur l’histoire et l a culture.",
+                "en": "The guide can give information about history and culture. "
             },
             {
                 "fr": "C’est une activité sûre et encadrée.",
@@ -868,14 +876,15 @@
                 "en": "You will discover lesser-known places in Brussels."
             },
             {
-                "fr": "C’est une expérience qui rend la visite de Bruxelles originale.",
-                "en": "It’s an experience that makes visiting Brussels original."
+                "fr": "C’est une expérience qui rend la visite de Bruxelles orig inale.",
+                "en": "It’s an experience that makes visiting Brussels original. "
             }
         ]
     },
     {
         "topic_fr": "Convaincre un ami de participer à un concours de conte",
-        "topic_en": "Convince a friend to participate in a storytelling contest",
+        "topic_en": "Convince a friend to participate in a storytelling contest"
+,
         "sentences": [
             {
                 "fr": "C’est une occasion de montrer ton talent d’écrivain.",
@@ -891,7 +900,7 @@
             },
             {
                 "fr": "Participer à un concours est motivant et stimulant.",
-                "en": "Participating in a contest is motivating and stimulating."
+                "en": "Participating in a contest is motivating and stimulating. "
             },
             {
                 "fr": "Tu peux rencontrer d’autres passionnés de conte.",
@@ -910,11 +919,11 @@
                 "en": "You will learn to structure and present your story."
             },
             {
-                "fr": "C’est une expérience qui peut améliorer ta confiance en toi.",
-                "en": "It’s an experience that can improve your self-confidence."
+                "fr": "C’est une expérience qui peut améliorer ta confiance en t oi.",
+                "en": "It’s an experience that can improve your self-confidence. "
             },
             {
-                "fr": "Tu pourras garder un souvenir unique de ta participation.",
+                "fr": "Tu pourras garder un souvenir unique de ta participation. ",
                 "en": "You can keep a unique memory of your participation."
             }
         ]
@@ -924,7 +933,7 @@
         "topic_en": "Convince a friend to buy medication online",
         "sentences": [
             {
-                "fr": "C’est pratique et rapide, tu peux commander depuis chez toi.",
+                "fr": "C’est pratique et rapide, tu peux commander depuis chez t oi.",
                 "en": "It’s practical and quick, you can order from home."
             },
             {
@@ -936,7 +945,7 @@
                 "en": "You can find 30–40% discounts on the website."
             },
             {
-                "fr": "Tous les médicaments des grandes marques sont disponibles.",
+                "fr": "Tous les médicaments des grandes marques sont disponibles .",
                 "en": "All major brand medications are available."
             },
             {
@@ -956,7 +965,7 @@
                 "en": "You save time and avoid queues."
             },
             {
-                "fr": "Les commandes peuvent être répétées rapidement pour les besoins réguliers.",
+                "fr": "Les commandes peuvent être répétées rapidement pour les b esoins réguliers.",
                 "en": "Orders can be repeated quickly for regular needs."
             },
             {
@@ -986,7 +995,7 @@
                 "en": "It’s a good way to fight loneliness."
             },
             {
-                "fr": "Un chat peut vivre longtemps et devenir un membre de la famille.",
+                "fr": "Un chat peut vivre longtemps et devenir un membre de la f amille.",
                 "en": "A cat can live a long time and become a family member."
             },
             {
@@ -1002,7 +1011,7 @@
                 "en": "Cats are easy to maintain and clean."
             },
             {
-                "fr": "Adopter un chat est moins coûteux que certains autres animaux.",
+                "fr": "Adopter un chat est moins coûteux que certains autres ani maux.",
                 "en": "Adopting a cat is less expensive than some other pets."
             },
             {

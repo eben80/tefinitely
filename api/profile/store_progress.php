@@ -20,8 +20,7 @@ if ($phrase_id === null || $matching_quality === null) {
     exit;
 }
 
-$sql = "INSERT INTO user_progress (user_id, phrase_id, matching_quality) VALUES (?, ?, ?)
-        ON DUPLICATE KEY UPDATE matching_quality = VALUES(matching_quality)";
+$sql = "INSERT INTO user_progress (user_id, phrase_id, matching_quality) VALUES (?, ?, ?)";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("iid", $user_id, $phrase_id, $matching_quality);
 
