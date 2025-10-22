@@ -593,6 +593,8 @@
 let phrases = [];
 let currentPhraseIndex = 0;
 let currentTopic = '';
+let currentSection = '';
+let currentLevel = '';
 let speechRate = 1.0;
 let recognition;
 let userProgress = [];
@@ -688,11 +690,11 @@ function checkPronunciation(userTranscript) {
     }
 }
 
-function savePosition(topic, index) {
+function savePosition(topic, section, level, index) {
     fetch('api/profile/update_user_details.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ last_topic: topic, last_card_index: index })
+        body: JSON.stringify({ last_topic: topic, last_section: section, last_level: level, last_card_index: index })
     });
 }
 
@@ -707,8 +709,8 @@ async function populateTopics(topicSelect) {
             if (topics['Section_A']) {
                 topics['Section_A'].forEach(topic => {
                     const option = document.createElement('option');
-                    option.value = `Section_A-${topic.theme}`; // Use the theme directly
-                    option.textContent = topic.topic_en; // topic_en is now available
+                    option.value = `Section_A-${topic.theme}-${topic.level}`;
+                    option.textContent = `${topic.topic_en} / ${topic.topic_fr}`;
                     topicSelect.appendChild(option);
                 });
             }
@@ -810,7 +812,7 @@ function initializeMainFlashcard() {
         flashcard.classList.remove('is-flipped');
         updateNavButtons();
         currentCardSpan.textContent = idx + 1;
-        savePosition(currentTopic, idx);
+        savePosition(currentTopic, currentSection, currentLevel, idx);
     }
 
     function updateNavButtons() {
@@ -821,18 +823,16 @@ function initializeMainFlashcard() {
 
     async function loadPhrases(topicValue, initialCardIndex = 0) {
         const parts = topicValue.split('-');
-        const section = parts.shift();
-        const theme = parts.join('-'); // Handles themes that might have hyphens
+        if (parts.length < 3) return;
 
-        currentTopic = theme;
-        currentSection = section; // Keep track of section for other potential uses
-        if (!section || !theme) return;
+        currentSection = parts[0];
+        currentLevel = parts[parts.length - 1];
+        currentTopic = parts.slice(1, -1).join('-');
 
-        savePosition(topicValue, initialCardIndex); // Save the full original value
+        if (!currentSection || !currentTopic || !currentLevel) return;
 
         try {
-            // The API expects section and theme, level is not used here for Section A
-            const res = await fetch(`api/get_phrases.php?theme=${encodeURIComponent(theme)}&section=${encodeURIComponent(section)}`);
+            const res = await fetch(`api/get_phrases.php?theme=${encodeURIComponent(currentTopic)}&section=${encodeURIComponent(currentSection)}&level=${encodeURIComponent(currentLevel)}`);
             phrases = await res.json();
             totalCardsSpan.textContent = phrases.length;
             currentPhraseIndex = initialCardIndex || 0;
@@ -1098,10 +1098,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                     if (data.user.tour_completed == 0) {
                         initializeTour();
-                    } else if (data.user.last_topic) {
-                        topicSelect.value = data.user.last_topic;
-                        mainFlashcard.loadPhrases(data.user.last_topic, data.user.last_card_index);
-                        updateTopicProgressDisplay(data.user.last_topic);
+                    } else if (data.user.last_topic && data.user.last_section === 'Section_A') {
+                        const lastTopicValue = `${data.user.last_section}-${data.user.last_topic}-${data.user.last_level}`;
+                        // Check if the option exists before setting it
+                        if ([...topicSelect.options].some(option => option.value === lastTopicValue)) {
+                            topicSelect.value = lastTopicValue;
+                            await mainFlashcard.loadPhrases(topicSelect.value, data.user.last_card_index);
+                            updateTopicProgressDisplay(topicSelect.value);
+                        } else {
+                            console.warn('Last saved topic not found in dropdown:', lastTopicValue);
+                        }
                     }
                 } else {
                     // Inactive Subscriber
