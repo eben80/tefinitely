@@ -360,8 +360,7 @@
 <div id="toast-container"></div>
 <nav class="main-nav" id="user-status" style="display: none;">
     <div class="nav-links">
-        <a href="index.html">Section A</a>
-        <a href="section_b.html">Section B</a>
+        <a href="index.html">Flashcards</a>
         <a href="training.html">Phased Training</a>
         <a href="profile.html">Profile</a>
         <a id="admin-link" href="admin.html" style="display: none;">Admin Portal</a>
@@ -593,8 +592,6 @@
 let phrases = [];
 let currentPhraseIndex = 0;
 let currentTopic = '';
-let currentSection = '';
-let currentLevel = '';
 let speechRate = 1.0;
 let recognition;
 let userProgress = [];
@@ -690,11 +687,11 @@ function checkPronunciation(userTranscript) {
     }
 }
 
-function savePosition(topic, section, level, index) {
+function savePosition(topic, index) {
     fetch('api/profile/update_user_details.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ last_topic: topic, last_section: section, last_level: level, last_card_index: index })
+        body: JSON.stringify({ last_topic: topic, last_card_index: index })
     });
 }
 
@@ -705,14 +702,16 @@ async function populateTopics(topicSelect) {
         const data = await response.json();
         if (response.ok && data.status === 'success') {
             const topics = data.topics;
-            // Filter for Section A topics specifically
-            if (topics['Section_A']) {
-                topics['Section_A'].forEach(topic => {
+            for (const section in topics) {
+                const optgroup = document.createElement('optgroup');
+                optgroup.label = section.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
+                topics[section].forEach(theme => {
                     const option = document.createElement('option');
-                    option.value = `Section_A-${topic.theme}-${topic.level}`;
-                    option.textContent = `${topic.topic_en} / ${topic.topic_fr}`;
-                    topicSelect.appendChild(option);
+                    option.value = `${section}-${theme}`;
+                    option.textContent = theme.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
+                    optgroup.appendChild(option);
                 });
+                topicSelect.appendChild(optgroup);
             }
         }
     } catch (error) {
@@ -727,16 +726,8 @@ function updateTopicProgressDisplay(topicValue) {
         progressDisplay.textContent = '';
         return;
     }
-    const parts = topicValue.split('-');
-    if (parts.length < 3) {
-        progressDisplay.textContent = 'No progress yet.';
-        return;
-    }
-    const section = parts[0];
-    const level = parts[parts.length - 1];
-    const theme = parts.slice(1, -1).join('-');
-
-    const topicProgress = userProgress.find(p => p.section === section && p.theme === theme && p.level === level);
+    const [section, theme] = topicValue.split('-');
+    const topicProgress = userProgress.find(p => p.section === section && p.theme === theme);
 
     if (topicProgress) {
         const scorePercent = (topicProgress.average_matching_quality * 100).toFixed(0);
@@ -820,7 +811,7 @@ function initializeMainFlashcard() {
         flashcard.classList.remove('is-flipped');
         updateNavButtons();
         currentCardSpan.textContent = idx + 1;
-        savePosition(currentTopic, currentSection, currentLevel, idx);
+        savePosition(currentTopic, idx);
     }
 
     function updateNavButtons() {
@@ -830,17 +821,12 @@ function initializeMainFlashcard() {
     }
 
     async function loadPhrases(topicValue, initialCardIndex = 0) {
-        const parts = topicValue.split('-');
-        if (parts.length < 3) return;
-
-        currentSection = parts[0];
-        currentLevel = parts[parts.length - 1];
-        currentTopic = parts.slice(1, -1).join('-');
-
-        if (!currentSection || !currentTopic || !currentLevel) return;
-
+        currentTopic = topicValue;
+        savePosition(currentTopic, initialCardIndex);
+        const [section, theme] = topicValue.split('-');
+        if (!section || !theme) return;
         try {
-            const res = await fetch(`api/get_phrases.php?theme=${encodeURIComponent(currentTopic)}&section=${encodeURIComponent(currentSection)}&level=${encodeURIComponent(currentLevel)}`);
+            const res = await fetch(`api/get_phrases.php?theme=${encodeURIComponent(theme)}&section=${encodeURIComponent(section)}`);
             phrases = await res.json();
             totalCardsSpan.textContent = phrases.length;
             currentPhraseIndex = initialCardIndex || 0;
@@ -1106,16 +1092,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                     if (data.user.tour_completed == 0) {
                         initializeTour();
-                    } else if (data.user.last_topic && data.user.last_section === 'Section_A') {
-                        const lastTopicValue = `${data.user.last_section}-${data.user.last_topic}-${data.user.last_level}`;
-                        // Check if the option exists before setting it
-                        if ([...topicSelect.options].some(option => option.value === lastTopicValue)) {
-                            topicSelect.value = lastTopicValue;
-                            await mainFlashcard.loadPhrases(topicSelect.value, data.user.last_card_index);
-                            updateTopicProgressDisplay(topicSelect.value);
-                        } else {
-                            console.warn('Last saved topic not found in dropdown:', lastTopicValue);
-                        }
+                    } else if (data.user.last_topic) {
+                        topicSelect.value = data.user.last_topic;
+                        mainFlashcard.loadPhrases(data.user.last_topic, data.user.last_card_index);
+                        updateTopicProgressDisplay(data.user.last_topic);
                     }
                 } else {
                     // Inactive Subscriber
