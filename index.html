@@ -891,6 +891,21 @@ function initializeMainFlashcard() {
     return { loadPhrases };
 }
 
+document.addEventListener('keydown', (e) => {
+    // Check if the main content is visible before handling keyboard shortcuts
+    const mainContent = document.getElementById('main-content');
+    if (mainContent && mainContent.style.display !== 'none') {
+        if (e.code === 'ArrowLeft') {
+            document.getElementById('prevPhraseBtn').click();
+        } else if (e.code === 'ArrowRight') {
+            document.getElementById('nextPhraseBtn').click();
+        } else if (e.code === 'Space') {
+            e.preventDefault(); // Prevent page from scrolling
+            document.getElementById('flipCardBtn').click();
+        }
+    }
+});
+
 
 function initializeSampleFlashcard() {
     const container = document.querySelector('.sample-section');
