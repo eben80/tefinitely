@@ -895,13 +895,23 @@ document.addEventListener('keydown', (e) => {
     // Check if the main content is visible before handling keyboard shortcuts
     const mainContent = document.getElementById('main-content');
     if (mainContent && mainContent.style.display !== 'none') {
-        if (e.code === 'ArrowLeft') {
-            document.getElementById('prevPhraseBtn').click();
-        } else if (e.code === 'ArrowRight') {
-            document.getElementById('nextPhraseBtn').click();
-        } else if (e.code === 'Space') {
-            e.preventDefault(); // Prevent page from scrolling
-            document.getElementById('flipCardBtn').click();
+        switch (e.code) {
+            case 'ArrowLeft':
+                document.getElementById('prevPhraseBtn').click();
+                break;
+            case 'ArrowRight':
+                document.getElementById('nextPhraseBtn').click();
+                break;
+            case 'Space':
+                e.preventDefault(); // Prevent page from scrolling
+                document.getElementById('flipCardBtn').click();
+                break;
+            case 'KeyS':
+                document.getElementById('playPhraseBtn').click();
+                break;
+            case 'KeyR':
+                document.getElementById('startRecordBtn').click();
+                break;
         }
     }
 });
