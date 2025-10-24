@@ -8,31 +8,33 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['subscription_status']) || 
     exit;
 }
 
-require_once __DIR__ . '/../services/Database.php';
+require_once '../db/db_config.php';
 
 try {
-    $db = new Database();
-    $conn = $db->getConnection();
-
     $section_filter = isset($_GET['section']) ? $_GET['section'] : null;
-    $topics = [];
 
     if ($section_filter) {
-        $stmt = $conn->prepare("SELECT DISTINCT theme FROM phrases WHERE section = :section ORDER BY theme");
-        $stmt->bindParam(':section', $section_filter, PDO::PARAM_STR);
+        $section_db_value = "Section " . $section_filter;
+        $stmt = $conn->prepare("SELECT DISTINCT theme FROM phrases WHERE section = ? ORDER BY theme");
+        $stmt->bind_param("s", $section_db_value);
         $stmt->execute();
-
-        $themes = $stmt->fetchAll(PDO::FETCH_COLUMN);
-        $topics[$section_filter] = $themes;
-
+        $result = $stmt->get_result();
     } else {
         $query = "SELECT DISTINCT section, theme FROM phrases ORDER BY section, theme";
-        $stmt = $conn->query($query);
-        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $result = $conn->query($query);
+    }
 
-        foreach ($results as $row) {
+    $topics = [];
+    if ($section_filter) {
+        $topics[$section_filter] = [];
+        while ($row = $result->fetch_assoc()) {
+            $topics[$section_filter][] = $row['theme'];
+        }
+    } else {
+        while ($row = $result->fetch_assoc()) {
             $section = $row['section'];
             $theme = $row['theme'];
+
             if (!isset($topics[$section])) {
                 $topics[$section] = [];
             }
@@ -45,5 +47,8 @@ try {
 
 } catch (Exception $e) {
     http_response_code(500);
-    echo json_encode(['status' => 'error', 'message' => 'Failed to fetch topics: ' . $e->getMessage()]);
+    echo json_encode(['status' => 'error', 'message' => 'Failed to fetch topics.']);
 }
+
+$conn->close();
+?>
