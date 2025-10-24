@@ -3,18 +3,34 @@ header('Content-Type: application/json; charset=utf-8');
 require_once '../db/db_config.php';
 
 try {
-    $query = "SELECT DISTINCT section, theme FROM phrases ORDER BY section, theme";
-    $result = $conn->query($query);
+    $section_filter = isset($_GET['section']) ? $_GET['section'] : null;
+
+    if ($section_filter) {
+        $stmt = $conn->prepare("SELECT DISTINCT theme FROM phrases WHERE section = ? ORDER BY theme");
+        $stmt->bind_param("s", $section_filter);
+        $stmt->execute();
+        $result = $stmt->get_result();
+    } else {
+        $query = "SELECT DISTINCT section, theme FROM phrases ORDER BY section, theme";
+        $result = $conn->query($query);
+    }
 
     $topics = [];
-    while ($row = $result->fetch_assoc()) {
-        $section = $row['section'];
-        $theme = $row['theme'];
-
-        if (!isset($topics[$section])) {
-            $topics[$section] = [];
+    if ($section_filter) {
+        $topics[$section_filter] = [];
+        while ($row = $result->fetch_assoc()) {
+            $topics[$section_filter][] = $row['theme'];
         }
-        $topics[$section][] = $theme;
+    } else {
+        while ($row = $result->fetch_assoc()) {
+            $section = $row['section'];
+            $theme = $row['theme'];
+
+            if (!isset($topics[$section])) {
+                $topics[$section] = [];
+            }
+            $topics[$section][] = $theme;
+        }
     }
 
     http_response_code(200);
