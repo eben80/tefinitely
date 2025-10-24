@@ -73,6 +73,8 @@ a {
     border: none;
     font-size: 2rem;
     cursor: pointer;
+    z-index: 1001; /* Ensure it's on top of other content */
+    color: #333; /* Explicitly set color */
 }
 
 .main-nav .nav-content {
@@ -294,13 +296,14 @@ a {
     .main-nav .nav-content {
         display: none;
         flex-direction: column;
-        width: 100%;
+        width: calc(100% + 4rem); /* Span full width including parent padding */
         position: absolute;
         top: 100%;
-        left: 0;
+        left: -2rem; /* Align with the parent's edge */
         background: #fff;
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        border-radius: 0 0 8px 8px;
+        z-index: 1000; /* Ensure it's on top */
+        border-radius: 0;
     }
 
     .main-nav .nav-content.is-open {
