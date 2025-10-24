@@ -40,8 +40,8 @@ async function loginUser(email, password) {
     try {
         const result = await apiRequest('api/login.php', { email, password });
         showToast(result.message, 'success');
-        // Redirect to the main page on successful login
-        setTimeout(() => { window.location.href = 'index.html'; }, 1000);
+        // Redirect to the logged-in dashboard on successful login
+        setTimeout(() => { window.location.href = 'logged_in.html'; }, 1000);
     } catch (error) {
         showToast(`Login Failed: ${error.message}`, 'error');
     }
