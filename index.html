@@ -448,6 +448,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 authContainer.style.display = 'block';
                 loginPrompt.style.display = 'block';
                 subscriptionPrompt.style.display = 'none';
+                initializeSampleFlashcard();
             }
         } else {
             throw new Error('Session check failed with status ' + response.status);
