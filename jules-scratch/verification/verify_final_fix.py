@@ -21,7 +21,7 @@ def run(playwright):
     expect(topic_select.first).to_be_enabled()
 
     # Take a screenshot
-    page.screenshot(path="jules-scratch/verification/topic_fix.png")
+    page.screenshot(path="jules-scratch/verification/final_fix.png")
 
     browser.close()
 
