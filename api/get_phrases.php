@@ -17,6 +17,11 @@ require_once '../db/db_config.php';
 $theme = $_GET['theme'] ?? '';
 $section = $_GET['section'] ?? 'general';
 
+// Adjust the section parameter to match the database format, e.g., "Section A"
+if ($section !== 'general') {
+    $section = "Section " . $section;
+}
+
 $stmt = $conn->prepare("SELECT id, french_text, english_translation FROM phrases WHERE theme = ? AND section = ?");
 $stmt->bind_param("ss", $theme, $section);
 $stmt->execute();
