@@ -108,20 +108,21 @@ function savePosition(topic, index) {
 async function populateTopics(topicSelect) {
     if (!topicSelect) return;
     try {
-        const response = await fetch('api/get_topics.php');
+        const response = await fetch('api/get_topics.php?section=A');
         const data = await response.json();
         if (response.ok && data.status === 'success') {
             const topics = data.topics;
-            for (const section in topics) {
-                const optgroup = document.createElement('optgroup');
-                optgroup.label = section.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
-                topics[section].forEach(theme => {
+            if (topics.A) {
+                topics.A.forEach(theme => {
                     const option = document.createElement('option');
-                    option.value = `${section}-${theme}`;
-                    option.textContent = theme.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
-                    optgroup.appendChild(option);
+                    option.value = `A-${theme}`;
+
+                    let displayName = theme.replace('Ask a question about A - ', '');
+                    displayName = displayName.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
+
+                    option.textContent = displayName;
+                    topicSelect.appendChild(option);
                 });
-                topicSelect.appendChild(optgroup);
             }
         }
     } catch (error) {
