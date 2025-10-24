@@ -64,7 +64,29 @@ a {
     border-radius: 8px;
     margin: 1rem;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    position: relative; /* Needed for hamburger menu positioning */
 }
+
+.hamburger-menu {
+    display: none; /* Hidden by default on desktop */
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+}
+
+.main-nav .nav-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.main-nav .nav-links {
+    display: flex;
+    align-items: center;
+}
+
 .main-nav .nav-links a {
     margin: 0 1rem;
     text-decoration: none;
@@ -260,38 +282,65 @@ a {
 }
 
 /* --- Responsive Design --- */
-@media (max-width: 768px) { /* Increased breakpoint for tablets */
-  .landing-nav, .main-nav {
-      flex-direction: column;
-      gap: 1rem;
-      padding: 1rem;
-  }
-  .main-nav .nav-links, .landing-nav .nav-links {
-      display: flex;
-      flex-direction: column;
-      width: 100%;
-      text-align: center;
-      gap: 0.5rem;
-  }
-  .main-nav .nav-links a, .landing-nav .nav-links a {
-      padding: 0.75rem;
-      border-bottom: 1px solid #eee;
-      width: 100%;
-  }
-  .main-nav .nav-links a:last-child, .landing-nav .nav-links a:last-child {
-      border-bottom: none;
-  }
-  .main-nav .nav-user {
-      width: 100%;
-      justify-content: center;
-      border-top: 1px solid #eee;
-      padding-top: 1rem;
-      margin-top: 0.5rem;
-  }
-  .landing-page .hero h1 {
-      font-size: 2.2rem;
-  }
-  .container {
-      padding: 1rem;
-  }
+@media (max-width: 768px) {
+    .main-nav {
+        justify-content: flex-start;
+    }
+
+    .hamburger-menu {
+        display: block;
+    }
+
+    .main-nav .nav-content {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background: #fff;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        border-radius: 0 0 8px 8px;
+    }
+
+    .main-nav .nav-content.is-open {
+        display: flex;
+    }
+
+    .main-nav .nav-links {
+        flex-direction: column;
+        width: 100%;
+        align-items: flex-start;
+    }
+
+    .main-nav .nav-links a {
+        padding: 1rem 2rem;
+        border-bottom: 1px solid #eee;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .main-nav .dropdown .dropdown-content {
+        position: static;
+        box-shadow: none;
+        background: #fdfdfd;
+    }
+
+    .main-nav .dropdown-content a {
+        padding-left: 3rem;
+    }
+
+    .main-nav .nav-user {
+        padding: 1rem 2rem;
+        border-top: 1px solid #eee;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .landing-page .hero h1 {
+        font-size: 2.2rem;
+    }
+    .container {
+        padding: 1rem;
+    }
 }
