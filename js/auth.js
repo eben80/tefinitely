@@ -47,35 +47,56 @@ async function loginUser(email, password) {
     }
 }
 
-// --- Event Listeners (will be attached in the HTML files) ---
+// --- Session Check ---
+async function checkSession() {
+    try {
+        const response = await fetch('api/check_session.php');
+        if (!response.ok) {
+            throw new Error('Session check failed with status ' + response.status);
+        }
+        const data = await response.json();
+        const userStatusDiv = document.getElementById('user-status');
+        const firstNameDisplay = document.getElementById('first-name-display');
 
-// Example for registration form (to be placed in register.html)
-/*
+        if (data.loggedIn) {
+            userStatusDiv.style.display = 'flex';
+            firstNameDisplay.textContent = `Welcome, ${data.user.first_name}`;
+            if (data.user.role === 'admin') {
+                document.getElementById('admin-link').style.display = 'inline';
+            }
+
+            if (data.user.subscription_status !== 'active') {
+                // Redirect to landing page if not subscribed
+                if (window.location.pathname !== '/index.html' && window.location.pathname !== '/') {
+                    window.location.href = 'index.html';
+                }
+            }
+        } else {
+            // Redirect to login if not logged in
+            if (window.location.pathname !== '/login.html' && window.location.pathname !== '/register.html' && window.location.pathname !== '/index.html' && window.location.pathname !== '/') {
+                window.location.href = 'login.html';
+            }
+        }
+    } catch (error) {
+        console.error('Session check failed:', error);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-    const registerForm = document.getElementById('registerForm');
-    if (registerForm) {
-        registerForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const username = document.getElementById('username').value;
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            registerUser(username, email, password);
+    // Attach event listener for logout button
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async () => {
+            const response = await fetch('api/logout.php');
+            if (response.ok) {
+                showToast('You have been logged out.', 'success');
+                setTimeout(() => { window.location.href = 'login.html'; }, 1000);
+            } else {
+                showToast('Logout failed. Please try again.', 'error');
+            }
         });
     }
-});
-*/
 
-// Example for login form (to be placed in login.html)
-/*
-document.addEventListener('DOMContentLoaded', () => {
-    const loginForm = document.getElementById('loginForm');
-    if (loginForm) {
-        loginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            loginUser(username, password);
-        });
-    }
+    // Run session check on all pages that include this script
+    checkSession();
 });
-*/
