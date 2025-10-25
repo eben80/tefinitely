@@ -57,12 +57,17 @@ async function checkSession() {
         const data = await response.json();
         const userStatusDiv = document.getElementById('user-status');
         const firstNameDisplay = document.getElementById('first-name-display');
+        const adminLink = document.getElementById('admin-link');
 
         if (data.loggedIn) {
-            userStatusDiv.style.display = 'flex';
-            firstNameDisplay.textContent = `Welcome, ${data.user.first_name}`;
-            if (data.user.role === 'admin') {
-                document.getElementById('admin-link').style.display = 'inline';
+            if (userStatusDiv) {
+                userStatusDiv.style.display = 'flex';
+            }
+            if (firstNameDisplay) {
+                firstNameDisplay.textContent = `Welcome, ${data.user.first_name}`;
+            }
+            if (data.user.role === 'admin' && adminLink) {
+                adminLink.style.display = 'inline';
             }
 
             if (data.user.subscription_status !== 'active') {
