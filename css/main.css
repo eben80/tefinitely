@@ -1,4 +1,7 @@
 /* --- General Styles --- */
+* {
+  box-sizing: border-box;
+}
 body {
   font-family: Arial, sans-serif;
   margin: 0; /* Changed from 2rem to 0 for full-width elements */
@@ -59,12 +62,15 @@ a {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 2rem;
+    padding: 1rem 0; /* Removed horizontal padding */
     background: #fff;
     border-radius: 8px;
     margin: 1rem;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     position: relative; /* Needed for hamburger menu positioning */
+}
+.main-nav .nav-content {
+    padding: 0 2rem; /* Added horizontal padding here */
 }
 
 .hamburger-menu {
@@ -296,14 +302,14 @@ a {
     .main-nav .nav-content {
         display: none;
         flex-direction: column;
-        width: calc(100% + 4rem); /* Span full width including parent padding */
+        width: 100%; /* Full width of the parent */
         position: absolute;
         top: 100%;
-        left: -2rem; /* Align with the parent's edge */
+        left: 0; /* Align with the parent's edge */
         background: #fff;
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         z-index: 1000; /* Ensure it's on top */
-        border-radius: 0;
+        border-radius: 0 0 8px 8px;
     }
 
     .main-nav .nav-content.is-open {
