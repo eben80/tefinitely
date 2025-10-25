@@ -18,9 +18,12 @@
     max-width: 500px;
     margin: 1rem 0 2rem 0;
   }
+  .container {
+    padding: 1rem;
+  }
   body {
     font-family: Arial, sans-serif;
-    margin: 2rem;
+    margin: 0; /* Removed margin to prevent overflow */
     background: #f4f1ea;
   }
   h1 {
@@ -159,7 +162,7 @@
     }
     .main-nav {
         margin: 0 0 1rem 0; /* Reduced vertical margins and remove side margins */
-        padding: 0.5rem 1rem; /* Reduced padding */
+        padding: 0.5rem 0; /* Reduced padding, removed horizontal */
     }
     #topicSelect {
         width: 100%;
@@ -210,6 +213,7 @@
 </style>
 </head>
 <body>
+<div class="container">
 <header>
     <a href="index.html"><img src="img/top_logo_light.png" alt="TEFinitely Logo" class="logo"></a>
 </header>
@@ -312,5 +316,6 @@
 <script src="js/auth.js"></script>
 <script src="js/nav.js"></script>
 <script src="js/oral_expression_section_a.js"></script>
+</div>
 </body>
 </html>
