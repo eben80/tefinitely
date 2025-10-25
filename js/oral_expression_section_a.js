@@ -167,6 +167,14 @@ function initializeMainFlashcard() {
 
     if(startRecordBtn) {
         startRecordBtn.onclick = () => {
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+            // iPhone-specific fix: Stop any existing recognition before starting a new one to prevent "aborted" error.
+            if (isIOS && recognition) {
+                console.log('Applying iOS speech recognition fix: stopping previous instance.');
+                recognition.stop();
+            }
+
             if (!('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
               alert("Sorry, your browser does not support Speech Recognition.");
               return;
@@ -202,7 +210,6 @@ function initializeMainFlashcard() {
 
             recognition.start();
 
-            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
             if (isIOS) {
               console.log('iOS device detected. Setting 5s timeout to stop recognition.');
               setTimeout(() => {
