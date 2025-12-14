@@ -3,57 +3,73 @@
 <head>
   <meta charset="UTF-8">
   <title>French Speaking Practice</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: sans-serif; max-width: 700px; margin: auto; }
-    button { margin: 5px; }
+    body { font-family: Arial, sans-serif; max-width: 720px; margin: auto; }
+    button { margin: 6px 0; }
     #prompt { font-size: 1.2em; margin: 20px 0; }
-    #feedback { color: green; }
+    #feedback { color: #006400; min-height: 1.2em; }
   </style>
 </head>
 <body>
 
 <h2>French Speaking Practice</h2>
 
-<label>Initial Level:</label>
+<label for="level">Initial Level:</label>
 <select id="level">
-  <option value="A1">A1 (Beginner)</option>
-  <option value="A2">A2</option>
-  <option value="B1">B1</option>
+  <option value="A1">A1 – Beginner</option>
+  <option value="A2">A2 – Elementary</option>
+  <option value="B1">B1 – Intermediate</option>
 </select>
 
-<button onclick="startSession()">Start</button>
+<button id="startBtn">Start Practice</button>
 
 <hr>
 
 <div id="prompt"></div>
 
-<button onclick="startListening()">🎤 Speak</button>
+<button id="speakBtn">🎤 Speak</button>
 
 <div id="feedback"></div>
 
-<button onclick="sendDifficulty('easier')">Easier</button>
-<button onclick="sendDifficulty('harder')">Harder</button>
+<button id="easierBtn">Easier</button>
+<button id="harderBtn">Harder</button>
 
 <script>
-let recognition;
+let recognition = null;
+
+document.getElementById("startBtn").addEventListener("click", startSession);
+document.getElementById("speakBtn").addEventListener("click", startListening);
+document.getElementById("easierBtn").addEventListener("click", () => sendDifficulty("easier"));
+document.getElementById("harderBtn").addEventListener("click", () => sendDifficulty("harder"));
 
 function startSession() {
+  const level = document.getElementById("level").value;
+
   fetch("api/start_session.php", {
     method: "POST",
-    headers: {"Content-Type": "application/x-www-form-urlencoded"},
-    body: "level=" + document.getElementById("level").value
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: "level=" + encodeURIComponent(level)
   })
-  .then(res => res.json())
+  .then(r => r.json())
   .then(data => {
+    if (!data.first_prompt) return;
     document.getElementById("prompt").innerText = data.first_prompt;
     speak(data.first_prompt);
-  });
+  })
+  .catch(console.error);
 }
 
 function startListening() {
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  recognition = new SpeechRecognition();
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) {
+    alert("Speech Recognition not supported in this browser.");
+    return;
+  }
+
+  recognition = new SR();
   recognition.lang = "fr-FR";
+  recognition.interimResults = false;
 
   recognition.onresult = e => {
     const transcript = e.results[0][0].transcript;
@@ -66,29 +82,31 @@ function startListening() {
 function sendTurn(text) {
   fetch("api/practice_turn.php", {
     method: "POST",
-    headers: {"Content-Type": "application/x-www-form-urlencoded"},
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: "transcript=" + encodeURIComponent(text)
   })
-  .then(res => res.json())
+  .then(r => r.json())
   .then(data => {
-    document.getElementById("feedback").innerText = data.feedback;
-    document.getElementById("prompt").innerText = data.next_prompt;
-    speak(data.next_prompt);
-  });
+    document.getElementById("feedback").innerText = data.feedback || "";
+    document.getElementById("prompt").innerText = data.next_prompt || "";
+    if (data.next_prompt) speak(data.next_prompt);
+  })
+  .catch(console.error);
 }
 
-function sendDifficulty(dir) {
+function sendDifficulty(value) {
   fetch("api/practice_turn.php", {
     method: "POST",
-    headers: {"Content-Type": "application/x-www-form-urlencoded"},
-    body: "manual_difficulty=" + dir
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: "manual_difficulty=" + encodeURIComponent(value)
   });
 }
 
 function speak(text) {
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = "fr-FR";
-  speechSynthesis.speak(u);
+  if (!window.speechSynthesis) return;
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = "fr-FR";
+  window.speechSynthesis.speak(utterance);
 }
 </script>
 
