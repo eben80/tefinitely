@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>French Speaking Practice</title>
+  <style>
+    body { font-family: sans-serif; max-width: 700px; margin: auto; }
+    button { margin: 5px; }
+    #prompt { font-size: 1.2em; margin: 20px 0; }
+    #feedback { color: green; }
+  </style>
+</head>
+<body>
+
+<h2>French Speaking Practice</h2>
+
+<label>Initial Level:</label>
+<select id="level">
+  <option value="A1">A1 (Beginner)</option>
+  <option value="A2">A2</option>
+  <option value="B1">B1</option>
+</select>
+
+<button onclick="startSession()">Start</button>
+
+<hr>
+
+<div id="prompt"></div>
+
+<button onclick="startListening()">🎤 Speak</button>
+
+<div id="feedback"></div>
+
+<button onclick="sendDifficulty('easier')">Easier</button>
+<button onclick="sendDifficulty('harder')">Harder</button>
+
+<script>
+let recognition;
+
+function startSession() {
+  fetch("api/start_session.php", {
+    method: "POST",
+    headers: {"Content-Type": "application/x-www-form-urlencoded"},
+    body: "level=" + document.getElementById("level").value
+  })
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById("prompt").innerText = data.first_prompt;
+    speak(data.first_prompt);
+  });
+}
+
+function startListening() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SpeechRecognition();
+  recognition.lang = "fr-FR";
+
+  recognition.onresult = e => {
+    const transcript = e.results[0][0].transcript;
+    sendTurn(transcript);
+  };
+
+  recognition.start();
+}
+
+function sendTurn(text) {
+  fetch("api/practice_turn.php", {
+    method: "POST",
+    headers: {"Content-Type": "application/x-www-form-urlencoded"},
+    body: "transcript=" + encodeURIComponent(text)
+  })
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById("feedback").innerText = data.feedback;
+    document.getElementById("prompt").innerText = data.next_prompt;
+    speak(data.next_prompt);
+  });
+}
+
+function sendDifficulty(dir) {
+  fetch("api/practice_turn.php", {
+    method: "POST",
+    headers: {"Content-Type": "application/x-www-form-urlencoded"},
+    body: "manual_difficulty=" + dir
+  });
+}
+
+function speak(text) {
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "fr-FR";
+  speechSynthesis.speak(u);
+}
+</script>
+
+</body>
+</html>
