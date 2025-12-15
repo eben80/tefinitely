@@ -5,23 +5,35 @@
 <title>French Conversation Practice</title>
 <style>
 body { font-family: sans-serif; max-width: 600px; margin: 20px auto; }
+#controls { margin-bottom: 10px; }
 #chat { max-height: 400px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
 .user { text-align: right; color: blue; margin: 5px; }
 .assistant { text-align: left; color: green; margin: 5px; }
 .suggestion { text-align: left; color: gray; font-style: italic; margin: 3px; }
+input[type=text] { flex: 1; padding: 5px; font-size: 1em; }
+button { padding: 5px 10px; font-size: 1em; margin-left: 5px; }
 #input-area { display: flex; }
-#user-input { flex: 1; padding: 5px; font-size: 1em; }
-#send-btn { padding: 5px 10px; font-size: 1em; }
 </style>
 </head>
 <body>
 
 <h1>French Conversation Practice</h1>
 
+<div id="controls">
+    Niveau: 
+    <select id="level">
+        <option value="A1">A1</option>
+        <option value="A2" selected>A2</option>
+        <option value="B1">B1</option>
+        <option value="B2">B2</option>
+    </select>
+    <button id="start-btn">Démarrer</button>
+</div>
+
 <div id="chat"></div>
 
 <div id="input-area">
-    <input type="text" id="user-input" placeholder="Tapez votre phrase ici..." autofocus />
+    <input type="text" id="user-input" placeholder="Tapez votre phrase ici..." />
     <button id="send-btn">Envoyer</button>
 </div>
 
@@ -29,11 +41,22 @@ body { font-family: sans-serif; max-width: 600px; margin: 20px auto; }
 const chatContainer = document.getElementById('chat');
 const inputField = document.getElementById('user-input');
 const sendButton = document.getElementById('send-btn');
+const startButton = document.getElementById('start-btn');
+const levelSelector = document.getElementById('level');
 
 function appendMessage(role, text) {
     const div = document.createElement('div');
     div.className = role; // 'user', 'assistant', 'suggestion'
     div.innerHTML = text;
+
+    if(role === 'assistant') {
+        const speakBtn = document.createElement('button');
+        speakBtn.textContent = '🔊';
+        speakBtn.style.marginLeft = '5px';
+        speakBtn.addEventListener('click', () => speak(text));
+        div.appendChild(speakBtn);
+    }
+
     chatContainer.appendChild(div);
     chatContainer.scrollTop = chatContainer.scrollHeight;
 }
@@ -46,14 +69,15 @@ function speak(text) {
     }
 }
 
-async function startSession(level = 'A2') {
-    // Call start_session.php to get scenario and first assistant line
+async function startSession(level) {
     const res = await fetch('api/start_session.php', {
         method: 'POST',
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         body: 'level=' + encodeURIComponent(level)
     });
     const data = await res.json();
+    chatContainer.innerHTML = ''; // clear previous chat
+
     if (data.scenario) {
         appendMessage('suggestion', `<em>Scénario: ${data.scenario}</em>`);
     }
@@ -87,16 +111,12 @@ async function sendMessage() {
     }
 }
 
-// Send on button click
+// Event listeners
 sendButton.addEventListener('click', sendMessage);
-
-// Send on Enter key
 inputField.addEventListener('keypress', e => {
     if (e.key === 'Enter') sendMessage();
 });
-
-// Start session automatically on page load
-startSession('A2');
+startButton.addEventListener('click', () => startSession(levelSelector.value));
 </script>
 
 </body>
