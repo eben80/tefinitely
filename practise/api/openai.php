@@ -15,7 +15,7 @@ function openai_chat(array $messages): array
     }
 
     $payload = [
-        "model" => "gpt-4o",
+        "model" => "gpt-4o-mini",
         "messages" => $messages,
         "temperature" => 0.6
     ];
