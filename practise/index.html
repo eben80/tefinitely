@@ -18,15 +18,15 @@ button { padding: 5px 10px; font-size: 1em; margin-left: 5px; }
 </head>
 <body>
 
-<h1>Language Conversation Practice</h1>
+<h1 id="page-title">Language Conversation Practice</h1>
 
 <div id="controls">
-    Langue: 
+    <label id="lang-label">Langue:</label> 
     <select id="language">
         <option value="fr" selected>Français</option>
         <option value="en">English</option>
     </select>
-    Niveau: 
+    <label id="level-label">Niveau:</label> 
     <select id="level">
         <option value="A1">A1</option>
         <option value="A2" selected>A2</option>
@@ -35,7 +35,8 @@ button { padding: 5px 10px; font-size: 1em; margin-left: 5px; }
     </select>
     <button id="start-btn">Démarrer</button>
     <div id="speed-container">
-        Vitesse de parole: <span id="speed-value">1.0</span>
+        <span id="speed-label">Vitesse de parole:</span> 
+        <span id="speed-value">1.0</span>
         <input type="range" id="speech-speed" min="0.5" max="1.2" value="1" step="0.05">
     </div>
 </div>
@@ -59,6 +60,56 @@ const languageSelector = document.getElementById('language');
 const speedSlider = document.getElementById('speech-speed');
 const speedValue = document.getElementById('speed-value');
 
+// Interface elements to translate
+const pageTitle = document.getElementById('page-title');
+const langLabel = document.getElementById('lang-label');
+const levelLabel = document.getElementById('level-label');
+const speedLabel = document.getElementById('speed-label');
+
+// -------------------- Interface translations --------------------
+const translations = {
+    fr: {
+        pageTitle: 'Pratique de conversation',
+        langLabel: 'Langue:',
+        levelLabel: 'Niveau:',
+        startBtn: 'Démarrer',
+        speedLabel: 'Vitesse de parole:',
+        userPlaceholder: 'Tapez votre phrase ici...',
+        sendBtn: 'Envoyer',
+        speakBtn: '🎤 Parler'
+    },
+    en: {
+        pageTitle: 'Conversation Practice',
+        langLabel: 'Language:',
+        levelLabel: 'Level:',
+        startBtn: 'Start',
+        speedLabel: 'Speech speed:',
+        userPlaceholder: 'Type your sentence here...',
+        sendBtn: 'Send',
+        speakBtn: '🎤 Speak'
+    }
+};
+
+function updateInterface(lang) {
+    const t = translations[lang];
+    pageTitle.textContent = t.pageTitle;
+    langLabel.textContent = t.langLabel;
+    levelLabel.textContent = t.levelLabel;
+    startButton.textContent = t.startBtn;
+    speedLabel.textContent = t.speedLabel;
+    inputField.placeholder = t.userPlaceholder;
+    sendButton.textContent = t.sendBtn;
+    speakButton.textContent = t.speakBtn;
+}
+
+// Update interface immediately on language change
+languageSelector.addEventListener('change', () => {
+    updateInterface(languageSelector.value);
+});
+
+// Initialize interface
+updateInterface(languageSelector.value);
+
 // -------------------- Speech queue --------------------
 let speaking = false;
 const speechQueue = [];
@@ -68,7 +119,6 @@ let speechRate = parseFloat(localStorage.getItem('speechRate')) || parseFloat(sp
 speedSlider.value = speechRate;
 speedValue.textContent = speechRate.toFixed(2);
 
-// Update rate from slider
 speedSlider.addEventListener('input', () => {
     speechRate = parseFloat(speedSlider.value);
     speedValue.textContent = speechRate.toFixed(2);
@@ -190,7 +240,7 @@ function setupRecognition(language) {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         recognition = new SpeechRecognition();
-        recognition.lang = language === 'fr' ? 'fr-FR' : 'en-US'; // still en-US
+        recognition.lang = language === 'fr' ? 'fr-FR' : 'en-US';
         recognition.interimResults = false;
         recognition.maxAlternatives = 1;
 
