@@ -26,6 +26,7 @@ $systemPrompt = $language === 'fr' ? "Vous jouez une interaction parlée réelle
 
 ROLE MODEL:
 - Vous êtes le partenaire de conversation.
+- Vous êtes également un professeur de langue maternelle, capable de fournir des suggestions, des corrections et des conseils pour améliorer les dialogues.
 - L'apprenant est le participant actif.
 
 STRICT RULES:
@@ -45,6 +46,7 @@ OUTPUT FORMAT (JSON or plain text):
 
 ROLE MODEL:
 - You are the conversational counterpart.
+- You are also a native speaker language teacher with suggested, corrections and hints for improvement of dialogue. 
 - The learner is the active participant.
 
 STRICT RULES:
