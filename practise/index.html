@@ -72,7 +72,7 @@ speedValue.textContent = speechRate.toFixed(2);
 speedSlider.addEventListener('input', () => {
     speechRate = parseFloat(speedSlider.value);
     speedValue.textContent = speechRate.toFixed(2);
-    localStorage.setItem('speechRate', speechRate); // Save for next session
+    localStorage.setItem('speechRate', speechRate);
 });
 
 function speak(text) {
@@ -87,7 +87,6 @@ function speak(text) {
         }
         speaking = true;
         const utter = new SpeechSynthesisUtterance(speechQueue.shift());
-        // TTS language based on selection
         utter.lang = languageSelector.value === 'fr' ? 'fr-FR' : 'en-US';
         utter.rate = speechRate;
         utter.onend = next;
@@ -117,6 +116,8 @@ function appendMessage(role, text) {
 
 // -------------------- Start session --------------------
 async function startSession(level, language) {
+    setupRecognition(language); // Initialize speech recognition for selected language
+
     const res = await fetch('api/start_session.php', {
         method: 'POST',
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
@@ -172,27 +173,29 @@ sendButton.addEventListener('click', sendMessage);
 inputField.addEventListener('keypress', e => { if(e.key==='Enter') sendMessage(); });
 startButton.addEventListener('click', () => startSession(levelSelector.value, languageSelector.value));
 
-// -------------------- Learner microphone --------------------
+// -------------------- Speech recognition --------------------
 let recognition;
-if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    recognition = new SpeechRecognition();
-    recognition.lang = languageSelector.value === 'fr' ? 'fr-FR' : 'en-US';
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
+function setupRecognition(language) {
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.lang = language === 'fr' ? 'fr-FR' : 'en-US';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
 
-    recognition.onresult = function(event) {
-        const transcript = event.results[0][0].transcript;
-        inputField.value = transcript;
-        sendMessage();
-    };
+        recognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript;
+            inputField.value = transcript;
+            sendMessage();
+        };
 
-    recognition.onerror = function(event) {
-        console.error('Speech recognition error:', event.error);
-    };
-} else {
-    speakButton.disabled = true;
-    console.warn('Speech recognition not supported in this browser');
+        recognition.onerror = function(event) {
+            console.error('Speech recognition error:', event.error);
+        };
+    } else {
+        speakButton.disabled = true;
+        console.warn('Speech recognition not supported in this browser');
+    }
 }
 
 speakButton.addEventListener('click', () => {
