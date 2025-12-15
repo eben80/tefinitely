@@ -55,7 +55,11 @@ const languageSelector = document.getElementById('language');
 const speedSlider = document.getElementById('speech-speed');
 const speedValue = document.getElementById('speed-value');
 
-// Interface elements to translate
+// iOS detection
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+let ttsUnlocked = false;
+
+// Interface elements
 const pageTitle = document.getElementById('page-title');
 const langLabel = document.getElementById('lang-label');
 const levelLabel = document.getElementById('level-label');
@@ -101,7 +105,7 @@ const translations = {
     }
 };
 
-// -------------------- Update interface --------------------
+// -------------------- UI update --------------------
 function updateInterface(lang) {
     const t = translations[lang];
     pageTitle.textContent = t.pageTitle;
@@ -113,23 +117,20 @@ function updateInterface(lang) {
     sendButton.textContent = t.sendBtn;
     speakButton.textContent = t.speakBtn;
 
-    // Update level options
     levelSelector.innerHTML = '';
     for (const [key, label] of Object.entries(t.levels)) {
         const opt = document.createElement('option');
         opt.value = key;
         opt.textContent = label;
-        if (key === 'A2') opt.selected = true; // default
+        if (key === 'A2') opt.selected = true;
         levelSelector.appendChild(opt);
     }
 }
 
-// Immediate update on language change
 languageSelector.addEventListener('change', () => {
     updateInterface(languageSelector.value);
 });
 
-// Initialize interface
 updateInterface(languageSelector.value);
 
 // -------------------- Speech queue --------------------
@@ -148,15 +149,36 @@ speedSlider.addEventListener('input', () => {
 
 // -------------------- TTS --------------------
 let voices = [];
-speechSynthesis.onvoiceschanged = () => { voices = speechSynthesis.getVoices(); };
+
+function loadVoices() {
+    voices = speechSynthesis.getVoices();
+}
+
+speechSynthesis.onvoiceschanged = loadVoices;
+setTimeout(loadVoices, 500);
+
+function unlockTTS() {
+    if (!isIOS || ttsUnlocked || !('speechSynthesis' in window)) return;
+    const u = new SpeechSynthesisUtterance(' ');
+    u.volume = 0;
+    speechSynthesis.speak(u);
+    ttsUnlocked = true;
+}
 
 function speak(text) {
     if (!('speechSynthesis' in window) || !text) return;
+
+    if (isIOS) {
+        unlockTTS();
+        speechSynthesis.cancel();
+    }
+
     speechQueue.push(text);
     if (speaking) return;
 
     function next() {
         if (speechQueue.length === 0) { speaking = false; return; }
+
         speaking = true;
         const utter = new SpeechSynthesisUtterance(speechQueue.shift());
 
@@ -165,7 +187,10 @@ function speak(text) {
             utter.voice = voices.find(v => v.lang.startsWith('fr')) || null;
         } else {
             utter.lang = 'en-US';
-            utter.voice = voices.find(v => v.name === 'Google US English') || voices.find(v => v.lang.startsWith('en')) || null;
+            utter.voice =
+                voices.find(v => v.name === 'Google US English') ||
+                voices.find(v => v.lang.startsWith('en')) ||
+                null;
         }
 
         utter.rate = speechRate;
@@ -186,7 +211,10 @@ function appendMessage(role, text) {
         const speakBtn = document.createElement('button');
         speakBtn.textContent = '🔊';
         speakBtn.style.marginLeft = '5px';
-        speakBtn.addEventListener('click', () => speak(text));
+        speakBtn.addEventListener('click', () => {
+            unlockTTS();
+            speak(text);
+        });
         div.appendChild(speakBtn);
     }
 
@@ -197,6 +225,7 @@ function appendMessage(role, text) {
 // -------------------- Start session --------------------
 async function startSession(level, language) {
     setupRecognition(language);
+    unlockTTS();
 
     const res = await fetch('api/start_session.php', {
         method: 'POST',
@@ -222,13 +251,12 @@ async function sendMessage() {
 
     sendButton.disabled = true;
     speakButton.disabled = true;
-
-    const language = languageSelector.value;
+    unlockTTS();
 
     const res = await fetch('api/continue_session.php', {
         method: 'POST',
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: 'text=' + encodeURIComponent(text) + '&language=' + encodeURIComponent(language)
+        body: 'text=' + encodeURIComponent(text) + '&language=' + encodeURIComponent(languageSelector.value)
     });
 
     const data = await res.json();
@@ -237,15 +265,14 @@ async function sendMessage() {
         appendMessage('assistant', data.assistant);
         speak(data.assistant);
     }
-
     if (data.suggestion) appendMessage('suggestion', `<em>${data.suggestion}</em>`);
 
     sendButton.disabled = false;
     speakButton.disabled = false;
 }
 
-// -------------------- Event listeners --------------------
-sendButton.addEventListener('click', sendMessage);
+// -------------------- Events --------------------
+sendButton.addEventListener('click', () => { unlockTTS(); sendMessage(); });
 inputField.addEventListener('keypress', e => { if(e.key==='Enter') sendMessage(); });
 startButton.addEventListener('click', () => startSession(levelSelector.value, languageSelector.value));
 
@@ -260,21 +287,14 @@ function setupRecognition(language) {
         recognition.maxAlternatives = 1;
 
         recognition.onresult = function(event) {
-            const transcript = event.results[0][0].transcript;
-            inputField.value = transcript;
+            inputField.value = event.results[0][0].transcript;
             sendMessage();
         };
-
-        recognition.onerror = function(event) {
-            console.error('Speech recognition error:', event.error);
-        };
-    } else {
-        speakButton.disabled = true;
-        console.warn('Speech recognition not supported in this browser');
     }
 }
 
 speakButton.addEventListener('click', () => {
+    unlockTTS();
     if (recognition) recognition.start();
 });
 </script>
