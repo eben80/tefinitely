@@ -1,8 +1,10 @@
 <?php
 session_start();
-require "openai.php";
+require_once "openai.php";
 
-$level = $_POST['level'];
+header("Content-Type: application/json");
+
+$level = $_POST['level'] ?? "A1";
 
 $_SESSION['state'] = [
     "level" => $level,
@@ -11,10 +13,10 @@ $_SESSION['state'] = [
 ];
 
 $prompt = "
-Generate a spoken French practice scenario.
-Level: $level
+Generate a French speaking practice scenario.
+Level: {$level}
 
-Return JSON:
+Respond ONLY in JSON:
 {
   \"scenario\": \"title\",
   \"first_prompt\": \"spoken French question\"
