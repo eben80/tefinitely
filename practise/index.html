@@ -26,6 +26,11 @@ body {
 button {
   margin: 5px;
 }
+  .suggestion {
+  color: #6b7280;
+  font-size: 0.9em;
+  margin-left: 10px;
+}
 </style>
 </head>
 <body>
@@ -136,7 +141,16 @@ async function send(text) {
   document.getElementById('chat').innerHTML +=
     `<div class="assistant">${data.assistant}</div>`;
 
-  speak(data.assistant);
+document.getElementById('chat').innerHTML +=
+  `<div class="assistant">${data.assistant}</div>`;
+
+if (data.suggestion) {
+  document.getElementById('chat').innerHTML +=
+    `<div class="suggestion"><em>Suggestion: ${data.suggestion}</em></div>`;
+}
+
+// Speak ONLY dialogue
+speak(data.assistant);
 }
 </script>
 
