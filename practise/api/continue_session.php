@@ -39,7 +39,7 @@ $messages = [
              - Feedback or corrections ONLY go in SUGGESTION.
              - Ask for clarification ONLY if meaning is unclear.
 
-             OUTPUT FORMAT (JSON ONLY):
+             OUTPUT FORMAT (JSON or plain text):
              {
                  \"dialogue\": \"<what you say>\",
                  \"suggestion\": \"<optional>\"
@@ -57,16 +57,23 @@ $messages = array_merge($messages, $_SESSION['conversation']);
 $response = openai_chat($messages);
 $raw = trim($response['content'] ?? '');
 
-// Robust JSON extraction
-preg_match('/\{(?:[^{}]|(?R))*\}/', $raw, $matches);
-if (!empty($matches)) {
+// ------------------ Robust extraction ------------------
+$dialogue = '';
+$suggestion = '';
+
+// 1️⃣ Try to extract JSON first
+if (preg_match('/\{(?:[^{}]|(?R))*\}/', $raw, $matches)) {
     $jsonText = $matches[0];
     $parsed = json_decode($jsonText, true);
-    $dialogue = $parsed['dialogue'] ?? '';
-    $suggestion = $parsed['suggestion'] ?? '';
-} else {
-    $dialogue = '';
-    $suggestion = '';
+    if ($parsed) {
+        $dialogue = trim($parsed['dialogue'] ?? '');
+        $suggestion = trim($parsed['suggestion'] ?? '');
+    }
+}
+
+// 2️⃣ Fallback: if JSON failed or dialogue empty, use full raw text as dialogue
+if (!$dialogue && $raw) {
+    $dialogue = $raw;
 }
 
 // Add assistant reply to conversation
