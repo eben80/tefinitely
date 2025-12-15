@@ -103,9 +103,9 @@ $dialogue = trim($dialogue);
 $suggestion = trim($suggestion);
 
 // 5️⃣ Fallback suggestion if none
-if (!$suggestion) {
-    $suggestion = $language === 'fr' ? "Essayez de reformuler pour plus de clarté." : "Try to rephrase for clarity.";
-}
+// if (!$suggestion) {
+//     $suggestion = $language === 'fr' ? "Essayez de reformuler pour plus de clarté." : "Try to rephrase for clarity.";
+// }
 
 // Save assistant response in session
 $_SESSION['conversation'][] = [
