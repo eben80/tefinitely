@@ -34,6 +34,8 @@ if (!$apiKey) {
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
 
     $response = curl_exec($ch);
+    file_put_contents('/tmp/openai_response.log', $response . "\n\n", FILE_APPEND);
+
     curl_close($ch);
 
     if (!$response) {
