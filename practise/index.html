@@ -27,12 +27,7 @@ button { padding: 5px 10px; font-size: 1em; margin-left: 5px; }
         <option value="en">English</option>
     </select>
     <label id="level-label">Niveau:</label> 
-    <select id="level">
-        <option value="A1">A1</option>
-        <option value="A2" selected>A2</option>
-        <option value="B1">B1</option>
-        <option value="B2">B2</option>
-    </select>
+    <select id="level"></select>
     <button id="start-btn">Démarrer</button>
     <div id="speed-container">
         <span id="speed-label">Vitesse de parole:</span> 
@@ -66,7 +61,7 @@ const langLabel = document.getElementById('lang-label');
 const levelLabel = document.getElementById('level-label');
 const speedLabel = document.getElementById('speed-label');
 
-// -------------------- Interface translations --------------------
+// -------------------- Translations --------------------
 const translations = {
     fr: {
         pageTitle: 'Pratique de conversation',
@@ -76,7 +71,15 @@ const translations = {
         speedLabel: 'Vitesse de parole:',
         userPlaceholder: 'Tapez votre phrase ici...',
         sendBtn: 'Envoyer',
-        speakBtn: '🎤 Parler'
+        speakBtn: '🎤 Parler',
+        levels: {
+            A1: 'A1 - Débutant',
+            A2: 'A2 - Élémentaire',
+            B1: 'B1 - Intermédiaire',
+            B2: 'B2 - Intermédiaire supérieur',
+            C1: 'C1 - Avancé',
+            C2: 'C2 - Maîtrise'
+        }
     },
     en: {
         pageTitle: 'Conversation Practice',
@@ -86,10 +89,19 @@ const translations = {
         speedLabel: 'Speech speed:',
         userPlaceholder: 'Type your sentence here...',
         sendBtn: 'Send',
-        speakBtn: '🎤 Speak'
+        speakBtn: '🎤 Speak',
+        levels: {
+            A1: 'A1 - Beginner',
+            A2: 'A2 - Elementary',
+            B1: 'B1 - Intermediate',
+            B2: 'B2 - Upper Intermediate',
+            C1: 'C1 - Advanced',
+            C2: 'C2 - Proficient'
+        }
     }
 };
 
+// -------------------- Update interface --------------------
 function updateInterface(lang) {
     const t = translations[lang];
     pageTitle.textContent = t.pageTitle;
@@ -100,9 +112,19 @@ function updateInterface(lang) {
     inputField.placeholder = t.userPlaceholder;
     sendButton.textContent = t.sendBtn;
     speakButton.textContent = t.speakBtn;
+
+    // Update level options
+    levelSelector.innerHTML = '';
+    for (const [key, label] of Object.entries(t.levels)) {
+        const opt = document.createElement('option');
+        opt.value = key;
+        opt.textContent = label;
+        if (key === 'A2') opt.selected = true; // default
+        levelSelector.appendChild(opt);
+    }
 }
 
-// Update interface immediately on language change
+// Immediate update on language change
 languageSelector.addEventListener('change', () => {
     updateInterface(languageSelector.value);
 });
@@ -114,7 +136,6 @@ updateInterface(languageSelector.value);
 let speaking = false;
 const speechQueue = [];
 
-// Restore last speed from localStorage
 let speechRate = parseFloat(localStorage.getItem('speechRate')) || parseFloat(speedSlider.value);
 speedSlider.value = speechRate;
 speedValue.textContent = speechRate.toFixed(2);
@@ -125,11 +146,9 @@ speedSlider.addEventListener('input', () => {
     localStorage.setItem('speechRate', speechRate);
 });
 
-// -------------------- TTS speak function --------------------
+// -------------------- TTS --------------------
 let voices = [];
-speechSynthesis.onvoiceschanged = () => {
-    voices = speechSynthesis.getVoices();
-};
+speechSynthesis.onvoiceschanged = () => { voices = speechSynthesis.getVoices(); };
 
 function speak(text) {
     if (!('speechSynthesis' in window) || !text) return;
@@ -137,10 +156,7 @@ function speak(text) {
     if (speaking) return;
 
     function next() {
-        if (speechQueue.length === 0) {
-            speaking = false;
-            return;
-        }
+        if (speechQueue.length === 0) { speaking = false; return; }
         speaking = true;
         const utter = new SpeechSynthesisUtterance(speechQueue.shift());
 
@@ -148,7 +164,6 @@ function speak(text) {
             utter.lang = 'fr-FR';
             utter.voice = voices.find(v => v.lang.startsWith('fr')) || null;
         } else {
-            // Always prefer Google US English for English
             utter.lang = 'en-US';
             utter.voice = voices.find(v => v.name === 'Google US English') || voices.find(v => v.lang.startsWith('en')) || null;
         }
