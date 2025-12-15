@@ -1,112 +1,65 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>French Speaking Practice</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body { font-family: Arial, sans-serif; max-width: 720px; margin: auto; }
-    button { margin: 6px 0; }
-    #prompt { font-size: 1.2em; margin: 20px 0; }
-    #feedback { color: #006400; min-height: 1.2em; }
-  </style>
+<meta charset="UTF-8">
+<title>French Speaking Practice</title>
+<style>
+body { font-family: Arial; max-width: 700px; margin: auto; }
+#chat div { margin: 10px 0; }
+.assistant { color: blue; }
+.user { color: green; }
+</style>
 </head>
 <body>
 
 <h2>French Speaking Practice</h2>
 
-<label for="level">Initial Level:</label>
 <select id="level">
-  <option value="A1">A1 – Beginner</option>
-  <option value="A2">A2 – Elementary</option>
-  <option value="B1">B1 – Intermediate</option>
+  <option value="A1">A1</option>
+  <option value="A2">A2</option>
+  <option value="B1">B1</option>
 </select>
+<button onclick="start()">Start</button>
 
-<button id="startBtn">Start Practice</button>
+<div id="scenario"></div>
+<div id="chat"></div>
 
-<hr>
-
-<div id="prompt"></div>
-
-<button id="speakBtn">🎤 Speak</button>
-
-<div id="feedback"></div>
-
-<button id="easierBtn">Easier</button>
-<button id="harderBtn">Harder</button>
+<input id="input" placeholder="Votre réponse..." style="width:80%">
+<button onclick="send()">Send</button>
 
 <script>
-let recognition = null;
+async function start() {
+  const level = document.getElementById('level').value;
 
-document.getElementById("startBtn").addEventListener("click", startSession);
-document.getElementById("speakBtn").addEventListener("click", startListening);
-document.getElementById("easierBtn").addEventListener("click", () => sendDifficulty("easier"));
-document.getElementById("harderBtn").addEventListener("click", () => sendDifficulty("harder"));
-
-function startSession() {
-  const level = document.getElementById("level").value;
-
-  fetch("api/start_session.php", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: "level=" + encodeURIComponent(level)
-  })
-  .then(r => r.json())
-  .then(data => {
-    if (!data.first_prompt) return;
-    document.getElementById("prompt").innerText = data.first_prompt;
-    speak(data.first_prompt);
-  })
-  .catch(console.error);
-}
-
-function startListening() {
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) {
-    alert("Speech Recognition not supported in this browser.");
-    return;
-  }
-
-  recognition = new SR();
-  recognition.lang = "fr-FR";
-  recognition.interimResults = false;
-
-  recognition.onresult = e => {
-    const transcript = e.results[0][0].transcript;
-    sendTurn(transcript);
-  };
-
-  recognition.start();
-}
-
-function sendTurn(text) {
-  fetch("api/practice_turn.php", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: "transcript=" + encodeURIComponent(text)
-  })
-  .then(r => r.json())
-  .then(data => {
-    document.getElementById("feedback").innerText = data.feedback || "";
-    document.getElementById("prompt").innerText = data.next_prompt || "";
-    if (data.next_prompt) speak(data.next_prompt);
-  })
-  .catch(console.error);
-}
-
-function sendDifficulty(value) {
-  fetch("api/practice_turn.php", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: "manual_difficulty=" + encodeURIComponent(value)
+  const res = await fetch('api/start_session.php', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+    body: 'level=' + level
   });
+
+  const data = await res.json();
+  document.getElementById('scenario').innerText = data.scenario;
+  document.getElementById('chat').innerHTML =
+    `<div class="assistant">${data.assistant}</div>`;
 }
 
-function speak(text) {
-  if (!window.speechSynthesis) return;
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = "fr-FR";
-  window.speechSynthesis.speak(utterance);
+async function send() {
+  const text = document.getElementById('input').value;
+  if (!text) return;
+
+  document.getElementById('chat').innerHTML +=
+    `<div class="user">${text}</div>`;
+  document.getElementById('input').value = '';
+
+  const res = await fetch('api/continue_session.php', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+    body: 'text=' + encodeURIComponent(text)
+  });
+
+  const data = await res.json();
+  document.getElementById('chat').innerHTML +=
+    `<div class="assistant">${data.assistant}</div>`;
 }
 </script>
 
