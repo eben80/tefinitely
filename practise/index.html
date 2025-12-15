@@ -79,6 +79,7 @@ speedSlider.addEventListener('input', () => {
 let voices = [];
 speechSynthesis.onvoiceschanged = () => {
     voices = speechSynthesis.getVoices();
+    console.log(voices);
 };
 
 function speak(text) {
