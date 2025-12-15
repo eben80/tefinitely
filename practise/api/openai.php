@@ -1,7 +1,11 @@
 <?php
 function openai_call(string $prompt): array
 {
-    $apiKey = "YOUR_OPENAI_API_KEY";
+    $apiKey = getenv("OPENAI_API_KEY");
+
+if (!$apiKey) {
+    throw new Exception("OpenAI API key not set in environment");
+}
 
     $payload = [
         "model" => "gpt-4o",
