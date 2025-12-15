@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>French Conversation Practice</title>
+<title>Language Conversation Practice</title>
 <style>
 body { font-family: sans-serif; max-width: 600px; margin: 20px auto; }
 #controls { margin-bottom: 10px; }
@@ -18,9 +18,14 @@ button { padding: 5px 10px; font-size: 1em; margin-left: 5px; }
 </head>
 <body>
 
-<h1>French Conversation Practice</h1>
+<h1>Language Conversation Practice</h1>
 
 <div id="controls">
+    Langue: 
+    <select id="language">
+        <option value="fr" selected>Français</option>
+        <option value="en">English</option>
+    </select>
     Niveau: 
     <select id="level">
         <option value="A1">A1</option>
@@ -50,6 +55,7 @@ const sendButton = document.getElementById('send-btn');
 const startButton = document.getElementById('start-btn');
 const levelSelector = document.getElementById('level');
 const speakButton = document.getElementById('speak-btn');
+const languageSelector = document.getElementById('language');
 const speedSlider = document.getElementById('speech-speed');
 const speedValue = document.getElementById('speed-value');
 
@@ -81,8 +87,9 @@ function speak(text) {
         }
         speaking = true;
         const utter = new SpeechSynthesisUtterance(speechQueue.shift());
-        utter.lang = 'fr-FR';
-        utter.rate = speechRate;  // Apply stored/current rate
+        // TTS language based on selection
+        utter.lang = languageSelector.value === 'fr' ? 'fr-FR' : 'en-US';
+        utter.rate = speechRate;
         utter.onend = next;
         speechSynthesis.speak(utter);
     }
@@ -109,11 +116,11 @@ function appendMessage(role, text) {
 }
 
 // -------------------- Start session --------------------
-async function startSession(level) {
+async function startSession(level, language) {
     const res = await fetch('api/start_session.php', {
         method: 'POST',
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: 'level=' + encodeURIComponent(level)
+        body: 'level=' + encodeURIComponent(level) + '&language=' + encodeURIComponent(language)
     });
     const data = await res.json();
     chatContainer.innerHTML = '';
@@ -137,10 +144,12 @@ async function sendMessage() {
     sendButton.disabled = true;
     speakButton.disabled = true;
 
+    const language = languageSelector.value;
+
     const res = await fetch('api/continue_session.php', {
         method: 'POST',
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: 'text=' + encodeURIComponent(text)
+        body: 'text=' + encodeURIComponent(text) + '&language=' + encodeURIComponent(language)
     });
 
     const data = await res.json();
@@ -161,14 +170,14 @@ async function sendMessage() {
 // -------------------- Event listeners --------------------
 sendButton.addEventListener('click', sendMessage);
 inputField.addEventListener('keypress', e => { if(e.key==='Enter') sendMessage(); });
-startButton.addEventListener('click', () => startSession(levelSelector.value));
+startButton.addEventListener('click', () => startSession(levelSelector.value, languageSelector.value));
 
 // -------------------- Learner microphone --------------------
 let recognition;
 if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     recognition = new SpeechRecognition();
-    recognition.lang = 'fr-FR';
+    recognition.lang = languageSelector.value === 'fr' ? 'fr-FR' : 'en-US';
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
 
