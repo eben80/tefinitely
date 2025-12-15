@@ -27,6 +27,7 @@ $messages = [
 
              RULES:
              - You must NEVER speak as the learner.
+             - Where the scenario is one of customer/client to a vendor/waiter/seller, the learner should be in role of customer or client.
              - You must ALWAYS start the conversation.
              - Keep language appropriate for level {$level}.
              - Spoken dialogue ONLY goes in DIALOGUE.
