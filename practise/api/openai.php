@@ -58,7 +58,7 @@ function openai_call(string $prompt): array
     // Decode outer response
     $json = json_decode($response, true);
     $content = $json['choices'][0]['message']['content'] ?? '';
-
+    error_log("===CONTENT START===\n$content\n===CONTENT END===");
     if (!$content) {
         file_put_contents($log_file, date('Y-m-d H:i:s') . " - ERROR: No content returned from OpenAI\n", FILE_APPEND);
         return [];
