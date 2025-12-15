@@ -86,30 +86,28 @@ $raw = trim($response['content'] ?? '');
 $dialogue = '';
 $suggestion = '';
 
-// 1️⃣ Try to extract JSON first
+// 1️⃣ Extract JSON if present
 if (preg_match('/\{(?:[^{}]|(?R))*\}/', $raw, $matches)) {
     $jsonText = $matches[0];
     $parsed = json_decode($jsonText, true);
     if ($parsed) {
         $dialogue = trim($parsed['dialogue'] ?? '');
         $suggestion = trim($parsed['suggestion'] ?? '');
-        // Remove markdown/code block markers if present
-        $suggestion = preg_replace('/^```suggestion\s*|\s*```$/', '', $suggestion);
     }
 }
 
-// 2️⃣ Fallback: extract suggestion from markdown in raw text
-if (!$dialogue && $raw) {
-    $dialogue = $raw;
+// 2️⃣ Fallback: extract suggestion from ```suggestion``` block in raw text
+if (preg_match('/```suggestion\s*(.*?)```/s', $raw, $match)) {
+    $suggestion = trim($match[1]);
 }
 
+// 3️⃣ Remove ```suggestion``` block from dialogue text if present
+$dialogue = preg_replace('/```suggestion\s*.*?```/s', '', $dialogue);
+$dialogue = trim($dialogue);
+
+// 4️⃣ If no suggestion found, provide default fallback
 if (!$suggestion) {
-    if (preg_match('/```suggestion\s*(.*?)```/s', $raw, $match)) {
-        $suggestion = trim($match[1]);
-    } else {
-        // default fallback text
-        $suggestion = $language === 'fr' ? "Essayez de reformuler pour plus de clarté." : "Try to rephrase for clarity.";
-    }
+    $suggestion = $language === 'fr' ? "Essayez de reformuler pour plus de clarté." : "Try to rephrase for clarity.";
 }
 
 // -------------------- Add assistant reply to session --------------------
