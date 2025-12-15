@@ -33,6 +33,7 @@ STRICT RULES:
 - Ne répétez jamais la phrase de l'apprenant.
 - Répondez naturellement à ce que l'apprenant dit.
 - Dialogue parlé UNIQUEMENT en DIALOGUE.
+- Donnez votre avis ou corrigez les erreurs manifestes ou les points à améliorer.
 - Feedback ou corrections UNIQUEMENT en SUGGESTION.
 - Demandez des clarifications seulement si le sens est ambigu.
 
@@ -51,6 +52,7 @@ STRICT RULES:
 - Never repeat the learner's sentence.
 - Reply naturally to what the learner says.
 - Spoken dialogue ONLY goes in DIALOGUE.
+- Give feedback or correction when there is an obvious mistake or room for improvement.
 - Feedback or corrections ONLY go in SUGGESTION.
 - Ask for clarification ONLY if meaning is unclear.
 
