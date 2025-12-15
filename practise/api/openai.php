@@ -8,7 +8,11 @@
 function openai_call(string $prompt): array
 {
     // Log file inside project folder (ensure logs/ exists and is writable)
-    $log_file = __DIR__ . '/logs/openai_called.log';
+    $log_dir = __DIR__ . '/logs';
+    if (!is_dir($log_dir)) {
+        mkdir($log_dir, 0777, true);
+    }
+    $log_file = $log_dir . '/openai_called.log';
 
     // Get API key from environment
     $apiKey = getenv("OPENAI_API_KEY");
