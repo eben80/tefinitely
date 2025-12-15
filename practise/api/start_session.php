@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once "openai.php";
+require_once __DIR__ . "/openai.php";
 
 header("Content-Type: application/json");
 
