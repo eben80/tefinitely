@@ -15,13 +15,13 @@ if (!$userText || !isset($_SESSION['conversation'])) {
     exit;
 }
 
-// Add user message once
+// Add user message
 $_SESSION['conversation'][] = [
     "role" => "user",
     "content" => $userText
 ];
 
-// -------------------- Build messages with language context --------------------
+// -------------------- Build system prompt based on language --------------------
 if ($language === 'fr') {
     $systemPrompt = "Vous jouez une interaction parlée réelle en français.
 
@@ -35,19 +35,12 @@ STRICT RULES:
 - Répondez naturellement à ce que l'apprenant dit.
 - Dialogue parlé UNIQUEMENT en DIALOGUE.
 - Feedback ou corrections UNIQUEMENT en SUGGESTION.
-- **Toujours fournir une suggestion ou un conseil pour l'apprenant, même court.**
 - Demandez des clarifications seulement si le sens est ambigu.
 
-OUTPUT FORMAT (JSON):
+OUTPUT FORMAT (JSON or plain text):
 {
     \"dialogue\": \"<ce que vous dites>\",
-    \"suggestion\": \"<toujours fournir une suggestion>\"
-}
-
-Exemple:
-{
-    \"dialogue\": \"Bonjour! Comment puis-je vous aider aujourd'hui?\",
-    \"suggestion\": \"N'oubliez pas de saluer poliment et de vérifier le temps verbal.\"
+    \"suggestion\": \"<optionnel>\"
 }";
 } else {
     $systemPrompt = "You are role-playing a real-life spoken interaction in English.
@@ -62,19 +55,12 @@ STRICT RULES:
 - Reply naturally to what the learner says.
 - Spoken dialogue ONLY goes in DIALOGUE.
 - Feedback or corrections ONLY go in SUGGESTION.
-- **Always provide a suggestion or tip for the learner, even if brief.**
 - Ask for clarification ONLY if meaning is unclear.
 
-OUTPUT FORMAT (JSON):
+OUTPUT FORMAT (JSON or plain text):
 {
     \"dialogue\": \"<what you say>\",
-    \"suggestion\": \"<always provide a suggestion>\"
-}
-
-Example:
-{
-    \"dialogue\": \"Hello! How can I help you today?\",
-    \"suggestion\": \"Remember to greet politely and check your verb tense.\"
+    \"suggestion\": \"<optional>\"
 }";
 }
 
@@ -107,25 +93,32 @@ if (preg_match('/\{(?:[^{}]|(?R))*\}/', $raw, $matches)) {
     if ($parsed) {
         $dialogue = trim($parsed['dialogue'] ?? '');
         $suggestion = trim($parsed['suggestion'] ?? '');
+        // Remove markdown/code block markers if present
+        $suggestion = preg_replace('/^```suggestion\s*|\s*```$/', '', $suggestion);
     }
 }
 
-// 2️⃣ Fallback: if JSON failed or dialogue empty, use full raw text as dialogue
+// 2️⃣ Fallback: extract suggestion from markdown in raw text
 if (!$dialogue && $raw) {
     $dialogue = $raw;
-    // Provide a minimal suggestion if missing
-    if (!$suggestion) {
+}
+
+if (!$suggestion) {
+    if (preg_match('/```suggestion\s*(.*?)```/s', $raw, $match)) {
+        $suggestion = trim($match[1]);
+    } else {
+        // default fallback text
         $suggestion = $language === 'fr' ? "Essayez de reformuler pour plus de clarté." : "Try to rephrase for clarity.";
     }
 }
 
-// Add assistant reply to conversation
+// -------------------- Add assistant reply to session --------------------
 $_SESSION['conversation'][] = [
     "role" => "assistant",
     "content" => $dialogue
 ];
 
-// -------------------- Return JSON to frontend --------------------
+// -------------------- Return JSON --------------------
 echo json_encode([
     "assistant" => $dialogue,
     "suggestion" => $suggestion
