@@ -1,12 +1,15 @@
 <?php
 /**
  * openai.php
- * Provides a helper function to call OpenAI API safely.
- * Logs raw responses to /tmp/openai_called.log for debugging.
+ * Helper function to call OpenAI API safely.
+ * Logs raw responses to /var/www/tefinitely.com/html/practise/api/logs/openai_called.log
  */
-$log_file = __DIR__ . '/logs/openai_called.log';
+
 function openai_call(string $prompt): array
 {
+    // Log file inside project folder (ensure logs/ exists and is writable)
+    $log_file = __DIR__ . '/logs/openai_called.log';
+
     // Get API key from environment
     $apiKey = getenv("OPENAI_API_KEY");
     if (!$apiKey) {
@@ -14,9 +17,9 @@ function openai_call(string $prompt): array
         return [];
     }
 
-    // Prepare payload
+    // Prepare payload for OpenAI
     $payload = [
-        "model" => "gpt-4o",   // change model as needed
+        "model" => "gpt-4o",   // adjust model as needed
         "messages" => [
             [
                 "role" => "system",
@@ -30,6 +33,7 @@ function openai_call(string $prompt): array
         "temperature" => 0.5
     ];
 
+    // Initialize cURL
     $ch = curl_init("https://api.openai.com/v1/chat/completions");
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_POST, true);
@@ -43,7 +47,7 @@ function openai_call(string $prompt): array
     $curl_error = curl_error($ch);
     curl_close($ch);
 
-    // Log raw response for debugging (no API key)
+    // Log raw response (do not log API key)
     file_put_contents($log_file, date('Y-m-d H:i:s') . " - OpenAI raw response:\n$response\n\n", FILE_APPEND);
 
     if (!$response) {
@@ -60,7 +64,7 @@ function openai_call(string $prompt): array
         return [];
     }
 
-    // Robust JSON extraction: strip any extra text around the JSON object
+    // Robust JSON extraction: strip extra text around JSON object
     $content = trim($content);
     $json_start = strpos($content, '{');
     $json_end = strrpos($content, '}');
