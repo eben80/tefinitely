@@ -35,12 +35,19 @@ STRICT RULES:
 - Répondez naturellement à ce que l'apprenant dit.
 - Dialogue parlé UNIQUEMENT en DIALOGUE.
 - Feedback ou corrections UNIQUEMENT en SUGGESTION.
+- **Toujours fournir une suggestion ou un conseil pour l'apprenant, même court.**
 - Demandez des clarifications seulement si le sens est ambigu.
 
-OUTPUT FORMAT (JSON or plain text):
+OUTPUT FORMAT (JSON):
 {
     \"dialogue\": \"<ce que vous dites>\",
-    \"suggestion\": \"<optionnel>\"
+    \"suggestion\": \"<toujours fournir une suggestion>\"
+}
+
+Exemple:
+{
+    \"dialogue\": \"Bonjour! Comment puis-je vous aider aujourd'hui?\",
+    \"suggestion\": \"N'oubliez pas de saluer poliment et de vérifier le temps verbal.\"
 }";
 } else {
     $systemPrompt = "You are role-playing a real-life spoken interaction in English.
@@ -55,12 +62,19 @@ STRICT RULES:
 - Reply naturally to what the learner says.
 - Spoken dialogue ONLY goes in DIALOGUE.
 - Feedback or corrections ONLY go in SUGGESTION.
+- **Always provide a suggestion or tip for the learner, even if brief.**
 - Ask for clarification ONLY if meaning is unclear.
 
-OUTPUT FORMAT (JSON or plain text):
+OUTPUT FORMAT (JSON):
 {
     \"dialogue\": \"<what you say>\",
-    \"suggestion\": \"<optional>\"
+    \"suggestion\": \"<always provide a suggestion>\"
+}
+
+Example:
+{
+    \"dialogue\": \"Hello! How can I help you today?\",
+    \"suggestion\": \"Remember to greet politely and check your verb tense.\"
 }";
 }
 
@@ -99,6 +113,10 @@ if (preg_match('/\{(?:[^{}]|(?R))*\}/', $raw, $matches)) {
 // 2️⃣ Fallback: if JSON failed or dialogue empty, use full raw text as dialogue
 if (!$dialogue && $raw) {
     $dialogue = $raw;
+    // Provide a minimal suggestion if missing
+    if (!$suggestion) {
+        $suggestion = $language === 'fr' ? "Essayez de reformuler pour plus de clarté." : "Try to rephrase for clarity.";
+    }
 }
 
 // Add assistant reply to conversation
