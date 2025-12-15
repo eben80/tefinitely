@@ -75,6 +75,12 @@ speedSlider.addEventListener('input', () => {
     localStorage.setItem('speechRate', speechRate);
 });
 
+// -------------------- TTS speak function --------------------
+let voices = [];
+speechSynthesis.onvoiceschanged = () => {
+    voices = speechSynthesis.getVoices();
+};
+
 function speak(text) {
     if (!('speechSynthesis' in window) || !text) return;
     speechQueue.push(text);
@@ -87,7 +93,18 @@ function speak(text) {
         }
         speaking = true;
         const utter = new SpeechSynthesisUtterance(speechQueue.shift());
-        utter.lang = languageSelector.value === 'fr' ? 'fr-FR' : 'en-US';
+
+        // Select voice based on language
+        const langCode = languageSelector.value === 'fr' ? 'fr-FR' : 'en-CA';
+        let selectedVoice = voices.find(v => v.lang === langCode);
+
+        // fallback if Canadian English not found
+        if (!selectedVoice) {
+            selectedVoice = voices.find(v => v.lang.startsWith(languageSelector.value === 'fr' ? 'fr' : 'en'));
+        }
+
+        if (selectedVoice) utter.voice = selectedVoice;
+        utter.lang = selectedVoice?.lang || langCode;
         utter.rate = speechRate;
         utter.onend = next;
         speechSynthesis.speak(utter);
@@ -126,9 +143,7 @@ async function startSession(level, language) {
     const data = await res.json();
     chatContainer.innerHTML = '';
 
-    if (data.scenario) {
-        appendMessage('suggestion', `<em>Scénario: ${data.scenario}</em>`);
-    }
+    if (data.scenario) appendMessage('suggestion', `<em>Scénario: ${data.scenario}</em>`);
     if (data.assistant) {
         appendMessage('assistant', data.assistant);
         speak(data.assistant);
@@ -160,9 +175,7 @@ async function sendMessage() {
         speak(data.assistant);
     }
 
-    if (data.suggestion) {
-        appendMessage('suggestion', `<em>${data.suggestion}</em>`);
-    }
+    if (data.suggestion) appendMessage('suggestion', `<em>${data.suggestion}</em>`);
 
     sendButton.disabled = false;
     speakButton.disabled = false;
@@ -179,7 +192,7 @@ function setupRecognition(language) {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         recognition = new SpeechRecognition();
-        recognition.lang = language === 'fr' ? 'fr-FR' : 'en-US';
+        recognition.lang = language === 'fr' ? 'fr-FR' : 'en-US'; // recognition still en-US if en-CA unavailable
         recognition.interimResults = false;
         recognition.maxAlternatives = 1;
 
