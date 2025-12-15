@@ -21,9 +21,8 @@ $_SESSION['conversation'][] = [
     "content" => $userText
 ];
 
-// -------------------- Build system prompt based on language --------------------
-if ($language === 'fr') {
-    $systemPrompt = "Vous jouez une interaction parlée réelle en français.
+// System prompt
+$systemPrompt = $language === 'fr' ? "Vous jouez une interaction parlée réelle en français.
 
 ROLE MODEL:
 - Vous êtes le partenaire de conversation.
@@ -41,9 +40,7 @@ OUTPUT FORMAT (JSON or plain text):
 {
     \"dialogue\": \"<ce que vous dites>\",
     \"suggestion\": \"<optionnel>\"
-}";
-} else {
-    $systemPrompt = "You are role-playing a real-life spoken interaction in English.
+}" : "You are role-playing a real-life spoken interaction in English.
 
 ROLE MODEL:
 - You are the conversational counterpart.
@@ -62,31 +59,24 @@ OUTPUT FORMAT (JSON or plain text):
     \"dialogue\": \"<what you say>\",
     \"suggestion\": \"<optional>\"
 }";
-}
 
-// -------------------- Build messages --------------------
+// Build messages
 $messages = [
-    [
-        "role" => "system",
-        "content" => $systemPrompt
-    ],
-    [
-        "role" => "system",
-        "content" => "Scenario: " . $_SESSION['scenario']
-    ]
+    ["role" => "system", "content" => $systemPrompt],
+    ["role" => "system", "content" => "Scenario: " . $_SESSION['scenario']]
 ];
 
 $messages = array_merge($messages, $_SESSION['conversation']);
 
-// -------------------- Call OpenAI --------------------
+// Call OpenAI
 $response = openai_chat($messages);
 $raw = trim($response['content'] ?? '');
 
-// -------------------- Robust extraction --------------------
+// Initialize output
 $dialogue = '';
 $suggestion = '';
 
-// 1️⃣ Extract JSON if present
+// 1️⃣ Try JSON extraction
 if (preg_match('/\{(?:[^{}]|(?R))*\}/', $raw, $matches)) {
     $jsonText = $matches[0];
     $parsed = json_decode($jsonText, true);
@@ -96,27 +86,34 @@ if (preg_match('/\{(?:[^{}]|(?R))*\}/', $raw, $matches)) {
     }
 }
 
-// 2️⃣ Fallback: extract suggestion from ```suggestion``` block in raw text
-if (preg_match('/```suggestion\s*(.*?)```/s', $raw, $match)) {
-    $suggestion = trim($match[1]);
+// 2️⃣ If dialogue is empty, fallback to raw text
+if (!$dialogue) {
+    $dialogue = $raw;
 }
 
-// 3️⃣ Remove ```suggestion``` block from dialogue text if present
-$dialogue = preg_replace('/```suggestion\s*.*?```/s', '', $dialogue);
-$dialogue = trim($dialogue);
+// 3️⃣ Extract ```suggestion``` block from raw text (if present)
+if (preg_match('/```suggestion\s*(.*?)```/s', $dialogue, $match)) {
+    $suggestion = trim($match[1]);
+    // Remove it from dialogue
+    $dialogue = preg_replace('/```suggestion\s*.*?```/s', '', $dialogue);
+}
 
-// 4️⃣ If no suggestion found, provide default fallback
+// 4️⃣ Trim dialogue and suggestion
+$dialogue = trim($dialogue);
+$suggestion = trim($suggestion);
+
+// 5️⃣ Fallback suggestion if none
 if (!$suggestion) {
     $suggestion = $language === 'fr' ? "Essayez de reformuler pour plus de clarté." : "Try to rephrase for clarity.";
 }
 
-// -------------------- Add assistant reply to session --------------------
+// Save assistant response in session
 $_SESSION['conversation'][] = [
     "role" => "assistant",
     "content" => $dialogue
 ];
 
-// -------------------- Return JSON --------------------
+// Return JSON
 echo json_encode([
     "assistant" => $dialogue,
     "suggestion" => $suggestion
