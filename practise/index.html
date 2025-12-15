@@ -79,7 +79,6 @@ speedSlider.addEventListener('input', () => {
 let voices = [];
 speechSynthesis.onvoiceschanged = () => {
     voices = speechSynthesis.getVoices();
-    console.log(voices);
 };
 
 function speak(text) {
@@ -95,17 +94,15 @@ function speak(text) {
         speaking = true;
         const utter = new SpeechSynthesisUtterance(speechQueue.shift());
 
-        // Select voice based on language
-        const langCode = languageSelector.value === 'fr' ? 'fr-FR' : 'en-CA';
-        let selectedVoice = voices.find(v => v.lang === langCode);
-
-        // fallback if Canadian English not found
-        if (!selectedVoice) {
-            selectedVoice = voices.find(v => v.lang.startsWith(languageSelector.value === 'fr' ? 'fr' : 'en'));
+        if (languageSelector.value === 'fr') {
+            utter.lang = 'fr-FR';
+            utter.voice = voices.find(v => v.lang.startsWith('fr')) || null;
+        } else {
+            // Always prefer Google US English for English
+            utter.lang = 'en-US';
+            utter.voice = voices.find(v => v.name === 'Google US English') || voices.find(v => v.lang.startsWith('en')) || null;
         }
 
-        if (selectedVoice) utter.voice = selectedVoice;
-        utter.lang = selectedVoice?.lang || langCode;
         utter.rate = speechRate;
         utter.onend = next;
         speechSynthesis.speak(utter);
@@ -134,7 +131,7 @@ function appendMessage(role, text) {
 
 // -------------------- Start session --------------------
 async function startSession(level, language) {
-    setupRecognition(language); // Initialize speech recognition for selected language
+    setupRecognition(language);
 
     const res = await fetch('api/start_session.php', {
         method: 'POST',
@@ -193,7 +190,7 @@ function setupRecognition(language) {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         recognition = new SpeechRecognition();
-        recognition.lang = language === 'fr' ? 'fr-FR' : 'en-US'; // recognition still en-US if en-CA unavailable
+        recognition.lang = language === 'fr' ? 'fr-FR' : 'en-US'; // still en-US
         recognition.interimResults = false;
         recognition.maxAlternatives = 1;
 
