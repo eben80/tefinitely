@@ -3,32 +3,87 @@
 <head>
 <meta charset="UTF-8">
 <title>French Speaking Practice</title>
+
 <style>
-body { font-family: Arial; max-width: 700px; margin: auto; }
-#chat div { margin: 10px 0; }
-.assistant { color: blue; }
-.user { color: green; }
+body {
+  font-family: Arial, sans-serif;
+  max-width: 800px;
+  margin: auto;
+}
+
+#chat div {
+  margin: 10px 0;
+}
+
+.assistant {
+  color: #1e40af;
+}
+
+.user {
+  color: #166534;
+}
+
+button {
+  margin: 5px;
+}
 </style>
 </head>
 <body>
 
 <h2>French Speaking Practice</h2>
 
+<label>Niveau:</label>
 <select id="level">
   <option value="A1">A1</option>
   <option value="A2">A2</option>
   <option value="B1">B1</option>
 </select>
-<button onclick="start()">Start</button>
+
+<button onclick="startSession()">Start</button>
+
+<hr>
 
 <div id="scenario"></div>
 <div id="chat"></div>
 
-<input id="input" placeholder="Votre réponse..." style="width:80%">
-<button onclick="send()">Send</button>
+<hr>
+
+<input id="textInput" placeholder="Votre réponse..." style="width:70%">
+<button onclick="sendText()">Send</button>
+<button onclick="startSpeech()">🎤 Speak</button>
 
 <script>
-async function start() {
+/* -----------------------
+   Speech recognition
+------------------------ */
+const SpeechRecognition =
+  window.SpeechRecognition || window.webkitSpeechRecognition;
+
+let recognition = null;
+if (SpeechRecognition) {
+  recognition = new SpeechRecognition();
+  recognition.lang = 'fr-FR';
+  recognition.interimResults = false;
+
+  recognition.onresult = (event) => {
+    const text = event.results[0][0].transcript;
+    send(text);
+  };
+}
+
+/* -----------------------
+   Speech synthesis
+------------------------ */
+function speak(text) {
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = 'fr-FR';
+  speechSynthesis.speak(utterance);
+}
+
+/* -----------------------
+   Session start
+------------------------ */
+async function startSession() {
   const level = document.getElementById('level').value;
 
   const res = await fetch('api/start_session.php', {
@@ -38,30 +93,26 @@ async function start() {
   });
 
   const data = await res.json();
-  document.getElementById('scenario').innerText = data.scenario;
+
+  document.getElementById('scenario').innerHTML =
+    `<strong>Scenario:</strong> ${data.scenario}`;
+
   document.getElementById('chat').innerHTML =
     `<div class="assistant">${data.assistant}</div>`;
+
+  speak(data.assistant);
 }
 
-async function send() {
-  const text = document.getElementById('input').value;
+/* -----------------------
+   Send user input
+------------------------ */
+function sendText() {
+  const text = document.getElementById('textInput').value;
   if (!text) return;
-
-  document.getElementById('chat').innerHTML +=
-    `<div class="user">${text}</div>`;
-  document.getElementById('input').value = '';
-
-  const res = await fetch('api/continue_session.php', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-    body: 'text=' + encodeURIComponent(text)
-  });
-
-  const data = await res.json();
-  document.getElementById('chat').innerHTML +=
-    `<div class="assistant">${data.assistant}</div>`;
+  send(text);
+  document.getElementById('textInput').value = '';
 }
-</script>
 
-</body>
-</html>
+function startSpeech() {
+  if (!recognition) {
+    alert("Spee
