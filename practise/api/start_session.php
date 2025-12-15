@@ -6,12 +6,18 @@ header('Content-Type: application/json');
 
 $level = $_POST['level'] ?? 'A2';
 
-/**
- * SYSTEM prompt — generalized for any learner scenario
- * LANGUAGE: French
- * ROLE: AI = counterpart, user = learner
- * OUTPUT: JSON ONLY
- */
+// ------------------ Broader scenario categories ------------------
+$categories = [
+    "café", "boulangerie", "marché", "restaurant", "pharmacie",
+    "poste", "banque", "cinéma", "musée", "bibliothèque",
+    "gare", "bus", "supermarché", "boutique de vêtements",
+    "piscine", "parc", "médecin", "dentiste", "fête ou rencontre"
+];
+
+// Pick a random category
+$chosen = $categories[array_rand($categories)];
+
+// ------------------ SYSTEM prompt ------------------
 $messages = [
     [
         "role" => "system",
@@ -27,7 +33,7 @@ $messages = [
 
              RULES:
              - You must NEVER speak as the learner.
-             - Where the scenario is one of customer/client to a vendor/waiter/seller, the learner should be in role of customer or client.
+             - Where the scenario involves customer/client, the learner is always the customer/client.
              - You must ALWAYS start the conversation.
              - Keep language appropriate for level {$level}.
              - Spoken dialogue ONLY goes in DIALOGUE.
@@ -43,19 +49,15 @@ $messages = [
     [
         "role" => "user",
         "content" =>
-            "Crée un court scénario de conversation et la première réplique parlée de l'assistant."
+            "Crée un court scénario de conversation en français dans un lieu comme un $chosen et donne la première réplique parlée de l'assistant."
     ]
 ];
 
-/**
- * Call OpenAI helper
- */
+// ------------------ Call OpenAI ------------------
 $response = openai_chat($messages);
 $raw = $response['content'] ?? '';
 
-/**
- * 🔒 Robust JSON extraction (handles extra text)
- */
+// ------------------ Robust JSON extraction ------------------
 preg_match('/\{(?:[^{}]|(?R))*\}/', $raw, $matches);
 
 if (empty($matches)) {
@@ -77,9 +79,7 @@ if (!$data || !isset($data['scenario'], $data['assistant_opening'])) {
     exit;
 }
 
-/**
- * Initialize session conversation
- */
+// ------------------ Initialize session conversation ------------------
 $_SESSION['scenario'] = $data['scenario'];
 $_SESSION['conversation'] = [
     [
@@ -88,9 +88,7 @@ $_SESSION['conversation'] = [
     ]
 ];
 
-/**
- * Return to frontend
- */
+// ------------------ Return to frontend ------------------
 echo json_encode([
     "scenario" => $data['scenario'],
     "assistant" => $data['assistant_opening']
