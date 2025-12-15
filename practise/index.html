@@ -13,6 +13,7 @@ body { font-family: sans-serif; max-width: 600px; margin: 20px auto; }
 input[type=text] { flex: 1; padding: 5px; font-size: 1em; }
 button { padding: 5px 10px; font-size: 1em; margin-left: 5px; }
 #input-area { display: flex; }
+#speed-container { margin-top: 5px; }
 </style>
 </head>
 <body>
@@ -28,6 +29,10 @@ button { padding: 5px 10px; font-size: 1em; margin-left: 5px; }
         <option value="B2">B2</option>
     </select>
     <button id="start-btn">Démarrer</button>
+    <div id="speed-container">
+        Vitesse de parole: <span id="speed-value">1.0</span>
+        <input type="range" id="speech-speed" min="0.5" max="1.2" value="1" step="0.05">
+    </div>
 </div>
 
 <div id="chat"></div>
@@ -45,10 +50,24 @@ const sendButton = document.getElementById('send-btn');
 const startButton = document.getElementById('start-btn');
 const levelSelector = document.getElementById('level');
 const speakButton = document.getElementById('speak-btn');
+const speedSlider = document.getElementById('speech-speed');
+const speedValue = document.getElementById('speed-value');
 
 // -------------------- Speech queue --------------------
 let speaking = false;
 const speechQueue = [];
+
+// Restore last speed from localStorage
+let speechRate = parseFloat(localStorage.getItem('speechRate')) || parseFloat(speedSlider.value);
+speedSlider.value = speechRate;
+speedValue.textContent = speechRate.toFixed(2);
+
+// Update rate from slider
+speedSlider.addEventListener('input', () => {
+    speechRate = parseFloat(speedSlider.value);
+    speedValue.textContent = speechRate.toFixed(2);
+    localStorage.setItem('speechRate', speechRate); // Save for next session
+});
 
 function speak(text) {
     if (!('speechSynthesis' in window) || !text) return;
@@ -63,6 +82,7 @@ function speak(text) {
         speaking = true;
         const utter = new SpeechSynthesisUtterance(speechQueue.shift());
         utter.lang = 'fr-FR';
+        utter.rate = speechRate;  // Apply stored/current rate
         utter.onend = next;
         speechSynthesis.speak(utter);
     }
@@ -114,6 +134,9 @@ async function sendMessage() {
     appendMessage('user', text);
     inputField.value = '';
 
+    sendButton.disabled = true;
+    speakButton.disabled = true;
+
     const res = await fetch('api/continue_session.php', {
         method: 'POST',
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
@@ -130,6 +153,9 @@ async function sendMessage() {
     if (data.suggestion) {
         appendMessage('suggestion', `<em>${data.suggestion}</em>`);
     }
+
+    sendButton.disabled = false;
+    speakButton.disabled = false;
 }
 
 // -------------------- Event listeners --------------------
