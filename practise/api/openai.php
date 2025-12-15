@@ -1,6 +1,8 @@
 <?php
 function openai_call(string $prompt): array
 {
+    file_put_contents('/tmp/openai_called.log', date('Y-m-d H:i:s') . " - openai.php called\n", FILE_APPEND);
+
     $apiKey = getenv("OPENAI_API_KEY");
 
 if (!$apiKey) {
