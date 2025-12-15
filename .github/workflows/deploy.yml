@@ -7,7 +7,7 @@ on:
 
 jobs:
   deploy:
-    if: "!contains(github.event.head_commit.message, '[bot sync]')"  # ⛔ Skip bot sync commits
+    if: "!contains(github.event.head_commit.message, '[bot sync]')"  # Skip bot sync commits
     runs-on: ubuntu-latest
 
     steps:
@@ -21,9 +21,21 @@ jobs:
         chmod 600 ~/.ssh/id_rsa
         ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
-    - name: Pull latest code on EC2
+    - name: Pull latest code on EC2 and set OpenAI key
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       run: |
         ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} '
+          # Pull latest code
           cd /var/www/tefinitely.com/html &&
           git pull origin main
+
+          # Remove old key if exists
+          sudo sed -i "/^OPENAI_API_KEY=/d" /etc/environment
+
+          # Add secret key to environment
+          echo "OPENAI_API_KEY=$OPENAI_API_KEY" | sudo tee -a /etc/environment > /dev/null
+
+          # Restart PHP-FPM to pick up new environment variable
+          sudo systemctl restart php8.3-fpm
         '
