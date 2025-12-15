@@ -25,17 +25,17 @@ jobs:
       env:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       run: |
-        ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} '
+        ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
           # Pull latest code
           cd /var/www/tefinitely.com/html &&
           git pull origin main
-
+    
           # Remove old key if exists
-          sudo sed -i "/^OPENAI_API_KEY=/d" /etc/environment
-
+          sudo sed -i '/^OPENAI_API_KEY=/d' /etc/environment
+    
           # Add secret key to environment
-          echo "OPENAI_API_KEY=$OPENAI_API_KEY" | sudo tee -a /etc/environment > /dev/null
-
+          echo 'OPENAI_API_KEY=$OPENAI_API_KEY' | sudo tee -a /etc/environment > /dev/null
+    
           # Restart PHP-FPM to pick up new environment variable
           sudo systemctl restart php8.3-fpm
-        '
+        "
