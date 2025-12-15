@@ -24,5 +24,8 @@ Respond ONLY in JSON:
 ";
 
 $response = openai_call($prompt);
-
-echo json_encode($response);
+if (empty($response)) {
+    echo json_encode(["error" => "No response from OpenAI"]);
+} else {
+    echo json_encode($response);
+}
