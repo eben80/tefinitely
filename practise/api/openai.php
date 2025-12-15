@@ -4,7 +4,7 @@
  * Provides a helper function to call OpenAI API safely.
  * Logs raw responses to /tmp/openai_called.log for debugging.
  */
-$log_file = sys_get_temp_dir() . '/openai_called.log';
+$log_file = __DIR__ . '/logs/openai_called.log';
 function openai_call(string $prompt): array
 {
     // Get API key from environment
