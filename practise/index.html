@@ -46,12 +46,37 @@ const startButton = document.getElementById('start-btn');
 const levelSelector = document.getElementById('level');
 const speakButton = document.getElementById('speak-btn');
 
+// -------------------- Speech queue --------------------
+let speaking = false;
+const speechQueue = [];
+
+function speak(text) {
+    if (!('speechSynthesis' in window) || !text) return;
+    speechQueue.push(text);
+    if (speaking) return;
+
+    function next() {
+        if (speechQueue.length === 0) {
+            speaking = false;
+            return;
+        }
+        speaking = true;
+        const utter = new SpeechSynthesisUtterance(speechQueue.shift());
+        utter.lang = 'fr-FR';
+        utter.onend = next;
+        speechSynthesis.speak(utter);
+    }
+
+    next();
+}
+
+// -------------------- Append message --------------------
 function appendMessage(role, text) {
     const div = document.createElement('div');
-    div.className = role; // 'user', 'assistant', 'suggestion'
+    div.className = role;
     div.innerHTML = text;
 
-    if(role === 'assistant') {
+    if (role === 'assistant') {
         const speakBtn = document.createElement('button');
         speakBtn.textContent = '🔊';
         speakBtn.style.marginLeft = '5px';
@@ -63,15 +88,7 @@ function appendMessage(role, text) {
     chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
-function speak(text) {
-    if ('speechSynthesis' in window && text) {
-        const utter = new SpeechSynthesisUtterance(text);
-        utter.lang = 'fr-FR';
-        speechSynthesis.speak(utter);
-    }
-}
-
-// Start session
+// -------------------- Start session --------------------
 async function startSession(level) {
     const res = await fetch('api/start_session.php', {
         method: 'POST',
@@ -90,7 +107,7 @@ async function startSession(level) {
     }
 }
 
-// Send user message
+// -------------------- Send user message --------------------
 async function sendMessage() {
     const text = inputField.value.trim();
     if (!text) return;
@@ -115,14 +132,12 @@ async function sendMessage() {
     }
 }
 
-// Event listeners
+// -------------------- Event listeners --------------------
 sendButton.addEventListener('click', sendMessage);
-inputField.addEventListener('keypress', e => {
-    if (e.key === 'Enter') sendMessage();
-});
+inputField.addEventListener('keypress', e => { if(e.key==='Enter') sendMessage(); });
 startButton.addEventListener('click', () => startSession(levelSelector.value));
 
-// 🎤 Learner speech recognition
+// -------------------- Learner microphone --------------------
 let recognition;
 if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -134,7 +149,7 @@ if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
     recognition.onresult = function(event) {
         const transcript = event.results[0][0].transcript;
         inputField.value = transcript;
-        sendMessage(); // automatically send after speaking
+        sendMessage();
     };
 
     recognition.onerror = function(event) {
