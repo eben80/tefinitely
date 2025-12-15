@@ -35,6 +35,7 @@ button { padding: 5px 10px; font-size: 1em; margin-left: 5px; }
 <div id="input-area">
     <input type="text" id="user-input" placeholder="Tapez votre phrase ici..." />
     <button id="send-btn">Envoyer</button>
+    <button id="speak-btn">🎤 Parler</button>
 </div>
 
 <script>
@@ -43,6 +44,7 @@ const inputField = document.getElementById('user-input');
 const sendButton = document.getElementById('send-btn');
 const startButton = document.getElementById('start-btn');
 const levelSelector = document.getElementById('level');
+const speakButton = document.getElementById('speak-btn');
 
 function appendMessage(role, text) {
     const div = document.createElement('div');
@@ -69,6 +71,7 @@ function speak(text) {
     }
 }
 
+// Start session
 async function startSession(level) {
     const res = await fetch('api/start_session.php', {
         method: 'POST',
@@ -76,7 +79,7 @@ async function startSession(level) {
         body: 'level=' + encodeURIComponent(level)
     });
     const data = await res.json();
-    chatContainer.innerHTML = ''; // clear previous chat
+    chatContainer.innerHTML = '';
 
     if (data.scenario) {
         appendMessage('suggestion', `<em>Scénario: ${data.scenario}</em>`);
@@ -87,6 +90,7 @@ async function startSession(level) {
     }
 }
 
+// Send user message
 async function sendMessage() {
     const text = inputField.value.trim();
     if (!text) return;
@@ -117,6 +121,33 @@ inputField.addEventListener('keypress', e => {
     if (e.key === 'Enter') sendMessage();
 });
 startButton.addEventListener('click', () => startSession(levelSelector.value));
+
+// 🎤 Learner speech recognition
+let recognition;
+if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+    recognition.lang = 'fr-FR';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onresult = function(event) {
+        const transcript = event.results[0][0].transcript;
+        inputField.value = transcript;
+        sendMessage(); // automatically send after speaking
+    };
+
+    recognition.onerror = function(event) {
+        console.error('Speech recognition error:', event.error);
+    };
+} else {
+    speakButton.disabled = true;
+    console.warn('Speech recognition not supported in this browser');
+}
+
+speakButton.addEventListener('click', () => {
+    if (recognition) recognition.start();
+});
 </script>
 
 </body>
