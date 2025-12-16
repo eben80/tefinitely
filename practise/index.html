@@ -1,303 +1,757 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<title>Language Conversation Practice</title>
+<base href="/">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TEF Canada Training</title>
+<link rel="icon" href="img/favicon/favicon.ico" sizes="any">
+<link rel="icon" href="img/favicon/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="img/favicon/apple-touch-icon.png">
+<link rel="manifest" href="img/favicon/site.webmanifest">
+<link rel="stylesheet" href="css/toast.css">
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 <style>
-body { font-family: sans-serif; max-width: 600px; margin: 20px auto; }
-#controls { margin-bottom: 10px; }
-#chat { max-height: 400px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
-.user { text-align: right; color: blue; margin: 5px; }
-.assistant { text-align: left; color: green; margin: 5px; }
-.suggestion { text-align: left; color: gray; font-style: italic; margin: 3px; }
-input[type=text] { flex: 1; padding: 5px; font-size: 1em; }
-button { padding: 5px 10px; font-size: 1em; margin-left: 5px; }
-#input-area { display: flex; }
-#speed-container { margin-top: 5px; }
+  .logo {
+    width: 100%;
+    max-width: 500px;
+    margin: 1rem 0 2rem 0;
+  }
+  body {
+    font-family: Arial, sans-serif;
+    margin: 2rem;
+    background: #f4f1ea;
+  }
+  h1 {
+    margin-bottom: 1rem;
+    color: #333;
+  }
+  #user-status {
+    position: absolute;
+    top: 1rem;
+    right: 2rem;
+  }
+
+  @media (max-width: 640px) {
+    .landing-page .hero h1 {
+        font-size: 2.5rem;
+    }
+    .landing-page .cta-buttons a {
+        display: block;
+        margin: 0 0 1rem 0;
+    }
+    .landing-page .hero {
+        padding: 2rem 0;
+    }
+    .landing-page .features, .landing-page .sample-section {
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+    }
+    body {
+      margin: 1rem;
+    }
+    h1 {
+      font-size: 1.5rem;
+    }
+    #user-status {
+      position: static;
+      text-align: center;
+      margin-bottom: 1rem;
+      padding: 0.5rem;
+      background: #e9ecef;
+      border-radius: 4px;
+    }
+    #user-status a, #user-status button {
+        margin: 0 0.5rem;
+    }
+  }
+
+  .subscription-prompt {
+    max-width: 600px;
+    margin: 4rem auto;
+    background: #fff;
+    padding: 2rem 2.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    text-align: center;
+  }
+  .subscription-prompt h2 {
+    font-size: 1.8rem;
+    color: #004d99;
+    margin-bottom: 1rem;
+  }
+  .subscription-prompt .lead {
+    font-size: 1.1rem;
+    color: #666;
+    margin-bottom: 2rem;
+  }
+  .subscription-prompt .benefits-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0 auto 2rem auto;
+    text-align: left;
+    max-width: 350px;
+  }
+  .subscription-prompt .benefits-list li {
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+  }
+  .subscription-prompt .benefits-list li::before {
+    content: '✓';
+    color: #28a745;
+    font-size: 1.5rem;
+    margin-right: 1rem;
+  }
+
+  .landing-page .sample-section {
+    padding: 3rem 0;
+  }
+  .landing-page .sample-section h2 {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+  }
+  #sample-flashcard-container .flashcard {
+      cursor: pointer;
+  }
+  #sample-nav button {
+      padding: 0.4rem 1rem;
+      margin: 1rem 0.5rem 0 0.5rem;
+      font-size: 1rem;
+  }
+  #paypal-button-container {
+      max-width: 300px;
+      margin: 1rem auto 0 auto;
+  }
+  #practise-container {
+      max-width: 600px;
+      margin: 20px auto;
+  }
+    #controls { margin-bottom: 10px; }
+    #chat { max-height: 400px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
+    .user { text-align: right; color: blue; margin: 5px; }
+    .assistant { text-align: left; color: green; margin: 5px; }
+    .suggestion { text-align: left; color: gray; font-style: italic; margin: 3px; }
+    input[type=text] { flex: 1; padding: 5px; font-size: 1em; }
+    #practise-container button { padding: 5px 10px; font-size: 1em; margin-left: 5px; }
+    #input-area { display: flex; }
+    #speed-container { margin-top: 5px; }
 </style>
+<script>
+    (async () => {
+        try {
+            const response = await fetch('api/paypal/get_config.php');
+            const config = await response.json();
+            if (config.client_id && config.client_id !== 'YOUR_PAYPAL_CLIENT_ID') {
+                const script = document.createElement('script');
+                script.src = `https://www.paypal.com/sdk/js?client-id=${config.client_id}&currency=CAD&intent=subscription&vault=true`;
+                script.setAttribute('data-plan-id', config.plan_id);
+                script.id = 'paypal-sdk-script';
+                document.head.appendChild(script);
+            } else {
+                console.error('PayPal client_id is not configured.');
+            }
+        } catch (error) {
+            console.error('Failed to load PayPal config:', error);
+        }
+    })();
+</script>
 </head>
 <body>
+<header>
+    <a href="index.html"><img src="img/top_logo_light.png" alt="TEFinitely Logo" class="logo"></a>
+</header>
+<div id="toast-container"></div>
+<nav class="main-nav" id="user-status" style="display: none;">
+    <div class="nav-links">
+        <div class="dropdown">
+            <a href="oral_expression.html" class="dropbtn">Oral Expression</a>
+            <div class="dropdown-content">
+                <a href="oral_expression_section_a.html">Section A</a>
+                <a href="oral_expression_section_b.html">Section B</a>
+            </div>
+        </div>
+        <a href="training.html">Phased Training</a>
+        <a href="practise/index.html">Practise</a>
+        <a href="profile.html">Profile</a>
+        <a id="admin-link" href="admin.html" style="display: none;">Admin Portal</a>
+    </div>
+    <div class="nav-user">
+        <span id="first-name-display"></span>
+        <button id="logoutBtn">Logout</button>
+    </div>
+</nav>
 
-<h1 id="page-title">Language Conversation Practice</h1>
+<div id="practise-container" style="display: none;">
+    <h1 id="page-title">Language Conversation Practice</h1>
 
-<div id="controls">
-    <label id="lang-label">Langue:</label> 
-    <select id="language">
-        <option value="fr" selected>Français</option>
-        <option value="en">English</option>
-    </select>
-    <label id="level-label">Niveau:</label> 
-    <select id="level"></select>
-    <button id="start-btn">Démarrer</button>
-    <div id="speed-container">
-        <span id="speed-label">Vitesse de parole:</span> 
-        <span id="speed-value">1.0</span>
-        <input type="range" id="speech-speed" min="0.5" max="1.2" value="1" step="0.05">
+    <div id="controls">
+        <label id="lang-label">Langue:</label>
+        <select id="language">
+            <option value="fr" selected>Français</option>
+            <option value="en">English</option>
+        </select>
+        <label id="level-label">Niveau:</label>
+        <select id="level"></select>
+        <button id="start-btn">Démarrer</button>
+        <div id="speed-container">
+            <span id="speed-label">Vitesse de parole:</span>
+            <span id="speed-value">1.0</span>
+            <input type="range" id="speech-speed" min="0.5" max="1.2" value="1" step="0.05">
+        </div>
+    </div>
+
+    <div id="chat"></div>
+
+    <div id="input-area">
+        <input type="text" id="user-input" placeholder="Tapez votre phrase ici..." />
+        <button id="send-btn">Envoyer</button>
+        <button id="speak-btn">🎤 Parler</button>
     </div>
 </div>
 
-<div id="chat"></div>
+<div id="auth-container" style="display: none;">
+    <div id="login-prompt" class="landing-page" style="display: none;">
+        <nav class="landing-nav">
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#testimonials">Testimonials</a>
+                <a href="mailto:support@tefinitely.com">Contact</a>
+            </div>
+            <div class="nav-auth">
+                <a href="login.html" class="btn-login">Login</a>
+            </div>
+        </nav>
 
-<div id="input-area">
-    <input type="text" id="user-input" placeholder="Tapez votre phrase ici..." />
-    <button id="send-btn">Envoyer</button>
-    <button id="speak-btn">🎤 Parler</button>
+        <section class="hero">
+            <h1>Your Guide to Succeeding on the TEF Canada Exam</h1>
+            <p>Everything you need to succeed on the TEF Canada exam, all in one place. Go from hesitant to fluent with our unique, phased training system.</p>
+            <div class="cta-buttons">
+                <a href="register.html">Get Started Now</a>
+            </div>
+        </section>
+
+        <section id="features" class="features">
+            <h2>Why Choose Our Platform</h2>
+            <div class="features-grid">
+                <div class="feature-item">
+                    <div class="feature-icon"><i class="bi bi-lightbulb"></i></div>
+                    <h3>Expert Guidance</h3>
+                    <p>Benefit from professional advice to maximize your TEF Canada exam prep.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon"><i class="bi bi-card-checklist"></i></div>
+                    <h3>Exam-Focused Prep</h3>
+                    <p>Practice with resources designed to align with the TEF Canada exam structure.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon"><i class="bi bi-ear"></i></div>
+                    <h3>Tailored Support</h3>
+                    <p>Get tailored feedback to enhance your performance in each exam section.</p>
+                </div>
+                 <div class="feature-item">
+                    <div class="feature-icon"><i class="bi bi-laptop"></i></div>
+                    <h3>Flexible Learning</h3>
+                    <p>Prepare at your own pace with accessible and convenient study options.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="sample-section">
+            <h2>Try a Sample</h2>
+            <div id="sample-flashcard-container">
+                <div class="flashcard">
+                    <div class="flashcard-inner">
+                        <div class="flashcard-front">
+                            <p id="sample-english"></p>
+                        </div>
+                        <div class="flashcard-back">
+                            <p id="sample-french"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="sample-nav">
+                <button id="sample-first-btn">&lt;&lt;</button>
+                <button id="sample-prev-btn" disabled>Previous</button>
+                <button id="sample-flip-btn">Flip</button>
+                <button id="sample-play-btn">Play Phrase</button>
+                <button id="sample-next-btn">Next</button>
+            </div>
+            <div id="sample-pagination-display" style="text-align: center; margin-top: 1rem; font-weight: bold;">
+                <span id="sample-current-card"></span> / <span id="sample-total-cards"></span>
+            </div>
+        </section>
+
+        <section id="testimonials" class="testimonials">
+            <h2>What Our Students Have To Say</h2>
+            <div class="testimonial-grid">
+                <div class="testimonial-item">
+                    <p>"Preparing for the TEF Canada exam was overwhelming until I found this site. The structured approach and practice topics saved me so much time and effort."</p>
+                    <cite>– Charlotte R.</cite>
+                </div>
+                <div class="testimonial-item">
+                    <p>"The speaking and writing resources were exactly what I needed. The personalized feedback was incredibly helpful and boosted my confidence for the exam."</p>
+                    <cite>– Isabella L.</cite>
+                </div>
+                <div class="testimonial-item">
+                    <p>"I passed on my first attempt! The resources were clear, detailed, and perfectly aligned with the TEF Canada exam format. I couldn’t have done it without their expert guidance!"</p>
+                    <cite>– James D.</cite>
+                </div>
+            </div>
+        </section>
+
+        <footer class="landing-footer">
+            <div class="footer-grid">
+                <div class="footer-column">
+                    <img src="img/top_logo_light.png" alt="TEFinitely Logo" class="footer-logo">
+                    <p>Your guide to succeeding on the TEF Canada exam.</p>
+                </div>
+                <div class="footer-column">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#testimonials">Testimonials</a></li>
+                        <li><a href="register.html">Register</a></li>
+                        <li><a href="login.html">Login</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4>Contact</h4>
+                    <p>Email us at<br><a href="mailto:support@tefinitely.com">support@tefinitely.com</a></p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2025 TEFinitely.ca | All Rights Reserved</p>
+            </div>
+        </footer>
+    </div>
+
+    <div id="subscription-prompt" class="subscription-prompt" style="display: none;">
+        <h2>Unlock Your Full Potential</h2>
+        <p class="lead">Your subscription is inactive. Subscribe now to get full access to all our training features.</p>
+        <ul class="benefits-list">
+            <li>Access all training modules</li>
+            <li>Practice with unlimited phrases</li>
+            <li>Track your progress</li>
+            <li>Cancel anytime</li>
+        </ul>
+        <div id="paypal-button-container"></div>
+    </div>
 </div>
 
+<script src="js/toast.js"></script>
 <script>
-const chatContainer = document.getElementById('chat');
-const inputField = document.getElementById('user-input');
-const sendButton = document.getElementById('send-btn');
-const startButton = document.getElementById('start-btn');
-const levelSelector = document.getElementById('level');
-const speakButton = document.getElementById('speak-btn');
-const languageSelector = document.getElementById('language');
-const speedSlider = document.getElementById('speech-speed');
-const speedValue = document.getElementById('speed-value');
+function speakFrench(text, rate) {
+    const utterance = new SpeechSynthesisUtterance(text);
 
-// iOS detection
-const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-let ttsUnlocked = false;
+    const setVoiceAndSpeak = () => {
+        const voices = speechSynthesis.getVoices();
+        let frenchVoice;
 
-// Interface elements
-const pageTitle = document.getElementById('page-title');
-const langLabel = document.getElementById('lang-label');
-const levelLabel = document.getElementById('level-label');
-const speedLabel = document.getElementById('speed-label');
-
-// -------------------- Translations --------------------
-const translations = {
-    fr: {
-        pageTitle: 'Pratique de conversation',
-        langLabel: 'Langue:',
-        levelLabel: 'Niveau:',
-        startBtn: 'Démarrer',
-        speedLabel: 'Vitesse de parole:',
-        userPlaceholder: 'Tapez votre phrase ici...',
-        sendBtn: 'Envoyer',
-        speakBtn: '🎤 Parler',
-        levels: {
-            A1: 'A1 - Débutant',
-            A2: 'A2 - Élémentaire',
-            B1: 'B1 - Intermédiaire',
-            B2: 'B2 - Intermédiaire supérieur',
-            C1: 'C1 - Avancé',
-            C2: 'C2 - Maîtrise'
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        if (isIOS) {
+            frenchVoice = voices.find(voice => voice.name === 'Thomas' && voice.lang === 'fr-FR');
         }
-    },
-    en: {
-        pageTitle: 'Conversation Practice',
-        langLabel: 'Language:',
-        levelLabel: 'Level:',
-        startBtn: 'Start',
-        speedLabel: 'Speech speed:',
-        userPlaceholder: 'Type your sentence here...',
-        sendBtn: 'Send',
-        speakBtn: '🎤 Speak',
-        levels: {
-            A1: 'A1 - Beginner',
-            A2: 'A2 - Elementary',
-            B1: 'B1 - Intermediate',
-            B2: 'B2 - Upper Intermediate',
-            C1: 'C1 - Advanced',
-            C2: 'C2 - Proficient'
+
+        if (!frenchVoice) {
+          frenchVoice = voices.find(voice => voice.lang === 'fr-FR');
         }
-    }
-};
 
-// -------------------- UI update --------------------
-function updateInterface(lang) {
-    const t = translations[lang];
-    pageTitle.textContent = t.pageTitle;
-    langLabel.textContent = t.langLabel;
-    levelLabel.textContent = t.levelLabel;
-    startButton.textContent = t.startBtn;
-    speedLabel.textContent = t.speedLabel;
-    inputField.placeholder = t.userPlaceholder;
-    sendButton.textContent = t.sendBtn;
-    speakButton.textContent = t.speakBtn;
+        if (frenchVoice) {
+          utterance.voice = frenchVoice;
+        }
 
-    levelSelector.innerHTML = '';
-    for (const [key, label] of Object.entries(t.levels)) {
-        const opt = document.createElement('option');
-        opt.value = key;
-        opt.textContent = label;
-        if (key === 'A2') opt.selected = true;
-        levelSelector.appendChild(opt);
+        utterance.lang = 'fr-FR';
+        utterance.rate = rate;
+        speechSynthesis.speak(utterance);
+    };
+
+    if (speechSynthesis.getVoices().length > 0) {
+        setVoiceAndSpeak();
+    } else {
+        speechSynthesis.onvoiceschanged = setVoiceAndSpeak;
     }
 }
 
-languageSelector.addEventListener('change', () => {
-    updateInterface(languageSelector.value);
+function initializeSampleFlashcard() {
+    const container = document.querySelector('.sample-section');
+    if (!container) return;
+
+    const phrases = [
+        { english: 'Hello, I am calling about the advertisement.', french: 'Bonjour, je vous appelle au sujet de l’annonce.' },
+        { english: 'Could you give me more information?', french: 'Pourriez-vous me donner plus d’informations ?' },
+        { english: 'What are the opening hours?', french: 'Quels sont les horaires d’ouverture ?' }
+    ];
+    let currentIndex = 0;
+
+    const englishEl = container.querySelector('#sample-english');
+    const frenchEl = container.querySelector('#sample-french');
+    const flashcardEl = container.querySelector('.flashcard');
+    const prevBtn = container.querySelector('#sample-prev-btn');
+    const nextBtn = container.querySelector('#sample-next-btn');
+    const flipBtn = container.querySelector('#sample-flip-btn');
+    const playBtn = container.querySelector('#sample-play-btn');
+    const firstBtn = container.querySelector('#sample-first-btn');
+    const currentCardEl = container.querySelector('#sample-current-card');
+    const totalCardsEl = container.querySelector('#sample-total-cards');
+
+    function display(index) {
+        currentIndex = index;
+        const phrase = phrases[index];
+        englishEl.textContent = phrase.english;
+        frenchEl.textContent = phrase.french;
+        flashcardEl.classList.remove('is-flipped');
+        currentCardEl.textContent = currentIndex + 1;
+        totalCardsEl.textContent = phrases.length;
+        prevBtn.disabled = currentIndex === 0;
+        firstBtn.disabled = currentIndex === 0;
+        nextBtn.disabled = currentIndex >= phrases.length - 1;
+    }
+
+    flipBtn.addEventListener('click', (e) => { e.stopPropagation(); flashcardEl.classList.toggle('is-flipped'); });
+    flashcardEl.addEventListener('click', () => flashcardEl.classList.toggle('is-flipped'));
+    playBtn.addEventListener('click', () => speakFrench(phrases[currentIndex].french, 1.0));
+    firstBtn.addEventListener('click', () => display(0));
+
+    prevBtn.addEventListener('click', () => {
+        if (currentIndex > 0) {
+            flashcardEl.classList.add('slide-out-right');
+            setTimeout(() => {
+                display(currentIndex - 1);
+                flashcardEl.classList.remove('slide-out-right');
+            }, 300);
+        }
+    });
+
+    nextBtn.addEventListener('click', () => {
+        if (currentIndex < phrases.length - 1) {
+            flashcardEl.classList.add('slide-out-left');
+            setTimeout(() => {
+                display(currentIndex + 1);
+                flashcardEl.classList.remove('slide-out-left');
+            }, 300);
+        }
+    });
+
+    let touchstartX = 0;
+    flashcardEl.addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; });
+    flashcardEl.addEventListener('touchend', e => {
+        const touchendX = e.changedTouches[0].screenX;
+        if (Math.abs(touchendX - touchstartX) > 50) {
+            if (touchendX < touchstartX) nextBtn.click();
+            else prevBtn.click();
+        }
+    });
+
+    display(0);
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    const userStatusDiv = document.getElementById('user-status');
+    const firstNameDisplay = document.getElementById('first-name-display');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const authContainer = document.getElementById('auth-container');
+    const loginPrompt = document.getElementById('login-prompt');
+    const subscriptionPrompt = document.getElementById('subscription-prompt');
+    const practiseContainer = document.getElementById('practise-container');
+
+    logoutBtn.addEventListener('click', async () => {
+        const response = await fetch('api/logout.php');
+        if (response.ok) {
+            showToast('You have been logged out.', 'success');
+            setTimeout(() => { window.location.href = 'login.html'; }, 1000);
+        } else {
+            showToast('Logout failed. Please try again.', 'error');
+        }
+    });
+
+    try {
+        const response = await fetch('api/check_session.php');
+        if (response.ok) {
+            const data = await response.json();
+            if (data.loggedIn) {
+                userStatusDiv.style.display = 'flex';
+                firstNameDisplay.textContent = `Welcome, ${data.user.first_name}`;
+                if (data.user.role === 'admin') {
+                    document.getElementById('admin-link').style.display = 'inline';
+                }
+
+                if (data.user.subscription_status !== 'active') {
+                    authContainer.style.display = 'block';
+                    loginPrompt.style.display = 'none';
+                    subscriptionPrompt.style.display = 'block';
+                    practiseContainer.style.display = 'none';
+                    renderPayPalSubscriptionButton();
+                } else {
+                    practiseContainer.style.display = 'block';
+                }
+            } else {
+                authContainer.style.display = 'block';
+                loginPrompt.style.display = 'block';
+                subscriptionPrompt.style.display = 'none';
+                practiseContainer.style.display = 'none';
+                initializeSampleFlashcard();
+            }
+        } else {
+            throw new Error('Session check failed with status ' + response.status);
+        }
+    } catch (error) {
+        console.error('Session check failed:', error);
+        authContainer.style.display = 'block';
+        loginPrompt.style.display = 'block';
+        subscriptionPrompt.style.display = 'none';
+        practiseContainer.style.display = 'none';
+        const heroH1 = loginPrompt.querySelector('.hero h1');
+        const heroP = loginPrompt.querySelector('.hero p');
+        if (heroH1) heroH1.textContent = 'Oops! Something went wrong.';
+        if (heroP) heroP.textContent = 'We couldn\'t load the page properly. Please try refreshing.';
+    }
 });
 
-updateInterface(languageSelector.value);
+function renderPayPalSubscriptionButton() {
+    const paypalScript = document.getElementById('paypal-sdk-script');
+    if (!paypalScript) {
+        console.error("PayPal SDK script not found.");
+        return;
+    }
+    const planId = paypalScript.getAttribute('data-plan-id');
+    if (!planId || planId === 'YOUR_PAYPAL_PLAN_ID') {
+        console.error('Subscription plan is not configured.');
+        return;
+    }
+    paypal.Buttons({
+        style: { shape: 'rect', color: 'gold', layout: 'vertical', label: 'subscribe' },
+        createSubscription: function(data, actions) {
+            return actions.subscription.create({ 'plan_id': planId });
+        },
+        onApprove: async function(data, actions) {
+            showToast('Subscription approved! Finalizing...', 'info');
+            try {
+                const response = await fetch('api/paypal/capture_subscription.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ subscriptionID: data.subscriptionID })
+                });
+                const result = await response.json();
+                if (result.status === 'success') {
+                    showToast('Subscription successful! You now have access.', 'success');
+                    setTimeout(() => { window.location.reload(); }, 2000);
+                } else {
+                    showToast('Failed to activate subscription: ' + (result.message || 'Unknown error'), 'error');
+                }
+            } catch (error) {
+                showToast('An error occurred while finalizing your subscription.', 'error');
+            }
+        },
+        onError: function(err) {
+            console.error('PayPal button error:', err);
+            showToast('An error occurred with the PayPal button.', 'error');
+        }
+    }).render('#paypal-button-container');
+}
+</script>
+<script>
+    const chatContainer = document.getElementById('chat');
+    const inputField = document.getElementById('user-input');
+    const sendButton = document.getElementById('send-btn');
+    const startButton = document.getElementById('start-btn');
+    const levelSelector = document.getElementById('level');
+    const speakButton = document.getElementById('speak-btn');
+    const languageSelector = document.getElementById('language');
+    const speedSlider = document.getElementById('speech-speed');
+    const speedValue = document.getElementById('speed-value');
 
-// -------------------- Speech queue --------------------
-let speaking = false;
-const speechQueue = [];
+    // iOS detection
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    let ttsUnlocked = false;
 
-let speechRate = parseFloat(localStorage.getItem('speechRate')) || parseFloat(speedSlider.value);
-speedSlider.value = speechRate;
-speedValue.textContent = speechRate.toFixed(2);
+    // -------------------- Speech queue --------------------
+    let speaking = false;
+    const speechQueue = [];
 
-speedSlider.addEventListener('input', () => {
-    speechRate = parseFloat(speedSlider.value);
+    // -------------------- Speech speed --------------------
+    let speechRate = parseFloat(localStorage.getItem('speechRate')) || parseFloat(speedSlider.value);
+    speedSlider.value = speechRate;
     speedValue.textContent = speechRate.toFixed(2);
-    localStorage.setItem('speechRate', speechRate);
-});
 
-// -------------------- TTS --------------------
-let voices = [];
+    speedSlider.addEventListener('input', () => {
+        speechRate = parseFloat(speedSlider.value);
+        speedValue.textContent = speechRate.toFixed(2);
+        localStorage.setItem('speechRate', speechRate);
+    });
 
-function loadVoices() {
-    voices = speechSynthesis.getVoices();
-}
+    // -------------------- TTS --------------------
+    let voices = [];
 
-speechSynthesis.onvoiceschanged = loadVoices;
-setTimeout(loadVoices, 500);
+    function loadVoices() {
+        voices = speechSynthesis.getVoices();
+    }
+    speechSynthesis.onvoiceschanged = loadVoices;
+    setTimeout(loadVoices, 500);
 
-function unlockTTS() {
-    if (!isIOS || ttsUnlocked || !('speechSynthesis' in window)) return;
-    const u = new SpeechSynthesisUtterance(' ');
-    u.volume = 0;
-    speechSynthesis.speak(u);
-    ttsUnlocked = true;
-}
+    function unlockTTS() {
+        if (!isIOS || ttsUnlocked || !('speechSynthesis' in window)) return;
+        const u = new SpeechSynthesisUtterance(' ');
+        u.volume = 0;
+        speechSynthesis.speak(u);
+        ttsUnlocked = true;
+    }
 
-function speak(text) {
-    if (!('speechSynthesis' in window) || !text) return;
-
-    if (isIOS) {
-        unlockTTS();
+    function stopTTS() {
+        speechQueue.length = 0;
+        speaking = false;
         speechSynthesis.cancel();
     }
 
-    speechQueue.push(text);
-    if (speaking) return;
+    function speak(text) {
+        if (!('speechSynthesis' in window) || !text) return;
 
-    function next() {
-        if (speechQueue.length === 0) { speaking = false; return; }
-
-        speaking = true;
-        const utter = new SpeechSynthesisUtterance(speechQueue.shift());
-
-        if (languageSelector.value === 'fr') {
-            utter.lang = 'fr-FR';
-            utter.voice = voices.find(v => v.lang.startsWith('fr')) || null;
-        } else {
-            utter.lang = 'en-US';
-            utter.voice =
-                voices.find(v => v.name === 'Google US English') ||
-                voices.find(v => v.lang.startsWith('en')) ||
-                null;
+        if (isIOS) {
+            unlockTTS();
+            speechSynthesis.cancel();
         }
 
-        utter.rate = speechRate;
-        utter.onend = next;
-        speechSynthesis.speak(utter);
+        speechQueue.push(text);
+        if (speaking) return;
+
+        function next() {
+            if (speechQueue.length === 0) {
+                speaking = false;
+                return;
+            }
+
+            speaking = true;
+            const utter = new SpeechSynthesisUtterance(speechQueue.shift());
+
+            if (languageSelector.value === 'fr') {
+                utter.lang = 'fr-FR';
+                utter.voice = voices.find(v => v.lang.startsWith('fr')) || null;
+            } else {
+                utter.lang = 'en-US';
+                utter.voice =
+                    voices.find(v => v.name === 'Google US English') ||
+                    voices.find(v => v.lang.startsWith('en')) ||
+                    null;
+            }
+
+            utter.rate = speechRate;
+            utter.onend = next;
+            utter.onerror = () => {
+                speechQueue.length = 0;
+                speaking = false;
+            };
+
+            speechSynthesis.speak(utter);
+        }
+
+        next();
     }
 
-    next();
-}
+    // -------------------- Append message --------------------
+    function appendMessage(role, text) {
+        const div = document.createElement('div');
+        div.className = role;
+        div.innerHTML = text;
 
-// -------------------- Append message --------------------
-function appendMessage(role, text) {
-    const div = document.createElement('div');
-    div.className = role;
-    div.innerHTML = text;
+        if (role === 'assistant') {
+            const speakBtn = document.createElement('button');
+            speakBtn.textContent = '🔊';
+            speakBtn.style.marginLeft = '5px';
+            speakBtn.addEventListener('click', () => {
+                unlockTTS();
+                speak(text);
+            });
+            div.appendChild(speakBtn);
+        }
 
-    if (role === 'assistant') {
-        const speakBtn = document.createElement('button');
-        speakBtn.textContent = '🔊';
-        speakBtn.style.marginLeft = '5px';
-        speakBtn.addEventListener('click', () => {
-            unlockTTS();
-            speak(text);
+        chatContainer.appendChild(div);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    // -------------------- Start session --------------------
+    async function startSession(level, language) {
+        setupRecognition(language);
+        unlockTTS();
+
+        const res = await fetch('practise/api/start_session.php', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: 'level=' + encodeURIComponent(level) + '&language=' + encodeURIComponent(language)
         });
-        div.appendChild(speakBtn);
+        const data = await res.json();
+        chatContainer.innerHTML = '';
+
+        if (data.scenario) appendMessage('suggestion', `<em>Scénario: ${data.scenario}</em>`);
+        if (data.assistant) {
+            appendMessage('assistant', data.assistant);
+            speak(data.assistant);
+        }
     }
 
-    chatContainer.appendChild(div);
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-}
+    // -------------------- Send message --------------------
+    async function sendMessage() {
+        const text = inputField.value.trim();
+        if (!text) return;
 
-// -------------------- Start session --------------------
-async function startSession(level, language) {
-    setupRecognition(language);
-    unlockTTS();
+        appendMessage('user', text);
+        inputField.value = '';
 
-    const res = await fetch('api/start_session.php', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: 'level=' + encodeURIComponent(level) + '&language=' + encodeURIComponent(language)
+        sendButton.disabled = true;
+        speakButton.disabled = true;
+
+        const res = await fetch('practise/api/continue_session.php', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: 'text=' + encodeURIComponent(text) + '&language=' + encodeURIComponent(languageSelector.value)
+        });
+
+        const data = await res.json();
+
+        if (data.assistant) {
+            appendMessage('assistant', data.assistant);
+            speak(data.assistant);
+        }
+        if (data.suggestion) appendMessage('suggestion', `<em>${data.suggestion}</em>`);
+
+        sendButton.disabled = false;
+        speakButton.disabled = false;
+    }
+
+    // -------------------- Events --------------------
+    sendButton.addEventListener('click', () => { unlockTTS(); sendMessage(); });
+    inputField.addEventListener('keypress', e => { if (e.key === 'Enter') sendMessage(); });
+    startButton.addEventListener('click', () => startSession(levelSelector.value, languageSelector.value));
+
+    // -------------------- Speech recognition --------------------
+    let recognition;
+    function setupRecognition(language) {
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.lang = language === 'fr' ? 'fr-FR' : 'en-US';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            recognition.onresult = (event) => {
+                inputField.value = event.results[0][0].transcript;
+                sendMessage();
+            };
+        }
+    }
+
+    // 🎤 AUTO-INTERRUPT TTS HERE
+    speakButton.addEventListener('click', () => {
+        unlockTTS();
+
+        if (speaking) {
+            stopTTS(); // 🔥 interrupt speech immediately
+        }
+
+        if (recognition) recognition.start();
     });
-    const data = await res.json();
-    chatContainer.innerHTML = '';
-
-    if (data.scenario) appendMessage('suggestion', `<em>Scénario: ${data.scenario}</em>`);
-    if (data.assistant) {
-        appendMessage('assistant', data.assistant);
-        speak(data.assistant);
-    }
-}
-
-// -------------------- Send user message --------------------
-async function sendMessage() {
-    const text = inputField.value.trim();
-    if (!text) return;
-    appendMessage('user', text);
-    inputField.value = '';
-
-    sendButton.disabled = true;
-    speakButton.disabled = true;
-    unlockTTS();
-
-    const res = await fetch('api/continue_session.php', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: 'text=' + encodeURIComponent(text) + '&language=' + encodeURIComponent(languageSelector.value)
-    });
-
-    const data = await res.json();
-
-    if (data.assistant) {
-        appendMessage('assistant', data.assistant);
-        speak(data.assistant);
-    }
-    if (data.suggestion) appendMessage('suggestion', `<em>${data.suggestion}</em>`);
-
-    sendButton.disabled = false;
-    speakButton.disabled = false;
-}
-
-// -------------------- Events --------------------
-sendButton.addEventListener('click', () => { unlockTTS(); sendMessage(); });
-inputField.addEventListener('keypress', e => { if(e.key==='Enter') sendMessage(); });
-startButton.addEventListener('click', () => startSession(levelSelector.value, languageSelector.value));
-
-// -------------------- Speech recognition --------------------
-let recognition;
-function setupRecognition(language) {
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        recognition = new SpeechRecognition();
-        recognition.lang = language === 'fr' ? 'fr-FR' : 'en-US';
-        recognition.interimResults = false;
-        recognition.maxAlternatives = 1;
-
-        recognition.onresult = function(event) {
-            inputField.value = event.results[0][0].transcript;
-            sendMessage();
-        };
-    }
-}
-
-speakButton.addEventListener('click', () => {
-    unlockTTS();
-    if (recognition) recognition.start();
-});
 </script>
-
 </body>
 </html>
