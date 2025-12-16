@@ -38,10 +38,18 @@ STRICT RULES:
 - Les commentaires, astuces, suggestions ou corrections doivent être envoyés UNIQUEMENT dans la section SUGGESTION.
 - Demandez des clarifications seulement si le sens est ambigu.
 
-OUTPUT FORMAT (JSON or plain text):
+OUTPUT RULES (MANDATORY):
+- Répondre UNIQUEMENT avec un seul objet JSON
+- Pas de Markdown
+- Pas d'accents graves (backticks)
+- Pas d'explications
+- Pas de texte avant ou après le JSON
+- Ne pas intégrer de JSON dans des chaînes de caractères
+
+OUTPUT FORMAT EXACTLY:
 {
-    \"dialogue\": \"<ce que vous dites>\",
-    \"suggestion\": \"<optionnel>\"
+    \"dialogue\": \"<dialogue parlé uniquement>\",
+    \"suggestion\": \"<chaîne vide ou correction>\"
 }" : "You are role-playing a real-life spoken interaction in English.
 
 ROLE MODEL:
@@ -58,11 +66,21 @@ STRICT RULES:
 - Feedback, hints, suggestions or corrections ONLY go in SUGGESTION.
 - Ask for clarification ONLY if meaning is unclear.
 
-OUTPUT FORMAT (JSON or plain text):
+OUTPUT RULES (MANDATORY):
+- Respond ONLY with a single JSON object
+- No markdown
+- No backticks
+- No explanations
+- No text before or after JSON
+- Do not embed JSON inside strings
+
+OUTPUT FORMAT EXACTLY:
 {
-    \"dialogue\": \"<what you say>\",
-    \"suggestion\": \"<optional>\"
-}";
+  \"assistant\": \"<spoken dialogue only>\",
+  \"suggestion\": \"<empty string or correction>\"
+};
+
+
 
 // Build messages
 $messages = [
