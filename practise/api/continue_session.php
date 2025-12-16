@@ -2,12 +2,13 @@
 session_start();
 require_once __DIR__ . '/openai.php';
 
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=utf-8');
 
-$userText = $_POST['text'] ?? '';
+$userText = trim($_POST['text'] ?? '');
 $language = $_POST['language'] ?? 'fr'; // 'fr' or 'en'
 
-if (!$userText || !isset($_SESSION['conversation'])) {
+// Safety check
+if ($userText === '' || !isset($_SESSION['conversation'], $_SESSION['scenario'])) {
     echo json_encode([
         "assistant" => "",
         "suggestion" => ""
@@ -15,14 +16,16 @@ if (!$userText || !isset($_SESSION['conversation'])) {
     exit;
 }
 
-// Add user message
+// Store user message
 $_SESSION['conversation'][] = [
     "role" => "user",
     "content" => $userText
 ];
 
-// System prompt
-$systemPrompt = $language === 'fr' ? "Vous jouez une interaction parlée réelle en français.
+// -------------------- System prompt --------------------
+if ($language === 'fr') {
+    $systemPrompt = <<<PROMPT
+Vous jouez une interaction parlée réelle en français.
 
 ROLE MODEL:
 - Vous êtes le partenaire de conversation.
@@ -33,9 +36,9 @@ STRICT RULES:
 - Ne parlez jamais à la place de l'apprenant.
 - Ne répétez jamais la phrase de l'apprenant.
 - Répondez naturellement à ce que l'apprenant dit.
-- Dialogue parlé UNIQUEMENT en DIALOGUE.
-- Signalez toute astuces, erreur ou correction susceptible d'être améliorée.
-- Les commentaires, astuces, suggestions ou corrections doivent être envoyés UNIQUEMENT dans la section SUGGESTION.
+- Dialogue parlé UNIQUEMENT dans "assistant".
+- Signalez toute astuce, erreur ou correction susceptible d'être améliorée.
+- Les commentaires, astuces, suggestions ou corrections doivent être envoyés UNIQUEMENT dans "suggestion".
 - Demandez des clarifications seulement si le sens est ambigu.
 
 OUTPUT RULES (MANDATORY):
@@ -48,22 +51,25 @@ OUTPUT RULES (MANDATORY):
 
 OUTPUT FORMAT EXACTLY:
 {
-    \"dialogue\": \"<dialogue parlé uniquement>\",
-    \"suggestion\": \"<chaîne vide ou correction>\"
-}" : "You are role-playing a real-life spoken interaction in English.
+  "assistant": "<dialogue parlé uniquement>",
+  "suggestion": "<chaîne vide ou correction>"
+}
+PROMPT;
+} else {
+    $systemPrompt = <<<PROMPT
+You are role-playing a real-life spoken interaction in English.
 
 ROLE MODEL:
 - You are the conversational counterpart.
-- You are a language teacher with suggestions, corrections and hints for improvement of dialogue. 
+- You are a language teacher with suggestions, corrections and hints for improvement of dialogue.
 - The learner is the active participant.
 
 STRICT RULES:
 - Never speak as the learner.
 - Never repeat the learner's sentence.
 - Reply naturally to what the learner says.
-- Spoken dialogue ONLY goes in DIALOGUE.
-- Give feedback, hints or correction when there is a mistake or room for improvement.
-- Feedback, hints, suggestions or corrections ONLY go in SUGGESTION.
+- Spoken dialogue ONLY goes in "assistant".
+- Feedback, hints, suggestions or corrections ONLY go in "suggestion".
 - Ask for clarification ONLY if meaning is unclear.
 
 OUTPUT RULES (MANDATORY):
@@ -76,13 +82,13 @@ OUTPUT RULES (MANDATORY):
 
 OUTPUT FORMAT EXACTLY:
 {
-  \"assistant\": \"<spoken dialogue only>\",
-  \"suggestion\": \"<empty string or correction>\"
-};
+  "assistant": "<spoken dialogue only>",
+  "suggestion": "<empty string or correction>"
+}
+PROMPT;
+}
 
-
-
-// Build messages
+// -------------------- Build messages --------------------
 $messages = [
     ["role" => "system", "content" => $systemPrompt],
     ["role" => "system", "content" => "Scenario: " . $_SESSION['scenario']]
@@ -90,53 +96,34 @@ $messages = [
 
 $messages = array_merge($messages, $_SESSION['conversation']);
 
-// Call OpenAI
+// -------------------- Call OpenAI --------------------
 $response = openai_chat($messages);
 $raw = trim($response['content'] ?? '');
 
-// Initialize output
-$dialogue = '';
-$suggestion = '';
+// -------------------- Strict JSON decode --------------------
+$data = json_decode($raw, true);
 
-// 1️⃣ Try JSON extraction
-if (preg_match('/\{(?:[^{}]|(?R))*\}/', $raw, $matches)) {
-    $jsonText = $matches[0];
-    $parsed = json_decode($jsonText, true);
-    if ($parsed) {
-        $dialogue = trim($parsed['dialogue'] ?? '');
-        $suggestion = trim($parsed['suggestion'] ?? '');
-    }
+// If the model violated the contract, fail safely
+if (!is_array($data)) {
+    echo json_encode([
+        "assistant" => "",
+        "suggestion" => ""
+    ]);
+    exit;
 }
 
-// 2️⃣ If dialogue is empty, fallback to raw text
-if (!$dialogue) {
-    $dialogue = $raw;
-}
+// Extract fields safely
+$assistant = trim($data['assistant'] ?? '');
+$suggestion = trim($data['suggestion'] ?? '');
 
-// 3️⃣ Extract ```suggestion``` block from raw text (if present)
-if (preg_match('/```suggestion\s*(.*?)```/s', $dialogue, $match)) {
-    $suggestion = trim($match[1]);
-    // Remove it from dialogue
-    $dialogue = preg_replace('/```suggestion\s*.*?```/s', '', $dialogue);
-}
-
-// 4️⃣ Trim dialogue and suggestion
-$dialogue = trim($dialogue);
-$suggestion = trim($suggestion);
-
-// 5️⃣ Fallback suggestion if none
-// if (!$suggestion) {
-//     $suggestion = $language === 'fr' ? "Essayez de reformuler pour plus de clarté." : "Try to rephrase for clarity.";
-// }
-
-// Save assistant response in session
+// Store assistant dialogue only (never store suggestion)
 $_SESSION['conversation'][] = [
     "role" => "assistant",
-    "content" => $dialogue
+    "content" => $assistant
 ];
 
-// Return JSON
+// -------------------- Return to frontend --------------------
 echo json_encode([
-    "assistant" => $dialogue,
+    "assistant" => $assistant,
     "suggestion" => $suggestion
-]);
+], JSON_UNESCAPED_UNICODE);
