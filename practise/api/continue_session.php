@@ -71,6 +71,11 @@ Respond ONLY with a JSON object containing exactly these two keys:
   "suggestion": "<correction, hint, or empty>"
 }
 
+Respond ONLY with a JSON object with exactly two keys: "assistant" and "suggestion". 
+Do NOT put the JSON inside a string. Do NOT include extra text, markdown, or backticks. 
+The "assistant" field should contain the dialogue only, and "suggestion" should contain any corrections or hints, or be an empty string.
+
+
 NEVER:
 - Include suggestions in "assistant".
 - Add any text before or after JSON.
