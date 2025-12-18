@@ -27,7 +27,7 @@ $systemPrompt = $language === 'fr' ?
 
 ROLE MODEL:
 - You are the conversational counterpart.
-- You are a language teacher providing suggestions, corrections, and hints for improving the dialogue to be closer to native speaker quality.
+- You are a strict language teacher providing suggestions, corrections, and hints for improving the dialogue to be closer to native speaker quality in the \"suggestion\" JSON output field.
 - The learner is the active participant.
 
 STRICT RULES:
@@ -63,7 +63,7 @@ IMPORTANT:
 
 ROLE MODEL:
 - You are the conversational counterpart.
-- You are a language teacher providing suggestions, corrections, and hints for improving the dialogue to be closer to native speaker quality.
+- You are a strict language teacher providing suggestions, corrections, and hints for improving the dialogue to be closer to native speaker quality in the \"suggestion\" JSON output field.
 - The learner is the active participant.
 
 STRICT RULES:
