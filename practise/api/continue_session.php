@@ -107,7 +107,7 @@ if (preg_match('/\{(?:[^{}]|(?R))*\}/', $raw, $matches)) {
     $jsonText = $matches[0];
     $parsed = json_decode($jsonText, true);
     if ($parsed) {
-        $dialogue = trim($parsed['dialogue'] ?? '');
+        $dialogue = trim($parsed['assistant'] ?? '');
         $suggestion = trim($parsed['suggestion'] ?? '');
     }
 }
