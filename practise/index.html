@@ -80,6 +80,7 @@ button { padding: 5px 10px; font-size: 1em; margin-left: 5px; }
         <input type="text" id="user-input" placeholder="Tapez votre phrase ici..." />
         <button id="send-btn">Envoyer</button>
         <button id="speak-btn">🎤 Parler</button>
+        <button id="help-btn" style="display: none;">Help</button>
     </div>
 </div>
 
@@ -120,6 +121,7 @@ const speakButton = document.getElementById('speak-btn');
 const languageSelector = document.getElementById('language');
 const speedSlider = document.getElementById('speech-speed');
 const speedValue = document.getElementById('speed-value');
+const helpButton = document.getElementById('help-btn');
 
 // iOS detection
 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
@@ -191,6 +193,7 @@ function updateInterface(lang) {
         if (key === 'A2') opt.selected = true;
         levelSelector.appendChild(opt);
     }
+    helpButton.style.display = lang === 'fr' ? 'inline-block' : 'none';
 }
 
 languageSelector.addEventListener('change', () => {
@@ -362,6 +365,70 @@ function setupRecognition(language) {
 speakButton.addEventListener('click', () => {
     unlockTTS();
     if (recognition) recognition.start();
+});
+
+// -------------------- Help feature speech recognition --------------------
+let helpRecognition;
+
+function setupHelpRecognition() {
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        helpRecognition = new SpeechRecognition();
+        helpRecognition.lang = 'en-US';
+        helpRecognition.interimResults = false;
+        helpRecognition.maxAlternatives = 1;
+
+        helpRecognition.onresult = async function(event) {
+            const userQuery = event.results[0][0].transcript;
+            showToast("Sending your question for translation...");
+
+            try {
+                const res = await fetch('practise/api/translate_help.php', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                    body: 'text=' + encodeURIComponent(userQuery)
+                });
+                const data = await res.json();
+
+                if (data.translation) {
+                    speak(data.translation);
+                } else {
+                    showToast("Sorry, I couldn't get a translation.", 'error');
+                }
+            } catch (error) {
+                console.error("Error during translation:", error);
+                showToast("An error occurred. Please try again.", 'error');
+            }
+        };
+
+        helpRecognition.onerror = function(event) {
+            console.error("Help Recognition Error:", event.error);
+            showToast("Voice recognition error. Please try again.", 'error');
+        };
+    }
+}
+
+helpButton.addEventListener('click', () => {
+    unlockTTS();
+    if (!helpRecognition) {
+        setupHelpRecognition();
+    }
+    if (helpRecognition) {
+        showToast("Listening for your question in English...");
+        helpRecognition.start();
+    } else {
+        showToast("Speech recognition is not supported in your browser.", 'error');
+    }
+});
+
+// Initialize help recognition on first load if french is selected
+if (languageSelector.value === 'fr') {
+    setupHelpRecognition();
+}
+languageSelector.addEventListener('change', (e) => {
+    if (e.target.value === 'fr') {
+        setupHelpRecognition();
+    }
 });
 </script>
 
