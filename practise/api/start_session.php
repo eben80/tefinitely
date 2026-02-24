@@ -8,6 +8,7 @@ $level = $_POST['level'] ?? 'A2';
 $language = $_POST['language'] ?? 'fr'; // 'fr' or 'en'
 
 // ------------------ Broader scenario categories ------------------
+
 $categories = [
     "un magasin de prêt-sur-gage qui rachète des bijoux",
     "un service de location de bateaux",
@@ -69,39 +70,53 @@ $categories_en = [
 // Pick a random category
 if ($language === 'fr') {
     $chosen = $categories[array_rand($categories)];
-    $scenario_instructions = "Crée une courte mise en situation de type TEF Canada Section A. Le candidat lit une annonce ou une affiche concernant $chosen et doit poser des questions pour obtenir des renseignements. Fournis le contexte et la première réplique de l’assistant.";
-    $system_prompt = "Vous êtes un examinateur jouant le rôle du représentant lié à l’annonce.
+    $scenario_instructions = "Crée une mise en situation de type TEF Canada Section A sous la forme d’une annonce ou affiche. L’annonce doit commencer par une consigne claire adressée au candidat, suivie du contenu de l’annonce concernant $chosen. Fournis ensuite la première réplique naturelle du représentant.";
+    $system_prompt = "Vous êtes examinateur TEF Canada.
 
-FORMAT TEF CANADA – SECTION A :
-- Le candidat a lu une annonce / affiche.
-- Il doit poser des questions pour obtenir des informations.
-- Vous répondez comme le représentant du service.
+OBJECTIF :
+Générer une Section A réaliste.
 
-LANGUE :
-- Tout doit être en français.
+FORMAT OBLIGATOIRE DU SCÉNARIO :
+
+Le champ \"scenario\" doit être structuré EXACTEMENT comme suit :
+
+1) Une ligne d’instruction adressée au candidat commençant par :
+« CONSIGNE : »
+Exemple :
+CONSIGNE : Vous avez lu l’annonce suivante. Vous téléphonez pour obtenir des renseignements. Posez des questions.
+
+2) Une séparation visuelle (ex: ---)
+
+3) Une annonce rédigée comme une vraie affiche publicitaire.
+Elle doit inclure :
+- Un titre accrocheur
+- Une description claire du service / événement
+- Quelques informations partielles (dates, prix, services, conditions, etc.)
+- Des informations manquantes afin d’encourager les questions
+
+IMPORTANT :
+- Ne donnez PAS toutes les informations.
+- L’annonce doit encourager au moins 10 questions potentielles.
+- Style authentique d’affiche ou publicité.
 
 RÔLES :
-- L’apprenant est toujours la personne qui demande des renseignements.
-- Vous êtes le représentant (vendeur, organisateur, employé, etc.).
+- L’apprenant est toujours la personne qui appelle ou se renseigne.
+- Vous êtes le représentant lié à l’annonce.
 - Ne parlez jamais à la place du candidat.
-- Commencez toujours par une phrase naturelle liée à l’annonce.
+- Commencez naturellement la conversation comme si le candidat appelait.
 
-EXIGENCES :
+LANGUE :
+- Tout en français.
 - Niveau adapté : {$level}.
-- Interaction réaliste et naturelle.
-- Dialogue parlé uniquement en DIALOGUE.
-- Corrections uniquement en SUGGESTION.
-- Ne fournissez pas trop d’informations d’un seul coup.
-- Laissez le candidat poser des questions.
 
 FORMAT DE SORTIE (JSON UNIQUEMENT) :
 {
-  \"scenario\": \"Description claire de l’annonce et du contexte en français\",
+  \"scenario\": \"Texte complet avec CONSIGNE + annonce format affiche\",
   \"assistant_opening\": \"Première phrase naturelle du représentant en français\"
 }";
 } else {
     $chosen = $categories_en[array_rand($categories_en)];
-    $scenario_instructions = "Create a short TEF Canada Section A style scenario. The candidate has read an advertisement or poster about $chosen and must ask questions to obtain information. Provide the context and the assistant’s first spoken line.";
+   $scenario_instructions = "Create a TEF Canada Section A style scenario formatted as an advertisement or poster. The scenario must begin with a clear instruction addressed to the candidate, followed by the advertisement content about $chosen. Then provide the assistant’s first natural spoken line.";
     $system_prompt = "You are an examiner playing the role of the representative connected to the advertisement.
 
 TEF CANADA – SECTION A FORMAT:
@@ -129,6 +144,47 @@ REQUIREMENTS:
 OUTPUT FORMAT (JSON ONLY):
 {
   \"scenario\": \"Clear description of the advertisement and context in English\",
+  \"assistant_opening\": \"Representative’s first natural spoken line in English\"
+}";$system_prompt = "You are a TEF Canada examiner.
+
+OBJECTIVE:
+Generate a realistic Section A scenario.
+
+REQUIRED SCENARIO FORMAT:
+
+The \"scenario\" field must be structured EXACTLY as follows:
+
+1) A candidate instruction line starting with:
+“INSTRUCTION:”
+Example:
+INSTRUCTION: You have read the following advertisement. You call to obtain more information. Ask questions.
+
+2) A visual separator (example: ---)
+
+3) A realistic advertisement/poster including:
+- A catchy title
+- A clear description of the service/event
+- Some partial details (dates, prices, services, conditions, etc.)
+- Missing information to encourage questions
+
+IMPORTANT:
+- Do NOT provide complete information.
+- The advertisement must allow at least 10 possible follow-up questions.
+- It must look like a real promotional ad or poster.
+
+ROLES:
+- The learner is always the person calling or enquiring.
+- You are the representative connected to the advertisement.
+- Never speak as the learner.
+- Start naturally as if answering their call.
+
+LANGUAGE:
+- All in English.
+- Keep language appropriate for level {$level}.
+
+OUTPUT FORMAT (JSON ONLY):
+{
+  \"scenario\": \"Full text including INSTRUCTION + advertisement formatted like a poster\",
   \"assistant_opening\": \"Representative’s first natural spoken line in English\"
 }";
 }
