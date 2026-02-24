@@ -3,6 +3,7 @@
 <head>
 <base href="/">
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Language Conversation Practice</title>
 <link rel="icon" href="img/favicon/favicon.ico" sizes="any">
 <link rel="icon" href="img/favicon/favicon.svg" type="image/svg+xml">
@@ -12,26 +13,241 @@
 <link rel="stylesheet" href="css/main.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 <style>
-body { font-family: sans-serif; max-width: 600px; margin: 20px auto; }
-#controls { margin-bottom: 10px; }
-#instruction-display { display: none; background: #e7f3ff; padding: 15px; border-left: 5px solid #007bff; margin-bottom: 15px; font-weight: bold; }
-#advertisement-poster { display: none; background: white; border: 2px solid #333; padding: 25px; margin-bottom: 15px; box-shadow: 5px 5px 15px rgba(0,0,0,0.1); font-family: 'Georgia', serif; white-space: pre-wrap; line-height: 1.6; }
-#chat { max-height: 400px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; background: #fff; }
-.user { text-align: right; color: blue; margin: 5px; }
-.assistant { text-align: left; color: green; margin: 5px; }
-.suggestion { text-align: left; color: gray; font-style: italic; margin: 3px; }
-input[type=text] { flex: 1; padding: 5px; font-size: 1em; }
-button { padding: 5px 10px; font-size: 1em; margin-left: 5px; }
-#input-area { display: flex; }
-#speed-container { margin-top: 5px; }
+    /* Reset some main.css styles for this app-like page */
+    body {
+        background: #f8f9fa;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        margin: 0;
+    }
+
+    #app-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        max-width: 1000px;
+        margin: 0 auto;
+        width: 100%;
+        padding: 0 15px;
+    }
+
+    #main-content {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        padding: 20px;
+        margin-bottom: 30px;
+        display: none; /* Shown after session starts */
+        flex-direction: column;
+    }
+
+    #instruction-display {
+        background: #e7f3ff;
+        padding: 20px;
+        border-left: 6px solid #007bff;
+        margin-bottom: 20px;
+        border-radius: 4px;
+        font-weight: 500;
+        color: #004085;
+    }
+
+    #advertisement-poster {
+        background: #fff;
+        border: 2px solid #333;
+        padding: 30px;
+        margin-bottom: 20px;
+        box-shadow: 8px 8px 0px rgba(0,0,0,0.1);
+        font-family: 'Georgia', serif;
+        white-space: pre-wrap;
+        line-height: 1.6;
+        position: relative;
+        overflow: hidden;
+    }
+
+    #advertisement-poster::before {
+        content: "ANNONCE";
+        position: absolute;
+        top: 0;
+        right: 0;
+        background: #333;
+        color: white;
+        padding: 2px 10px;
+        font-size: 0.7rem;
+        font-family: sans-serif;
+        font-weight: bold;
+    }
+
+    #chat-container {
+        display: flex;
+        flex-direction: column;
+        height: 600px; /* Fixed height for chat area */
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #fff;
+    }
+
+    #chat {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+        background: #fdfdfd;
+    }
+
+    .message {
+        margin-bottom: 15px;
+        max-width: 85%;
+        padding: 12px 16px;
+        border-radius: 18px;
+        line-height: 1.5;
+        position: relative;
+    }
+
+    .user {
+        align-self: flex-end;
+        background: #007bff;
+        color: white;
+        border-bottom-right-radius: 4px;
+        margin-left: auto;
+    }
+
+    .assistant {
+        align-self: flex-start;
+        background: #e9ecef;
+        color: #333;
+        border-bottom-left-radius: 4px;
+    }
+
+    .suggestion {
+        align-self: center;
+        background: #fff3cd;
+        color: #856404;
+        font-style: italic;
+        font-size: 0.9rem;
+        border: 1px solid #ffeeba;
+        border-radius: 8px;
+        padding: 8px 12px;
+        margin: 10px 0;
+    }
+
+    .tts-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1.2rem;
+        margin-left: 8px;
+        vertical-align: middle;
+        padding: 0;
+        opacity: 0.6;
+        transition: opacity 0.2s;
+    }
+
+    .tts-btn:hover {
+        opacity: 1;
+    }
+
+    #input-area {
+        padding: 15px;
+        background: white;
+        border-top: 1px solid #dee2e6;
+        display: flex;
+        gap: 10px;
+    }
+
+    #user-input {
+        flex: 1;
+        padding: 10px 15px;
+        border: 1px solid #ced4da;
+        border-radius: 25px;
+        outline: none;
+    }
+
+    #user-input:focus {
+        border-color: #007bff;
+    }
+
+    #send-btn, #speak-btn {
+        border: none;
+        border-radius: 25px;
+        padding: 8px 20px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    #send-btn {
+        background: #007bff;
+        color: white;
+    }
+
+    #send-btn:hover {
+        background: #0056b3;
+    }
+
+    #speak-btn {
+        background: #6c757d;
+        color: white;
+    }
+
+    #speak-btn:hover {
+        background: #5a6268;
+    }
+
+    #setup-container {
+        text-align: center;
+        padding: 40px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        margin: 40px 0;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+        text-align: left;
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #ced4da;
+    }
+
+    #start-btn {
+        padding: 12px 40px;
+        font-size: 1.1rem;
+        background: #28a745;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    #start-btn:hover {
+        background: #218838;
+    }
 </style>
 </head>
 <body>
 
 <header>
-    <a href="index.html"><img src="img/top_logo_light.png" alt="TEFinitely Logo" class="logo"></a>
+    <a href="index.html"><img src="img/top_logo_light.png" alt="TEFinitely Logo" class="logo" style="max-height: 80px; margin: 20px auto; display: block;"></a>
 </header>
+
 <div id="toast-container"></div>
+
 <nav class="main-nav" id="user-status" style="display: none;">
     <button class="hamburger-menu" id="hamburger-menu" aria-label="Toggle menu" aria-expanded="false">
         <i class="bi bi-list"></i>
@@ -57,34 +273,43 @@ button { padding: 5px 10px; font-size: 1em; margin-left: 5px; }
     </div>
 </nav>
 
-<div id="main-content">
-    <h1 id="page-title">Language Conversation Practice</h1>
-
-    <div id="controls">
-        <label id="lang-label">Langue:</label> 
-        <select id="language">
-            <option value="fr" selected>Français</option>
-            <option value="en">English</option>
-        </select>
-        <label id="level-label">Niveau:</label> 
-        <select id="level"></select>
-        <button id="start-btn">Démarrer</button>
-        <div id="speed-container">
-            <span id="speed-label">Vitesse de parole:</span> 
-            <span id="speed-value">1.0</span>
-            <input type="range" id="speech-speed" min="0.5" max="1.2" value="1" step="0.05">
+<div id="app-container">
+    <div id="setup-container">
+        <h2 id="page-title">Conversation Practice</h2>
+        <div class="form-group">
+            <label id="lang-label">Langue:</label>
+            <select id="language" class="form-control">
+                <option value="fr" selected>Français</option>
+                <option value="en">English</option>
+            </select>
         </div>
+        <div class="form-group">
+            <label id="level-label">Niveau:</label>
+            <select id="level" class="form-control"></select>
+        </div>
+        <div class="form-group">
+            <label id="speed-label">Vitesse de parole:</label>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <input type="range" id="speech-speed" min="0.5" max="1.2" value="1" step="0.05" style="flex: 1;">
+                <span id="speed-value">1.0</span>
+            </div>
+        </div>
+        <button id="start-btn">Démarrer</button>
     </div>
 
-    <div id="instruction-display"></div>
-    <div id="advertisement-poster"></div>
+    <div id="main-content">
+        <div id="instruction-display"></div>
+        <div id="advertisement-poster"></div>
 
-    <div id="chat"></div>
+        <div id="chat-container">
+            <div id="chat" style="display: flex; flex-direction: column;"></div>
 
-    <div id="input-area">
-        <input type="text" id="user-input" placeholder="Tapez votre phrase ici..." />
-        <button id="send-btn">Envoyer</button>
-        <button id="speak-btn">🎤 Parler</button>
+            <div id="input-area">
+                <input type="text" id="user-input" placeholder="Tapez votre phrase ici..." />
+                <button id="send-btn">Envoyer</button>
+                <button id="speak-btn">🎤 Parler</button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -127,6 +352,8 @@ const speakButton = document.getElementById('speak-btn');
 const languageSelector = document.getElementById('language');
 const speedSlider = document.getElementById('speech-speed');
 const speedValue = document.getElementById('speed-value');
+const mainContent = document.getElementById('main-content');
+const setupContainer = document.getElementById('setup-container');
 
 // iOS detection
 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
@@ -277,18 +504,22 @@ function speak(text) {
 // -------------------- Append message --------------------
 function appendMessage(role, text) {
     const div = document.createElement('div');
-    div.className = role;
-    div.innerHTML = text;
+    div.className = `message ${role}`;
+
+    const textSpan = document.createElement('span');
+    textSpan.innerHTML = text;
+    div.appendChild(textSpan);
 
     if (role === 'assistant') {
-        const speakBtn = document.createElement('button');
-        speakBtn.textContent = '🔊';
-        speakBtn.style.marginLeft = '5px';
-        speakBtn.addEventListener('click', () => {
+        const ttsBtn = document.createElement('button');
+        ttsBtn.className = 'tts-btn';
+        ttsBtn.innerHTML = '🔊';
+        ttsBtn.title = 'Écouter';
+        ttsBtn.addEventListener('click', () => {
             unlockTTS();
             speak(text);
         });
-        div.appendChild(speakBtn);
+        div.appendChild(ttsBtn);
     }
 
     chatContainer.appendChild(div);
@@ -300,28 +531,40 @@ async function startSession(level, language) {
     setupRecognition(language);
     unlockTTS();
 
-    const res = await fetch('practise/api/start_session.php', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: 'level=' + encodeURIComponent(level) + '&language=' + encodeURIComponent(language)
-    });
-    const data = await res.json();
+    try {
+        console.log('Starting session...');
+        const res = await fetch('practise/api/start_session.php', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: 'level=' + encodeURIComponent(level) + '&language=' + encodeURIComponent(language)
+        });
+        const data = await res.json();
+        console.log('Session data received:', data);
 
-    chatContainer.innerHTML = '';
-    instructionDisplay.style.display = 'none';
-    advertisementPoster.style.display = 'none';
+        chatContainer.innerHTML = '';
+        instructionDisplay.innerHTML = '';
+        advertisementPoster.innerHTML = '';
+        instructionDisplay.style.display = 'none';
+        advertisementPoster.style.display = 'none';
 
-    if (data.instruction) {
-        instructionDisplay.textContent = data.instruction;
-        instructionDisplay.style.display = 'block';
-    }
-    if (data.advertisement) {
-        advertisementPoster.textContent = data.advertisement;
-        advertisementPoster.style.display = 'block';
-    }
-    if (data.assistant) {
-        appendMessage('assistant', data.assistant);
-        speak(data.assistant);
+        if (data.instruction) {
+            instructionDisplay.innerHTML = data.instruction;
+            instructionDisplay.style.display = 'block';
+        }
+        if (data.advertisement) {
+            advertisementPoster.innerHTML = data.advertisement;
+            advertisementPoster.style.display = 'block';
+        }
+        if (data.assistant) {
+            appendMessage('assistant', data.assistant);
+            speak(data.assistant);
+        }
+
+        setupContainer.style.display = 'none';
+        mainContent.style.display = 'flex';
+        console.log('Session started successfully');
+    } catch (error) {
+        console.error('Error starting session:', error);
     }
 }
 
