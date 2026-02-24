@@ -97,7 +97,7 @@ LANGUE :
 
 FORMAT DE SORTIE (JSON UNIQUEMENT) :
 {
-  \"instruction\": \"La ligne de consigne uniquement (ex: CONSIGNE : Vous avez lu l'annonce...)\",
+  \"instruction\": \"La ligne de consigne uniquement (ex: CONSIGNE : Vous avez lu l'annonce suivante. Vous téléphonez pour obtenir des renseignements. Vous devez poser environ 10 à 15 questions naturellement en 5 minutes.)\",
   \"advertisement\": \"Le texte de l'affiche publicitaire uniquement (avec titre et détails)\",
   \"assistant_opening\": \"Première phrase naturelle du représentant en français\"
 }";
@@ -130,7 +130,7 @@ LANGUAGE:
 
 OUTPUT FORMAT (JSON ONLY):
 {
-  \"instruction\": \"The instruction line only (e.g., INSTRUCTION: You have read...)\",
+  \"instruction\": \"The instruction line only (e.g., INSTRUCTION: You have read the following advertisement. You call to obtain more information. You are expected to ask around 10–15 questions naturally within 5 minutes.)\",
   \"advertisement\": \"The advertisement poster text only (with title and details)\",
   \"assistant_opening\": \"Representative’s first natural spoken line in English\"
 }";
