@@ -14,7 +14,9 @@
 <style>
 body { font-family: sans-serif; max-width: 600px; margin: 20px auto; }
 #controls { margin-bottom: 10px; }
-#chat { max-height: 400px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
+#instruction-display { display: none; background: #e7f3ff; padding: 15px; border-left: 5px solid #007bff; margin-bottom: 15px; font-weight: bold; }
+#advertisement-poster { display: none; background: white; border: 2px solid #333; padding: 25px; margin-bottom: 15px; box-shadow: 5px 5px 15px rgba(0,0,0,0.1); font-family: 'Georgia', serif; white-space: pre-wrap; line-height: 1.6; }
+#chat { max-height: 400px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; background: #fff; }
 .user { text-align: right; color: blue; margin: 5px; }
 .assistant { text-align: left; color: green; margin: 5px; }
 .suggestion { text-align: left; color: gray; font-style: italic; margin: 3px; }
@@ -74,6 +76,9 @@ button { padding: 5px 10px; font-size: 1em; margin-left: 5px; }
         </div>
     </div>
 
+    <div id="instruction-display"></div>
+    <div id="advertisement-poster"></div>
+
     <div id="chat"></div>
 
     <div id="input-area">
@@ -112,6 +117,8 @@ button { padding: 5px 10px; font-size: 1em; margin-left: 5px; }
 <script src="js/nav.js"></script>
 <script>
 const chatContainer = document.getElementById('chat');
+const instructionDisplay = document.getElementById('instruction-display');
+const advertisementPoster = document.getElementById('advertisement-poster');
 const inputField = document.getElementById('user-input');
 const sendButton = document.getElementById('send-btn');
 const startButton = document.getElementById('start-btn');
@@ -299,9 +306,19 @@ async function startSession(level, language) {
         body: 'level=' + encodeURIComponent(level) + '&language=' + encodeURIComponent(language)
     });
     const data = await res.json();
-    chatContainer.innerHTML = '';
 
-    if (data.scenario) appendMessage('suggestion', `<em>Scénario: ${data.scenario}</em>`);
+    chatContainer.innerHTML = '';
+    instructionDisplay.style.display = 'none';
+    advertisementPoster.style.display = 'none';
+
+    if (data.instruction) {
+        instructionDisplay.textContent = data.instruction;
+        instructionDisplay.style.display = 'block';
+    }
+    if (data.advertisement) {
+        advertisementPoster.textContent = data.advertisement;
+        advertisementPoster.style.display = 'block';
+    }
     if (data.assistant) {
         appendMessage('assistant', data.assistant);
         speak(data.assistant);

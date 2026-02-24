@@ -70,29 +70,15 @@ $categories_en = [
 // Pick a random category
 if ($language === 'fr') {
     $chosen = $categories[array_rand($categories)];
-    $scenario_instructions = "Crée une mise en situation de type TEF Canada Section A sous la forme d’une annonce ou affiche. L’annonce doit commencer par une consigne claire adressée au candidat, suivie du contenu de l’annonce concernant $chosen. Fournis ensuite la première réplique naturelle du représentant.";
+    $scenario_instructions = "Crée une mise en situation de type TEF Canada Section A sous la forme d’une annonce ou affiche. L’annonce doit inclure une consigne claire adressée au candidat, suivie du contenu de l’annonce concernant $chosen. Fournis ensuite la première réplique naturelle du représentant.";
     $system_prompt = "Vous êtes examinateur TEF Canada.
 
 OBJECTIF :
 Générer une Section A réaliste.
 
-FORMAT OBLIGATOIRE DU SCÉNARIO :
-
-Le champ \"scenario\" doit être structuré EXACTEMENT comme suit :
-
-1) Une ligne d’instruction adressée au candidat commençant par :
-« CONSIGNE : »
-Exemple :
-CONSIGNE : Vous avez lu l’annonce suivante. Vous téléphonez pour obtenir des renseignements. Posez des questions.
-
-2) Une séparation visuelle (ex: ---)
-
-3) Une annonce rédigée comme une vraie affiche publicitaire.
-Elle doit inclure :
-- Un titre accrocheur
-- Une description claire du service / événement
-- Quelques informations partielles (dates, prix, services, conditions, etc.)
-- Des informations manquantes afin d’encourager les questions
+STRUCTURE DE L'ANNONCE :
+1) Une ligne d’instruction adressée au candidat commençant par : « CONSIGNE : »
+2) Une annonce rédigée comme une vraie affiche publicitaire (Titre, description, infos partielles).
 
 IMPORTANT :
 - Ne donnez PAS toutes les informations.
@@ -111,61 +97,21 @@ LANGUE :
 
 FORMAT DE SORTIE (JSON UNIQUEMENT) :
 {
-  \"scenario\": \"Texte complet avec CONSIGNE + annonce format affiche\",
+  \"instruction\": \"La ligne de consigne uniquement (ex: CONSIGNE : Vous avez lu l'annonce...)\",
+  \"advertisement\": \"Le texte de l'affiche publicitaire uniquement (avec titre et détails)\",
   \"assistant_opening\": \"Première phrase naturelle du représentant en français\"
 }";
 } else {
     $chosen = $categories_en[array_rand($categories_en)];
-   $scenario_instructions = "Create a TEF Canada Section A style scenario formatted as an advertisement or poster. The scenario must begin with a clear instruction addressed to the candidate, followed by the advertisement content about $chosen. Then provide the assistant’s first natural spoken line.";
-    $system_prompt = "You are an examiner playing the role of the representative connected to the advertisement.
-
-TEF CANADA – SECTION A FORMAT:
-- The candidate has read an advertisement/poster.
-- They must ask questions to obtain information.
-- You respond as the service representative.
-
-LANGUAGE:
-- All output must be in English.
-
-ROLES:
-- The learner is always the person asking for information.
-- You are the representative (seller, organizer, employee, etc.).
-- Never speak as the learner.
-- Always begin naturally as if responding to an inquiry about the advertisement.
-
-REQUIREMENTS:
-- Keep language appropriate for level {$level}.
-- Keep interaction realistic and natural.
-- Spoken dialogue ONLY in DIALOGUE.
-- Corrections ONLY in SUGGESTION.
-- Do not provide too much information at once.
-- Allow the learner to lead by asking questions.
-
-OUTPUT FORMAT (JSON ONLY):
-{
-  \"scenario\": \"Clear description of the advertisement and context in English\",
-  \"assistant_opening\": \"Representative’s first natural spoken line in English\"
-}";$system_prompt = "You are a TEF Canada examiner.
+    $scenario_instructions = "Create a TEF Canada Section A style scenario formatted as an advertisement or poster. The scenario must include a clear instruction addressed to the candidate, followed by the advertisement content about $chosen. Then provide the assistant’s first natural spoken line.";
+    $system_prompt = "You are a TEF Canada examiner.
 
 OBJECTIVE:
 Generate a realistic Section A scenario.
 
-REQUIRED SCENARIO FORMAT:
-
-The \"scenario\" field must be structured EXACTLY as follows:
-
-1) A candidate instruction line starting with:
-“INSTRUCTION:”
-Example:
-INSTRUCTION: You have read the following advertisement. You call to obtain more information. Ask questions.
-
-2) A visual separator (example: ---)
-
-3) A realistic advertisement/poster including:
-- A catchy title
-- A clear description of the service/event
-- Some partial details (dates, prices, services, conditions, etc.)
-- Missing information to encourage questions
+ADVERTISEMENT STRUCTURE:
+1) A candidate instruction line starting with: “INSTRUCTION:”
+2) A realistic advertisement/poster (Title, description, partial details).
 
 IMPORTANT:
 - Do NOT provide complete information.
@@ -184,7 +130,8 @@ LANGUAGE:
 
 OUTPUT FORMAT (JSON ONLY):
 {
-  \"scenario\": \"Full text including INSTRUCTION + advertisement formatted like a poster\",
+  \"instruction\": \"The instruction line only (e.g., INSTRUCTION: You have read...)\",
+  \"advertisement\": \"The advertisement poster text only (with title and details)\",
   \"assistant_opening\": \"Representative’s first natural spoken line in English\"
 }";
 }
@@ -219,7 +166,7 @@ if (empty($matches)) {
 $jsonText = $matches[0];
 $data = json_decode($jsonText, true);
 
-if (!$data || !isset($data['scenario'], $data['assistant_opening'])) {
+if (!$data || !isset($data['instruction'], $data['advertisement'], $data['assistant_opening'])) {
     echo json_encode([
         "error" => "Failed to parse OpenAI JSON",
         "raw" => $raw
@@ -228,7 +175,8 @@ if (!$data || !isset($data['scenario'], $data['assistant_opening'])) {
 }
 
 // ------------------ Initialize session conversation ------------------
-$_SESSION['scenario'] = $data['scenario'];
+$combined_scenario = $data['instruction'] . "\n\n" . $data['advertisement'];
+$_SESSION['scenario'] = $combined_scenario;
 $_SESSION['conversation'] = [
     [
         "role" => "assistant",
@@ -238,6 +186,7 @@ $_SESSION['conversation'] = [
 
 // ------------------ Return to frontend ------------------
 echo json_encode([
-    "scenario" => $data['scenario'],
+    "instruction" => $data['instruction'],
+    "advertisement" => $data['advertisement'],
     "assistant" => $data['assistant_opening']
 ]);
