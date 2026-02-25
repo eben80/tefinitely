@@ -18,7 +18,8 @@
         background: #f8f9fa;
         display: flex;
         flex-direction: column;
-        height: 100vh; /* Fixed height to viewport */
+        height: 100vh;
+        height: 100dvh; /* Dynamic viewport height for mobile */
         margin: 0;
         padding: 0;
         overflow: hidden; /* Prevent body scroll */
@@ -126,7 +127,19 @@
         }
 
         header .logo {
-            max-height: 40px !important;
+            max-height: 30px !important;
+            margin: 5px auto !important;
+        }
+
+        .main-nav {
+            margin-bottom: 5px !important;
+        }
+
+        #advertisement-poster {
+            min-height: 80px !important;
+            max-height: 120px !important;
+            overflow-y: auto !important;
+            padding: 10px !important;
         }
     }
 
