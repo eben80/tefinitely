@@ -804,11 +804,11 @@ async function sendMessage() {
 
     const data = await res.json();
 
+    if (data.suggestion) appendMessage('suggestion', `<em>${data.suggestion}</em>`);
     if (data.assistant) {
         appendMessage('assistant', data.assistant);
         speak(data.assistant);
     }
-    if (data.suggestion) appendMessage('suggestion', `<em>${data.suggestion}</em>`);
 
     sendButton.disabled = false;
     speakButton.disabled = false;

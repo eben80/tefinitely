@@ -4,21 +4,23 @@ require_once __DIR__ . '/openai.php';
 
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['scenario'])) {
+if (!isset($_SESSION['advertisement'])) {
     echo json_encode(["error" => "No active session"]);
     exit;
 }
 
-$scenario = $_SESSION['scenario'];
+$advertisement = $_SESSION['advertisement'];
 $language = $_SESSION['language'] ?? 'fr';
 
 if ($language === 'fr') {
-    $prompt = "Voici une annonce pour une mise en situation TEF Canada Section A :\n\n" . $scenario . "\n\n" .
-              "Génère une liste de 15 questions pertinentes et variées que le candidat pourrait poser pour obtenir plus d'informations sur cette annonce.\n" .
+    $prompt = "Voici le contenu d'une affiche publicitaire pour une mise en situation TEF Canada Section A :\n\n" . $advertisement . "\n\n" .
+              "Génère une liste de 15 questions TRÈS SPÉCIFIQUES basées UNIQUEMENT sur les détails (présents ou manquants) de cette annonce précise. " .
+              "Les questions doivent porter sur des informations concrètes que le candidat souhaiterait obtenir en appelant suite à CETTE annonce.\n" .
               "Réponds UNIQUEMENT avec un tableau JSON de chaînes de caractères, sans texte avant ou après, sans backticks.";
 } else {
-    $prompt = "Here is an advertisement for a TEF Canada Section A roleplay scenario:\n\n" . $scenario . "\n\n" .
-              "Generate a list of 15 relevant and varied questions that the candidate could ask to get more information about this advertisement.\n" .
+    $prompt = "Here is the content of an advertisement poster for a TEF Canada Section A roleplay scenario:\n\n" . $advertisement . "\n\n" .
+              "Generate a list of 15 VERY SPECIFIC questions based ONLY on the details (present or missing) of this particular advertisement. " .
+              "The questions should focus on concrete information the candidate would want to obtain when calling about THIS specific ad.\n" .
               "Respond ONLY with a JSON array of strings, without text before or after, without backticks.";
 }
 

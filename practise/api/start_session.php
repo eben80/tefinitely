@@ -177,6 +177,7 @@ if (!$data || !isset($data['instruction'], $data['advertisement'], $data['assist
 // ------------------ Initialize session conversation ------------------
 $combined_scenario = $data['instruction'] . "\n\n" . $data['advertisement'];
 $_SESSION['scenario'] = $combined_scenario;
+$_SESSION['advertisement'] = $data['advertisement'];
 $_SESSION['language'] = $language;
 $_SESSION['conversation'] = [
     [
