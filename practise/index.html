@@ -350,29 +350,58 @@
         top: 0;
         width: 100%;
         height: 100%;
-        overflow: auto;
-        background-color: rgba(0,0,0,0.5);
+        background-color: transparent;
+        pointer-events: none;
     }
 
     .modal-content {
+        pointer-events: auto;
         background-color: #fefefe;
-        margin: 10% auto;
-        padding: 20px;
+        position: absolute;
+        top: 50px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 0;
         border: 1px solid #888;
-        width: 80%;
-        max-width: 600px;
+        width: 90%;
+        max-width: 500px;
         border-radius: 12px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        max-height: 70vh;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+        max-height: 60vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .modal-header {
+        padding: 15px 20px;
+        background: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+        cursor: move;
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-shrink: 0;
+    }
+
+    .modal-header h2 {
+        margin: 0;
+        font-size: 1.2rem;
+    }
+
+    .modal-body {
+        padding: 20px;
         overflow-y: auto;
+        flex: 1;
     }
 
     .close {
         color: #aaa;
-        float: right;
         font-size: 28px;
         font-weight: bold;
         cursor: pointer;
+        line-height: 1;
     }
 
     .close:hover,
@@ -521,10 +550,12 @@
 
 <!-- Hints Modal -->
 <div id="hints-modal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2 id="modal-title">Idées de questions</h2>
-        <div id="modal-body">
+    <div class="modal-content" id="modal-content">
+        <div class="modal-header" id="modal-header">
+            <h2 id="modal-title">Idées de questions</h2>
+            <span class="close">&times;</span>
+        </div>
+        <div class="modal-body" id="modal-body">
             <ul id="hints-list"></ul>
             <div id="hints-loading" style="display: none; text-align: center; padding: 20px;">
                 <div class="spinner-border text-primary" role="status">
@@ -558,6 +589,7 @@ const setupContainer = document.getElementById('setup-container');
 
 // Modal elements
 const hintsModal = document.getElementById('hints-modal');
+const modalContent = document.getElementById('modal-content');
 const hintsList = document.getElementById('hints-list');
 const hintsLoading = document.getElementById('hints-loading');
 const closeModal = document.querySelector('.close');
@@ -831,7 +863,7 @@ async function showHints() {
                 li.textContent = hint;
                 li.addEventListener('click', () => {
                     inputField.value = hint;
-                    hintsModal.style.display = "none";
+                    // hintsModal.style.display = "none"; // Keep open as per user request
                     inputField.focus();
                 });
                 hintsList.appendChild(li);
@@ -851,6 +883,90 @@ closeModal.onclick = () => hintsModal.style.display = "none";
 window.onclick = (event) => {
     if (event.target == hintsModal) hintsModal.style.display = "none";
 };
+
+// -------------------- Draggable --------------------
+function makeDraggable(elmnt, header) {
+    let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+
+    header.onmousedown = dragMouseDown;
+    header.addEventListener('touchstart', dragTouchStart, {passive: false});
+
+    function dragMouseDown(e) {
+        e = e || window.event;
+        if (e.target.className === 'close') return;
+
+        // Handle transform before starting drag
+        prepareElement();
+
+        e.preventDefault();
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        document.onmouseup = closeDragElement;
+        document.onmousemove = elementDrag;
+        elmnt.style.zIndex = "2100";
+    }
+
+    function dragTouchStart(e) {
+        if (e.target.className === 'close') return;
+
+        prepareElement();
+
+        let touch = e.touches[0];
+        pos3 = touch.clientX;
+        pos4 = touch.clientY;
+        document.addEventListener('touchend', closeDragTouch);
+        document.addEventListener('touchmove', elementTouchMove, {passive: false});
+        elmnt.style.zIndex = "2100";
+    }
+
+    function prepareElement() {
+        if (elmnt.style.transform !== "none" && elmnt.style.transform !== "") {
+            const rect = elmnt.getBoundingClientRect();
+            elmnt.style.transform = "none";
+            elmnt.style.left = rect.left + "px";
+            elmnt.style.top = rect.top + "px";
+            elmnt.style.margin = "0"; // Ensure no margins interfere
+        }
+    }
+
+    function elementDrag(e) {
+        e = e || window.event;
+        e.preventDefault();
+        pos1 = pos3 - e.clientX;
+        pos2 = pos4 - e.clientY;
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        moveElement();
+    }
+
+    function elementTouchMove(e) {
+        e.preventDefault();
+        let touch = e.touches[0];
+        pos1 = pos3 - touch.clientX;
+        pos2 = pos4 - touch.clientY;
+        pos3 = touch.clientX;
+        pos4 = touch.clientY;
+        moveElement();
+    }
+
+    function moveElement() {
+        elmnt.style.transform = "none";
+        elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+        elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+    }
+
+    function closeDragElement() {
+        document.onmouseup = null;
+        document.onmousemove = null;
+    }
+
+    function closeDragTouch() {
+        document.removeEventListener('touchend', closeDragTouch);
+        document.removeEventListener('touchmove', elementTouchMove);
+    }
+}
+
+makeDraggable(modalContent, document.getElementById('modal-header'));
 
 // -------------------- Events --------------------
 sendButton.addEventListener('click', () => { unlockTTS(); sendMessage(); });
