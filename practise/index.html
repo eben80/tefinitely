@@ -30,11 +30,34 @@
 
     .main-nav {
         flex: 0 0 auto;
-        margin: 0 0 10px 0 !important; /* Compact margin */
-        position: static !important;
-        width: auto !important;
+        margin: 0 0 10px 0 !important;
+        position: relative !important;
+        width: 100% !important;
         background: white !important;
         box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
+        visibility: visible !important;
+        display: flex !important; /* Force display even if auth.js hasn't run, though auth.js will set it too */
+    }
+
+    .main-nav .nav-content {
+        display: flex !important;
+        width: 100%;
+        padding: 0 2rem;
+    }
+
+    @media (max-width: 768px) {
+        .main-nav .nav-content {
+            display: none !important;
+            flex-direction: column;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            z-index: 1000;
+        }
+        .main-nav .nav-content.is-open {
+            display: flex !important;
+        }
     }
 
     #app-container {
