@@ -323,6 +323,80 @@
         background: #5a6268;
     }
 
+    #hint-btn {
+        background: #ffc107;
+        color: #212529;
+        border: none;
+        border-radius: 25px;
+        padding: 8px 15px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    #hint-btn:hover {
+        background: #e0a800;
+    }
+
+    /* Modal Styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 2000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.5);
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 10% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 600px;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
+    }
+
+    #hints-list {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    #hints-list li {
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    #hints-list li:hover {
+        background-color: #f8f9fa;
+    }
+
     #setup-container {
         text-align: center;
         padding: 40px;
@@ -437,8 +511,26 @@
 
             <div id="input-area">
                 <input type="text" id="user-input" placeholder="Tapez votre phrase ici..." />
+                <button id="hint-btn" title="Besoin d'aide ?">💡</button>
                 <button id="send-btn">Envoyer</button>
                 <button id="speak-btn">🎤 Parler</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Hints Modal -->
+<div id="hints-modal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2 id="modal-title">Idées de questions</h2>
+        <div id="modal-body">
+            <ul id="hints-list"></ul>
+            <div id="hints-loading" style="display: none; text-align: center; padding: 20px;">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Chargement...</span>
+                </div>
+                <p>Génération des questions...</p>
             </div>
         </div>
     </div>
@@ -457,11 +549,19 @@ const sendButton = document.getElementById('send-btn');
 const startButton = document.getElementById('start-btn');
 const levelSelector = document.getElementById('level');
 const speakButton = document.getElementById('speak-btn');
+const hintButton = document.getElementById('hint-btn');
 const languageSelector = document.getElementById('language');
 const speedSlider = document.getElementById('speech-speed');
 const speedValue = document.getElementById('speed-value');
 const mainContent = document.getElementById('main-content');
 const setupContainer = document.getElementById('setup-container');
+
+// Modal elements
+const hintsModal = document.getElementById('hints-modal');
+const hintsList = document.getElementById('hints-list');
+const hintsLoading = document.getElementById('hints-loading');
+const closeModal = document.querySelector('.close');
+const modalTitle = document.getElementById('modal-title');
 
 // iOS detection
 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
@@ -484,6 +584,9 @@ const translations = {
         userPlaceholder: 'Tapez votre phrase ici...',
         sendBtn: 'Envoyer',
         speakBtn: '🎤 Parler',
+        hintBtnTitle: "Besoin d'aide ?",
+        modalTitle: 'Idées de questions',
+        loadingHints: 'Génération des questions...',
         levels: {
             A1: 'A1 - Débutant',
             A2: 'A2 - Élémentaire',
@@ -502,6 +605,9 @@ const translations = {
         userPlaceholder: 'Type your sentence here...',
         sendBtn: 'Send',
         speakBtn: '🎤 Speak',
+        hintBtnTitle: "Need help?",
+        modalTitle: 'Question Ideas',
+        loadingHints: 'Generating questions...',
         levels: {
             A1: 'A1 - Beginner',
             A2: 'A2 - Elementary',
@@ -524,6 +630,9 @@ function updateInterface(lang) {
     inputField.placeholder = t.userPlaceholder;
     sendButton.textContent = t.sendBtn;
     speakButton.textContent = t.speakBtn;
+    hintButton.title = t.hintBtnTitle;
+    modalTitle.textContent = t.modalTitle;
+    hintsLoading.querySelector('p').textContent = t.loadingHints;
 
     levelSelector.innerHTML = '';
     for (const [key, label] of Object.entries(t.levels)) {
@@ -695,20 +804,59 @@ async function sendMessage() {
 
     const data = await res.json();
 
+    if (data.suggestion) appendMessage('suggestion', `<em>${data.suggestion}</em>`);
     if (data.assistant) {
         appendMessage('assistant', data.assistant);
         speak(data.assistant);
     }
-    if (data.suggestion) appendMessage('suggestion', `<em>${data.suggestion}</em>`);
 
     sendButton.disabled = false;
     speakButton.disabled = false;
 }
 
+// -------------------- Hints --------------------
+async function showHints() {
+    hintsModal.style.display = "block";
+    hintsList.innerHTML = "";
+    hintsLoading.style.display = "block";
+
+    try {
+        const res = await fetch('practise/api/get_hints.php');
+        const data = await res.json();
+        hintsLoading.style.display = "none";
+
+        if (data.hints && Array.isArray(data.hints)) {
+            data.hints.forEach(hint => {
+                const li = document.createElement('li');
+                li.textContent = hint;
+                li.addEventListener('click', () => {
+                    inputField.value = hint;
+                    hintsModal.style.display = "none";
+                    inputField.focus();
+                });
+                hintsList.appendChild(li);
+            });
+        } else {
+            const li = document.createElement('li');
+            li.textContent = "Erreur lors de la génération des indices.";
+            hintsList.appendChild(li);
+        }
+    } catch (error) {
+        hintsLoading.style.display = "none";
+        console.error('Error fetching hints:', error);
+    }
+}
+
+closeModal.onclick = () => hintsModal.style.display = "none";
+window.onclick = (event) => {
+    if (event.target == hintsModal) hintsModal.style.display = "none";
+};
+
 // -------------------- Events --------------------
 sendButton.addEventListener('click', () => { unlockTTS(); sendMessage(); });
 inputField.addEventListener('keypress', e => { if(e.key==='Enter') sendMessage(); });
 startButton.addEventListener('click', () => startSession(levelSelector.value, languageSelector.value));
+hintButton.addEventListener('click', showHints);
 
 // -------------------- Speech recognition --------------------
 let recognition;
