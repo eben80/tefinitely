@@ -54,9 +54,79 @@
             left: 0;
             background: white;
             z-index: 1000;
+            width: 100%;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         .main-nav .nav-content.is-open {
             display: flex !important;
+        }
+
+        /* Adjustments for smaller screens */
+        #app-container {
+            padding: 0 5px !important;
+        }
+
+        #main-content {
+            padding: 10px !important;
+            border-radius: 0 !important;
+        }
+
+        #instruction-display {
+            padding: 8px 10px !important;
+            font-size: 0.85rem !important;
+            margin-bottom: 5px !important;
+        }
+
+        #instruction-display h1 {
+            font-size: 1.1rem !important;
+            margin: 0 0 5px 0 !important;
+        }
+
+        #instruction-display p {
+            margin: 0 !important;
+        }
+
+        #advertisement-poster {
+            padding: 15px !important;
+            font-size: 1rem !important;
+            min-height: 100px !important;
+            margin-bottom: 5px !important;
+        }
+
+        #chat {
+            padding: 10px !important;
+        }
+
+        .message {
+            max-width: 90% !important;
+            padding: 10px 12px !important;
+            font-size: 0.95rem !important;
+        }
+
+        #input-area {
+            padding: 8px !important;
+            gap: 5px !important;
+        }
+
+        #user-input {
+            padding: 8px 12px !important;
+            min-width: 0 !important;
+        }
+
+        #send-btn, #speak-btn {
+            padding: 8px 10px !important;
+            font-size: 0.8rem !important;
+            flex-shrink: 0 !important;
+            white-space: nowrap !important;
+        }
+
+        #setup-container {
+            padding: 20px !important;
+            margin: auto 10px !important;
+        }
+
+        header .logo {
+            max-height: 40px !important;
         }
     }
 
