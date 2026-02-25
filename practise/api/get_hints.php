@@ -9,6 +9,11 @@ if (!isset($_SESSION['advertisement'])) {
     exit;
 }
 
+if (isset($_SESSION['hints'])) {
+    echo json_encode(["hints" => $_SESSION['hints']]);
+    exit;
+}
+
 $advertisement = $_SESSION['advertisement'];
 $language = $_SESSION['language'] ?? 'fr';
 
@@ -37,6 +42,7 @@ if (preg_match('/\[.*\]/s', $raw, $matches)) {
     $jsonText = $matches[0];
     $hints = json_decode($jsonText, true);
     if ($hints && is_array($hints)) {
+        $_SESSION['hints'] = $hints;
         echo json_encode(["hints" => $hints]);
         exit;
     }

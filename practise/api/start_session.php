@@ -179,6 +179,7 @@ $combined_scenario = $data['instruction'] . "\n\n" . $data['advertisement'];
 $_SESSION['scenario'] = $combined_scenario;
 $_SESSION['advertisement'] = $data['advertisement'];
 $_SESSION['language'] = $language;
+unset($_SESSION['hints']);
 $_SESSION['conversation'] = [
     [
         "role" => "assistant",
