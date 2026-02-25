@@ -31,6 +31,10 @@
     .main-nav {
         flex: 0 0 auto;
         margin: 0 0 10px 0 !important; /* Compact margin */
+        position: static !important;
+        width: auto !important;
+        background: white !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
     }
 
     #app-container {
@@ -71,15 +75,16 @@
     #advertisement-poster {
         background: #fff;
         border: 2px solid #333;
-        padding: 15px;
+        padding: 25px;
         margin-bottom: 10px;
-        box-shadow: 3px 3px 0px rgba(0,0,0,0.1);
+        box-shadow: 4px 4px 0px rgba(0,0,0,0.2);
         font-family: 'Georgia', serif;
         white-space: pre-wrap;
-        line-height: 1.3;
+        line-height: 1.4;
         position: relative;
         flex: 0 0 auto;
-        font-size: 0.9rem;
+        font-size: 1.1rem;
+        min-height: 150px; /* Ensure it has enough space */
     }
 
     #advertisement-poster::before {
