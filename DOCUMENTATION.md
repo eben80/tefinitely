@@ -79,3 +79,26 @@ Database credentials should be stored in `db/db_config.php` (generated from `db/
 - **Backend**: PHP 7.4+ with MySQL. Uses OpenAI API for interactive chat features.
 - **Frontend**: Bootstrap Icons, PayPal SDK, and custom JS/CSS.
 - **System Tools**: Certain features (like image conversion) may require `imagemagick`, `potrace`, and `openscad`.
+
+## 7. PayPal Environment Transition (Sandbox to Production)
+
+To switch the application from the PayPal Sandbox environment to the Live production environment, follow these steps:
+
+1.  **PayPal Developer Dashboard**:
+    - Log in to the [PayPal Developer Portal](https://developer.paypal.com/).
+    - Go to "Apps & Credentials" and toggle to "Live".
+    - Create a new App (if you haven't) to obtain your **Live Client ID** and **Secret**.
+    - Under the Live app, create a **Subscription Plan** and note the **Plan ID**.
+    - (Optional) Configure a **Webhook** to point to `https://yourdomain.com/api/paypal/webhook.php` and obtain the **Webhook ID**.
+
+2.  **Update Configuration (`db/paypal_config.php`)**:
+    - Set `PAYPAL_ENVIRONMENT` to `'live'`.
+    - Provide the Live `PAYPAL_CLIENT_ID` and `PAYPAL_CLIENT_SECRET` in the `else` block of the environment check.
+    - Update `PAYPAL_PLAN_ID` with your production plan ID.
+    - If using webhooks, update your environment variables or the `PAYPAL_WEBHOOK_ID` constant.
+
+3.  **Frontend Verification**:
+    - The frontend automatically fetches the correct `client_id` and `plan_id` via `api/paypal/get_config.php`. Ensure no hardcoded values exist in your HTML/JS files.
+
+4.  **Testing**:
+    - Perform a real transaction (at a low price point if possible) to verify the end-to-end flow in production.
