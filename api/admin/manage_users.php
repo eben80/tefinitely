@@ -257,8 +257,8 @@ if ($method === 'GET') {
                 $stmt_update->execute();
             } else {
                 // Insert a new subscription record
-                $stmt_insert = $conn->prepare("INSERT INTO subscriptions (user_id, paypal_transaction_id, subscription_start_date, subscription_end_date) VALUES (?, 'manual_admin', ?, ?)");
-                $stmt_insert->bind_param("isss", $user_id, 'manual_admin', $start_date, $end_date);
+                $stmt_insert = $conn->prepare("INSERT INTO subscriptions (user_id, paypal_subscription_id, subscription_start_date, subscription_end_date) VALUES (?, 'manual_admin', ?, ?)");
+                $stmt_insert->bind_param("iss", $user_id, $start_date, $end_date);
                 $stmt_insert->execute();
             }
 
