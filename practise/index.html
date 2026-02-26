@@ -15,7 +15,7 @@
 <style>
     /* Reset some main.css styles for this app-like page */
     body {
-        background: #f8f9fa;
+        background: #f5f0ea;
         display: flex;
         flex-direction: column;
         height: 100vh;
@@ -34,7 +34,7 @@
         margin: 0 0 10px 0 !important;
         position: relative !important;
         width: 100% !important;
-        background: white !important;
+        background: #f5f0ea !important;
         box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
         visibility: visible !important;
         display: flex !important; /* Force display even if auth.js hasn't run, though auth.js will set it too */
@@ -53,7 +53,7 @@
             position: absolute;
             top: 100%;
             left: 0;
-            background: white;
+            background: #f5f0ea;
             z-index: 1000;
             width: 100%;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
@@ -281,7 +281,7 @@
 
     .assistant {
         align-self: flex-start;
-        background: #e9ecef;
+        background: #f5f0ea;
         color: #333;
         border-bottom-left-radius: 4px;
     }
@@ -646,6 +646,14 @@ const speedValue = document.getElementById('speed-value');
 const mainContent = document.getElementById('main-content');
 const setupContainer = document.getElementById('setup-container');
 
+function setActionButtonsDisabled(disabled) {
+    sendButton.disabled = disabled;
+    speakButton.disabled = disabled;
+    nextButton.disabled = disabled;
+    hintButton.disabled = disabled;
+    if (startButton) startButton.disabled = disabled;
+}
+
 // Counter and Timer elements
 let questionCount = 0;
 const questionCountDisplay = document.getElementById('question-count');
@@ -861,6 +869,8 @@ function appendMessage(role, text) {
 
 // -------------------- Start session --------------------
 async function startSession(level, language) {
+    setActionButtonsDisabled(true);
+
     currentLevel = level;
     currentLanguage = language;
     setupRecognition(language);
@@ -911,6 +921,8 @@ async function startSession(level, language) {
         console.log('Session started successfully');
     } catch (error) {
         console.error('Error starting session:', error);
+    } finally {
+        setActionButtonsDisabled(false);
     }
 }
 
@@ -952,30 +964,34 @@ async function sendMessage() {
         startTimer();
     }
 
-    sendButton.disabled = true;
-    speakButton.disabled = true;
+    setActionButtonsDisabled(true);
     unlockTTS();
 
-    const res = await fetch('practise/api/continue_session.php', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: 'text=' + encodeURIComponent(text) + '&language=' + encodeURIComponent(languageSelector.value)
-    });
+    try {
+        const res = await fetch('practise/api/continue_session.php', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: 'text=' + encodeURIComponent(text) + '&language=' + encodeURIComponent(languageSelector.value)
+        });
 
-    const data = await res.json();
+        const data = await res.json();
 
-    if (data.suggestion) appendMessage('suggestion', `<em>${data.suggestion}</em>`);
-    if (data.assistant) {
-        appendMessage('assistant', data.assistant);
-        speak(data.assistant);
+        if (data.suggestion) appendMessage('suggestion', `<em>${data.suggestion}</em>`);
+        if (data.assistant) {
+            appendMessage('assistant', data.assistant);
+            speak(data.assistant);
+        }
+    } catch (error) {
+        console.error('Error in sendMessage:', error);
+    } finally {
+        setActionButtonsDisabled(false);
     }
-
-    sendButton.disabled = false;
-    speakButton.disabled = false;
 }
 
 // -------------------- Hints --------------------
 async function showHints() {
+    setActionButtonsDisabled(true);
+
     hintsModal.style.display = "block";
     hintsList.innerHTML = "";
     hintsLoading.style.display = "block";
@@ -1004,6 +1020,8 @@ async function showHints() {
     } catch (error) {
         hintsLoading.style.display = "none";
         console.error('Error fetching hints:', error);
+    } finally {
+        setActionButtonsDisabled(false);
     }
 }
 

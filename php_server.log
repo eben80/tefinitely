@@ -1,22 +1,59 @@
-[Thu Feb 26 00:43:03 2026] PHP 8.3.6 Development Server (http://localhost:8000) started
-[Thu Feb 26 00:43:08 2026] [::1]:34432 Accepted
-[Thu Feb 26 00:43:08 2026] [::1]:34432 [200]: GET /practise/index.html
-[Thu Feb 26 00:43:08 2026] [::1]:34432 Closing
-[Thu Feb 26 00:43:09 2026] [::1]:34434 Accepted
-[Thu Feb 26 00:43:09 2026] [::1]:34450 Accepted
-[Thu Feb 26 00:43:09 2026] [::1]:34466 Accepted
-[Thu Feb 26 00:43:09 2026] [::1]:34480 Accepted
-[Thu Feb 26 00:43:09 2026] [::1]:34434 [200]: GET /css/toast.css
-[Thu Feb 26 00:43:09 2026] [::1]:34450 [200]: GET /css/main.css
-[Thu Feb 26 00:43:09 2026] [::1]:34466 [200]: GET /img/top_logo_light.png
-[Thu Feb 26 00:43:09 2026] [::1]:34480 [200]: GET /js/toast.js
-[Thu Feb 26 00:43:09 2026] [::1]:34434 Closing
-[Thu Feb 26 00:43:09 2026] [::1]:34450 Closing
-[Thu Feb 26 00:43:09 2026] [::1]:34480 Closing
-[Thu Feb 26 00:43:09 2026] [::1]:34466 Closing
-[Thu Feb 26 00:43:09 2026] [::1]:34490 Accepted
-[Thu Feb 26 00:43:09 2026] [::1]:34492 Accepted
-[Thu Feb 26 00:43:09 2026] [::1]:34490 [200]: GET /js/auth.js
-[Thu Feb 26 00:43:09 2026] [::1]:34492 [200]: GET /js/nav.js
-[Thu Feb 26 00:43:09 2026] [::1]:34490 Closing
-[Thu Feb 26 00:43:09 2026] [::1]:34492 Closing
+[Thu Feb 26 09:06:40 2026] PHP 8.3.6 Development Server (http://localhost:8000) started
+[Thu Feb 26 09:07:15 2026] [::1]:53932 Accepted
+[Thu Feb 26 09:07:15 2026] [::1]:53932 [200]: GET /index.html
+[Thu Feb 26 09:07:15 2026] [::1]:53932 Closing
+[Thu Feb 26 09:07:15 2026] [::1]:53944 Accepted
+[Thu Feb 26 09:07:15 2026] [::1]:53960 Accepted
+[Thu Feb 26 09:07:15 2026] [::1]:53944 [200]: GET /css/toast.css
+[Thu Feb 26 09:07:15 2026] [::1]:53960 [200]: GET /css/main.css
+[Thu Feb 26 09:07:15 2026] [::1]:53944 Closing
+[Thu Feb 26 09:07:15 2026] [::1]:53960 Closing
+[Thu Feb 26 09:07:15 2026] [::1]:53968 Accepted
+[Thu Feb 26 09:07:15 2026] [::1]:53972 Accepted
+[Thu Feb 26 09:07:15 2026] [::1]:53968 [200]: GET /img/top_logo_light.png
+[Thu Feb 26 09:07:15 2026] [::1]:53972 [200]: GET /js/toast.js
+[Thu Feb 26 09:07:15 2026] [::1]:53968 Closing
+[Thu Feb 26 09:07:15 2026] [::1]:53972 Closing
+[Thu Feb 26 09:07:15 2026] [::1]:53986 Accepted
+[Thu Feb 26 09:07:15 2026] PHP Warning:  require_once(../../db/paypal_config.php): Failed to open stream: No such file or directory in /app/api/paypal/get_config.php on line 4
+[Thu Feb 26 09:07:15 2026] PHP Fatal error:  Uncaught Error: Failed opening required '../../db/paypal_config.php' (include_path='.:/usr/share/php') in /app/api/paypal/get_config.php:4
+Stack trace:
+#0 {main}
+  thrown in /app/api/paypal/get_config.php on line 4
+[Thu Feb 26 09:07:15 2026] [::1]:53986 [500]: GET /api/paypal/get_config.php - Uncaught Error: Failed opening required '../../db/paypal_config.php' (include_path='.:/usr/share/php') in /app/api/paypal/get_config.php:4
+Stack trace:
+#0 {main}
+  thrown in /app/api/paypal/get_config.php on line 4
+[Thu Feb 26 09:07:15 2026] [::1]:53986 Closing
+[Thu Feb 26 09:07:15 2026] [::1]:59540 Accepted
+[Thu Feb 26 09:07:15 2026] PHP Warning:  require_once(../db/db_config.php): Failed to open stream: No such file or directory in /app/api/check_session.php on line 4
+[Thu Feb 26 09:07:15 2026] PHP Fatal error:  Uncaught Error: Failed opening required '../db/db_config.php' (include_path='.:/usr/share/php') in /app/api/check_session.php:4
+Stack trace:
+#0 {main}
+  thrown in /app/api/check_session.php on line 4
+[Thu Feb 26 09:07:15 2026] [::1]:59540 [500]: GET /api/check_session.php - Uncaught Error: Failed opening required '../db/db_config.php' (include_path='.:/usr/share/php') in /app/api/check_session.php:4
+Stack trace:
+#0 {main}
+  thrown in /app/api/check_session.php on line 4
+[Thu Feb 26 09:07:15 2026] [::1]:59540 Closing
+[Thu Feb 26 09:07:16 2026] [::1]:59550 Accepted
+[Thu Feb 26 09:07:16 2026] [::1]:59550 [200]: GET /practise/index.html
+[Thu Feb 26 09:07:16 2026] [::1]:59550 Closing
+[Thu Feb 26 09:07:16 2026] [::1]:59560 Accepted
+[Thu Feb 26 09:07:16 2026] [::1]:59572 Accepted
+[Thu Feb 26 09:07:16 2026] [::1]:59580 Accepted
+[Thu Feb 26 09:07:16 2026] [::1]:59592 Accepted
+[Thu Feb 26 09:07:16 2026] [::1]:59560 [200]: GET /css/toast.css
+[Thu Feb 26 09:07:16 2026] [::1]:59572 [200]: GET /css/main.css
+[Thu Feb 26 09:07:16 2026] [::1]:59560 Closing
+[Thu Feb 26 09:07:16 2026] [::1]:59572 Closing
+[Thu Feb 26 09:07:16 2026] [::1]:59580 [200]: GET /img/top_logo_light.png
+[Thu Feb 26 09:07:16 2026] [::1]:59592 [200]: GET /js/toast.js
+[Thu Feb 26 09:07:16 2026] [::1]:59580 Closing
+[Thu Feb 26 09:07:16 2026] [::1]:59592 Closing
+[Thu Feb 26 09:07:16 2026] [::1]:59606 Accepted
+[Thu Feb 26 09:07:16 2026] [::1]:59606 [200]: GET /js/auth.js
+[Thu Feb 26 09:07:16 2026] [::1]:59606 Closing
+[Thu Feb 26 09:07:16 2026] [::1]:59622 Accepted
+[Thu Feb 26 09:07:16 2026] [::1]:59622 [200]: GET /js/nav.js
+[Thu Feb 26 09:07:16 2026] [::1]:59622 Closing
