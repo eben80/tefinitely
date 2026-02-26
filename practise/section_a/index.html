@@ -4,7 +4,7 @@
 <base href="/">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Language Conversation Practice</title>
+<title>Oral Expression - Section A</title>
 <link rel="icon" href="img/favicon/favicon.ico" sizes="any">
 <link rel="icon" href="img/favicon/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="img/favicon/apple-touch-icon.png">
@@ -538,12 +538,11 @@
             <div class="dropdown">
                 <a href="oral_expression.html" class="dropbtn">Oral Expression</a>
                 <div class="dropdown-content">
-                    <a href="oral_expression_section_a.html">Section A</a>
-                    <a href="oral_expression_section_b.html">Section B</a>
+                    <a href="practise/section_a/index.html">Section A</a>
+                    <a href="practise/section_b/index.html">Section B</a>
                 </div>
             </div>
             <a href="training.html">Phased Training</a>
-            <a href="practise/index.html">Conversation Practice</a>
             <a href="profile.html">Profile</a>
             <a id="admin-link" href="admin.html" style="display: none;">Admin Portal</a>
         </div>
@@ -688,7 +687,7 @@ const speedLabel = document.getElementById('speed-label');
 // -------------------- Translations --------------------
 const translations = {
     fr: {
-        pageTitle: 'Pratique de conversation',
+        pageTitle: 'Expression Orale - Section A',
         langLabel: 'Langue:',
         levelLabel: 'Niveau:',
         startBtn: 'Démarrer',
@@ -713,7 +712,7 @@ const translations = {
         }
     },
     en: {
-        pageTitle: 'Conversation Practice',
+        pageTitle: 'Oral Expression - Section A',
         langLabel: 'Language:',
         levelLabel: 'Level:',
         startBtn: 'Start',
@@ -889,7 +888,7 @@ async function startSession(level, language) {
 
     try {
         console.log('Starting session...');
-        const res = await fetch('practise/api/start_session.php', {
+        const res = await fetch('practise/section_a/api/start_session.php', {
             method: 'POST',
             headers: {'Content-Type': 'application/x-www-form-urlencoded'},
             body: 'level=' + encodeURIComponent(level) + '&language=' + encodeURIComponent(language)
@@ -968,7 +967,7 @@ async function sendMessage() {
     unlockTTS();
 
     try {
-        const res = await fetch('practise/api/continue_session.php', {
+        const res = await fetch('practise/section_a/api/continue_session.php', {
             method: 'POST',
             headers: {'Content-Type': 'application/x-www-form-urlencoded'},
             body: 'text=' + encodeURIComponent(text) + '&language=' + encodeURIComponent(languageSelector.value)
@@ -997,7 +996,7 @@ async function showHints() {
     hintsLoading.style.display = "block";
 
     try {
-        const res = await fetch('practise/api/get_hints.php');
+        const res = await fetch('practise/section_a/api/get_hints.php');
         const data = await res.json();
         hintsLoading.style.display = "none";
 
