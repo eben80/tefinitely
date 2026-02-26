@@ -60,12 +60,13 @@ async function checkSession() {
         const adminLink = document.getElementById('admin-link');
 
         const restrictedPaths = [
-            '/logged_in.html',
-            '/oral_expression.html',
-            '/practise/section_a/index.html',
-            '/practise/section_b/index.html',
-            '/training.html',
-            '/admin.html'
+            'logged_in.html',
+            'oral_expression.html',
+            'practise/section_a/index.html',
+            'practise/section_b/index.html',
+            'training.html',
+            'profile.html',
+            'admin.html'
         ];
 
         const currentPath = window.location.pathname;
@@ -88,12 +89,15 @@ async function checkSession() {
                 restrictedNavLinks.forEach(link => {
                     const href = link.querySelector('a')?.getAttribute('href') || link.getAttribute('href');
                     if (href && restrictedPaths.some(rp => href.includes(rp.replace('.html', '')))) {
-                        link.style.display = 'none';
+                        // Profile is not restricted for inactive users, but it is on restricted list for content revealing
+                        if (!href.includes('profile.html')) {
+                            link.style.display = 'none';
+                        }
                     }
                 });
 
-                // Redirect to landing page if on a restricted page
-                if (isRestricted) {
+                // Redirect to landing page if on a restricted page (except profile)
+                if (isRestricted && !currentPath.endsWith('profile.html')) {
                     window.location.href = 'index.html';
                     return;
                 }
@@ -106,16 +110,17 @@ async function checkSession() {
             }
 
             // Show page content after all checks
-            const pageContainer = document.getElementById('page-container') || document.getElementById('app-container') || document.getElementById('main-content');
-            if (pageContainer) {
-                pageContainer.style.display = 'block';
-                if (pageContainer.tagName === 'DIV' && (currentPath.includes('practise') || currentPath.includes('training'))) {
-                    // Specific display types for certain pages
-                     if (currentPath.includes('practise')) {
-                         pageContainer.style.display = 'flex';
-                     }
+            const containers = ['page-container', 'app-container', 'main-content'];
+            containers.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.style.display = 'block';
+                    // Re-apply flex if it was flex before
+                    if (currentPath.includes('practise') && id === 'app-container') {
+                        el.style.display = 'flex';
+                    }
                 }
-            }
+            });
 
         } else {
             // Redirect to login if not logged in and on restricted page

@@ -1,0 +1,22 @@
+[Thu Feb 26 00:43:03 2026] PHP 8.3.6 Development Server (http://localhost:8000) started
+[Thu Feb 26 00:43:08 2026] [::1]:34432 Accepted
+[Thu Feb 26 00:43:08 2026] [::1]:34432 [200]: GET /practise/index.html
+[Thu Feb 26 00:43:08 2026] [::1]:34432 Closing
+[Thu Feb 26 00:43:09 2026] [::1]:34434 Accepted
+[Thu Feb 26 00:43:09 2026] [::1]:34450 Accepted
+[Thu Feb 26 00:43:09 2026] [::1]:34466 Accepted
+[Thu Feb 26 00:43:09 2026] [::1]:34480 Accepted
+[Thu Feb 26 00:43:09 2026] [::1]:34434 [200]: GET /css/toast.css
+[Thu Feb 26 00:43:09 2026] [::1]:34450 [200]: GET /css/main.css
+[Thu Feb 26 00:43:09 2026] [::1]:34466 [200]: GET /img/top_logo_light.png
+[Thu Feb 26 00:43:09 2026] [::1]:34480 [200]: GET /js/toast.js
+[Thu Feb 26 00:43:09 2026] [::1]:34434 Closing
+[Thu Feb 26 00:43:09 2026] [::1]:34450 Closing
+[Thu Feb 26 00:43:09 2026] [::1]:34480 Closing
+[Thu Feb 26 00:43:09 2026] [::1]:34466 Closing
+[Thu Feb 26 00:43:09 2026] [::1]:34490 Accepted
+[Thu Feb 26 00:43:09 2026] [::1]:34492 Accepted
+[Thu Feb 26 00:43:09 2026] [::1]:34490 [200]: GET /js/auth.js
+[Thu Feb 26 00:43:09 2026] [::1]:34492 [200]: GET /js/nav.js
+[Thu Feb 26 00:43:09 2026] [::1]:34490 Closing
+[Thu Feb 26 00:43:09 2026] [::1]:34492 Closing
