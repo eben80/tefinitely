@@ -83,7 +83,7 @@ if (isset($capture_details->status) && $capture_details->status === 'COMPLETED')
         $stmt_user->execute();
 
         // 2. Insert into subscriptions table
-        $stmt_sub = $conn->prepare("INSERT INTO subscriptions (user_id, paypal_transaction_id, subscription_start_date, subscription_end_date) VALUES (?, ?, ?, ?)");
+        $stmt_sub = $conn->prepare("INSERT INTO subscriptions (user_id, paypal_subscription_id, subscription_start_date, subscription_end_date, status) VALUES (?, ?, ?, ?, 'active') ON DUPLICATE KEY UPDATE paypal_subscription_id = VALUES(paypal_subscription_id), subscription_start_date = VALUES(subscription_start_date), subscription_end_date = VALUES(subscription_end_date), status = 'active'");
         $stmt_sub->bind_param("isss", $user_id, $transaction_id, $start_date, $end_date);
         $stmt_sub->execute();
 

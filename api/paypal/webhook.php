@@ -95,7 +95,7 @@ switch ($event_type) {
             $subscription_id_paypal = $resource->billing_agreement_id;
 
             // Find our internal subscription record
-            $stmt_find = $conn->prepare("SELECT id, user_id FROM user_subscriptions WHERE paypal_subscription_id = ?");
+            $stmt_find = $conn->prepare("SELECT id, user_id FROM subscriptions WHERE paypal_subscription_id = ?");
             $stmt_find->bind_param("s", $subscription_id_paypal);
             $stmt_find->execute();
             $result = $stmt_find->get_result();
@@ -116,7 +116,7 @@ switch ($event_type) {
                 // We need to get the latest info from PayPal about the next billing date
                 // This is a simplified approach; a more robust one would fetch subscription details again.
                 $new_end_date = date('Y-m-d H:i:s', strtotime('+1 month'));
-                $stmt_update = $conn->prepare("UPDATE user_subscriptions SET subscription_end_date = ?, status = 'active' WHERE id = ?");
+                $stmt_update = $conn->prepare("UPDATE subscriptions SET subscription_end_date = ?, status = 'active' WHERE id = ?");
                 $stmt_update->bind_param("si", $new_end_date, $internal_sub_id);
                 $stmt_update->execute();
 
@@ -130,7 +130,7 @@ switch ($event_type) {
 
     case 'BILLING.SUBSCRIPTION.CANCELLED':
         $subscription_id_paypal = $resource->id;
-        $stmt = $conn->prepare("UPDATE user_subscriptions SET status = 'cancelled' WHERE paypal_subscription_id = ?");
+        $stmt = $conn->prepare("UPDATE subscriptions SET status = 'cancelled' WHERE paypal_subscription_id = ?");
         $stmt->bind_param("s", $subscription_id_paypal);
         $stmt->execute();
 
@@ -141,13 +141,13 @@ switch ($event_type) {
 
     case 'BILLING.SUBSCRIPTION.SUSPENDED':
         $subscription_id_paypal = $resource->id;
-        $stmt = $conn->prepare("UPDATE user_subscriptions SET status = 'suspended' WHERE paypal_subscription_id = ?");
+        $stmt = $conn->prepare("UPDATE subscriptions SET status = 'suspended' WHERE paypal_subscription_id = ?");
         $stmt->bind_param("s", $subscription_id_paypal);
         $stmt->execute();
 
         // Find the user and set their main status to inactive
         $stmt_find_user = $conn->prepare(
-            "UPDATE users u JOIN user_subscriptions us ON u.id = us.user_id
+            "UPDATE users u JOIN subscriptions us ON u.id = us.user_id
              SET u.subscription_status = 'inactive'
              WHERE us.paypal_subscription_id = ?"
         );
