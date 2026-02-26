@@ -1,3 +1,7 @@
+<?php
+require_once 'api/auth_check.php';
+checkAccess();
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -71,15 +75,16 @@
     <div class="nav-content" id="nav-content">
         <div class="nav-links">
             <div class="dropdown">
-                <a href="oral_expression.html" class="dropbtn">Oral Expression</a>
+                <a href="oral_expression.php" class="dropbtn">Oral Expression</a>
                 <div class="dropdown-content">
-                    <a href="practise/section_a/index.html">Section A</a>
-                    <a href="practise/section_b/index.html">Section B</a>
+                    <a href="oral_expression_section_a.php">Flashcards</a>
+                    <a href="practise/section_a/index.php">Section A Practice</a>
+                    <a href="practise/section_b/index.php">Section B Practice</a>
                 </div>
             </div>
-            <a href="training.html">Phased Training</a>
-            <a href="profile.html">Profile</a>
-            <a id="admin-link" href="admin.html" style="display: none;">Admin Portal</a>
+            <a href="training.php">Phased Training</a>
+            <a href="profile.php">Profile</a>
+            <a id="admin-link" href="admin.php" style="display: none;">Admin Portal</a>
         </div>
         <div class="nav-user">
             <span id="first-name-display"></span>
@@ -88,19 +93,25 @@
     </div>
 </nav>
 
-<div id="main-content" style="display: none;">
+<div id="main-content">
     <h1 style="text-align: center;">Oral Expression Practice</h1>
 
     <div class="section-card">
-        <h2>Section A: Foundational Phrases</h2>
-        <p>This section is designed to help you master the essential phrases needed for the TEF Canada exam. Practice your pronunciation, listen to the phrases, and build a strong foundation for success.</p>
-        <a href="practise/section_a/index.html">Go to Section A</a>
+        <h2>Flashcards: Essential Phrases</h2>
+        <p>Master the foundational phrases for the TEF Canada exam. Practice your pronunciation, flip the cards for translations, and track your progress across different topics.</p>
+        <a href="oral_expression_section_a.php">Go to Flashcards</a>
     </div>
 
     <div class="section-card">
-        <h2>Section B: Interactive Scenarios</h2>
+        <h2>Interactive Practice: Section A</h2>
+        <p>Practice asking questions naturally in a simulated conversation. Get instant feedback and suggestions to improve your fluency and accuracy.</p>
+        <a href="practise/section_a/index.php">Start Section A Practice</a>
+    </div>
+
+    <div class="section-card">
+        <h2>Interactive Practice: Section B</h2>
         <p>Engage in realistic dialogues and interactive scenarios to apply your knowledge in context. This section will challenge you to think on your feet and respond naturally in French.</p>
-        <a href="practise/section_b/index.html">Go to Section B</a>
+        <a href="practise/section_b/index.php">Start Section B Practice</a>
     </div>
 
     <footer class="landing-footer">
@@ -112,9 +123,9 @@
             <div class="footer-column">
                 <h4>Quick Links</h4>
                 <ul>
-                    <li><a href="oral_expression.html">Oral Expression</a></li>
-                    <li><a href="training.html">Phased Training</a></li>
-                    <li><a href="profile.html">Profile</a></li>
+                    <li><a href="oral_expression.php">Oral Expression</a></li>
+                    <li><a href="training.php">Phased Training</a></li>
+                    <li><a href="profile.php">Profile</a></li>
                 </ul>
             </div>
             <div class="footer-column">

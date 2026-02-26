@@ -32,7 +32,7 @@ test('Verify timer, counter color and next button', async ({ page }) => {
     });
   });
 
-  await page.goto('http://localhost:8000/practise/index.html');
+  await page.goto('http://localhost:8000/practise/section_a/index.php');
   await page.click('#start-btn');
 
   // Timer should be at 05:00

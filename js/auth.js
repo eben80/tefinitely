@@ -41,7 +41,7 @@ async function loginUser(email, password) {
         const result = await apiRequest('api/login.php', { email, password });
         showToast(result.message, 'success');
         // Redirect to the logged-in dashboard on successful login
-        setTimeout(() => { window.location.href = 'logged_in.html'; }, 1000);
+        setTimeout(() => { window.location.href = 'logged_in.php'; }, 1000);
     } catch (error) {
         showToast(`Login Failed: ${error.message}`, 'error');
     }
@@ -59,19 +59,6 @@ async function checkSession() {
         const firstNameDisplay = document.getElementById('first-name-display');
         const adminLink = document.getElementById('admin-link');
 
-        const restrictedPaths = [
-            'logged_in.html',
-            'oral_expression.html',
-            'practise/section_a/index.html',
-            'practise/section_b/index.html',
-            'training.html',
-            'profile.html',
-            'admin.html'
-        ];
-
-        const currentPath = window.location.pathname;
-        const isRestricted = restrictedPaths.some(path => currentPath.endsWith(path));
-
         if (data.loggedIn) {
             if (userStatusDiv) {
                 userStatusDiv.style.display = 'flex';
@@ -84,51 +71,15 @@ async function checkSession() {
             }
 
             if (data.user.subscription_status !== 'active') {
-                // Hide restricted links in nav
+                // Hide restricted links in nav for inactive users
+                const restrictedPaths = ['logged_in', 'oral_expression', 'practise/section_a', 'practise/section_b', 'training', 'admin'];
                 const restrictedNavLinks = document.querySelectorAll('.main-nav .nav-links a, .main-nav .dropdown');
                 restrictedNavLinks.forEach(link => {
                     const href = link.querySelector('a')?.getAttribute('href') || link.getAttribute('href');
-                    if (href && restrictedPaths.some(rp => href.includes(rp.replace('.html', '')))) {
-                        // Profile is not restricted for inactive users, but it is on restricted list for content revealing
-                        if (!href.includes('profile.html')) {
-                            link.style.display = 'none';
-                        }
+                    if (href && restrictedPaths.some(rp => href.includes(rp))) {
+                         link.style.display = 'none';
                     }
                 });
-
-                // Redirect to landing page if on a restricted page (except profile)
-                if (isRestricted && !currentPath.endsWith('profile.html')) {
-                    window.location.href = 'index.html';
-                    return;
-                }
-            } else {
-                // User is active, check admin access
-                if (currentPath.endsWith('admin.html') && data.user.role !== 'admin') {
-                    window.location.href = 'logged_in.html';
-                    return;
-                }
-            }
-
-            // Show page content after all checks
-            const containers = ['page-container', 'app-container', 'main-content'];
-            containers.forEach(id => {
-                const el = document.getElementById(id);
-                if (el) {
-                    el.style.display = 'block';
-                    // Re-apply flex if it was flex before
-                    if (currentPath.includes('practise') && id === 'app-container') {
-                        el.style.display = 'flex';
-                    }
-                }
-            });
-
-        } else {
-            // Redirect to login if not logged in and on restricted page
-            const publicPaths = ['/login.html', '/register.html', '/index.html', '/', '/forgot_password.html', '/reset_password.html'];
-            const isPublic = publicPaths.some(path => currentPath === path || currentPath.endsWith(path));
-
-            if (!isPublic) {
-                window.location.href = 'login.html';
             }
         }
     } catch (error) {

@@ -1,10 +1,14 @@
+<?php
+require_once '../../api/auth_check.php';
+checkAccess();
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
 <base href="/">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Oral Expression - Section B</title>
+<title>Oral Expression - Section A</title>
 <link rel="icon" href="img/favicon/favicon.ico" sizes="any">
 <link rel="icon" href="img/favicon/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="img/favicon/apple-touch-icon.png">
@@ -536,15 +540,16 @@
     <div class="nav-content" id="nav-content">
         <div class="nav-links">
             <div class="dropdown">
-                <a href="oral_expression.html" class="dropbtn">Oral Expression</a>
+                <a href="oral_expression.php" class="dropbtn">Oral Expression</a>
                 <div class="dropdown-content">
-                    <a href="practise/section_a/index.html">Section A</a>
-                    <a href="practise/section_b/index.html">Section B</a>
+                    <a href="oral_expression_section_a.php">Flashcards</a>
+                    <a href="practise/section_a/index.php">Section A Practice</a>
+                    <a href="practise/section_b/index.php">Section B Practice</a>
                 </div>
             </div>
-            <a href="training.html">Phased Training</a>
-            <a href="profile.html">Profile</a>
-            <a id="admin-link" href="admin.html" style="display: none;">Admin Portal</a>
+            <a href="training.php">Phased Training</a>
+            <a href="profile.php">Profile</a>
+            <a id="admin-link" href="admin.php" style="display: none;">Admin Portal</a>
         </div>
         <div class="nav-user">
             <span id="first-name-display"></span>
@@ -553,7 +558,7 @@
     </div>
 </nav>
 
-<div id="app-container" style="display: none;">
+<div id="app-container">
     <div id="setup-container">
         <h2 id="page-title">Conversation Practice</h2>
         <div class="form-group">
@@ -687,7 +692,7 @@ const speedLabel = document.getElementById('speed-label');
 // -------------------- Translations --------------------
 const translations = {
     fr: {
-        pageTitle: 'Expression Orale - Section B',
+        pageTitle: 'Expression Orale - Section A',
         langLabel: 'Langue:',
         levelLabel: 'Niveau:',
         startBtn: 'Démarrer',
@@ -712,7 +717,7 @@ const translations = {
         }
     },
     en: {
-        pageTitle: 'Oral Expression - Section B',
+        pageTitle: 'Oral Expression - Section A',
         langLabel: 'Language:',
         levelLabel: 'Level:',
         startBtn: 'Start',
@@ -888,7 +893,7 @@ async function startSession(level, language) {
 
     try {
         console.log('Starting session...');
-        const res = await fetch('practise/section_b/api/start_session.php', {
+        const res = await fetch('practise/section_a/api/start_session.php', {
             method: 'POST',
             headers: {'Content-Type': 'application/x-www-form-urlencoded'},
             body: 'level=' + encodeURIComponent(level) + '&language=' + encodeURIComponent(language)
@@ -967,7 +972,7 @@ async function sendMessage() {
     unlockTTS();
 
     try {
-        const res = await fetch('practise/section_b/api/continue_session.php', {
+        const res = await fetch('practise/section_a/api/continue_session.php', {
             method: 'POST',
             headers: {'Content-Type': 'application/x-www-form-urlencoded'},
             body: 'text=' + encodeURIComponent(text) + '&language=' + encodeURIComponent(languageSelector.value)
@@ -996,7 +1001,7 @@ async function showHints() {
     hintsLoading.style.display = "block";
 
     try {
-        const res = await fetch('practise/section_b/api/get_hints.php');
+        const res = await fetch('practise/section_a/api/get_hints.php');
         const data = await res.json();
         hintsLoading.style.display = "none";
 

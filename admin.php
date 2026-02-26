@@ -1,3 +1,7 @@
+<?php
+require_once 'api/auth_check.php';
+checkAccess(true, true); // Requires active subscription and admin role
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -48,10 +52,10 @@
     <div id="toast-container"></div>
     <nav class="main-nav" id="user-status" style="display: none;">
         <div class="nav-links">
-            <a href="index.html">Flashcards</a>
-            <a href="training.html">Phased Training</a>
-            <a href="profile.html">Profile</a>
-            <a id="admin-link" href="admin.html" style="display: none;">Admin Portal</a>
+            <a href="oral_expression.php">Oral Expression</a>
+            <a href="training.php">Phased Training</a>
+            <a href="profile.php">Profile</a>
+            <a id="admin-link" href="admin.php" style="display: none;">Admin Portal</a>
         </div>
         <div class="nav-user">
             <span id="first-name-display"></span>
@@ -102,9 +106,9 @@
             <div class="footer-column">
                 <h4>Quick Links</h4>
                 <ul>
-                    <li><a href="index.html">Flashcards</a></li>
-                    <li><a href="training.html">Phased Training</a></li>
-                    <li><a href="profile.html">Profile</a></li>
+                    <li><a href="oral_expression.php">Oral Expression</a></li>
+                    <li><a href="training.php">Phased Training</a></li>
+                    <li><a href="profile.php">Profile</a></li>
                 </ul>
             </div>
             <div class="footer-column">
