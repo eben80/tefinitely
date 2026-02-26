@@ -1,3 +1,7 @@
+<?php
+require_once 'api/auth_check.php';
+checkAccess(false); // Does not require active subscription to view profile
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -41,15 +45,16 @@
     <div class="nav-content" id="nav-content">
         <div class="nav-links">
             <div class="dropdown">
-                <a href="oral_expression.html" class="dropbtn">Oral Expression</a>
+                <a href="oral_expression.php" class="dropbtn">Oral Expression</a>
                 <div class="dropdown-content">
-                    <a href="practise/section_a/index.html">Section A</a>
-                    <a href="practise/section_b/index.html">Section B</a>
+                    <a href="oral_expression_section_a.php">Flashcards</a>
+                    <a href="practise/section_a/index.php">Section A Practice</a>
+                    <a href="practise/section_b/index.php">Section B Practice</a>
                 </div>
                 </div>
-            <a href="training.html">Phased Training</a>
-            <a href="profile.html">Profile</a>
-            <a id="admin-link" href="admin.html" style="display: none;">Admin Portal</a>
+            <a href="training.php">Phased Training</a>
+            <a href="profile.php">Profile</a>
+            <a id="admin-link" href="admin.php" style="display: none;">Admin Portal</a>
         </div>
         <div class="nav-user">
             <span id="first-name-display"></span>
@@ -58,7 +63,7 @@
         </div>
     </nav>
 
-    <div class="container" id="page-container" style="display: none;">
+    <div class="container" id="page-container">
         <div id="profile-details" class="profile-info">
             <h2>Account Information</h2>
             <p><strong>Name:</strong> <span id="first-name"></span> <span id="last-name"></span></p>
@@ -120,9 +125,9 @@
             <div class="footer-column">
                 <h4>Quick Links</h4>
                 <ul>
-                    <li><a href="index.html">Flashcards</a></li>
-                    <li><a href="training.html">Phased Training</a></li>
-                    <li><a href="profile.html">Profile</a></li>
+                    <li><a href="oral_expression.php">Oral Expression</a></li>
+                    <li><a href="training.php">Phased Training</a></li>
+                    <li><a href="profile.php">Profile</a></li>
                 </ul>
             </div>
             <div class="footer-column">

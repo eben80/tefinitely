@@ -154,15 +154,16 @@
 <nav class="main-nav" id="user-status" style="display: none;">
     <div class="nav-links">
         <div class="dropdown">
-            <a href="oral_expression.html" class="dropbtn">Oral Expression</a>
+            <a href="oral_expression.php" class="dropbtn">Oral Expression</a>
             <div class="dropdown-content">
-                <a href="practise/section_a/index.html">Section A</a>
-                <a href="practise/section_b/index.html">Section B</a>
+                <a href="oral_expression_section_a.php">Flashcards</a>
+                    <a href="practise/section_a/index.php">Section A Practice</a>
+                <a href="practise/section_b/index.php">Section B Practice</a>
             </div>
         </div>
-        <a href="training.html">Phased Training</a>
-        <a href="profile.html">Profile</a>
-        <a id="admin-link" href="admin.html" style="display: none;">Admin Portal</a>
+        <a href="training.php">Phased Training</a>
+        <a href="profile.php">Profile</a>
+        <a id="admin-link" href="admin.php" style="display: none;">Admin Portal</a>
     </div>
     <div class="nav-user">
         <span id="first-name-display"></span>
@@ -442,7 +443,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     subscriptionPrompt.style.display = 'block';
                     renderPayPalSubscriptionButton();
                 } else {
-                    window.location.href = 'logged_in.html';
+                    window.location.href = 'logged_in.php';
                 }
             } else {
                 authContainer.style.display = 'block';
