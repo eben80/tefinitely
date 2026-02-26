@@ -59,6 +59,18 @@ async function checkSession() {
         const firstNameDisplay = document.getElementById('first-name-display');
         const adminLink = document.getElementById('admin-link');
 
+        const restrictedPaths = [
+            '/logged_in.html',
+            '/oral_expression.html',
+            '/practise/section_a/index.html',
+            '/practise/section_b/index.html',
+            '/training.html',
+            '/admin.html'
+        ];
+
+        const currentPath = window.location.pathname;
+        const isRestricted = restrictedPaths.some(path => currentPath.endsWith(path));
+
         if (data.loggedIn) {
             if (userStatusDiv) {
                 userStatusDiv.style.display = 'flex';
@@ -71,14 +83,46 @@ async function checkSession() {
             }
 
             if (data.user.subscription_status !== 'active') {
-                // Redirect to landing page if not subscribed
-                if (window.location.pathname !== '/index.html' && window.location.pathname !== '/') {
+                // Hide restricted links in nav
+                const restrictedNavLinks = document.querySelectorAll('.main-nav .nav-links a, .main-nav .dropdown');
+                restrictedNavLinks.forEach(link => {
+                    const href = link.querySelector('a')?.getAttribute('href') || link.getAttribute('href');
+                    if (href && restrictedPaths.some(rp => href.includes(rp.replace('.html', '')))) {
+                        link.style.display = 'none';
+                    }
+                });
+
+                // Redirect to landing page if on a restricted page
+                if (isRestricted) {
                     window.location.href = 'index.html';
+                    return;
+                }
+            } else {
+                // User is active, check admin access
+                if (currentPath.endsWith('admin.html') && data.user.role !== 'admin') {
+                    window.location.href = 'logged_in.html';
+                    return;
                 }
             }
+
+            // Show page content after all checks
+            const pageContainer = document.getElementById('page-container') || document.getElementById('app-container') || document.getElementById('main-content');
+            if (pageContainer) {
+                pageContainer.style.display = 'block';
+                if (pageContainer.tagName === 'DIV' && (currentPath.includes('practise') || currentPath.includes('training'))) {
+                    // Specific display types for certain pages
+                     if (currentPath.includes('practise')) {
+                         pageContainer.style.display = 'flex';
+                     }
+                }
+            }
+
         } else {
-            // Redirect to login if not logged in
-            if (window.location.pathname !== '/login.html' && window.location.pathname !== '/register.html' && window.location.pathname !== '/index.html' && window.location.pathname !== '/') {
+            // Redirect to login if not logged in and on restricted page
+            const publicPaths = ['/login.html', '/register.html', '/index.html', '/', '/forgot_password.html', '/reset_password.html'];
+            const isPublic = publicPaths.some(path => currentPath === path || currentPath.endsWith(path));
+
+            if (!isPublic) {
                 window.location.href = 'login.html';
             }
         }
