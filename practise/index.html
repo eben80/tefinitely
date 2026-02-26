@@ -215,6 +215,28 @@
         overflow: hidden;
         background: #fff;
         min-height: 150px;
+        position: relative;
+    }
+
+    #question-counter {
+        background: rgba(255, 255, 255, 0.9);
+        border-bottom: 1px solid #eee;
+        padding: 5px 15px;
+        font-size: 0.85rem;
+        font-weight: bold;
+        color: #666;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 10;
+    }
+
+    #question-counter .count-badge {
+        background: #007bff;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 0.8rem;
     }
 
     #chat {
@@ -536,6 +558,10 @@
         <div id="advertisement-poster"></div>
 
         <div id="chat-container">
+            <div id="question-counter">
+                <span id="counter-label">Questions posées :</span>
+                <span class="count-badge" id="question-count">0</span>
+            </div>
             <div id="chat" style="display: flex; flex-direction: column;"></div>
 
             <div id="input-area">
@@ -587,6 +613,11 @@ const speedValue = document.getElementById('speed-value');
 const mainContent = document.getElementById('main-content');
 const setupContainer = document.getElementById('setup-container');
 
+// Counter elements
+let questionCount = 0;
+const questionCountDisplay = document.getElementById('question-count');
+const counterLabel = document.getElementById('counter-label');
+
 // Modal elements
 const hintsModal = document.getElementById('hints-modal');
 const modalContent = document.getElementById('modal-content');
@@ -619,6 +650,7 @@ const translations = {
         hintBtnTitle: "Besoin d'aide ?",
         modalTitle: 'Idées de questions',
         loadingHints: 'Génération des questions...',
+        counterLabel: 'Questions posées :',
         levels: {
             A1: 'A1 - Débutant',
             A2: 'A2 - Élémentaire',
@@ -640,6 +672,7 @@ const translations = {
         hintBtnTitle: "Need help?",
         modalTitle: 'Question Ideas',
         loadingHints: 'Generating questions...',
+        counterLabel: 'Questions asked:',
         levels: {
             A1: 'A1 - Beginner',
             A2: 'A2 - Elementary',
@@ -665,6 +698,7 @@ function updateInterface(lang) {
     hintButton.title = t.hintBtnTitle;
     modalTitle.textContent = t.modalTitle;
     hintsLoading.querySelector('p').textContent = t.loadingHints;
+    counterLabel.textContent = t.counterLabel;
 
     levelSelector.innerHTML = '';
     for (const [key, label] of Object.entries(t.levels)) {
@@ -780,6 +814,9 @@ async function startSession(level, language) {
     setupRecognition(language);
     unlockTTS();
 
+    questionCount = 0;
+    questionCountDisplay.textContent = questionCount;
+
     try {
         console.log('Starting session...');
         const res = await fetch('practise/api/start_session.php', {
@@ -823,6 +860,9 @@ async function sendMessage() {
     if (!text) return;
     appendMessage('user', text);
     inputField.value = '';
+
+    questionCount++;
+    questionCountDisplay.textContent = questionCount;
 
     sendButton.disabled = true;
     speakButton.disabled = true;
