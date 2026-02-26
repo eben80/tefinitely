@@ -114,7 +114,7 @@
             min-width: 0 !important;
         }
 
-        #send-btn, #speak-btn {
+        #send-btn, #next-btn, #speak-btn {
             padding: 8px 10px !important;
             font-size: 0.8rem !important;
             flex-shrink: 0 !important;
@@ -239,6 +239,22 @@
         font-size: 0.8rem;
     }
 
+    #question-counter .count-badge.target-reached {
+        background: #28a745;
+    }
+
+    #timer-container {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    #timer-display {
+        font-family: monospace;
+        font-size: 1rem;
+        color: #dc3545;
+    }
+
     #chat {
         flex: 1;
         overflow-y: auto;
@@ -334,6 +350,15 @@
 
     #send-btn:hover {
         background: #0056b3;
+    }
+
+    #next-btn {
+        background: #28a745;
+        color: white;
+    }
+
+    #next-btn:hover {
+        background: #218838;
     }
 
     #speak-btn {
@@ -559,8 +584,14 @@
 
         <div id="chat-container">
             <div id="question-counter">
-                <span id="counter-label">Questions posées :</span>
-                <span class="count-badge" id="question-count">0</span>
+                <div>
+                    <span id="counter-label">Questions posées :</span>
+                    <span class="count-badge" id="question-count">0</span>
+                </div>
+                <div id="timer-container">
+                    <span id="timer-label">Temps restant :</span>
+                    <span id="timer-display">05:00</span>
+                </div>
             </div>
             <div id="chat" style="display: flex; flex-direction: column;"></div>
 
@@ -568,6 +599,7 @@
                 <input type="text" id="user-input" placeholder="Tapez votre phrase ici..." />
                 <button id="hint-btn" title="Besoin d'aide ?">💡</button>
                 <button id="send-btn">Envoyer</button>
+                <button id="next-btn" title="Annonce suivante">Suivant</button>
                 <button id="speak-btn">🎤 Parler</button>
             </div>
         </div>
@@ -603,6 +635,7 @@ const instructionDisplay = document.getElementById('instruction-display');
 const advertisementPoster = document.getElementById('advertisement-poster');
 const inputField = document.getElementById('user-input');
 const sendButton = document.getElementById('send-btn');
+const nextButton = document.getElementById('next-btn');
 const startButton = document.getElementById('start-btn');
 const levelSelector = document.getElementById('level');
 const speakButton = document.getElementById('speak-btn');
@@ -613,10 +646,18 @@ const speedValue = document.getElementById('speed-value');
 const mainContent = document.getElementById('main-content');
 const setupContainer = document.getElementById('setup-container');
 
-// Counter elements
+// Counter and Timer elements
 let questionCount = 0;
 const questionCountDisplay = document.getElementById('question-count');
 const counterLabel = document.getElementById('counter-label');
+
+let timerInterval = null;
+let timeLeft = 300; // 5 minutes
+const timerDisplay = document.getElementById('timer-display');
+const timerLabel = document.getElementById('timer-label');
+
+let currentLevel = 'A2';
+let currentLanguage = 'fr';
 
 // Modal elements
 const hintsModal = document.getElementById('hints-modal');
@@ -646,11 +687,14 @@ const translations = {
         speedLabel: 'Vitesse de parole:',
         userPlaceholder: 'Tapez votre phrase ici...',
         sendBtn: 'Envoyer',
+        nextBtn: 'Suivant',
+        nextBtnTitle: 'Annonce suivante',
         speakBtn: '🎤 Parler',
         hintBtnTitle: "Besoin d'aide ?",
         modalTitle: 'Idées de questions',
         loadingHints: 'Génération des questions...',
         counterLabel: 'Questions posées :',
+        timerLabel: 'Temps restant :',
         levels: {
             A1: 'A1 - Débutant',
             A2: 'A2 - Élémentaire',
@@ -668,11 +712,14 @@ const translations = {
         speedLabel: 'Speech speed:',
         userPlaceholder: 'Type your sentence here...',
         sendBtn: 'Send',
+        nextBtn: 'Next',
+        nextBtnTitle: 'Next Scenario',
         speakBtn: '🎤 Speak',
         hintBtnTitle: "Need help?",
         modalTitle: 'Question Ideas',
         loadingHints: 'Generating questions...',
         counterLabel: 'Questions asked:',
+        timerLabel: 'Time remaining:',
         levels: {
             A1: 'A1 - Beginner',
             A2: 'A2 - Elementary',
@@ -694,11 +741,14 @@ function updateInterface(lang) {
     speedLabel.textContent = t.speedLabel;
     inputField.placeholder = t.userPlaceholder;
     sendButton.textContent = t.sendBtn;
+    nextButton.textContent = t.nextBtn;
+    nextButton.title = t.nextBtnTitle;
     speakButton.textContent = t.speakBtn;
     hintButton.title = t.hintBtnTitle;
     modalTitle.textContent = t.modalTitle;
     hintsLoading.querySelector('p').textContent = t.loadingHints;
     counterLabel.textContent = t.counterLabel;
+    timerLabel.textContent = t.timerLabel;
 
     levelSelector.innerHTML = '';
     for (const [key, label] of Object.entries(t.levels)) {
@@ -811,11 +861,21 @@ function appendMessage(role, text) {
 
 // -------------------- Start session --------------------
 async function startSession(level, language) {
+    currentLevel = level;
+    currentLanguage = language;
     setupRecognition(language);
     unlockTTS();
 
+    // Reset Counter
     questionCount = 0;
     questionCountDisplay.textContent = questionCount;
+    questionCountDisplay.classList.remove('target-reached');
+
+    // Reset Timer
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = null;
+    timeLeft = 300;
+    updateTimerDisplay();
 
     try {
         console.log('Starting session...');
@@ -854,6 +914,27 @@ async function startSession(level, language) {
     }
 }
 
+// -------------------- Timer --------------------
+function updateTimerDisplay() {
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
+    timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+
+function startTimer() {
+    if (timerInterval) return;
+    updateTimerDisplay();
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        if (timeLeft <= 0) {
+            timeLeft = 0;
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+        updateTimerDisplay();
+    }, 1000);
+}
+
 // -------------------- Send user message --------------------
 async function sendMessage() {
     const text = inputField.value.trim();
@@ -863,6 +944,13 @@ async function sendMessage() {
 
     questionCount++;
     questionCountDisplay.textContent = questionCount;
+    if (questionCount >= 10) {
+        questionCountDisplay.classList.add('target-reached');
+    }
+
+    if (questionCount === 1) {
+        startTimer();
+    }
 
     sendButton.disabled = true;
     speakButton.disabled = true;
@@ -1010,6 +1098,7 @@ makeDraggable(modalContent, document.getElementById('modal-header'));
 
 // -------------------- Events --------------------
 sendButton.addEventListener('click', () => { unlockTTS(); sendMessage(); });
+nextButton.addEventListener('click', () => startSession(currentLevel, currentLanguage));
 inputField.addEventListener('keypress', e => { if(e.key==='Enter') sendMessage(); });
 startButton.addEventListener('click', () => startSession(levelSelector.value, languageSelector.value));
 hintButton.addEventListener('click', showHints);
