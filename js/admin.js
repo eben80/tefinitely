@@ -17,6 +17,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const addUserForm = document.getElementById('add-user-form');
     const closeBtns = document.querySelectorAll('.close-btn');
 
+    const openaiCallsModal = document.getElementById('openai-calls-modal');
+    const openaiCallsTableBody = document.getElementById('openai-calls-table-body');
+    const modalOpenaiUserName = document.getElementById('modal-openai-user-name');
+
     let currentEditingUserId = null;
     let usersData = []; // Cache user data
 
@@ -88,6 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.ok && data.status === 'success') {
                 usersData = data.users; // Cache the data
                 populateTable(usersData);
+                updateStats(usersData);
             } else {
                 showToast('Failed to load users: ' + (data.message || 'Unknown error'), 'error');
             }
@@ -95,6 +100,22 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Error loading users:', error);
             showToast('An error occurred while fetching user data.', 'error');
         }
+    }
+
+    function updateStats(users) {
+        let total24h = 0;
+        let total7d = 0;
+        let totalLife = 0;
+
+        users.forEach(user => {
+            total24h += parseInt(user.calls_24h || 0);
+            total7d += parseInt(user.calls_7d || 0);
+            totalLife += parseInt(user.calls_lifetime || 0);
+        });
+
+        document.getElementById('stat-calls-24h').textContent = total24h.toLocaleString();
+        document.getElementById('stat-calls-7d').textContent = total7d.toLocaleString();
+        document.getElementById('stat-calls-life').textContent = totalLife.toLocaleString();
     }
 
     function populateTable(users) {
@@ -112,6 +133,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${user.role}</td>
                 <td class="${statusClass}">${user.subscription_status}</td>
                 <td>${endDate}</td>
+                <td>
+                    <a href="javascript:void(0)" class="view-calls-link" data-userid="${user.id}" data-name="${user.first_name} ${user.last_name}">
+                        ${user.calls_1h} / ${user.calls_24h} / ${user.calls_7d} / ${user.calls_30d} / ${user.calls_lifetime}
+                    </a>
+                </td>
                 <td>${new Date(user.created_at).toLocaleDateString()}</td>
                 <td>
                     <select data-userid="${user.id}" class="status-select">
@@ -136,6 +162,47 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         document.querySelectorAll('.delete-user-btn').forEach(button => {
             button.addEventListener('click', handleDeleteUser);
+        });
+        document.querySelectorAll('.view-calls-link').forEach(link => {
+            link.addEventListener('click', openCallsModal);
+        });
+    }
+
+    async function openCallsModal(event) {
+        const userId = event.currentTarget.dataset.userid;
+        const userName = event.currentTarget.dataset.name;
+        modalOpenaiUserName.textContent = userName;
+        openaiCallsTableBody.innerHTML = '<tr><td colspan="3">Loading...</td></tr>';
+        openaiCallsModal.style.display = 'block';
+
+        try {
+            const response = await fetch(`api/admin/get_user_calls.php?user_id=${userId}`);
+            const data = await response.json();
+            if (response.ok && data.status === 'success') {
+                populateCallsTable(data.calls);
+            } else {
+                openaiCallsTableBody.innerHTML = `<tr><td colspan="3">Error: ${data.message}</td></tr>`;
+            }
+        } catch (error) {
+            console.error('Error fetching call history:', error);
+            openaiCallsTableBody.innerHTML = '<tr><td colspan="3">An error occurred.</td></tr>';
+        }
+    }
+
+    function populateCallsTable(calls) {
+        openaiCallsTableBody.innerHTML = '';
+        if (calls.length === 0) {
+            openaiCallsTableBody.innerHTML = '<tr><td colspan="3">No calls found.</td></tr>';
+            return;
+        }
+        calls.forEach(call => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${call.openai_id}</td>
+                <td>${call.model}</td>
+                <td>${new Date(call.created_at).toLocaleString()}</td>
+            `;
+            openaiCallsTableBody.appendChild(row);
         });
     }
 

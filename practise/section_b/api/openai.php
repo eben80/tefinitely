@@ -43,6 +43,30 @@ function openai_chat(array $messages): array
     }
 
     $json = json_decode($response, true);
+
+    // Log to database if user is logged in
+    if (isset($json['id']) && isset($_SESSION['user_id'])) {
+        try {
+            require __DIR__ . '/../../../db/db_config.php';
+            // Note: db_config.php defines $conn. Since we use 'require' (not require_once),
+            // it will be available even if openai_chat is called multiple times.
+            if (isset($conn) && $conn instanceof mysqli) {
+                $stmt = $conn->prepare("INSERT INTO openai_calls_log (user_id, openai_id, model) VALUES (?, ?, ?)");
+                if ($stmt) {
+                    $user_id = $_SESSION['user_id'];
+                    $openai_id = $json['id'];
+                    $model = $json['model'] ?? 'gpt-4o';
+                    $stmt->bind_param("iss", $user_id, $openai_id, $model);
+                    $stmt->execute();
+                    $stmt->close();
+                }
+                $conn->close(); // Close the local connection
+            }
+        } catch (Exception $e) {
+            error_log("Failed to log OpenAI call to database: " . $e->getMessage());
+        }
+    }
+
     return [
         'content' => $json['choices'][0]['message']['content'] ?? ''
     ];

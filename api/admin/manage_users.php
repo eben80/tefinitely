@@ -13,7 +13,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
-    // Fetch all users and their latest subscription end date
+    // Optimized query using LEFT JOINs on pre-aggregated subqueries
     $query = "
         SELECT
             u.id,
@@ -23,11 +23,27 @@ if ($method === 'GET') {
             u.role,
             u.subscription_status,
             u.created_at,
-            MAX(s.subscription_end_date) AS subscription_end_date
+            MAX(s.subscription_end_date) AS subscription_end_date,
+            COALESCE(cl.calls_1h, 0) as calls_1h,
+            COALESCE(cl.calls_24h, 0) as calls_24h,
+            COALESCE(cl.calls_7d, 0) as calls_7d,
+            COALESCE(cl.calls_30d, 0) as calls_30d,
+            COALESCE(cl.calls_lifetime, 0) as calls_lifetime
         FROM
             users u
         LEFT JOIN
             subscriptions s ON u.id = s.user_id
+        LEFT JOIN (
+            SELECT
+                user_id,
+                COUNT(CASE WHEN created_at >= NOW() - INTERVAL 1 HOUR THEN 1 END) as calls_1h,
+                COUNT(CASE WHEN created_at >= NOW() - INTERVAL 24 HOUR THEN 1 END) as calls_24h,
+                COUNT(CASE WHEN created_at >= NOW() - INTERVAL 7 DAY THEN 1 END) as calls_7d,
+                COUNT(CASE WHEN created_at >= NOW() - INTERVAL 30 DAY THEN 1 END) as calls_30d,
+                COUNT(*) as calls_lifetime
+            FROM openai_calls_log
+            GROUP BY user_id
+        ) cl ON u.id = cl.user_id
         GROUP BY
             u.id
         ORDER BY
