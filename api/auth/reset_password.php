@@ -13,9 +13,15 @@ if (!isset($data['token']) || !isset($data['password'])) {
 $token = $data['token'];
 $new_password = $data['password'];
 
-if (strlen($new_password) < 8) {
+// Password requirement validation
+$isLength = strlen($new_password) >= 8;
+$hasUpper = preg_match('/[A-Z]/', $new_password);
+$hasLower = preg_match('/[a-z]/', $new_password);
+$hasNumber = preg_match('/[0-9]/', $new_password);
+
+if (!$isLength || !$hasUpper || !$hasLower || !$hasNumber) {
     http_response_code(400);
-    echo json_encode(['status' => 'error', 'message' => 'Password must be at least 8 characters long.']);
+    echo json_encode(['status' => 'error', 'message' => 'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number.']);
     exit;
 }
 
