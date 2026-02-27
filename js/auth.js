@@ -51,10 +51,15 @@ async function loginUser(email, password) {
 async function checkSession() {
     try {
         const response = await fetch('api/check_session.php');
-        if (!response.ok) {
+        let data;
+        if (response.ok) {
+            data = await response.json();
+        } else if (response.status === 401) {
+            // Specifically handle 401 Unauthorized as "not logged in"
+            data = { loggedIn: false };
+        } else {
             throw new Error('Session check failed with status ' + response.status);
         }
-        const data = await response.json();
         const userStatusDiv = document.getElementById('user-status');
         const firstNameDisplay = document.getElementById('first-name-display');
         const adminLink = document.getElementById('admin-link');
