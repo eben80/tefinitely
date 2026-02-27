@@ -383,17 +383,12 @@ function initializeSampleFlashcard() {
     display(0);
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
-    // initializeSampleFlashcard only for guests
-    try {
-        const response = await fetch('api/check_session.php');
-        const data = await response.json();
-        if (!data.loggedIn) {
-            initializeSampleFlashcard();
-        }
-    } catch (error) {
-        initializeSampleFlashcard();
-    }
+document.addEventListener('DOMContentLoaded', () => {
+    // initializeSampleFlashcard will be called by auth.js if the user is not logged in
+    // or we can call it here if we know auth.js won't.
+    // Actually, auth.js handles visibility, but not initialization of specific components.
+    // Let's keep a simple check or just call it, as it checks for elements anyway.
+    initializeSampleFlashcard();
 });
 
 </script>
