@@ -49,17 +49,22 @@ async function loginUser(email, password) {
 
 // --- Session Check ---
 async function checkSession() {
+    let data = { loggedIn: false };
     try {
         const response = await fetch('api/check_session.php');
-        let data;
         if (response.ok) {
             data = await response.json();
         } else if (response.status === 401) {
             // Specifically handle 401 Unauthorized as "not logged in"
             data = { loggedIn: false };
         } else {
-            throw new Error('Session check failed with status ' + response.status);
+            console.warn('Session check failed with status ' + response.status + '. Defaulting to not logged in.');
         }
+    } catch (error) {
+        console.error('Session check failed:', error);
+    }
+
+    try {
         const userStatusDiv = document.getElementById('user-status');
         const firstNameDisplay = document.getElementById('first-name-display');
         const adminLink = document.getElementById('admin-link');
@@ -140,8 +145,8 @@ async function checkSession() {
             if (loginPrompt) loginPrompt.style.display = 'block';
             if (subscriptionPrompt) subscriptionPrompt.style.display = 'none';
         }
-    } catch (error) {
-        console.error('Session check failed:', error);
+    } catch (uiError) {
+        console.error('Error updating UI during session check:', uiError);
     }
 }
 
