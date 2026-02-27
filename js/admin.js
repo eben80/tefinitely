@@ -20,9 +20,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const openaiCallsModal = document.getElementById('openai-calls-modal');
     const openaiCallsTableBody = document.getElementById('openai-calls-table-body');
     const modalOpenaiUserName = document.getElementById('modal-openai-user-name');
+    const openaiTimeframeSelect = document.getElementById('openai-timeframe');
+    const exportCsvBtn = document.getElementById('export-csv-btn');
 
     let currentEditingUserId = null;
+    let currentViewingCallsUserId = null;
     let usersData = []; // Cache user data
+    let currentCallsData = []; // Cache current calls data for export
 
     // --- Initial Load ---
     checkAdminAccess();
@@ -67,6 +71,18 @@ document.addEventListener('DOMContentLoaded', () => {
             handleSubscriptionUpdate(event);
         }
     });
+
+    if (openaiTimeframeSelect) {
+        openaiTimeframeSelect.addEventListener('change', () => {
+            if (currentViewingCallsUserId) {
+                fetchAndPopulateCalls(currentViewingCallsUserId, openaiTimeframeSelect.value);
+            }
+        });
+    }
+
+    if (exportCsvBtn) {
+        exportCsvBtn.addEventListener('click', exportCallsToCsv);
+    }
 
     // --- Functions ---
     async function checkAdminAccess() {
@@ -171,15 +187,24 @@ document.addEventListener('DOMContentLoaded', () => {
     async function openCallsModal(event) {
         const userId = event.currentTarget.dataset.userid;
         const userName = event.currentTarget.dataset.name;
+        currentViewingCallsUserId = userId;
         modalOpenaiUserName.textContent = userName;
-        openaiCallsTableBody.innerHTML = '<tr><td colspan="3">Loading...</td></tr>';
+        openaiTimeframeSelect.value = 'lifetime'; // Reset to lifetime when opening
         openaiCallsModal.style.display = 'block';
 
+        await fetchAndPopulateCalls(userId, 'lifetime');
+    }
+
+    async function fetchAndPopulateCalls(userId, timeframe) {
+        openaiCallsTableBody.innerHTML = '<tr><td colspan="3">Loading...</td></tr>';
+        currentCallsData = [];
+
         try {
-            const response = await fetch(`api/admin/get_user_calls.php?user_id=${userId}`);
+            const response = await fetch(`api/admin/get_user_calls.php?user_id=${userId}&timeframe=${timeframe}`);
             const data = await response.json();
             if (response.ok && data.status === 'success') {
-                populateCallsTable(data.calls);
+                currentCallsData = data.calls;
+                populateCallsTable(currentCallsData);
             } else {
                 openaiCallsTableBody.innerHTML = `<tr><td colspan="3">Error: ${data.message}</td></tr>`;
             }
@@ -192,7 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function populateCallsTable(calls) {
         openaiCallsTableBody.innerHTML = '';
         if (calls.length === 0) {
-            openaiCallsTableBody.innerHTML = '<tr><td colspan="3">No calls found.</td></tr>';
+            openaiCallsTableBody.innerHTML = '<tr><td colspan="3">No calls found for this timeframe.</td></tr>';
             return;
         }
         calls.forEach(call => {
@@ -204,6 +229,43 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             openaiCallsTableBody.appendChild(row);
         });
+    }
+
+    function exportCallsToCsv() {
+        if (currentCallsData.length === 0) {
+            showToast('No data to export.', 'error');
+            return;
+        }
+
+        const userName = modalOpenaiUserName.textContent.replace(/\s+/g, '_');
+        const timeframe = openaiTimeframeSelect.value;
+        const filename = `openai_calls_${userName}_${timeframe}_${new Date().toISOString().split('T')[0]}.csv`;
+
+        const csvRows = [];
+        const headers = ['OpenAI ID', 'Model', 'Timestamp'];
+        csvRows.push(headers.join(','));
+
+        currentCallsData.forEach(call => {
+            const row = [
+                `"${call.openai_id}"`,
+                `"${call.model}"`,
+                `"${call.created_at}"`
+            ];
+            csvRows.push(row.join(','));
+        });
+
+        const csvContent = csvRows.join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        if (link.download !== undefined) {
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
     }
 
     function openEditModal(event) {
