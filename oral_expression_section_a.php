@@ -99,11 +99,6 @@ checkAccess();
     padding: 0.4rem 1rem;
     margin-right: 0.7rem;
   }
-  #user-status {
-    position: absolute;
-    top: 1rem;
-    right: 2rem;
-  }
   /* --- Flashcard Styles --- */
   .flashcard {
       background-color: transparent;
@@ -198,17 +193,6 @@ checkAccess();
       padding: 0.6rem;
       margin: 0.2rem;
       font-size: 0.9rem;
-    }
-    #user-status {
-      position: static;
-      text-align: center;
-      margin-bottom: 1rem;
-      padding: 0.5rem;
-      background: #f5f0ea;
-      border-radius: 4px;
-    }
-    #user-status a, #user-status button {
-        margin: 0 0.5rem;
     }
     #main-content {
         padding: 0;

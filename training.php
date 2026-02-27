@@ -110,17 +110,6 @@ checkAccess();
     .flashcard {
         height: 180px; /* Adjust height for smaller screens */
     }
-    #user-status {
-      position: static;
-      text-align: center;
-      margin-bottom: 1rem;
-      padding: 0.5rem;
-      background: #f5f0ea;
-      border-radius: 4px;
-    }
-    #user-status a, #user-status button {
-        margin: 0 0.5rem;
-    }
   }
 </style>
 </head>
