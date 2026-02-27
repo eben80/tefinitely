@@ -65,19 +65,18 @@ async function checkSession() {
     }
 
     try {
-        const userStatusDiv = document.getElementById('user-status');
+        const userStatusElements = document.querySelectorAll('.main-nav, #user-status');
         const firstNameDisplay = document.getElementById('first-name-display');
         const adminLink = document.getElementById('admin-link');
 
         const landingNav = document.getElementById('landing-nav');
-        const loginPrompt = document.getElementById('login-prompt');
+        const loginPromptLandingPageElements = document.querySelectorAll('#login-prompt, .landing-page');
         const subscriptionPrompt = document.getElementById('subscription-prompt');
+        const landingFooter = document.getElementById('landing-footer');
         const authContainer = document.getElementById('auth-container');
 
         if (data.loggedIn) {
-            if (userStatusDiv) {
-                userStatusDiv.style.display = 'flex';
-            }
+            userStatusElements.forEach(el => el.style.display = 'flex');
             if (landingNav) {
                 landingNav.style.display = 'none';
             }
@@ -116,13 +115,14 @@ async function checkSession() {
                 // On index page, if logged in but inactive, show subscription prompt
                 if (window.location.pathname.endsWith('index.html') || window.location.pathname === '/' || window.location.pathname === '') {
                     if (authContainer) authContainer.style.display = 'block';
-                    if (loginPrompt) loginPrompt.style.display = 'none';
+                    loginPromptLandingPageElements.forEach(el => el.style.display = 'none');
                     if (subscriptionPrompt) {
                         subscriptionPrompt.style.display = 'block';
                         if (typeof renderPayPalSubscriptionButton === 'function') {
                             renderPayPalSubscriptionButton();
                         }
                     }
+                    if (landingFooter) landingFooter.style.display = 'block';
 
                     // Check for trigger in URL
                     if (window.location.search.includes('trigger=subscribe')) {
@@ -139,11 +139,12 @@ async function checkSession() {
             }
         } else {
             // Not logged in
-            if (userStatusDiv) userStatusDiv.style.display = 'none';
+            userStatusElements.forEach(el => el.style.display = 'none');
             if (landingNav) landingNav.style.display = 'flex';
             if (authContainer) authContainer.style.display = 'block';
-            if (loginPrompt) loginPrompt.style.display = 'block';
-            if (subscriptionPrompt) subscriptionPrompt.style.display = 'none';
+            loginPromptLandingPageElements.forEach(el => el.style.display = 'block');
+            if (subscriptionPrompt) subscriptionPrompt.style.display = 'block';
+            if (landingFooter) landingFooter.style.display = 'block';
         }
     } catch (uiError) {
         console.error('Error updating UI during session check:', uiError);
