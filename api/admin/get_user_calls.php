@@ -17,6 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 }
 
 $user_id = $_GET['user_id'] ?? null;
+$timeframe = $_GET['timeframe'] ?? 'lifetime';
 
 if (!$user_id) {
     http_response_code(400);
@@ -24,7 +25,27 @@ if (!$user_id) {
     exit;
 }
 
-$stmt = $conn->prepare("SELECT openai_id, model, created_at FROM openai_calls_log WHERE user_id = ? ORDER BY created_at DESC");
+$where_clause = "user_id = ?";
+switch ($timeframe) {
+    case '1h':
+        $where_clause .= " AND created_at >= NOW() - INTERVAL 1 HOUR";
+        break;
+    case '24h':
+        $where_clause .= " AND created_at >= NOW() - INTERVAL 24 HOUR";
+        break;
+    case '7d':
+        $where_clause .= " AND created_at >= NOW() - INTERVAL 7 DAY";
+        break;
+    case '30d':
+        $where_clause .= " AND created_at >= NOW() - INTERVAL 30 DAY";
+        break;
+    case 'lifetime':
+    default:
+        // No additional filtering
+        break;
+}
+
+$stmt = $conn->prepare("SELECT openai_id, model, created_at FROM openai_calls_log WHERE $where_clause ORDER BY created_at DESC");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();

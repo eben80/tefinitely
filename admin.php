@@ -168,6 +168,17 @@ checkAccess(true, true); // Requires active subscription and admin role
         <div class="modal-content">
             <span class="close-btn">&times;</span>
             <h2>OpenAI Call History: <span id="modal-openai-user-name"></span></h2>
+            <div style="margin-bottom: 1rem; display: flex; gap: 1rem; align-items: center;">
+                <label for="openai-timeframe">Timeframe:</label>
+                <select id="openai-timeframe">
+                    <option value="1h">Last Hour</option>
+                    <option value="24h">Last 24 Hours</option>
+                    <option value="7d">Last 7 Days</option>
+                    <option value="30d">Last 30 Days</option>
+                    <option value="lifetime" selected>Lifetime</option>
+                </select>
+                <button id="export-csv-btn" class="action-btn" style="background-color: #17a2b8;">Export to CSV</button>
+            </div>
             <div class="table-container" style="max-height: 400px; overflow-y: auto;">
                 <table>
                     <thead>
