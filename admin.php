@@ -65,6 +65,20 @@ checkAccess(true, true); // Requires active subscription and admin role
     <div class="container">
         <div id="admin-dashboard" style="display: none;">
             <h1>Admin Dashboard</h1>
+            <div id="admin-stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+                <div style="background: white; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center;">
+                    <h3 style="margin: 0; color: #666; font-size: 0.9rem;">Total OpenAI Calls (24h)</h3>
+                    <p id="stat-calls-24h" style="margin: 0.5rem 0 0; font-size: 1.5rem; font-weight: bold; color: #007bff;">0</p>
+                </div>
+                <div style="background: white; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center;">
+                    <h3 style="margin: 0; color: #666; font-size: 0.9rem;">Total OpenAI Calls (7d)</h3>
+                    <p id="stat-calls-7d" style="margin: 0.5rem 0 0; font-size: 1.5rem; font-weight: bold; color: #007bff;">0</p>
+                </div>
+                <div style="background: white; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center;">
+                    <h3 style="margin: 0; color: #666; font-size: 0.9rem;">Total OpenAI Calls (Life)</h3>
+                    <p id="stat-calls-life" style="margin: 0.5rem 0 0; font-size: 1.5rem; font-weight: bold; color: #007bff;">0</p>
+                </div>
+            </div>
             <div class="header-with-button">
                 <h2>User Management</h2>
                 <button id="add-user-btn" class="action-btn">Add New User</button>
@@ -74,16 +88,17 @@ checkAccess(true, true); // Requires active subscription and admin role
                     <thead>
                         <tr>
                             <th>ID</th>
-                        <th>First Name</th>
-                        <th>Last Name</th>
-                        <th>Email</th>
-                        <th>Role</th>
-                        <th>Sub Status</th>
-                        <th>Sub End Date</th>
-                        <th>Created At</th>
-                        <th>Manage Sub</th>
-                        <th>Actions</th>
-                    </tr>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Sub Status</th>
+                            <th>Sub End Date</th>
+                            <th>OpenAI Calls (1h/24h/7d/30d/Life)</th>
+                            <th>Created At</th>
+                            <th>Manage Sub</th>
+                            <th>Actions</th>
+                        </tr>
                 </thead>
                 <tbody id="users-table-body">
                     <!-- User rows will be inserted here by JavaScript -->
@@ -145,6 +160,28 @@ checkAccess(true, true); // Requires active subscription and admin role
                 <input type="text" id="modal-sub-end" placeholder="YYYY-MM-DD HH:MM:SS">
                 <button type="submit">Update Subscription Dates</button>
             </form>
+        </div>
+    </div>
+
+    <!-- Modal for viewing OpenAI calls -->
+    <div id="openai-calls-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>OpenAI Call History: <span id="modal-openai-user-name"></span></h2>
+            <div class="table-container" style="max-height: 400px; overflow-y: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>OpenAI ID</th>
+                            <th>Model</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="openai-calls-table-body">
+                        <!-- Call logs will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
