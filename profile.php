@@ -214,8 +214,8 @@ checkAccess(false); // Does not require active subscription to view profile
                 if (data.status === 'success') {
                     showToast('Guided tour has been reset. Redirecting...', 'success');
                     setTimeout(() => {
-                        window.location.href = 'index.html';
-                    }, 2000);
+                        window.location.href = 'logged_in.php';
+                    }, 1000);
                 } else {
                     showToast('Failed to reset the guided tour. Please try again.', 'error');
                 }
