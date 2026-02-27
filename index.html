@@ -275,6 +275,7 @@
 </div>
 
 <script src="js/toast.js"></script>
+<script src="js/auth.js"></script>
 <script src="js/nav.js"></script>
 <script>
 function speakFrench(text, rate) {
@@ -383,86 +384,15 @@ function initializeSampleFlashcard() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-    const userStatusDiv = document.getElementById('user-status');
-    const firstNameDisplay = document.getElementById('first-name-display');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const authContainer = document.getElementById('auth-container');
-    const loginPrompt = document.getElementById('login-prompt');
-    const subscriptionPrompt = document.getElementById('subscription-prompt');
-
-    logoutBtn.addEventListener('click', async () => {
-        const response = await fetch('api/logout.php');
-        if (response.ok) {
-            showToast('You have been logged out.', 'success');
-            setTimeout(() => { window.location.href = 'login.html'; }, 1000);
-        } else {
-            showToast('Logout failed. Please try again.', 'error');
-        }
-    });
-
+    // initializeSampleFlashcard only for guests
     try {
         const response = await fetch('api/check_session.php');
         const data = await response.json();
-
-        if (data.loggedIn) {
-            userStatusDiv.style.display = 'flex';
-            firstNameDisplay.textContent = `Welcome, ${data.user.first_name}`;
-            if (data.user.role === 'admin') {
-                document.getElementById('admin-link').style.display = 'inline';
-            }
-
-            if (data.user.subscription_status !== 'active') {
-                // Also hide landing nav if we're showing the main nav
-                const landingNav = document.getElementById('landing-nav');
-                if (landingNav) landingNav.style.display = 'none';
-
-                // Handle restricted links in nav for inactive users
-                const restrictedPaths = ['logged_in', 'oral_expression', 'practise/section_a', 'practise/section_b', 'training', 'admin'];
-                const navLinks = document.querySelectorAll('.main-nav .nav-links a, .main-nav .dropdown a');
-
-                navLinks.forEach(link => {
-                    const href = link.getAttribute('href');
-                    if (href && restrictedPaths.some(rp => href.includes(rp))) {
-                        link.addEventListener('click', (e) => {
-                            e.preventDefault();
-                            subscriptionPrompt.scrollIntoView({ behavior: 'smooth' });
-                            showToast('Please subscribe to access this feature.', 'info');
-                        });
-                    }
-                });
-
-                authContainer.style.display = 'block';
-                loginPrompt.style.display = 'none';
-                subscriptionPrompt.style.display = 'block';
-                try {
-                    await renderPayPalSubscriptionButton();
-                } catch (paypalError) {
-                    console.error('PayPal render error:', paypalError);
-                    showToast('Payment system failed to load. Please refresh.', 'error');
-                }
-            } else {
-                window.location.href = 'logged_in.php';
-            }
-        } else {
-            authContainer.style.display = 'block';
-            loginPrompt.style.display = 'block';
-            subscriptionPrompt.style.display = 'none';
+        if (!data.loggedIn) {
             initializeSampleFlashcard();
         }
     } catch (error) {
-        console.error('Session check failed:', error);
-        // If we are already showing user status, don't show login prompt as well
-        if (userStatusDiv.style.display !== 'flex') {
-            authContainer.style.display = 'block';
-            loginPrompt.style.display = 'block';
-            subscriptionPrompt.style.display = 'none';
-            const heroH1 = loginPrompt.querySelector('.hero h1');
-            const heroP = loginPrompt.querySelector('.hero p');
-            if (heroH1) heroH1.textContent = 'Oops! Something went wrong.';
-            if (heroP) heroP.textContent = 'We couldn\'t load the page properly. Please try refreshing.';
-        } else {
-            showToast('Failed to load session details correctly.', 'error');
-        }
+        initializeSampleFlashcard();
     }
 });
 
