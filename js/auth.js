@@ -71,13 +71,21 @@ async function checkSession() {
             }
 
             if (data.user.subscription_status !== 'active') {
-                // Hide restricted links in nav for inactive users
+                // Handle restricted links for inactive users
                 const restrictedPaths = ['logged_in', 'oral_expression', 'practise/section_a', 'practise/section_b', 'training', 'admin'];
-                const restrictedNavLinks = document.querySelectorAll('.main-nav .nav-links a, .main-nav .dropdown');
-                restrictedNavLinks.forEach(link => {
-                    const href = link.querySelector('a')?.getAttribute('href') || link.getAttribute('href');
+                const navLinks = document.querySelectorAll('.main-nav .nav-links a, .main-nav .dropdown a');
+
+                navLinks.forEach(link => {
+                    const href = link.getAttribute('href');
                     if (href && restrictedPaths.some(rp => href.includes(rp))) {
-                         link.style.display = 'none';
+                        // If we are NOT on index.html, we should redirect to index.html if a restricted link is clicked
+                        // (Though auth_check.php should already handle this for server-side pages)
+                        if (!(window.location.pathname.endsWith('index.html') || window.location.pathname === '/' || window.location.pathname === '')) {
+                             link.addEventListener('click', (e) => {
+                                e.preventDefault();
+                                window.location.href = 'index.html';
+                             });
+                        }
                     }
                 });
             }

@@ -27,12 +27,6 @@
     margin-bottom: 1rem;
     color: #333;
   }
-  #user-status {
-    position: absolute;
-    top: 1rem;
-    right: 2rem;
-  }
-
   @media (max-width: 640px) {
     .landing-page .hero h1 {
         font-size: 2.5rem;
@@ -53,17 +47,6 @@
     }
     h1 {
       font-size: 1.5rem;
-    }
-    #user-status {
-      position: static;
-      text-align: center;
-      margin-bottom: 1rem;
-      padding: 0.5rem;
-      background: #f5f0ea;
-      border-radius: 4px;
-    }
-    #user-status a, #user-status button {
-        margin: 0 0.5rem;
     }
   }
 
@@ -152,35 +135,40 @@
 </header>
 <div id="toast-container"></div>
 <nav class="main-nav" id="user-status" style="display: none;">
-    <div class="nav-links">
-        <div class="dropdown">
-            <a href="oral_expression.php" class="dropbtn">Oral Expression</a>
-            <div class="dropdown-content">
-                <a href="oral_expression_section_a.php">Flashcards</a>
+    <button class="hamburger-menu" id="hamburger-menu" aria-label="Toggle menu" aria-expanded="false">
+        <i class="bi bi-list"></i>
+    </button>
+    <div class="nav-content" id="nav-content">
+        <div class="nav-links">
+            <div class="dropdown">
+                <a href="oral_expression.php" class="dropbtn">Oral Expression</a>
+                <div class="dropdown-content">
+                    <a href="oral_expression_section_a.php">Flashcards</a>
                     <a href="practise/section_a/index.php">Section A Practice</a>
-                <a href="practise/section_b/index.php">Section B Practice</a>
+                    <a href="practise/section_b/index.php">Section B Practice</a>
+                </div>
             </div>
+            <a href="training.php">Phased Training</a>
+            <a href="profile.php">Profile</a>
+            <a id="admin-link" href="admin.php" style="display: none;">Admin Portal</a>
         </div>
-        <a href="training.php">Phased Training</a>
-        <a href="profile.php">Profile</a>
-        <a id="admin-link" href="admin.php" style="display: none;">Admin Portal</a>
-    </div>
-    <div class="nav-user">
-        <span id="first-name-display"></span>
-        <button id="logoutBtn">Logout</button>
+        <div class="nav-user">
+            <span id="first-name-display"></span>
+            <button id="logoutBtn">Logout</button>
+        </div>
     </div>
 </nav>
 
 <div id="auth-container" style="display: none;">
     <div id="login-prompt" class="landing-page" style="display: none;">
-        <nav class="landing-nav">
+        <nav class="landing-nav" id="landing-nav">
             <div class="nav-links">
                 <a href="#features">Features</a>
                 <a href="#testimonials">Testimonials</a>
                 <a href="mailto:support@tefinitely.com">Contact</a>
             </div>
             <div class="nav-auth">
-                <a href="login.html" class="btn-login">Login</a>
+                <a href="login.html" class="btn-login" id="landing-login-btn">Login</a>
             </div>
         </nav>
 
@@ -302,6 +290,7 @@
 </div>
 
 <script src="js/toast.js"></script>
+<script src="js/nav.js"></script>
 <script>
 function speakFrench(text, rate) {
     const utterance = new SpeechSynthesisUtterance(text);
@@ -428,50 +417,84 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     try {
         const response = await fetch('api/check_session.php');
-        if (response.ok) {
-            const data = await response.json();
-            if (data.loggedIn) {
-                userStatusDiv.style.display = 'flex';
-                firstNameDisplay.textContent = `Welcome, ${data.user.first_name}`;
-                if (data.user.role === 'admin') {
-                    document.getElementById('admin-link').style.display = 'inline';
-                }
+        const data = await response.json();
 
-                if (data.user.subscription_status !== 'active') {
-                    authContainer.style.display = 'block';
-                    loginPrompt.style.display = 'none';
-                    subscriptionPrompt.style.display = 'block';
-                    renderPayPalSubscriptionButton();
-                } else {
-                    window.location.href = 'logged_in.php';
+        if (data.loggedIn) {
+            userStatusDiv.style.display = 'flex';
+            firstNameDisplay.textContent = `Welcome, ${data.user.first_name}`;
+            if (data.user.role === 'admin') {
+                document.getElementById('admin-link').style.display = 'inline';
+            }
+
+            if (data.user.subscription_status !== 'active') {
+                // Also hide landing nav if we're showing the main nav
+                const landingNav = document.getElementById('landing-nav');
+                if (landingNav) landingNav.style.display = 'none';
+
+                // Handle restricted links in nav for inactive users
+                const restrictedPaths = ['logged_in', 'oral_expression', 'practise/section_a', 'practise/section_b', 'training', 'admin'];
+                const navLinks = document.querySelectorAll('.main-nav .nav-links a, .main-nav .dropdown a');
+
+                navLinks.forEach(link => {
+                    const href = link.getAttribute('href');
+                    if (href && restrictedPaths.some(rp => href.includes(rp))) {
+                        link.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            subscriptionPrompt.scrollIntoView({ behavior: 'smooth' });
+                            showToast('Please subscribe to access this feature.', 'info');
+                        });
+                    }
+                });
+
+                authContainer.style.display = 'block';
+                loginPrompt.style.display = 'none';
+                subscriptionPrompt.style.display = 'block';
+                try {
+                    await renderPayPalSubscriptionButton();
+                } catch (paypalError) {
+                    console.error('PayPal render error:', paypalError);
+                    showToast('Payment system failed to load. Please refresh.', 'error');
                 }
             } else {
-                authContainer.style.display = 'block';
-                loginPrompt.style.display = 'block';
-                subscriptionPrompt.style.display = 'none';
-                initializeSampleFlashcard();
+                window.location.href = 'logged_in.php';
             }
         } else {
-            throw new Error('Session check failed with status ' + response.status);
+            authContainer.style.display = 'block';
+            loginPrompt.style.display = 'block';
+            subscriptionPrompt.style.display = 'none';
+            initializeSampleFlashcard();
         }
     } catch (error) {
         console.error('Session check failed:', error);
-        authContainer.style.display = 'block';
-        loginPrompt.style.display = 'block';
-        subscriptionPrompt.style.display = 'none';
-        const heroH1 = loginPrompt.querySelector('.hero h1');
-        const heroP = loginPrompt.querySelector('.hero p');
-        if (heroH1) heroH1.textContent = 'Oops! Something went wrong.';
-        if (heroP) heroP.textContent = 'We couldn\'t load the page properly. Please try refreshing.';
+        // If we are already showing user status, don't show login prompt as well
+        if (userStatusDiv.style.display !== 'flex') {
+            authContainer.style.display = 'block';
+            loginPrompt.style.display = 'block';
+            subscriptionPrompt.style.display = 'none';
+            const heroH1 = loginPrompt.querySelector('.hero h1');
+            const heroP = loginPrompt.querySelector('.hero p');
+            if (heroH1) heroH1.textContent = 'Oops! Something went wrong.';
+            if (heroP) heroP.textContent = 'We couldn\'t load the page properly. Please try refreshing.';
+        } else {
+            showToast('Failed to load session details correctly.', 'error');
+        }
     }
 });
 
-function renderPayPalSubscriptionButton() {
-    const paypalScript = document.getElementById('paypal-sdk-script');
-    if (!paypalScript) {
-        console.error("PayPal SDK script not found.");
-        return;
+async function renderPayPalSubscriptionButton() {
+    if (typeof paypal === 'undefined') {
+        const script = document.getElementById('paypal-sdk-script');
+        if (script) {
+            await new Promise((resolve) => {
+                script.onload = resolve;
+                if (typeof paypal !== 'undefined') resolve();
+            });
+        } else {
+            console.error("PayPal SDK script not found.");
+            return;
+        }
     }
+    const paypalScript = document.getElementById('paypal-sdk-script');
     const planId = paypalScript.getAttribute('data-plan-id');
     if (!planId || planId === 'YOUR_PAYPAL_PLAN_ID') {
         console.error('Subscription plan is not configured.');
