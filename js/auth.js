@@ -59,9 +59,17 @@ async function checkSession() {
         const firstNameDisplay = document.getElementById('first-name-display');
         const adminLink = document.getElementById('admin-link');
 
+        const landingNav = document.getElementById('landing-nav');
+        const loginPrompt = document.getElementById('login-prompt');
+        const subscriptionPrompt = document.getElementById('subscription-prompt');
+        const authContainer = document.getElementById('auth-container');
+
         if (data.loggedIn) {
             if (userStatusDiv) {
                 userStatusDiv.style.display = 'flex';
+            }
+            if (landingNav) {
+                landingNav.style.display = 'none';
             }
             if (firstNameDisplay) {
                 firstNameDisplay.textContent = `Welcome, ${data.user.first_name}`;
@@ -72,23 +80,60 @@ async function checkSession() {
 
             if (data.user.subscription_status !== 'active') {
                 // Handle restricted links for inactive users
-                const restrictedPaths = ['logged_in', 'oral_expression', 'practise/section_a', 'practise/section_b', 'training', 'admin'];
-                const navLinks = document.querySelectorAll('.main-nav .nav-links a, .main-nav .dropdown a');
+                const restrictedPaths = ['logged_in.php', 'oral_expression.php', 'oral_expression_section_a.php', 'practise/section_a/index.php', 'practise/section_b/index.php', 'training.php', 'admin.php'];
 
-                navLinks.forEach(link => {
+                // Select all links that might be restricted (nav and footer)
+                const allLinks = document.querySelectorAll('a');
+
+                allLinks.forEach(link => {
                     const href = link.getAttribute('href');
                     if (href && restrictedPaths.some(rp => href.includes(rp))) {
-                        // If we are NOT on index.html, we should redirect to index.html if a restricted link is clicked
-                        // (Though auth_check.php should already handle this for server-side pages)
-                        if (!(window.location.pathname.endsWith('index.html') || window.location.pathname === '/' || window.location.pathname === '')) {
-                             link.addEventListener('click', (e) => {
-                                e.preventDefault();
-                                window.location.href = 'index.html';
-                             });
-                        }
+                        link.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            if (window.location.pathname.endsWith('index.html') || window.location.pathname === '/' || window.location.pathname === '') {
+                                if (subscriptionPrompt) {
+                                    subscriptionPrompt.scrollIntoView({ behavior: 'smooth' });
+                                    subscriptionPrompt.style.display = 'block'; // Ensure it's visible
+                                    showToast('Please subscribe to access this feature.', 'info');
+                                }
+                            } else {
+                                window.location.href = 'index.html?trigger=subscribe';
+                            }
+                        });
                     }
                 });
+
+                // On index page, if logged in but inactive, show subscription prompt
+                if (window.location.pathname.endsWith('index.html') || window.location.pathname === '/' || window.location.pathname === '') {
+                    if (authContainer) authContainer.style.display = 'block';
+                    if (loginPrompt) loginPrompt.style.display = 'none';
+                    if (subscriptionPrompt) {
+                        subscriptionPrompt.style.display = 'block';
+                        if (typeof renderPayPalSubscriptionButton === 'function') {
+                            renderPayPalSubscriptionButton();
+                        }
+                    }
+
+                    // Check for trigger in URL
+                    if (window.location.search.includes('trigger=subscribe')) {
+                        setTimeout(() => {
+                            subscriptionPrompt.scrollIntoView({ behavior: 'smooth' });
+                        }, 500);
+                    }
+                }
+            } else {
+                // Active subscriber on index page should be redirected to dashboard
+                if (window.location.pathname.endsWith('index.html') || window.location.pathname === '/' || window.location.pathname === '') {
+                    window.location.href = 'logged_in.php';
+                }
             }
+        } else {
+            // Not logged in
+            if (userStatusDiv) userStatusDiv.style.display = 'none';
+            if (landingNav) landingNav.style.display = 'flex';
+            if (authContainer) authContainer.style.display = 'block';
+            if (loginPrompt) loginPrompt.style.display = 'block';
+            if (subscriptionPrompt) subscriptionPrompt.style.display = 'none';
         }
     } catch (error) {
         console.error('Session check failed:', error);
