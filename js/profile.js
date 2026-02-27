@@ -30,6 +30,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('new-email').value = profile.email;
                 subStatusSpan.textContent = profile.subscription_status;
                 subEndDateSpan.textContent = profile.subscription_end_date ? new Date(profile.subscription_end_date).toLocaleDateString() : 'N/A';
+
+                if (profile.subscription_status !== 'active') {
+                    const subscriptionPrompt = document.getElementById('subscription-prompt');
+                    if (subscriptionPrompt) {
+                        subscriptionPrompt.style.display = 'block';
+                        renderPayPalSubscriptionButton();
+                    }
+                }
             } else {
                 // If not logged in or error, redirect
                 showToast(data.message || 'You must be logged in to view this page.', 'error');

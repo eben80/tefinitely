@@ -16,9 +16,55 @@ checkAccess(false); // Does not require active subscription to view profile
     <link rel="stylesheet" href="css/toast.css">
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <script src="js/paypal-util.js"></script>
+    <script>
+        loadPayPalSDK();
+    </script>
     <style>
         .container { max-width: 900px; }
         h1, h2 { color: #333; }
+        .subscription-prompt {
+            max-width: 600px;
+            margin: 4rem auto;
+            background: #fff;
+            padding: 2rem 2.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .subscription-prompt h2 {
+            font-size: 1.8rem;
+            color: #004d99;
+            margin-bottom: 1rem;
+        }
+        .subscription-prompt .lead {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 2rem;
+        }
+        .subscription-prompt .benefits-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0 auto 2rem auto;
+            text-align: left;
+            max-width: 350px;
+        }
+        .subscription-prompt .benefits-list li {
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+        }
+        .subscription-prompt .benefits-list li::before {
+            content: '✓';
+            color: #28a745;
+            font-size: 1.5rem;
+            margin-right: 1rem;
+        }
+        #paypal-button-container {
+            max-width: 300px;
+            margin: 1rem auto 0 auto;
+        }
         .profile-info, .form-section { margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid #ddd; }
         .profile-info p { font-size: 1.1rem; word-wrap: break-word; }
         .profile-info strong { color: #0056b3; }
@@ -64,6 +110,18 @@ checkAccess(false); // Does not require active subscription to view profile
     </nav>
 
     <div class="container" id="page-container">
+        <div id="subscription-prompt" class="subscription-prompt" style="display: none;">
+            <h2>Unlock Your Full Potential</h2>
+            <p class="lead">Your subscription is inactive. Subscribe now to get full access to all our training features.</p>
+            <ul class="benefits-list">
+                <li>Access all training modules</li>
+                <li>Practice with unlimited phrases</li>
+                <li>Track your progress</li>
+                <li>Cancel anytime</li>
+            </ul>
+            <div id="paypal-button-container"></div>
+        </div>
+
         <div id="profile-details" class="profile-info">
             <h2>Account Information</h2>
             <p><strong>Name:</strong> <span id="first-name"></span> <span id="last-name"></span></p>
