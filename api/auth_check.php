@@ -34,6 +34,13 @@ function checkAccess($requireSubscription = true, $requireAdmin = false) {
                 $subscription_status = 'active';
             } else {
                 $subscription_status = 'inactive';
+                // If DB says active but it's actually expired, sync the status
+                if ($user_details['subscription_status'] === 'active') {
+                    $update_stmt = $conn->prepare("UPDATE users SET subscription_status = 'inactive' WHERE id = ?");
+                    $update_stmt->bind_param("i", $user_id);
+                    $update_stmt->execute();
+                    $update_stmt->close();
+                }
             }
         }
     }
