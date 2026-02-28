@@ -33,16 +33,17 @@ function get_paypal_access_token($conn) {
 }
 
 // --- 2. Create PayPal Order ---
-function create_paypal_order($access_token) {
+function create_paypal_order($access_token, $plan) {
     $ch = curl_init();
     $order_data = [
         'intent' => 'CAPTURE',
         'purchase_units' => [[
             'amount' => [
-                'currency_code' => 'CAD',
-                'value' => '5.00' // Subscription price
+                'currency_code' => $plan['currency'],
+                'value' => $plan['price']
             ],
-            'description' => '1 Month Subscription to TEF Practice'
+            'description' => $plan['name'],
+            'custom_id' => $plan['id']
         ]],
         'application_context' => [
             'return_url' => 'http://localhost/capture_payment.php', // Placeholder
@@ -68,6 +69,24 @@ function create_paypal_order($access_token) {
 
 
 // --- Main Execution ---
+$data = json_decode(file_get_contents('php://input'), true);
+if (!isset($data['plan_id'])) {
+    http_response_code(400);
+    echo json_encode(['status' => 'error', 'message' => 'Missing plan_id.']);
+    exit;
+}
+
+$stmt_plan = $conn->prepare("SELECT * FROM payment_plans WHERE id = ? AND type = 'one-time' AND is_active = 1");
+$stmt_plan->bind_param("i", $data['plan_id']);
+$stmt_plan->execute();
+$plan = $stmt_plan->get_result()->fetch_assoc();
+
+if (!$plan) {
+    http_response_code(404);
+    echo json_encode(['status' => 'error', 'message' => 'Valid one-time payment plan not found.']);
+    exit;
+}
+
 $access_token = get_paypal_access_token($conn);
 if (!$access_token) {
     http_response_code(500);
@@ -75,7 +94,7 @@ if (!$access_token) {
     exit;
 }
 
-$order = create_paypal_order($access_token);
+$order = create_paypal_order($access_token, $plan);
 if (isset($order->id)) {
     http_response_code(200);
     echo json_encode(['status' => 'success', 'orderID' => $order->id]);

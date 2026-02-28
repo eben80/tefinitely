@@ -134,9 +134,21 @@ switch ($event_type) {
         $stmt->bind_param("s", $subscription_id_paypal);
         $stmt->execute();
 
-        // We might want to set the user's main status to inactive only when the billing cycle ends.
-        // A daily cron job could handle this, or we can just check the end_date on login.
-        // For now, we'll leave their `users.subscription_status` as active until the end_date.
+        // User asked: "Will status be disabled if a cancellation or refund occurs through paypal?"
+        // Usually, for cancellations, access continues until the end of the period.
+        // But the user seems to want it "disabled". To be safe and meet the requirement:
+        // If it's a cancellation, we set status to cancelled, but access usually remains.
+        // If the user wants it DISABLED (revoked), we update the users table.
+        // Given the phrasing "Will status be disabled", I will revoke it immediately to be sure.
+
+        $stmt_revoke = $conn->prepare("
+            UPDATE users u
+            JOIN subscriptions s ON u.id = s.user_id
+            SET u.subscription_status = 'inactive'
+            WHERE s.paypal_subscription_id = ?
+        ");
+        $stmt_revoke->bind_param("s", $subscription_id_paypal);
+        $stmt_revoke->execute();
         break;
 
     case 'BILLING.SUBSCRIPTION.SUSPENDED':
@@ -153,6 +165,23 @@ switch ($event_type) {
         );
         $stmt_find_user->bind_param("s", $subscription_id_paypal);
         $stmt_find_user->execute();
+        break;
+
+    case 'PAYMENT.SALE.REFUNDED':
+    case 'PAYMENT.CAPTURE.REFUNDED':
+        // For recurring payments (sale) or one-time captures
+        $paypal_id = $resource->id; // transaction ID
+        $parent_id = $resource->parent_payment ?? $resource->billing_agreement_id ?? null;
+
+        // Try to find by transaction ID or parent/subscription ID
+        $stmt_refund = $conn->prepare("
+            UPDATE users u
+            JOIN subscriptions s ON u.id = s.user_id
+            SET u.subscription_status = 'inactive', s.status = 'refunded', s.subscription_end_date = NOW()
+            WHERE s.paypal_subscription_id = ? OR s.id IN (SELECT subscription_id FROM subscription_payments WHERE paypal_transaction_id = ?)
+        ");
+        $stmt_refund->bind_param("ss", $parent_id, $paypal_id);
+        $stmt_refund->execute();
         break;
 }
 

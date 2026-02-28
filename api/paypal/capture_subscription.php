@@ -103,6 +103,17 @@ if (isset($subscription_details->status) && $subscription_details->status === 'A
         // 3. Log the payment to subscription_payments
         $amount = 5.00; // Default price
         $currency = "CAD";
+
+        // Try to get price from payment_plans if available
+        $stmt_price = $conn->prepare("SELECT price, currency FROM payment_plans WHERE paypal_plan_id = ? AND is_active = 1 LIMIT 1");
+        $stmt_price->bind_param("s", $subscription_details->plan_id);
+        $stmt_price->execute();
+        $plan_price = $stmt_price->get_result()->fetch_assoc();
+        if ($plan_price) {
+            $amount = $plan_price['price'];
+            $currency = $plan_price['currency'];
+        }
+
         $transaction_id = $subscriptionID; // Fallback to subscription ID if transaction ID not found
 
         if (isset($subscription_details->billing_info->last_payment)) {
