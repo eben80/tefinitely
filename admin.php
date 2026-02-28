@@ -82,6 +82,7 @@ checkAccess(true, true); // Requires active subscription and admin role
             <div style="display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 1px solid #ddd;">
                 <button class="tab-btn active" data-tab="user-management" style="padding: 0.5rem 1rem; border: none; background: none; cursor: pointer; border-bottom: 2px solid #007bff; font-weight: bold;">User Management</button>
                 <button class="tab-btn" data-tab="audit-logs" style="padding: 0.5rem 1rem; border: none; background: none; cursor: pointer; font-weight: bold;">Audit Logs</button>
+                <button class="tab-btn" data-tab="login-history" style="padding: 0.5rem 1rem; border: none; background: none; cursor: pointer; font-weight: bold;">Login History</button>
             </div>
 
             <div id="user-management-tab" class="tab-content">
@@ -152,6 +153,27 @@ checkAccess(true, true); // Requires active subscription and admin role
                         </thead>
                         <tbody id="audit-logs-table-body">
                             <!-- Logs will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="login-history-tab" class="tab-content" style="display: none;">
+                <h2>Login History</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Email</th>
+                                <th>IP Address</th>
+                                <th>Status</th>
+                                <th>User Info</th>
+                                <th>User Agent</th>
+                            </tr>
+                        </thead>
+                        <tbody id="login-history-table-body">
+                            <!-- History will be inserted here -->
                         </tbody>
                     </table>
                 </div>

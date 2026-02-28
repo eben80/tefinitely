@@ -20,9 +20,20 @@ try {
 
     $email = trim($data['email']);
     $password = trim($data['password']);
+    $ip_address = $_SERVER['REMOTE_ADDR'];
+    $user_agent = $_SERVER['HTTP_USER_AGENT'];
 
     if (empty($email) || empty($password)) {
         throw new Exception('Email and password are required.', 400);
+    }
+
+    // Check for lockout
+    $stmt_lockout = $conn->prepare("SELECT COUNT(*) as failed_count FROM login_history WHERE email = ? AND status = 'failed' AND created_at >= NOW() - INTERVAL 15 MINUTE");
+    $stmt_lockout->bind_param("s", $email);
+    $stmt_lockout->execute();
+    $lockout_result = $stmt_lockout->get_result()->fetch_assoc();
+    if ($lockout_result['failed_count'] >= 5) {
+        throw new Exception('Too many failed attempts. Please try again in 15 minutes.', 429);
     }
 
     // Fetch user from the database
@@ -38,14 +49,16 @@ try {
         $user = $result->fetch_assoc();
         // Verify password
         if (password_verify($password, $user['password'])) {
-            // Password is correct, start the session
+            // Password is correct, log success and start the session
+            $stmt_log = $conn->prepare("INSERT INTO login_history (user_id, email, ip_address, status, user_agent) VALUES (?, ?, ?, 'success', ?)");
+            $stmt_log->bind_param("isss", $user['id'], $email, $ip_address, $user_agent);
+            $stmt_log->execute();
+            $stmt_log->close();
+
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['first_name'] = $user['first_name'];
             $_SESSION['role'] = $user['role'];
             $_SESSION['subscription_status'] = $user['subscription_status'];
-
-            // debug_log('Login successful. Session data set for user: ' . $email);
-            // debug_log($_SESSION);
 
             http_response_code(200);
             echo json_encode([
@@ -58,11 +71,21 @@ try {
                 ]
             ]);
         } else {
-            // Invalid password
+            // Invalid password, log failure
+            $stmt_log = $conn->prepare("INSERT INTO login_history (user_id, email, ip_address, status, user_agent) VALUES (?, ?, ?, 'failed', ?)");
+            $stmt_log->bind_param("isss", $user['id'], $email, $ip_address, $user_agent);
+            $stmt_log->execute();
+            $stmt_log->close();
+
             throw new Exception('Invalid email or password.', 401);
         }
     } else {
-        // User not found
+        // User not found, log failure
+        $stmt_log = $conn->prepare("INSERT INTO login_history (user_id, email, ip_address, status, user_agent) VALUES (NULL, ?, ?, 'failed', ?)");
+        $stmt_log->bind_param("sss", $email, $ip_address, $user_agent);
+        $stmt_log->execute();
+        $stmt_log->close();
+
         throw new Exception('Invalid email or password.', 401);
     }
 
