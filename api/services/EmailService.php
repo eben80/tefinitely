@@ -7,6 +7,9 @@ use Aws\Exception\AwsException;
 function sendEmail($recipient, $subject, $body_html, $body_text) {
     global $aws_key, $aws_secret, $aws_region, $sender_email;
 
+    // Use default support email if sender_email is not defined
+    $from_email = $sender_email ?? 'support@tefinitely.com';
+
     $client = new SesClient([
         'version'     => 'latest',
         'region'      => $aws_region,
@@ -21,8 +24,8 @@ function sendEmail($recipient, $subject, $body_html, $body_text) {
             'Destination' => [
                 'ToAddresses' => [$recipient],
             ],
-            'ReplyToAddresses' => [$sender_email],
-            'Source' => $sender_email,
+            'ReplyToAddresses' => [$from_email],
+            'Source' => $from_email,
             'Message' => [
               'Body' => [
                   'Html' => [
