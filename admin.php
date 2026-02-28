@@ -1,6 +1,6 @@
 <?php
 require_once 'api/auth_check.php';
-checkAccess(true, true); // Requires active subscription and admin role
+checkAccess(true, true); // Admin only
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -24,11 +24,14 @@ checkAccess(true, true); // Requires active subscription and admin role
         th, td { padding: 0.8rem; text-align: left; border-bottom: 1px solid #ddd; }
         th { background-color: #007bff; color: white; }
         tr:hover { background-color: #f1f1f1; }
-        select { padding: 0.3rem; font-size: 0.9rem; }
+        select, input[type="text"], input[type="email"], input[type="search"] { padding: 0.5rem; font-size: 0.9rem; border: 1px solid #ccc; border-radius: 4px; }
         .status-active { color: green; font-weight: bold; }
         .status-inactive { color: red; font-weight: bold; }
+        .status-open { color: #dc3545; font-weight: bold; }
+        .status-in-progress { color: #ffc107; font-weight: bold; }
+        .status-resolved { color: #28a745; font-weight: bold; }
         .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        .header-with-button { display: flex; justify-content: space-between; align-items: center; }
+        .header-with-button { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem; }
         .action-btn { background-color: #28a745; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem; }
         .action-btn:hover { background-color: #218838; }
         .delete-user-btn { background-color: #dc3545; color: white; }
@@ -36,13 +39,24 @@ checkAccess(true, true); // Requires active subscription and admin role
         .edit-user-btn { background-color: #007bff; color: white; }
         .edit-user-btn:hover { background-color: #0069d9; }
         td button { padding: 0.3rem 0.6rem; border: none; border-radius: 4px; cursor: pointer; margin-right: 0.3rem; }
-        .modal { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); }
-        .modal-content { background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px; border-radius: 8px; }
+        .modal { display: none; position: fixed; z-index: 2001; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); }
+        .modal-content { background-color: #fefefe; margin: 10% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 600px; border-radius: 8px; }
         .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; }
         .close-btn:hover, .close-btn:focus { color: black; text-decoration: none; cursor: pointer; }
-        .modal input { width: 100%; padding: 0.5rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; margin-bottom: 1rem; }
-        .modal button { width: 100%; }
+        .modal input, .modal textarea, .modal select { width: 100%; padding: 0.5rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; margin-bottom: 1rem; }
+        .modal button { width: 100%; padding: 0.7rem; }
         .modal hr { margin: 1.5rem 0; }
+
+        /* Tabs Styles */
+        .tabs { display: flex; border-bottom: 2px solid #ddd; margin-bottom: 1rem; }
+        .tab-link { padding: 0.7rem 1.5rem; cursor: pointer; border: none; background: none; font-size: 1rem; font-weight: bold; color: #555; }
+        .tab-link.active { color: #007bff; border-bottom: 3px solid #007bff; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Filter bar */
+        .filter-bar { display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; align-items: center; background: #f8f9fa; padding: 1rem; border-radius: 8px; }
+        .filter-group { display: flex; align-items: center; gap: 0.5rem; }
     </style>
 </head>
 <body>
@@ -79,69 +93,73 @@ checkAccess(true, true); // Requires active subscription and admin role
                     <p id="stat-calls-life" style="margin: 0.5rem 0 0; font-size: 1.5rem; font-weight: bold; color: #007bff;">0</p>
                 </div>
             </div>
-            <div style="display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 1px solid #ddd;">
-                <button class="tab-btn active" data-tab="user-management" style="padding: 0.5rem 1rem; border: none; background: none; cursor: pointer; border-bottom: 2px solid #007bff; font-weight: bold;">User Management</button>
-                <button class="tab-btn" data-tab="audit-logs" style="padding: 0.5rem 1rem; border: none; background: none; cursor: pointer; font-weight: bold;">Audit Logs</button>
-                <button class="tab-btn" data-tab="login-history" style="padding: 0.5rem 1rem; border: none; background: none; cursor: pointer; font-weight: bold;">Login History</button>
+
+            <div class="tabs">
+                <button class="tab-link active" data-tab="user-management">User Management</button>
+                <button class="tab-link" data-tab="audit-logs">Audit Logs</button>
+                <button class="tab-link" data-tab="login-history">Login History</button>
+                <button class="tab-link" data-tab="support-tickets">Support Tickets</button>
             </div>
 
-            <div id="user-management-tab" class="tab-content">
-            <div class="header-with-button">
-                <h2>User Management</h2>
-                <button id="add-user-btn" class="action-btn">Add New User</button>
-            </div>
-            <div id="filter-controls" style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; align-items: flex-end;">
-                <div style="flex: 1; min-width: 200px;">
-                    <label for="search-input" style="display: block; font-size: 0.9rem; margin-bottom: 0.2rem;">Search Name or Email</label>
-                    <input type="text" id="search-input" placeholder="Search..." style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
+            <div id="user-management-tab" class="tab-content active">
+                <div class="header-with-button">
+                    <h2>User Management</h2>
+                    <button id="add-user-btn" class="action-btn">Add New User</button>
                 </div>
-                <div>
-                    <label for="filter-role" style="display: block; font-size: 0.9rem; margin-bottom: 0.2rem;">Role</label>
-                    <select id="filter-role" style="padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
-                        <option value="all">All Roles</option>
-                        <option value="user">User</option>
-                        <option value="admin">Admin</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="filter-status" style="display: block; font-size: 0.9rem; margin-bottom: 0.2rem;">Status</label>
-                    <select id="filter-status" style="padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
-                        <option value="all">All Statuses</option>
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                    </select>
-                </div>
-                <button id="reset-filters-btn" class="action-btn" style="background-color: #6c757d;">Reset</button>
-            </div>
-            <div class="table-container">
-                <table id="users-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>First Name</th>
-                            <th>Last Name</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            <th>Sub Status</th>
-                            <th>Sub End Date</th>
-                            <th>OpenAI Calls (1h/24h/7d/30d/Life)</th>
-                            <th>Created At</th>
-                            <th>Manage Sub</th>
-                            <th>Actions</th>
-                            <th>Support</th>
-                        </tr>
-                </thead>
-                <tbody id="users-table-body">
-                    <!-- User rows will be inserted here by JavaScript -->
-                </tbody>
-                </table>
-            </div>
-            </div> <!-- End user-management-tab -->
 
-            <div id="audit-logs-tab" class="tab-content" style="display: none;">
-                <h2>Admin Audit Logs</h2>
+                <div class="filter-bar">
+                    <div class="filter-group">
+                        <label for="search-input">Search:</label>
+                        <input type="search" id="search-input" placeholder="Name or Email...">
+                    </div>
+                    <div class="filter-group">
+                        <label for="filter-role">Role:</label>
+                        <select id="filter-role">
+                            <option value="all">All Roles</option>
+                            <option value="user">User</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="filter-status">Status:</label>
+                        <select id="filter-status">
+                            <option value="all">All Statuses</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                    <button id="reset-filters-btn" class="action-btn" style="background-color: #6c757d;">Reset</button>
+                </div>
+
                 <div class="table-container">
-                    <table>
+                    <table id="users-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>First Name</th>
+                                <th>Last Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Sub Status</th>
+                                <th>Sub End Date</th>
+                                <th>OpenAI Calls (1h/24h/7d/30d/Life)</th>
+                                <th>Created At</th>
+                                <th>Manage Sub</th>
+                                <th>Actions</th>
+                                <th>Email</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-table-body">
+                            <!-- User rows will be inserted here by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="audit-logs-tab" class="tab-content">
+                <h2>Audit Logs</h2>
+                <div class="table-container">
+                    <table id="audit-logs-table">
                         <thead>
                             <tr>
                                 <th>Date</th>
@@ -152,28 +170,49 @@ checkAccess(true, true); // Requires active subscription and admin role
                             </tr>
                         </thead>
                         <tbody id="audit-logs-table-body">
-                            <!-- Logs will be inserted here -->
+                            <!-- Audit logs will be inserted here -->
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <div id="login-history-tab" class="tab-content" style="display: none;">
+            <div id="login-history-tab" class="tab-content">
                 <h2>Login History</h2>
                 <div class="table-container">
-                    <table>
+                    <table id="login-history-table">
                         <thead>
                             <tr>
                                 <th>Date</th>
                                 <th>Email</th>
                                 <th>IP Address</th>
                                 <th>Status</th>
-                                <th>User Info</th>
+                                <th>User</th>
                                 <th>User Agent</th>
                             </tr>
                         </thead>
                         <tbody id="login-history-table-body">
-                            <!-- History will be inserted here -->
+                            <!-- Login history will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="support-tickets-tab" class="tab-content">
+                <h2>Support Tickets</h2>
+                <div class="table-container">
+                    <table id="support-tickets-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>User</th>
+                                <th>Email</th>
+                                <th>Subject</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="support-tickets-table-body">
+                            <!-- Tickets will be inserted here -->
                         </tbody>
                     </table>
                 </div>
@@ -269,22 +308,6 @@ checkAccess(true, true); // Requires active subscription and admin role
         </div>
     </div>
 
-    <!-- Modal for sending email -->
-    <div id="send-email-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn">&times;</span>
-            <h2>Send Email to <span id="email-modal-user-name"></span></h2>
-            <form id="send-email-form">
-                <input type="hidden" id="email-user-id">
-                <label for="email-subject">Subject</label>
-                <input type="text" id="email-subject" required placeholder="Subject">
-                <label for="email-message">Message</label>
-                <textarea id="email-message" required style="width: 100%; height: 150px; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; margin-bottom: 1rem; font-family: inherit;"></textarea>
-                <button type="submit" class="action-btn">Send Email</button>
-            </form>
-        </div>
-    </div>
-
     <!-- Modal for adding a new user -->
     <div id="add-user-modal" class="modal">
         <div class="modal-content">
@@ -304,7 +327,23 @@ checkAccess(true, true); // Requires active subscription and admin role
                     <option value="user">User</option>
                     <option value="admin">Admin</option>
                 </select>
-                <button type="button" id="create-user-btn">Create User</button>
+                <button type="button" id="create-user-btn" class="action-btn">Create User</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal for sending email -->
+    <div id="send-email-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Send Email to: <span id="email-modal-user-name"></span></h2>
+            <form id="send-email-form">
+                <input type="hidden" id="email-user-id">
+                <label for="email-subject">Subject</label>
+                <input type="text" id="email-subject" required>
+                <label for="email-message">Message</label>
+                <textarea id="email-message" rows="10" required></textarea>
+                <button type="submit" class="action-btn">Send Email</button>
             </form>
         </div>
     </div>

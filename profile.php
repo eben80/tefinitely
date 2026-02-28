@@ -69,7 +69,7 @@ checkAccess(false); // Does not require active subscription to view profile
         .profile-info p { font-size: 1.1rem; word-wrap: break-word; }
         .profile-info strong { color: #0056b3; }
         label { display: block; margin-bottom: 0.5rem; font-weight: bold; }
-        input { width: 100%; padding: 0.5rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; margin-bottom: 1rem; }
+        input, textarea { width: 100%; padding: 0.5rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; margin-bottom: 1rem; }
         button { padding: 0.7rem 1.5rem; font-size: 1rem; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
         button:hover { background-color: #0056b3; }
         .form-toggle-links { margin-top: 1rem; }
@@ -156,6 +156,18 @@ checkAccess(false); // Does not require active subscription to view profile
                 <label for="new-password">New Password</label>
                 <input type="password" id="new-password" required>
                 <button type="submit">Update Password</button>
+            </form>
+        </div>
+
+        <div class="form-section">
+            <h2>Contact Support</h2>
+            <p>Have a question or issue? Send us a message and we'll get back to you as soon as possible.</p>
+            <form id="contact-support-form">
+                <label for="support-subject">Subject</label>
+                <input type="text" id="support-subject" required>
+                <label for="support-message">Message</label>
+                <textarea id="support-message" rows="5" required></textarea>
+                <button type="submit">Submit Request</button>
             </form>
         </div>
 
@@ -297,6 +309,30 @@ checkAccess(false); // Does not require active subscription to view profile
                 } catch (error) {
                     showToast('An error occurred while resetting your stats.', 'error');
                 }
+            }
+        });
+
+        // Support Contact Form Logic
+        document.getElementById('contact-support-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const subject = document.getElementById('support-subject').value;
+            const message = document.getElementById('support-message').value;
+
+            try {
+                const response = await fetch('api/support/create_ticket.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ subject, message })
+                });
+                const data = await response.json();
+                if (data.status === 'success') {
+                    showToast('Your message has been sent. We will get back to you soon!', 'success');
+                    document.getElementById('contact-support-form').reset();
+                } else {
+                    showToast(data.message || 'Failed to send message.', 'error');
+                }
+            } catch (error) {
+                showToast('An error occurred. Please try again later.', 'error');
             }
         });
     </script>
