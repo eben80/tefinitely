@@ -1,4 +1,5 @@
 <?php
+require_once '../../db/db_config.php';
 require_once '../auth_check.php';
 checkAccess(true, true); // Admin only
 
@@ -11,7 +12,6 @@ if (!isset($_GET['user_id'])) {
 }
 
 $user_id = $_GET['user_id'];
-require_once '../../db/db_config.php';
 
 try {
     $stmt = $conn->prepare("

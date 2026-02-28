@@ -3,13 +3,14 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+require_once __DIR__ . '/../db/db_config.php';
+
 function checkAccess($requireSubscription = true, $requireAdmin = false) {
+    global $conn;
     if (!isset($_SESSION['user_id'])) {
         header('Location: /login.html');
         exit;
     }
-
-    require_once __DIR__ . '/../db/db_config.php';
 
     $user_id = $_SESSION['user_id'];
     $stmt = $conn->prepare("SELECT u.role, u.subscription_status, s.subscription_start_date, s.subscription_end_date FROM users u LEFT JOIN subscriptions s ON u.id = s.user_id WHERE u.id = ? ORDER BY s.subscription_end_date DESC LIMIT 1");
