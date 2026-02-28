@@ -28,15 +28,13 @@ function get_paypal_access_token() {
  */
 function get_paypal_client_token($domains = []) {
     if (empty($domains)) {
-        // Default to current domain if not provided
-        // Remove port for domain verification if standard
+        // Default to current host if not provided
         $host = $_SERVER['HTTP_HOST'];
+        // Remove port if present
         if (($pos = strpos($host, ':')) !== false) {
             $host = substr($host, 0, $pos);
         }
-
-        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
-        $domains[] = $protocol . $host;
+        $domains[] = $host;
     }
 
     $ch = curl_init();
@@ -44,14 +42,8 @@ function get_paypal_client_token($domains = []) {
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_POST, 1);
 
-    // For v6 token, some environments might prefer domains as a JSON array or specific format
-    // According to latest docs, it's response_type=client_token
-    $post_fields = [
-        'grant_type' => 'client_credentials',
-        'response_type' => 'client_token'
-    ];
-
-    // Formulate the body manually to ensure domains[] is handled correctly
+    // For v6 token, PayPal expects response_type=client_token
+    // And domains[] should typically be just the hostname(s)
     $body = 'grant_type=client_credentials&response_type=client_token';
     foreach ($domains as $domain) {
         $body .= '&domains[]=' . urlencode($domain);
