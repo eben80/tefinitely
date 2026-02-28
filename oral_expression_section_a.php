@@ -99,61 +99,6 @@ checkAccess();
     padding: 0.4rem 1rem;
     margin-right: 0.7rem;
   }
-  /* --- Flashcard Styles --- */
-  .flashcard {
-      background-color: transparent;
-      width: 100%;
-      max-width: 600px;
-      height: 200px;
-      perspective: 1000px;
-      margin: auto;
-      margin-bottom: 1rem;
-  }
-  .flashcard-inner {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      text-align: center;
-      transition: transform 0.6s;
-      transform-style: preserve-3d;
-      box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
-  }
-  .flashcard.is-flipped .flashcard-inner {
-      transform: rotateY(180deg);
-  }
-  .flashcard-front, .flashcard-back {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      -webkit-backface-visibility: hidden;
-      backface-visibility: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 8px;
-      background-color: #fff;
-      padding: 1rem;
-      box-sizing: border-box;
-  }
-  .flashcard-back {
-      transform: rotateY(180deg);
-  }
-
-  /* --- Slide Animation for Next/Prev --- */
-  @keyframes slide-out-left {
-      from { transform: translateX(0); opacity: 1; }
-      to { transform: translateX(-100px); opacity: 0; }
-  }
-  @keyframes slide-out-right {
-      from { transform: translateX(0); opacity: 1; }
-      to { transform: translateX(100px); opacity: 0; }
-  }
-  .slide-out-left {
-      animation: slide-out-left 0.3s forwards;
-  }
-  .slide-out-right {
-      animation: slide-out-right 0.3s forwards;
-  }
   /* --- Responsive Design --- */
   @media (max-width: 640px) {
     .logo {
@@ -176,9 +121,6 @@ checkAccess();
     #phraseBox, #recordingSection {
       padding: 1rem;
       margin-bottom: 1rem;
-    }
-    .flashcard {
-        height: 180px; /* Adjust height for smaller screens */
     }
     #phraseFrench {
       font-size: 1.2rem;
