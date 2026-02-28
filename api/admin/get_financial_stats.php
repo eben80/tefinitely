@@ -1,10 +1,9 @@
 <?php
+require_once '../../db/db_config.php';
 require_once '../auth_check.php';
 checkAccess(true, true); // Admin only
 
 header('Content-Type: application/json');
-
-require_once '../../db/db_config.php';
 
 try {
     // 1. Total Active Subscribers
@@ -23,7 +22,7 @@ try {
         FROM subscription_payments
         WHERE currency = 'USD'
         GROUP BY month
-        ORDER BY month ASC
+        ORDER BY month DESC
         LIMIT 6
     ");
     $stmt->execute();
