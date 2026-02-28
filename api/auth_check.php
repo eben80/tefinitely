@@ -25,8 +25,6 @@ function checkAccess($requireSubscription = true, $requireAdmin = false) {
         $role = $user_details['role'];
         if ($role === 'admin') {
             $subscription_status = 'active';
-        } elseif ($user_details['subscription_status'] === 'active') {
-            $subscription_status = 'active';
         } else {
             $now = new DateTime();
             $start_date = $user_details['subscription_start_date'] ? new DateTime($user_details['subscription_start_date']) : null;
