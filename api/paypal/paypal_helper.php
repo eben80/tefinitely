@@ -29,8 +29,14 @@ function get_paypal_access_token() {
 function get_paypal_client_token($domains = []) {
     if (empty($domains)) {
         // Default to current domain if not provided
+        // Remove port for domain verification if standard
+        $host = $_SERVER['HTTP_HOST'];
+        if (($pos = strpos($host, ':')) !== false) {
+            $host = substr($host, 0, $pos);
+        }
+
         $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
-        $domains[] = $protocol . $_SERVER['HTTP_HOST'];
+        $domains[] = $protocol . $host;
     }
 
     $ch = curl_init();
@@ -38,15 +44,20 @@ function get_paypal_client_token($domains = []) {
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_POST, 1);
 
+    // For v6 token, some environments might prefer domains as a JSON array or specific format
+    // According to latest docs, it's response_type=client_token
     $post_fields = [
         'grant_type' => 'client_credentials',
         'response_type' => 'client_token'
     ];
 
-    // PayPal expects domains[] to be a comma-separated list of strings
-    $post_fields['domains[]'] = implode(',', $domains);
+    // Formulate the body manually to ensure domains[] is handled correctly
+    $body = 'grant_type=client_credentials&response_type=client_token';
+    foreach ($domains as $domain) {
+        $body .= '&domains[]=' . urlencode($domain);
+    }
 
-    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post_fields));
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
     curl_setopt($ch, CURLOPT_USERPWD, PAYPAL_CLIENT_ID . ':' . PAYPAL_CLIENT_SECRET);
 
     $headers = [
@@ -57,10 +68,25 @@ function get_paypal_client_token($domains = []) {
     curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
     $result = curl_exec($ch);
-    if (curl_errno($ch)) { return null; }
+    if (curl_errno($ch)) {
+        $error = curl_error($ch);
+        error_log("PayPal cURL error: " . $error);
+        return ['error' => "cURL error: $error"];
+    }
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
 
+    if ($http_code !== 200) {
+        error_log("PayPal API error: Status $http_code. Response: $result");
+        return ['error' => "PayPal API error ($http_code): $result"];
+    }
+
     $json = json_decode($result);
-    return $json->access_token ?? null; // For response_type=client_token, it returns it in access_token field
+    if (isset($json->access_token)) {
+        return ['token' => $json->access_token];
+    } else {
+        error_log("PayPal response missing access_token: " . $result);
+        return ['error' => "Token missing in response"];
+    }
 }
 ?>
