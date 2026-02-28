@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const authErrorDiv = document.getElementById('auth-error');
     const usersTableBody = document.getElementById('users-table-body');
     const modal = document.getElementById('edit-user-modal');
-    const modalUsername = document.getElementById('modal-username');
+    const modalUsername = document.getElementById('modal-user-name');
     const modalEmailInput = document.getElementById('modal-email');
     const modalPasswordInput = document.getElementById('modal-password');
     const modalSubStartInput = document.getElementById('modal-sub-start');
@@ -29,10 +29,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const filterStatus = document.getElementById('filter-status');
     const resetFiltersBtn = document.getElementById('reset-filters-btn');
 
-    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabBtns = document.querySelectorAll('.tab-link');
     const tabContents = document.querySelectorAll('.tab-content');
     const auditLogsTableBody = document.getElementById('audit-logs-table-body');
     const loginHistoryTableBody = document.getElementById('login-history-table-body');
+    const supportTicketsTableBody = document.getElementById('support-tickets-table-body');
 
     const sendEmailModal = document.getElementById('send-email-modal');
     const sendEmailForm = document.getElementById('send-email-form');
@@ -145,6 +146,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 loadAuditLogs();
             } else if (targetTab === 'login-history') {
                 loadLoginHistory();
+            } else if (targetTab === 'support-tickets') {
+                loadSupportTickets();
             }
         });
     });
@@ -550,6 +553,101 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             loginHistoryTableBody.appendChild(row);
         });
+    }
+
+    async function loadSupportTickets() {
+        supportTicketsTableBody.innerHTML = '<tr><td colspan="6">Loading tickets...</td></tr>';
+        try {
+            const response = await fetch('api/admin/get_tickets.php');
+            const data = await response.json();
+            if (response.ok && data.status === 'success') {
+                populateSupportTicketsTable(data.tickets);
+            } else {
+                supportTicketsTableBody.innerHTML = `<tr><td colspan="6">Error: ${data.message}</td></tr>`;
+            }
+        } catch (error) {
+            console.error('Error loading support tickets:', error);
+            supportTicketsTableBody.innerHTML = '<tr><td colspan="6">An error occurred while fetching tickets.</td></tr>';
+        }
+    }
+
+    function populateSupportTicketsTable(tickets) {
+        supportTicketsTableBody.innerHTML = '';
+        if (tickets.length === 0) {
+            supportTicketsTableBody.innerHTML = '<tr><td colspan="6">No support tickets found.</td></tr>';
+            return;
+        }
+
+        tickets.forEach(ticket => {
+            const row = document.createElement('tr');
+            const userName = ticket.first_name ? `${ticket.first_name} ${ticket.last_name}` : 'Guest';
+            const statusClass = `status-${ticket.status.replace(' ', '-')}`;
+
+            row.innerHTML = `
+                <td>${new Date(ticket.created_at).toLocaleString()}</td>
+                <td>${escapeHTML(userName)}</td>
+                <td>${escapeHTML(ticket.email)}</td>
+                <td title="${escapeHTML(ticket.message)}"><strong>${escapeHTML(ticket.subject)}</strong></td>
+                <td>
+                    <select class="ticket-status-select" data-ticketid="${ticket.id}">
+                        <option value="open" ${ticket.status === 'open' ? 'selected' : ''}>Open</option>
+                        <option value="in-progress" ${ticket.status === 'in-progress' ? 'selected' : ''}>In-Progress</option>
+                        <option value="resolved" ${ticket.status === 'resolved' ? 'selected' : ''}>Resolved</option>
+                    </select>
+                </td>
+                <td>
+                    <button class="view-ticket-btn" data-ticketid="${ticket.id}">View</button>
+                    <button class="reply-ticket-btn" data-userid="${ticket.user_id || ''}" data-email="${ticket.email}" data-subject="Re: ${ticket.subject}">Reply</button>
+                </td>
+            `;
+            supportTicketsTableBody.appendChild(row);
+        });
+
+        document.querySelectorAll('.ticket-status-select').forEach(select => {
+            select.addEventListener('change', handleTicketStatusChange);
+        });
+
+        document.querySelectorAll('.view-ticket-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const ticketId = e.target.dataset.ticketid;
+                const ticket = tickets.find(t => t.id == ticketId);
+                if (ticket) {
+                    alert(`From: ${ticket.email}\nSubject: ${ticket.subject}\n\n${ticket.message}`);
+                }
+            });
+        });
+
+        document.querySelectorAll('.reply-ticket-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const userId = e.target.dataset.userid;
+                const email = e.target.dataset.email;
+                const subject = e.target.dataset.subject;
+
+                emailUserIdInput.value = userId;
+                emailModalUserName.textContent = email;
+                emailSubjectInput.value = subject;
+                emailMessageInput.value = '';
+                sendEmailModal.style.display = 'block';
+            });
+        });
+    }
+
+    async function handleTicketStatusChange(event) {
+        const ticketId = event.target.dataset.ticketid;
+        const newStatus = event.target.value;
+
+        try {
+            const response = await fetch('api/admin/update_ticket_status.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ticket_id: ticketId, status: newStatus })
+            });
+            const result = await response.json();
+            showToast(result.message, response.ok ? 'success' : 'error');
+        } catch (error) {
+            console.error('Update ticket status failed:', error);
+            showToast('An error occurred while updating the ticket status.', 'error');
+        }
     }
 
     async function addUser(data) {
