@@ -568,6 +568,9 @@ document.addEventListener('DOMContentLoaded', () => {
     async function handleSavePlan(e) {
         e.preventDefault();
         const id = document.getElementById('plan-id').value;
+        const duration_days = document.getElementById('plan-duration').value;
+        const paypal_plan_id = document.getElementById('plan-paypal-id').value;
+
         const payload = {
             action: id ? 'update_plan' : 'add_plan',
             id: id,
@@ -575,8 +578,8 @@ document.addEventListener('DOMContentLoaded', () => {
             type: document.getElementById('plan-type').value,
             price: document.getElementById('plan-price').value,
             currency: document.getElementById('plan-currency').value,
-            duration_days: document.getElementById('plan-duration').value,
-            paypal_plan_id: document.getElementById('plan-paypal-id').value,
+            duration_days: duration_days === "" ? null : duration_days,
+            paypal_plan_id: paypal_plan_id === "" ? null : paypal_plan_id,
             description: document.getElementById('plan-description').value,
             is_active: document.getElementById('plan-active').value
         };
