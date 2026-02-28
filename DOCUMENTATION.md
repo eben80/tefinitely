@@ -63,20 +63,28 @@ The practice tools in `practise/section_a/` and `practise/section_b/` are standa
 The application supports two types of PayPal transactions: **Recurring Subscriptions** and **One-Time Payments**.
 
 #### Recurring Subscriptions
-Recurring billing is managed via PayPal **Billing Plans**.
+Recurring billing is managed via PayPal **Billing Plans** and the **JavaScript SDK v6**.
 1.  **PayPal Setup**: You must create a Subscription Plan on your PayPal Developer Dashboard. Note the **Plan ID**.
 2.  **App Config**: Define the Plan ID in `db/paypal_config.php` as `PAYPAL_PLAN_ID`.
-3.  **Flow**:
-    - The frontend (e.g., `js/paypal-util.js`) uses the PayPal SDK to render a subscription button.
-    - Upon approval, `api/paypal/capture_subscription.php` verifies the status via PayPal's API and extracts the `next_billing_time`.
-    - Access is granted until the `next_billing_time`, which is stored as `subscription_end_date` in our database.
+3.  **SDK v6 Flow**:
+    - The frontend (`js/paypal-util.js`) fetches a server-side generated **Client Token** from `api/paypal/get_client_token.php`.
+    - The SDK is initialized via `paypal.createInstance({ clientToken })`.
+    - A `createPayPalSubscriptionSession` is started, rendering a `<paypal-button>` web component.
+    - Upon approval, `api/paypal/capture_subscription.php` verifies the status and updates the database.
 
 #### One-Time Payments
-One-time payments (e.g., a fixed 30-day access pass) are handled via PayPal **Orders**.
+One-time payments (e.g., a fixed 30-day access pass) are handled via PayPal **Orders** and the **JavaScript SDK v6**.
 1.  **Dynamic Configuration**: Cost and duration are defined in the `payment_plans` table via the Admin Dashboard.
-2.  **Flow**:
-    - `api/paypal/create_payment.php` initializes the order based on the selected plan.
-    - `api/paypal/capture_payment.php` updates the user's `subscription_end_date` based on the plan's `duration_days`.
+2.  **SDK v6 Flow**:
+    - The frontend (`js/paypal-util.js`) initializes a `createPayPalOneTimePaymentSession`.
+    - `api/paypal/create_payment.php` is called via the `createOrder` callback to initialize the order.
+    - `api/paypal/capture_payment.php` updates the user's access based on the plan's `duration_days` upon approval.
+
+### 5.2 JavaScript SDK v6 Integration
+The platform uses the modern PayPal JavaScript SDK v6 for enhanced security and performance.
+- **Client Token**: Every payment session requires a short-lived client token, generated server-side via `api/paypal/get_client_token.php`.
+- **Instance-Based**: The SDK is initialized via `paypal.createInstance()`, allowing for modular loading of components.
+- **Web Components**: Payment buttons are rendered as `<paypal-button>` web components with custom event handling.
 
 #### Admin Payment Settings
 Administrators can manage all payment offerings through the **Payment Settings** tab in the Admin Dashboard.
@@ -164,7 +172,8 @@ To switch the application from the PayPal Sandbox environment to the Live produc
     - If using webhooks, update your environment variables or the `PAYPAL_WEBHOOK_ID` constant.
 
 3.  **Frontend Verification**:
-    - The frontend automatically fetches the correct `client_id` and `plan_id` via `api/paypal/get_config.php`. Ensure no hardcoded values exist in your HTML/JS files.
+    - The frontend automatically fetches the correct `client_id`, `plan_id`, and environment via `api/paypal/get_config.php`.
+    - Initialization is handled securely via `api/paypal/get_client_token.php`. Ensure no hardcoded client IDs exist in your JS files.
 
 4.  **Testing**:
     - Perform a real transaction (at a low price point if possible) to verify the end-to-end flow in production.
