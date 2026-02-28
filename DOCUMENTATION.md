@@ -70,17 +70,34 @@ Subscription status is tracked in two places:
 - `users.subscription_status`: A quick-check field (`active`/`inactive`).
 - `subscriptions` table: Stores historical data, including `subscription_start_date` and `subscription_end_date`.
 
-## 6. Development & Maintenance
+## 6. Email Configuration & Services
 
-### 6.1 Database Configuration
+### 6.1 Email Service Implementation
+Email sending is centralized in `api/services/EmailService.php`. The application uses the **Amazon Simple Email Service (AWS SES)** PHP SDK to send transactional emails.
+
+### 6.2 Required Configuration
+The following global variables must be defined (typically in a secure configuration file not committed to the repository) for the email service to function:
+- `$aws_key`: Your AWS Access Key ID.
+- `$aws_secret`: Your AWS Secret Access Key.
+- `$aws_region`: The AWS region where SES is configured (e.g., `'us-east-1'`).
+- `$sender_email`: The verified email address used as the "From" and "Reply-To" address.
+
+### 6.3 Integrated Use Cases
+- **User Registration**: A welcome email is automatically sent to new users via `api/register.php`.
+- **Password Resets**: The `api/auth/forgot_password.php` endpoint uses the service to send reset links.
+- **Administrative Actions**: When an administrator manually adds a user via `api/admin/manage_users.php`, a welcome email is sent to the new user.
+
+## 7. Development & Maintenance
+
+### 7.1 Database Configuration
 Database credentials should be stored in `db/db_config.php` (generated from `db/db_config.php.example`).
 
-### 6.2 External Dependencies
+### 7.2 External Dependencies
 - **Backend**: PHP 7.4+ with MySQL. Uses OpenAI API for interactive chat features.
 - **Frontend**: Bootstrap Icons, PayPal SDK, and custom JS/CSS.
 - **System Tools**: Certain features (like image conversion) may require `imagemagick`, `potrace`, and `openscad`.
 
-## 7. PayPal Environment Transition (Sandbox to Production)
+## 8. PayPal Environment Transition (Sandbox to Production)
 
 To switch the application from the PayPal Sandbox environment to the Live production environment, follow these steps:
 
