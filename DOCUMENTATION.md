@@ -57,18 +57,54 @@ The navigation bar is largely duplicated across PHP and HTML files for simplicit
 ### 4.3 Interactive Tools (Practise)
 The practice tools in `practise/section_a/` and `practise/section_b/` are standalone modules with their own local `api/` subdirectories for state management (`start_session.php`, `continue_session.php`).
 
-## 5. Subscription Logic
+5. Subscription & Payment Logic
 
-### 5.1 PayPal Integration
-The site uses the PayPal JavaScript SDK for subscription management.
-- **Configuration**: Fetched via `api/paypal/get_config.php`.
-- **Flow**: When an unauthenticated or unsubscribed user visits the site, they are prompted to subscribe.
-- **Capture**: After approval on the PayPal side, `api/paypal/capture_subscription.php` is called to update the `subscriptions` table in the database.
+### 5.1 PayPal Configuration
+The application supports two types of PayPal transactions: **Recurring Subscriptions** and **One-Time Payments**.
 
-### 5.2 Database Implementation
-Subscription status is tracked in two places:
-- `users.subscription_status`: A quick-check field (`active`/`inactive`).
-- `subscriptions` table: Stores historical data, including `subscription_start_date` and `subscription_end_date`.
+#### Recurring Subscriptions
+Recurring billing is managed via PayPal **Billing Plans**.
+1.  **PayPal Setup**: You must create a Subscription Plan on your PayPal Developer Dashboard. Note the **Plan ID**.
+2.  **App Config**: Define the Plan ID in `db/paypal_config.php` as `PAYPAL_PLAN_ID`.
+3.  **Flow**:
+    - The frontend (e.g., `js/paypal-util.js`) uses the PayPal SDK to render a subscription button.
+    - Upon approval, `api/paypal/capture_subscription.php` verifies the status via PayPal's API and extracts the `next_billing_time`.
+    - Access is granted until the `next_billing_time`, which is stored as `subscription_end_date` in our database.
+
+#### One-Time Payments
+One-time payments (e.g., a fixed 30-day access pass) are handled via PayPal **Orders**.
+1.  **Logic**: The cost and duration are currently defined in the application logic.
+2.  **Price Definition**: In `api/paypal/create_payment.php`, the `'value'` field (e.g., `'5.00'`) defines the cost.
+3.  **Capture**: After the user pays, `api/paypal/capture_payment.php` is called. It hardcodes the access duration (default: `+30 days`) and updates the database accordingly.
+
+### 5.2 Database Schema Breakdown
+
+The application relies on several core tables to manage users, security, and payments:
+
+#### `users`
+- `id`: Primary key.
+- `email`: Unique identifier and login credential.
+- `subscription_status`: Current status (`active`/`inactive`).
+- `role`: (`user` or `admin`).
+
+#### `subscriptions`
+- Tracks the relationship between a user and their PayPal subscription.
+- `paypal_subscription_id`: The ID provided by PayPal.
+- `subscription_start_date` / `subscription_end_date`: Defines the validity window for the user's access.
+- `status`: Internal status of the subscription (e.g., `active`, `cancelled`, `suspended`).
+
+#### `subscription_payments`
+- Logs individual transaction events.
+- `paypal_transaction_id`: Unique ID for each payment event (different from the subscription ID).
+- `amount` / `currency`: The value and currency of the payment.
+- `payment_date`: When the transaction occurred.
+
+#### `login_history` & `admin_audit_logs`
+- **Security**: `login_history` tracks IP addresses, timestamps, and status for all login attempts (used for brute-force protection).
+- **Admin**: `admin_audit_logs` records every data-modifying action taken by administrators for accountability.
+
+#### `support_tickets`
+- Stores user-submitted inquiries. Tracks `status` (`open`, `in-progress`, `resolved`) and links to `user_id` when applicable.
 
 ## 6. Email Configuration & Services
 

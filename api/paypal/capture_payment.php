@@ -86,6 +86,25 @@ if (isset($capture_details->status) && $capture_details->status === 'COMPLETED')
         $stmt_sub = $conn->prepare("INSERT INTO subscriptions (user_id, paypal_subscription_id, subscription_start_date, subscription_end_date, status) VALUES (?, ?, ?, ?, 'active') ON DUPLICATE KEY UPDATE paypal_subscription_id = VALUES(paypal_subscription_id), subscription_start_date = VALUES(subscription_start_date), subscription_end_date = VALUES(subscription_end_date), status = 'active'");
         $stmt_sub->bind_param("isss", $user_id, $transaction_id, $start_date, $end_date);
         $stmt_sub->execute();
+        $internal_sub_id = ($stmt_sub->insert_id) ? $stmt_sub->insert_id : null;
+        if (!$internal_sub_id) {
+            $stmt_get_id = $conn->prepare("SELECT id FROM subscriptions WHERE user_id = ?");
+            $stmt_get_id->bind_param("i", $user_id);
+            $stmt_get_id->execute();
+            $internal_sub_id = $stmt_get_id->get_result()->fetch_assoc()['id'];
+        }
+
+        // 3. Log the payment to subscription_payments
+        $amount = 5.00; // Hardcoded default for one-time
+        $currency = "USD";
+        if (isset($capture_details->purchase_units[0]->payments->captures[0]->amount)) {
+            $amount = $capture_details->purchase_units[0]->payments->captures[0]->amount->value;
+            $currency = $capture_details->purchase_units[0]->payments->captures[0]->amount->currency_code;
+        }
+
+        $stmt_pay = $conn->prepare("INSERT INTO subscription_payments (subscription_id, paypal_transaction_id, amount, currency, payment_date) VALUES (?, ?, ?, ?, NOW())");
+        $stmt_pay->bind_param("isds", $internal_sub_id, $transaction_id, $amount, $currency);
+        $stmt_pay->execute();
 
         // Commit the transaction
         $conn->commit();
