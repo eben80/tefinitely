@@ -60,7 +60,7 @@ function stopRecording() {
     }
 }
 
-function checkPronunciation(userTranscript) {
+async function checkPronunciation(userTranscript) {
     const recordingResult = document.getElementById('recordingResult');
     if (!recordingResult) return;
 
@@ -86,14 +86,22 @@ function checkPronunciation(userTranscript) {
     recordingResult.textContent = `${resultText} (Score: ${score}%)`;
 
     if (phrases[currentPhraseIndex]) {
-        fetch('api/profile/store_progress.php', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            phrase_id: phrases[currentPhraseIndex].id,
-            matching_quality: ratio
-          })
-        });
+        try {
+            const response = await fetch('api/profile/store_progress.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    phrase_id: phrases[currentPhraseIndex].id,
+                    matching_quality: ratio
+                })
+            });
+            if (response.ok) {
+                await fetchProgress();
+                updateTopicProgressDisplay(document.getElementById('topicSelect').value);
+            }
+        } catch (error) {
+            console.error('Failed to store progress:', error);
+        }
     }
 }
 
