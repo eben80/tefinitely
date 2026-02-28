@@ -379,6 +379,26 @@ function initializeSampleFlashcard() {
     });
 
     display(0);
+
+    // Auto-flip when flip button is scrolled into view
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                // Only flip if not already flipped and not already animating
+                if (!flashcardEl.classList.contains('is-flipped') && !flashcardEl.classList.contains('auto-flip')) {
+                    flashcardEl.classList.add('auto-flip');
+                    // After animation ends, set the state to flipped and clean up animation class
+                    const inner = flashcardEl.querySelector('.flashcard-inner');
+                    inner.addEventListener('animationend', () => {
+                        flashcardEl.classList.add('is-flipped');
+                        flashcardEl.classList.remove('auto-flip');
+                    }, { once: true });
+                }
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.5 });
+    observer.observe(flipBtn);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
