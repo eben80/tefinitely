@@ -13,7 +13,8 @@ $sql_files = [
     __DIR__ . '/../sql/add_more_drills.sql',
     __DIR__ . '/../sql/update_subscription_schema.sql',
     __DIR__ . '/../sql/create_dialogue_progress_table.sql',
-    __DIR__ . '/../sql/create_openai_calls_log_table.sql'
+    __DIR__ . '/../sql/create_openai_calls_log_table.sql',
+    __DIR__ . '/../sql/create_subscription_payments_table.sql'
 ];
 
 echo "<h2>Database Setup</h2>";

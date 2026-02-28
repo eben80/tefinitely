@@ -301,6 +301,91 @@ if ($method === 'GET') {
             echo json_encode(['status' => 'success', 'message' => 'Subscription dates and status updated successfully.']);
             break;
 
+        case 'bulk_delete':
+            if (!isset($data['user_ids']) || !is_array($data['user_ids'])) {
+                http_response_code(400);
+                echo json_encode(['status' => 'error', 'message' => 'Missing or invalid user_ids.']);
+                exit;
+            }
+            $user_ids = array_filter($data['user_ids'], function($id) {
+                return $id != $_SESSION['user_id'];
+            });
+            if (empty($user_ids)) {
+                echo json_encode(['status' => 'success', 'message' => 'No valid users to delete.']);
+                exit;
+            }
+            $ids_str = implode(',', array_map('intval', $user_ids));
+            $conn->query("DELETE FROM subscriptions WHERE user_id IN ($ids_str)");
+            $conn->query("DELETE FROM users WHERE id IN ($ids_str)");
+            logAdminAction($conn, $_SESSION['user_id'], 'bulk_delete', null, "Deleted users: $ids_str");
+            echo json_encode(['status' => 'success', 'message' => 'Users deleted successfully.']);
+            break;
+
+        case 'bulk_status_update':
+            if (!isset($data['user_ids']) || !is_array($data['user_ids']) || !isset($data['subscription_status'])) {
+                http_response_code(400);
+                echo json_encode(['status' => 'error', 'message' => 'Missing user_ids or status.']);
+                exit;
+            }
+            $status = $data['subscription_status'];
+            if (!in_array($status, ['active', 'inactive'])) {
+                http_response_code(400);
+                echo json_encode(['status' => 'error', 'message' => 'Invalid status value.']);
+                exit;
+            }
+            $user_ids = $data['user_ids'];
+            if (empty($user_ids)) {
+                echo json_encode(['status' => 'success', 'message' => 'No users to update.']);
+                exit;
+            }
+            $ids_str = implode(',', array_map('intval', $user_ids));
+
+            $conn->begin_transaction();
+            try {
+                $conn->query("UPDATE users SET subscription_status = '$status' WHERE id IN ($ids_str)");
+                if ($status === 'inactive') {
+                    $conn->query("DELETE FROM subscriptions WHERE user_id IN ($ids_str)");
+                }
+                logAdminAction($conn, $_SESSION['user_id'], 'bulk_status_update', null, "Updated users: $ids_str to $status");
+                $conn->commit();
+                echo json_encode(['status' => 'success', 'message' => 'Users status updated successfully.']);
+            } catch (Exception $e) {
+                $conn->rollback();
+                http_response_code(500);
+                echo json_encode(['status' => 'error', 'message' => 'Failed to update users status.']);
+            }
+            break;
+
+        case 'bulk_email':
+            if (!isset($data['user_ids']) || !is_array($data['user_ids']) || !isset($data['subject']) || !isset($data['message'])) {
+                http_response_code(400);
+                echo json_encode(['status' => 'error', 'message' => 'Missing user_ids, subject, or message.']);
+                exit;
+            }
+            require_once __DIR__ . '/../services/EmailService.php';
+            $user_ids = $data['user_ids'];
+            if (empty($user_ids)) {
+                echo json_encode(['status' => 'success', 'message' => 'No recipients selected.']);
+                exit;
+            }
+            $ids_str = implode(',', array_map('intval', $user_ids));
+            $result = $conn->query("SELECT email, first_name FROM users WHERE id IN ($ids_str)");
+
+            $subject = $data['subject'];
+            $message = $data['message'];
+            $body_html = nl2br(htmlspecialchars($message));
+            $body_text = $message;
+
+            $sent_count = 0;
+            while ($row = $result->fetch_assoc()) {
+                if (sendEmail($row['email'], $subject, $body_html, $body_text)) {
+                    $sent_count++;
+                }
+            }
+            logAdminAction($conn, $_SESSION['user_id'], 'bulk_email', null, "Sent email to $sent_count users. Subject: $subject");
+            echo json_encode(['status' => 'success', 'message' => "Email sent to $sent_count users."]);
+            break;
+
         default:
             http_response_code(400);
             echo json_encode(['status' => 'error', 'message' => 'Invalid action specified.']);
