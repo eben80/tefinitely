@@ -123,20 +123,21 @@ async function renderSubscriptionButton(instance, paypalPlanId, containerId) {
 }
 
 async function renderOneTimeButton(instance, planId, containerId) {
+    const createOrder = async () => {
+        try {
+            const response = await fetch('api/paypal/create_payment.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ plan_id: planId })
+            });
+            const data = await response.json();
+            return data.orderID;
+        } catch (err) {
+            console.error('Create Order error:', err);
+        }
+    };
+
     const session = await instance.createPayPalOneTimePaymentSession({
-        createOrder: async () => {
-            try {
-                const response = await fetch('api/paypal/create_payment.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ plan_id: planId })
-                });
-                const data = await response.json();
-                return data.orderID;
-            } catch (err) {
-                console.error('Create Order error:', err);
-            }
-        },
         onApprove: async (data) => {
             handlePaymentApproval('api/paypal/capture_payment.php', { orderID: data.orderID });
         },
@@ -147,10 +148,9 @@ async function renderOneTimeButton(instance, planId, containerId) {
     });
 
     const button = document.createElement('paypal-button');
-    // Styling for web component button if needed
     button.setAttribute('color', 'blue');
     document.querySelector(containerId).appendChild(button);
-    button.addEventListener('click', () => session.start());
+    button.addEventListener('click', () => session.start({ createOrder }));
 }
 
 async function handlePaymentApproval(endpoint, payload) {

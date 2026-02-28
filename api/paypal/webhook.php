@@ -170,17 +170,21 @@ switch ($event_type) {
     case 'PAYMENT.SALE.REFUNDED':
     case 'PAYMENT.CAPTURE.REFUNDED':
         // For recurring payments (sale) or one-time captures
-        $paypal_id = $resource->id; // transaction ID
-        $parent_id = $resource->parent_payment ?? $resource->billing_agreement_id ?? null;
+        // The resource is a refund object. We need to find the original transaction.
+        $refund_id = $resource->id;
+        $parent_id = $resource->parent_payment ?? $resource->billing_agreement_id ?? $resource->capture_id ?? $resource->sale_id ?? null;
 
-        // Try to find by transaction ID or parent/subscription ID
+        // Try to find by original transaction ID (stored in paypal_transaction_id)
+        // or subscription ID (stored in paypal_subscription_id)
         $stmt_refund = $conn->prepare("
             UPDATE users u
             JOIN subscriptions s ON u.id = s.user_id
             SET u.subscription_status = 'inactive', s.status = 'refunded', s.subscription_end_date = NOW()
-            WHERE s.paypal_subscription_id = ? OR s.id IN (SELECT subscription_id FROM subscription_payments WHERE paypal_transaction_id = ?)
+            WHERE s.paypal_subscription_id = ?
+               OR s.id IN (SELECT subscription_id FROM subscription_payments WHERE paypal_transaction_id = ?)
+               OR s.id IN (SELECT subscription_id FROM subscription_payments WHERE paypal_transaction_id = ?)
         ");
-        $stmt_refund->bind_param("ss", $parent_id, $paypal_id);
+        $stmt_refund->bind_param("sss", $parent_id, $parent_id, $refund_id);
         $stmt_refund->execute();
         break;
 }
