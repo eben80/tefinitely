@@ -47,6 +47,10 @@ checkAccess(true, true); // Admin only
         .modal button { width: 100%; padding: 0.7rem; }
         .modal hr { margin: 1.5rem 0; }
 
+        .stat-card { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; }
+        .stat-card h3 { margin: 0; color: #666; font-size: 1rem; }
+        .stat-card p { margin: 0.5rem 0 0; font-size: 2rem; font-weight: bold; color: #007bff; }
+
         /* Tabs Styles */
         .tabs { display: flex; border-bottom: 2px solid #ddd; margin-bottom: 1rem; }
         .tab-link { padding: 0.7rem 1.5rem; cursor: pointer; border: none; background: none; font-size: 1rem; font-weight: bold; color: #555; }
@@ -96,6 +100,7 @@ checkAccess(true, true); // Admin only
 
             <div class="tabs">
                 <button class="tab-link active" data-tab="user-management">User Management</button>
+                <button class="tab-link" data-tab="financial-overview">Financial Overview</button>
                 <button class="tab-link" data-tab="audit-logs">Audit Logs</button>
                 <button class="tab-link" data-tab="login-history">Login History</button>
                 <button class="tab-link" data-tab="support-tickets">Support Tickets</button>
@@ -104,7 +109,17 @@ checkAccess(true, true); // Admin only
             <div id="user-management-tab" class="tab-content active">
                 <div class="header-with-button">
                     <h2>User Management</h2>
-                    <button id="add-user-btn" class="action-btn">Add New User</button>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button id="add-user-btn" class="action-btn">Add New User</button>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 1rem; display: flex; gap: 0.5rem; align-items: center; background: #e9ecef; padding: 1rem; border-radius: 8px;">
+                    <strong>Bulk Actions:</strong>
+                    <button id="bulk-email-btn" class="action-btn" style="background-color: #17a2b8;">Email Selected</button>
+                    <button id="bulk-activate-btn" class="action-btn" style="background-color: #28a745;">Activate Selected</button>
+                    <button id="bulk-deactivate-btn" class="action-btn" style="background-color: #ffc107; color: #333;">Deactivate Selected</button>
+                    <button id="bulk-delete-btn" class="action-btn" style="background-color: #dc3545;">Delete Selected</button>
                 </div>
 
                 <div class="filter-bar">
@@ -135,6 +150,7 @@ checkAccess(true, true); // Admin only
                     <table id="users-table">
                         <thead>
                             <tr>
+                                <th><input type="checkbox" id="select-all-users"></th>
                                 <th>ID</th>
                                 <th>First Name</th>
                                 <th>Last Name</th>
@@ -192,6 +208,35 @@ checkAccess(true, true); // Admin only
                         </thead>
                         <tbody id="login-history-table-body">
                             <!-- Login history will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="financial-overview-tab" class="tab-content">
+                <h2>Financial Overview</h2>
+                <div id="financial-stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                    <div class="stat-card">
+                        <h3>Active Subscribers</h3>
+                        <p id="stat-active-subscribers">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Monthly Recurring Revenue (MRR)</h3>
+                        <p id="stat-mrr">$0.00</p>
+                    </div>
+                </div>
+
+                <h3>Revenue Growth (Last 6 Months)</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Month</th>
+                                <th>Revenue</th>
+                            </tr>
+                        </thead>
+                        <tbody id="revenue-trends-body">
+                            <!-- Revenue data -->
                         </tbody>
                     </table>
                 </div>
@@ -339,12 +384,36 @@ checkAccess(true, true); // Admin only
             <h2>Send Email to: <span id="email-modal-user-name"></span></h2>
             <form id="send-email-form">
                 <input type="hidden" id="email-user-id">
+                <input type="hidden" id="email-bulk-ids">
                 <label for="email-subject">Subject</label>
                 <input type="text" id="email-subject" required>
                 <label for="email-message">Message</label>
                 <textarea id="email-message" rows="10" required></textarea>
                 <button type="submit" class="action-btn">Send Email</button>
             </form>
+        </div>
+    </div>
+
+    <!-- Modal for viewing payment history -->
+    <div id="payment-history-modal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <span class="close-btn">&times;</span>
+            <h2>Payment History: <span id="modal-payment-user-name"></span></h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>PayPal Trans ID</th>
+                            <th>Amount</th>
+                            <th>Currency</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="payment-history-table-body">
+                        <!-- Payments will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 

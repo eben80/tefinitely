@@ -39,8 +39,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const sendEmailForm = document.getElementById('send-email-form');
     const emailModalUserName = document.getElementById('email-modal-user-name');
     const emailUserIdInput = document.getElementById('email-user-id');
+    const emailBulkIdsInput = document.getElementById('email-bulk-ids');
     const emailSubjectInput = document.getElementById('email-subject');
     const emailMessageInput = document.getElementById('email-message');
+
+    const selectAllUsersCheckbox = document.getElementById('select-all-users');
+    const bulkEmailBtn = document.getElementById('bulk-email-btn');
+    const bulkActivateBtn = document.getElementById('bulk-activate-btn');
+    const bulkDeactivateBtn = document.getElementById('bulk-deactivate-btn');
+    const bulkDeleteBtn = document.getElementById('bulk-delete-btn');
+
+    const paymentHistoryModal = document.getElementById('payment-history-modal');
+    const paymentHistoryTableBody = document.getElementById('payment-history-table-body');
+    const modalPaymentUserName = document.getElementById('modal-payment-user-name');
 
     let currentEditingUserId = null;
     let currentViewingCallsUserId = null;
@@ -137,8 +148,10 @@ document.addEventListener('DOMContentLoaded', () => {
             tabContents.forEach(content => {
                 if (content.id === `${targetTab}-tab`) {
                     content.style.display = 'block';
+                    content.classList.add('active');
                 } else {
                     content.style.display = 'none';
+                    content.classList.remove('active');
                 }
             });
 
@@ -148,9 +161,42 @@ document.addEventListener('DOMContentLoaded', () => {
                 loadLoginHistory();
             } else if (targetTab === 'support-tickets') {
                 loadSupportTickets();
+            } else if (targetTab === 'financial-overview') {
+                loadFinancialStats();
             }
         });
     });
+
+    if (selectAllUsersCheckbox) {
+        selectAllUsersCheckbox.addEventListener('change', () => {
+            const checkboxes = document.querySelectorAll('.user-checkbox');
+            checkboxes.forEach(cb => cb.checked = selectAllUsersCheckbox.checked);
+        });
+    }
+
+    if (bulkEmailBtn) {
+        bulkEmailBtn.addEventListener('click', () => {
+            const selectedIds = getSelectedUserIds();
+            if (selectedIds.length === 0) return showToast('No users selected', 'error');
+
+            emailUserIdInput.value = '';
+            emailBulkIdsInput.value = selectedIds.join(',');
+            emailModalUserName.textContent = `${selectedIds.length} selected users`;
+            emailSubjectInput.value = '';
+            emailMessageInput.value = '';
+            sendEmailModal.style.display = 'block';
+        });
+    }
+
+    if (bulkActivateBtn) {
+        bulkActivateBtn.addEventListener('click', () => handleBulkStatusUpdate('active'));
+    }
+    if (bulkDeactivateBtn) {
+        bulkDeactivateBtn.addEventListener('click', () => handleBulkStatusUpdate('inactive'));
+    }
+    if (bulkDeleteBtn) {
+        bulkDeleteBtn.addEventListener('click', handleBulkDelete);
+    }
 
     // --- Functions ---
     async function checkAdminAccess() {
@@ -236,13 +282,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const fullName = `${user.first_name} ${user.last_name}`;
 
             row.innerHTML = `
+                <td><input type="checkbox" class="user-checkbox" data-userid="${user.id}"></td>
                 <td>${escapeHTML(user.id)}</td>
                 <td>${escapeHTML(user.first_name)}</td>
                 <td>${escapeHTML(user.last_name)}</td>
                 <td>${escapeHTML(user.email)}</td>
                 <td>${escapeHTML(user.role)}</td>
                 <td class="${statusClass}">${escapeHTML(user.subscription_status)}</td>
-                <td>${escapeHTML(endDate)}</td>
+                <td>
+                    ${escapeHTML(endDate)}
+                    <br>
+                    <a href="javascript:void(0)" class="view-payments-link" data-userid="${user.id}" data-name="${escapeHTML(fullName)}" style="font-size: 0.8rem;">View History</a>
+                </td>
                 <td>
                     <a href="javascript:void(0)" class="view-calls-link" data-userid="${user.id}" data-name="${escapeHTML(fullName)}">
                         ${user.calls_1h} / ${user.calls_24h} / ${user.calls_7d} / ${user.calls_30d} / ${user.calls_lifetime}
@@ -282,6 +333,55 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.send-email-btn').forEach(button => {
             button.addEventListener('click', openEmailModal);
         });
+        document.querySelectorAll('.view-payments-link').forEach(link => {
+            link.addEventListener('click', openPaymentHistoryModal);
+        });
+    }
+
+    function getSelectedUserIds() {
+        return Array.from(document.querySelectorAll('.user-checkbox:checked')).map(cb => cb.dataset.userid);
+    }
+
+    async function handleBulkStatusUpdate(status) {
+        const selectedIds = getSelectedUserIds();
+        if (selectedIds.length === 0) return showToast('No users selected', 'error');
+
+        if (!confirm(`Are you sure you want to set ${selectedIds.length} users to ${status}?`)) return;
+
+        try {
+            const response = await fetch('api/admin/manage_users.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'bulk_status_update', user_ids: selectedIds, subscription_status: status })
+            });
+            const result = await response.json();
+            showToast(result.message, response.ok ? 'success' : 'error');
+            if (response.ok) loadUsers();
+        } catch (error) {
+            console.error('Bulk status update failed:', error);
+            showToast('An error occurred.', 'error');
+        }
+    }
+
+    async function handleBulkDelete() {
+        const selectedIds = getSelectedUserIds();
+        if (selectedIds.length === 0) return showToast('No users selected', 'error');
+
+        if (!confirm(`Are you sure you want to delete ${selectedIds.length} users? This cannot be undone.`)) return;
+
+        try {
+            const response = await fetch('api/admin/manage_users.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'bulk_delete', user_ids: selectedIds })
+            });
+            const result = await response.json();
+            showToast(result.message, response.ok ? 'success' : 'error');
+            if (response.ok) loadUsers();
+        } catch (error) {
+            console.error('Bulk delete failed:', error);
+            showToast('An error occurred.', 'error');
+        }
     }
 
     function openEmailModal(event) {
@@ -289,6 +389,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const user = usersData.find(u => u.id == userId);
         if (user) {
             emailUserIdInput.value = userId;
+            emailBulkIdsInput.value = '';
             emailModalUserName.textContent = `${user.first_name} ${user.last_name}`;
             emailSubjectInput.value = '';
             emailMessageInput.value = '';
@@ -300,14 +401,20 @@ document.addEventListener('DOMContentLoaded', () => {
         sendEmailForm.addEventListener('submit', async (event) => {
             event.preventDefault();
             const userId = emailUserIdInput.value;
+            const bulkIds = emailBulkIdsInput.value;
             const subject = emailSubjectInput.value;
             const message = emailMessageInput.value;
 
+            const endpoint = bulkIds ? 'api/admin/manage_users.php' : 'api/admin/send_email.php';
+            const payload = bulkIds
+                ? { action: 'bulk_email', user_ids: bulkIds.split(','), subject, message }
+                : { user_id: userId, subject, message };
+
             try {
-                const response = await fetch('api/admin/send_email.php', {
+                const response = await fetch(endpoint, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user_id: userId, subject, message })
+                    body: JSON.stringify(payload)
                 });
                 const result = await response.json();
                 showToast(result.message, response.ok ? 'success' : 'error');
@@ -319,6 +426,61 @@ document.addEventListener('DOMContentLoaded', () => {
                 showToast('An error occurred while sending the email.', 'error');
             }
         });
+    }
+
+    async function openPaymentHistoryModal(event) {
+        const userId = event.target.dataset.userid;
+        const name = event.target.dataset.name;
+        modalPaymentUserName.textContent = name;
+        paymentHistoryTableBody.innerHTML = '<tr><td colspan="4">Loading...</td></tr>';
+        paymentHistoryModal.style.display = 'block';
+
+        try {
+            const response = await fetch(`api/admin/get_user_payments.php?user_id=${userId}`);
+            const data = await response.json();
+            if (response.ok) {
+                paymentHistoryTableBody.innerHTML = '';
+                if (data.payments.length === 0) {
+                    paymentHistoryTableBody.innerHTML = '<tr><td colspan="4">No payments found.</td></tr>';
+                    return;
+                }
+                data.payments.forEach(p => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${escapeHTML(p.paypal_transaction_id)}</td>
+                        <td>${parseFloat(p.amount).toFixed(2)}</td>
+                        <td>${escapeHTML(p.currency)}</td>
+                        <td>${new Date(p.payment_date).toLocaleString()}</td>
+                    `;
+                    paymentHistoryTableBody.appendChild(row);
+                });
+            } else {
+                paymentHistoryTableBody.innerHTML = `<tr><td colspan="4">Error: ${data.message}</td></tr>`;
+            }
+        } catch (error) {
+            console.error('Failed to load payment history:', error);
+        }
+    }
+
+    async function loadFinancialStats() {
+        try {
+            const response = await fetch('api/admin/get_financial_stats.php');
+            const data = await response.json();
+            if (response.ok) {
+                document.getElementById('stat-active-subscribers').textContent = data.stats.active_subscribers;
+                document.getElementById('stat-mrr').textContent = `$${data.stats.mrr.toFixed(2)}`;
+
+                const trendsBody = document.getElementById('revenue-trends-body');
+                trendsBody.innerHTML = '';
+                data.stats.trends.forEach(t => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td>${t.month}</td><td>$${parseFloat(t.revenue).toFixed(2)}</td>`;
+                    trendsBody.appendChild(row);
+                });
+            }
+        } catch (error) {
+            console.error('Failed to load financial stats:', error);
+        }
     }
 
     async function openCallsModal(event) {
