@@ -80,7 +80,8 @@ The following global variables must be defined (typically in a secure configurat
 - `$aws_key`: Your AWS Access Key ID.
 - `$aws_secret`: Your AWS Secret Access Key.
 - `$aws_region`: The AWS region where SES is configured (e.g., `'us-east-1'`).
-- `$sender_email`: The verified email address used as the "From" and "Reply-To" address.
+- `$sender_email`: The verified email address used as the "From" address (defaults to `support@tefinitely.com`).
+- **Reply-To Address**: Fixed to `tefinitely@gmail.com` in `EmailService.php`.
 
 ### 6.3 Integrated Use Cases
 - **User Registration**: A welcome email is automatically sent to new users via `api/register.php`.

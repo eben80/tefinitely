@@ -24,7 +24,7 @@ function sendEmail($recipient, $subject, $body_html, $body_text) {
             'Destination' => [
                 'ToAddresses' => [$recipient],
             ],
-            'ReplyToAddresses' => [$from_email],
+            'ReplyToAddresses' => ['tefinitely@gmail.com'],
             'Source' => $from_email,
             'Message' => [
               'Body' => [
