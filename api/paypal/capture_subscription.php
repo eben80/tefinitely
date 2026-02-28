@@ -92,6 +92,29 @@ if (isset($subscription_details->status) && $subscription_details->status === 'A
         );
         $stmt_sub->bind_param("isss", $user_id, $subscriptionID, $start_date, $end_date);
         $stmt_sub->execute();
+        $internal_sub_id = ($stmt_sub->insert_id) ? $stmt_sub->insert_id : null;
+        if (!$internal_sub_id) {
+            $stmt_get_id = $conn->prepare("SELECT id FROM subscriptions WHERE user_id = ?");
+            $stmt_get_id->bind_param("i", $user_id);
+            $stmt_get_id->execute();
+            $internal_sub_id = $stmt_get_id->get_result()->fetch_assoc()['id'];
+        }
+
+        // 3. Log the payment to subscription_payments
+        $amount = 5.00; // Default price
+        $currency = "USD";
+        $transaction_id = $subscriptionID; // Fallback to subscription ID if transaction ID not found
+
+        if (isset($subscription_details->billing_info->last_payment)) {
+            $amount = $subscription_details->billing_info->last_payment->amount->value;
+            $currency = $subscription_details->billing_info->last_payment->amount->currency_code;
+            // If we have a real transaction ID from the last payment, use it
+            // Note: This might be null if the first payment is still processing
+        }
+
+        $stmt_pay = $conn->prepare("INSERT INTO subscription_payments (subscription_id, paypal_transaction_id, amount, currency, payment_date) VALUES (?, ?, ?, ?, NOW())");
+        $stmt_pay->bind_param("isds", $internal_sub_id, $transaction_id, $amount, $currency);
+        $stmt_pay->execute();
 
         // Commit the transaction
         $conn->commit();
