@@ -43,13 +43,10 @@ function get_paypal_client_token($domains = []) {
         'response_type' => 'client_token'
     ];
 
-    // Add domains to post fields correctly
-    $post_data = http_build_query($post_fields);
-    foreach ($domains as $domain) {
-        $post_data .= '&domains[]=' . urlencode($domain);
-    }
+    // PayPal expects domains[] to be a comma-separated list of strings
+    $post_fields['domains[]'] = implode(',', $domains);
 
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post_fields));
     curl_setopt($ch, CURLOPT_USERPWD, PAYPAL_CLIENT_ID . ':' . PAYPAL_CLIENT_SECRET);
 
     $headers = [
