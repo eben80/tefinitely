@@ -73,9 +73,21 @@ Recurring billing is managed via PayPal **Billing Plans**.
 
 #### One-Time Payments
 One-time payments (e.g., a fixed 30-day access pass) are handled via PayPal **Orders**.
-1.  **Logic**: The cost and duration are currently defined in the application logic.
-2.  **Price Definition**: In `api/paypal/create_payment.php`, the `'value'` field (e.g., `'5.00'`) defines the cost. The default currency is **CAD**.
-3.  **Capture**: After the user pays, `api/paypal/capture_payment.php` is called. It hardcodes the access duration (default: `+30 days`) and updates the database accordingly.
+1.  **Dynamic Configuration**: Cost and duration are defined in the `payment_plans` table via the Admin Dashboard.
+2.  **Flow**:
+    - `api/paypal/create_payment.php` initializes the order based on the selected plan.
+    - `api/paypal/capture_payment.php` updates the user's `subscription_end_date` based on the plan's `duration_days`.
+
+#### Admin Payment Settings
+Administrators can manage all payment offerings through the **Payment Settings** tab in the Admin Dashboard.
+- **Subscriptions**: Requires a valid PayPal Plan ID.
+- **One-Time Payments**: Requires a price and duration in days.
+- **Toggle**: Plans can be enabled or disabled globally.
+
+#### Cancellations & Refunds
+The system automatically revokes access to maintain data integrity and prevent unauthorized use.
+- **Cancellations**: When a user cancels a recurring subscription via PayPal, the `BILLING.SUBSCRIPTION.CANCELLED` webhook triggers an immediate update to set the user's `subscription_status` to `inactive`.
+- **Refunds**: Receipt of `PAYMENT.SALE.REFUNDED` or `PAYMENT.CAPTURE.REFUNDED` webhooks will also immediately deactivate the user's account and log the event in the `subscriptions` table.
 
 ### 5.2 Database Schema Breakdown
 
