@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const tabBtns = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
     const auditLogsTableBody = document.getElementById('audit-logs-table-body');
+    const loginHistoryTableBody = document.getElementById('login-history-table-body');
 
     const sendEmailModal = document.getElementById('send-email-modal');
     const sendEmailForm = document.getElementById('send-email-form');
@@ -142,6 +143,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (targetTab === 'audit-logs') {
                 loadAuditLogs();
+            } else if (targetTab === 'login-history') {
+                loadLoginHistory();
             }
         });
     });
@@ -210,26 +213,35 @@ document.addEventListener('DOMContentLoaded', () => {
             return matchesSearch && matchesRole && matchesStatus;
         });
 
-        populateTable(filteredUsers, false); // Don't reset filters on sub-population
+        populateTable(filteredUsers);
     }
 
-    function populateTable(users, isInitialLoad = true) {
+    function escapeHTML(str) {
+        if (!str) return '';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    function populateTable(users) {
         usersTableBody.innerHTML = ''; // Clear existing rows
         users.forEach(user => {
             const row = document.createElement('tr');
             const statusClass = user.subscription_status === 'active' ? 'status-active' : 'status-inactive';
             const endDate = user.subscription_end_date ? new Date(user.subscription_end_date).toLocaleDateString() : 'N/A';
 
+            const fullName = `${user.first_name} ${user.last_name}`;
+
             row.innerHTML = `
-                <td>${user.id}</td>
-                <td>${user.first_name}</td>
-                <td>${user.last_name}</td>
-                <td>${user.email}</td>
-                <td>${user.role}</td>
-                <td class="${statusClass}">${user.subscription_status}</td>
-                <td>${endDate}</td>
+                <td>${escapeHTML(user.id)}</td>
+                <td>${escapeHTML(user.first_name)}</td>
+                <td>${escapeHTML(user.last_name)}</td>
+                <td>${escapeHTML(user.email)}</td>
+                <td>${escapeHTML(user.role)}</td>
+                <td class="${statusClass}">${escapeHTML(user.subscription_status)}</td>
+                <td>${escapeHTML(endDate)}</td>
                 <td>
-                    <a href="javascript:void(0)" class="view-calls-link" data-userid="${user.id}" data-name="${user.first_name} ${user.last_name}">
+                    <a href="javascript:void(0)" class="view-calls-link" data-userid="${user.id}" data-name="${escapeHTML(fullName)}">
                         ${user.calls_1h} / ${user.calls_24h} / ${user.calls_7d} / ${user.calls_30d} / ${user.calls_lifetime}
                     </a>
                 </td>
@@ -489,12 +501,54 @@ document.addEventListener('DOMContentLoaded', () => {
             const targetName = log.target_id ? `${log.target_first_name} ${log.target_last_name} (ID: ${log.target_id})` : 'N/A';
             row.innerHTML = `
                 <td>${new Date(log.created_at).toLocaleString()}</td>
-                <td>${log.admin_first_name} ${log.admin_last_name}</td>
-                <td><strong>${log.action}</strong></td>
-                <td>${targetName}</td>
-                <td>${log.details || ''}</td>
+                <td>${escapeHTML(log.admin_first_name)} ${escapeHTML(log.admin_last_name)}</td>
+                <td><strong>${escapeHTML(log.action)}</strong></td>
+                <td>${escapeHTML(targetName)}</td>
+                <td>${escapeHTML(log.details) || ''}</td>
             `;
             auditLogsTableBody.appendChild(row);
+        });
+    }
+
+    async function loadLoginHistory() {
+        loginHistoryTableBody.innerHTML = '<tr><td colspan="6">Loading history...</td></tr>';
+        try {
+            const response = await fetch('api/admin/get_login_history.php');
+            const data = await response.json();
+            if (response.ok && data.status === 'success') {
+                populateLoginHistoryTable(data.history);
+            } else {
+                loginHistoryTableBody.innerHTML = `<tr><td colspan="6">Error: ${data.message}</td></tr>`;
+            }
+        } catch (error) {
+            console.error('Error loading login history:', error);
+            loginHistoryTableBody.innerHTML = '<tr><td colspan="6">An error occurred while fetching history.</td></tr>';
+        }
+    }
+
+    function populateLoginHistoryTable(history) {
+        loginHistoryTableBody.innerHTML = '';
+        if (history.length === 0) {
+            loginHistoryTableBody.innerHTML = '<tr><td colspan="6">No login history found.</td></tr>';
+            return;
+        }
+
+        history.forEach(entry => {
+            const row = document.createElement('tr');
+            const statusClass = entry.status === 'success' ? 'status-active' : 'status-inactive';
+            const userInfo = entry.first_name ? `${entry.first_name} ${entry.last_name}` : 'Unknown / Guest';
+
+            row.innerHTML = `
+                <td>${new Date(entry.created_at).toLocaleString()}</td>
+                <td>${escapeHTML(entry.email)}</td>
+                <td>${escapeHTML(entry.ip_address)}</td>
+                <td class="${statusClass}">${escapeHTML(entry.status.toUpperCase())}</td>
+                <td>${escapeHTML(userInfo)}</td>
+                <td title="${escapeHTML(entry.user_agent)}" style="font-size: 0.8rem; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    ${escapeHTML(entry.user_agent)}
+                </td>
+            `;
+            loginHistoryTableBody.appendChild(row);
         });
     }
 
