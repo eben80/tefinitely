@@ -23,6 +23,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const openaiTimeframeSelect = document.getElementById('openai-timeframe');
     const exportCsvBtn = document.getElementById('export-csv-btn');
 
+    // Filtering Elements
+    const searchInput = document.getElementById('search-input');
+    const filterRole = document.getElementById('filter-role');
+    const filterStatus = document.getElementById('filter-status');
+    const resetFiltersBtn = document.getElementById('reset-filters-btn');
+
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+    const auditLogsTableBody = document.getElementById('audit-logs-table-body');
+
+    const sendEmailModal = document.getElementById('send-email-modal');
+    const sendEmailForm = document.getElementById('send-email-form');
+    const emailModalUserName = document.getElementById('email-modal-user-name');
+    const emailUserIdInput = document.getElementById('email-user-id');
+    const emailSubjectInput = document.getElementById('email-subject');
+    const emailMessageInput = document.getElementById('email-message');
+
     let currentEditingUserId = null;
     let currentViewingCallsUserId = null;
     let usersData = []; // Cache user data
@@ -84,6 +101,51 @@ document.addEventListener('DOMContentLoaded', () => {
         exportCsvBtn.addEventListener('click', exportCallsToCsv);
     }
 
+    if (searchInput) {
+        searchInput.addEventListener('input', applyFilters);
+    }
+    if (filterRole) {
+        filterRole.addEventListener('change', applyFilters);
+    }
+    if (filterStatus) {
+        filterStatus.addEventListener('change', applyFilters);
+    }
+    if (resetFiltersBtn) {
+        resetFiltersBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            filterRole.value = 'all';
+            filterStatus.value = 'all';
+            applyFilters();
+        });
+    }
+
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const targetTab = btn.dataset.tab;
+
+            // Update button UI
+            tabBtns.forEach(b => {
+                b.classList.remove('active');
+                b.style.borderBottom = 'none';
+            });
+            btn.classList.add('active');
+            btn.style.borderBottom = '2px solid #007bff';
+
+            // Show target content
+            tabContents.forEach(content => {
+                if (content.id === `${targetTab}-tab`) {
+                    content.style.display = 'block';
+                } else {
+                    content.style.display = 'none';
+                }
+            });
+
+            if (targetTab === 'audit-logs') {
+                loadAuditLogs();
+            }
+        });
+    });
+
     // --- Functions ---
     async function checkAdminAccess() {
         try {
@@ -107,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
             if (response.ok && data.status === 'success') {
                 usersData = data.users; // Cache the data
-                populateTable(usersData);
+                applyFilters(); // Apply current filters to the new data
                 updateStats(usersData);
             } else {
                 showToast('Failed to load users: ' + (data.message || 'Unknown error'), 'error');
@@ -134,7 +196,24 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('stat-calls-life').textContent = totalLife.toLocaleString();
     }
 
-    function populateTable(users) {
+    function applyFilters() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const roleFilter = filterRole.value;
+        const statusFilter = filterStatus.value;
+
+        const filteredUsers = usersData.filter(user => {
+            const matchesSearch = (user.first_name + ' ' + user.last_name).toLowerCase().includes(searchTerm) ||
+                                 user.email.toLowerCase().includes(searchTerm);
+            const matchesRole = roleFilter === 'all' || user.role === roleFilter;
+            const matchesStatus = statusFilter === 'all' || user.subscription_status === statusFilter;
+
+            return matchesSearch && matchesRole && matchesStatus;
+        });
+
+        populateTable(filteredUsers, false); // Don't reset filters on sub-population
+    }
+
+    function populateTable(users, isInitialLoad = true) {
         usersTableBody.innerHTML = ''; // Clear existing rows
         users.forEach(user => {
             const row = document.createElement('tr');
@@ -165,6 +244,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     <button class="edit-user-btn" data-userid="${user.id}">Edit</button>
                     <button class="delete-user-btn" data-userid="${user.id}">Delete</button>
                 </td>
+                <td>
+                    <button class="send-email-btn" data-userid="${user.id}">Send Email</button>
+                </td>
             `;
             usersTableBody.appendChild(row);
         });
@@ -181,6 +263,46 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         document.querySelectorAll('.view-calls-link').forEach(link => {
             link.addEventListener('click', openCallsModal);
+        });
+        document.querySelectorAll('.send-email-btn').forEach(button => {
+            button.addEventListener('click', openEmailModal);
+        });
+    }
+
+    function openEmailModal(event) {
+        const userId = event.target.dataset.userid;
+        const user = usersData.find(u => u.id == userId);
+        if (user) {
+            emailUserIdInput.value = userId;
+            emailModalUserName.textContent = `${user.first_name} ${user.last_name}`;
+            emailSubjectInput.value = '';
+            emailMessageInput.value = '';
+            sendEmailModal.style.display = 'block';
+        }
+    }
+
+    if (sendEmailForm) {
+        sendEmailForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const userId = emailUserIdInput.value;
+            const subject = emailSubjectInput.value;
+            const message = emailMessageInput.value;
+
+            try {
+                const response = await fetch('api/admin/send_email.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: userId, subject, message })
+                });
+                const result = await response.json();
+                showToast(result.message, response.ok ? 'success' : 'error');
+                if (response.ok) {
+                    sendEmailModal.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Send email failed:', error);
+                showToast('An error occurred while sending the email.', 'error');
+            }
         });
     }
 
@@ -337,6 +459,43 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const userData = { first_name, last_name, email, password, role };
         await addUser(userData);
+    }
+
+    async function loadAuditLogs() {
+        auditLogsTableBody.innerHTML = '<tr><td colspan="5">Loading logs...</td></tr>';
+        try {
+            const response = await fetch('api/admin/get_audit_logs.php');
+            const data = await response.json();
+            if (response.ok && data.status === 'success') {
+                populateAuditLogsTable(data.logs);
+            } else {
+                auditLogsTableBody.innerHTML = `<tr><td colspan="5">Error: ${data.message}</td></tr>`;
+            }
+        } catch (error) {
+            console.error('Error loading audit logs:', error);
+            auditLogsTableBody.innerHTML = '<tr><td colspan="5">An error occurred while fetching logs.</td></tr>';
+        }
+    }
+
+    function populateAuditLogsTable(logs) {
+        auditLogsTableBody.innerHTML = '';
+        if (logs.length === 0) {
+            auditLogsTableBody.innerHTML = '<tr><td colspan="5">No audit logs found.</td></tr>';
+            return;
+        }
+
+        logs.forEach(log => {
+            const row = document.createElement('tr');
+            const targetName = log.target_id ? `${log.target_first_name} ${log.target_last_name} (ID: ${log.target_id})` : 'N/A';
+            row.innerHTML = `
+                <td>${new Date(log.created_at).toLocaleString()}</td>
+                <td>${log.admin_first_name} ${log.admin_last_name}</td>
+                <td><strong>${log.action}</strong></td>
+                <td>${targetName}</td>
+                <td>${log.details || ''}</td>
+            `;
+            auditLogsTableBody.appendChild(row);
+        });
     }
 
     async function addUser(data) {

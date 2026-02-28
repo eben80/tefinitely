@@ -2,6 +2,7 @@
 session_start();
 header('Content-Type: application/json; charset=utf-8');
 require_once '../../db/db_config.php';
+require_once 'audit_logger.php';
 
 // Security Check: Ensure user is an admin
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
@@ -90,6 +91,8 @@ if ($method === 'GET') {
                 $stmt_sub->execute();
                 $stmt_sub->close();
 
+                logAdminAction($conn, $_SESSION['user_id'], 'update_subscription', $user_id, "Set status to $status");
+
                 $conn->commit();
                 echo json_encode(['status' => 'success', 'message' => 'User subscription updated successfully.']);
             } catch (Exception $e) {
@@ -126,6 +129,7 @@ if ($method === 'GET') {
             $stmt->bind_param("i", $user_id);
             if ($stmt->execute()) {
                 if ($stmt->affected_rows > 0) {
+                    logAdminAction($conn, $_SESSION['user_id'], 'delete_user', $user_id);
                     echo json_encode(['status' => 'success', 'message' => 'User deleted successfully.']);
                 } else {
                     http_response_code(404);
@@ -181,6 +185,8 @@ if ($method === 'GET') {
             $stmt = $conn->prepare("INSERT INTO users (first_name, last_name, email, password, role, subscription_status) VALUES (?, ?, ?, ?, ?, 'inactive')");
             $stmt->bind_param("sssss", $first_name, $last_name, $email, $hashed_password, $role);
             if ($stmt->execute()) {
+                $new_user_id = $conn->insert_id;
+                logAdminAction($conn, $_SESSION['user_id'], 'add_user', $new_user_id, "Email: $email, Role: $role");
                 // Send welcome email
                 require_once __DIR__ . '/../services/EmailService.php';
                 $subject = "Welcome to Tefinitely!";
@@ -213,6 +219,7 @@ if ($method === 'GET') {
             $stmt = $conn->prepare("UPDATE users SET email = ? WHERE id = ?");
             $stmt->bind_param("si", $email, $user_id);
             if ($stmt->execute()) {
+                logAdminAction($conn, $_SESSION['user_id'], 'update_email', $user_id, "New email: $email");
                 echo json_encode(['status' => 'success', 'message' => 'User email updated successfully.']);
             } else {
                 http_response_code(500);
@@ -239,6 +246,7 @@ if ($method === 'GET') {
             $stmt = $conn->prepare("UPDATE users SET password = ? WHERE id = ?");
             $stmt->bind_param("si", $hashed_password, $user_id);
             if ($stmt->execute()) {
+                logAdminAction($conn, $_SESSION['user_id'], 'update_password', $user_id);
                 echo json_encode(['status' => 'success', 'message' => 'User password updated successfully.']);
             } else {
                 http_response_code(500);
@@ -287,6 +295,8 @@ if ($method === 'GET') {
             $stmt_status = $conn->prepare("UPDATE users SET subscription_status = ? WHERE id = ?");
             $stmt_status->bind_param("si", $new_status, $user_id);
             $stmt_status->execute();
+
+            logAdminAction($conn, $_SESSION['user_id'], 'update_subscription_dates', $user_id, "Start: $start_date, End: $end_date, New status: $new_status");
 
             echo json_encode(['status' => 'success', 'message' => 'Subscription dates and status updated successfully.']);
             break;
