@@ -8,7 +8,8 @@ require_once '../../db/paypal_config.php';
 
 $config = [
     'client_id' => PAYPAL_CLIENT_ID,
-    'plan_id'   => PAYPAL_PLAN_ID
+    'plan_id'   => PAYPAL_PLAN_ID,
+    'environment' => PAYPAL_ENVIRONMENT
 ];
 
 echo json_encode($config);
