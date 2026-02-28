@@ -42,7 +42,7 @@ async function getPayPalInstance() {
         if (data.status === 'success') {
             paypalInstance = await window.paypal.createInstance({
                 clientToken: data.client_token,
-                components: ['buttons', 'hosted-fields', 'subscriptions']
+                components: ['paypal-payments', 'paypal-subscriptions', 'card-fields']
             });
             return paypalInstance;
         } else {
