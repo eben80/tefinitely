@@ -102,7 +102,7 @@ if (isset($subscription_details->status) && $subscription_details->status === 'A
 
         // 3. Log the payment to subscription_payments
         $amount = 5.00; // Default price
-        $currency = "USD";
+        $currency = "CAD";
         $transaction_id = $subscriptionID; // Fallback to subscription ID if transaction ID not found
 
         if (isset($subscription_details->billing_info->last_payment)) {

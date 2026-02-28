@@ -74,7 +74,7 @@ Recurring billing is managed via PayPal **Billing Plans**.
 #### One-Time Payments
 One-time payments (e.g., a fixed 30-day access pass) are handled via PayPal **Orders**.
 1.  **Logic**: The cost and duration are currently defined in the application logic.
-2.  **Price Definition**: In `api/paypal/create_payment.php`, the `'value'` field (e.g., `'5.00'`) defines the cost.
+2.  **Price Definition**: In `api/paypal/create_payment.php`, the `'value'` field (e.g., `'5.00'`) defines the cost. The default currency is **CAD**.
 3.  **Capture**: After the user pays, `api/paypal/capture_payment.php` is called. It hardcodes the access duration (default: `+30 days`) and updates the database accordingly.
 
 ### 5.2 Database Schema Breakdown

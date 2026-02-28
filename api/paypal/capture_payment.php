@@ -96,7 +96,7 @@ if (isset($capture_details->status) && $capture_details->status === 'COMPLETED')
 
         // 3. Log the payment to subscription_payments
         $amount = 5.00; // Hardcoded default for one-time
-        $currency = "USD";
+        $currency = "CAD";
         if (isset($capture_details->purchase_units[0]->payments->captures[0]->amount)) {
             $amount = $capture_details->purchase_units[0]->payments->captures[0]->amount->value;
             $currency = $capture_details->purchase_units[0]->payments->captures[0]->amount->currency_code;
