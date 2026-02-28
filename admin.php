@@ -79,9 +79,38 @@ checkAccess(true, true); // Requires active subscription and admin role
                     <p id="stat-calls-life" style="margin: 0.5rem 0 0; font-size: 1.5rem; font-weight: bold; color: #007bff;">0</p>
                 </div>
             </div>
+            <div style="display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 1px solid #ddd;">
+                <button class="tab-btn active" data-tab="user-management" style="padding: 0.5rem 1rem; border: none; background: none; cursor: pointer; border-bottom: 2px solid #007bff; font-weight: bold;">User Management</button>
+                <button class="tab-btn" data-tab="audit-logs" style="padding: 0.5rem 1rem; border: none; background: none; cursor: pointer; font-weight: bold;">Audit Logs</button>
+            </div>
+
+            <div id="user-management-tab" class="tab-content">
             <div class="header-with-button">
                 <h2>User Management</h2>
                 <button id="add-user-btn" class="action-btn">Add New User</button>
+            </div>
+            <div id="filter-controls" style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; align-items: flex-end;">
+                <div style="flex: 1; min-width: 200px;">
+                    <label for="search-input" style="display: block; font-size: 0.9rem; margin-bottom: 0.2rem;">Search Name or Email</label>
+                    <input type="text" id="search-input" placeholder="Search..." style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
+                </div>
+                <div>
+                    <label for="filter-role" style="display: block; font-size: 0.9rem; margin-bottom: 0.2rem;">Role</label>
+                    <select id="filter-role" style="padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
+                        <option value="all">All Roles</option>
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="filter-status" style="display: block; font-size: 0.9rem; margin-bottom: 0.2rem;">Status</label>
+                    <select id="filter-status" style="padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
+                        <option value="all">All Statuses</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+                <button id="reset-filters-btn" class="action-btn" style="background-color: #6c757d;">Reset</button>
             </div>
             <div class="table-container">
                 <table id="users-table">
@@ -98,12 +127,34 @@ checkAccess(true, true); // Requires active subscription and admin role
                             <th>Created At</th>
                             <th>Manage Sub</th>
                             <th>Actions</th>
+                            <th>Support</th>
                         </tr>
                 </thead>
                 <tbody id="users-table-body">
                     <!-- User rows will be inserted here by JavaScript -->
                 </tbody>
                 </table>
+            </div>
+            </div> <!-- End user-management-tab -->
+
+            <div id="audit-logs-tab" class="tab-content" style="display: none;">
+                <h2>Admin Audit Logs</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Admin</th>
+                                <th>Action</th>
+                                <th>Target User</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody id="audit-logs-table-body">
+                            <!-- Logs will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
         <div id="auth-error" style="display: none; text-align: center; margin-top: 5rem;">
@@ -193,6 +244,22 @@ checkAccess(true, true); // Requires active subscription and admin role
                     </tbody>
                 </table>
             </div>
+        </div>
+    </div>
+
+    <!-- Modal for sending email -->
+    <div id="send-email-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Send Email to <span id="email-modal-user-name"></span></h2>
+            <form id="send-email-form">
+                <input type="hidden" id="email-user-id">
+                <label for="email-subject">Subject</label>
+                <input type="text" id="email-subject" required placeholder="Subject">
+                <label for="email-message">Message</label>
+                <textarea id="email-message" required style="width: 100%; height: 150px; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; margin-bottom: 1rem; font-family: inherit;"></textarea>
+                <button type="submit" class="action-btn">Send Email</button>
+            </form>
         </div>
     </div>
 
