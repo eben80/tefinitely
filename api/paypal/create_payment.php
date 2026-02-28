@@ -39,7 +39,7 @@ function create_paypal_order($access_token) {
         'intent' => 'CAPTURE',
         'purchase_units' => [[
             'amount' => [
-                'currency_code' => 'USD',
+                'currency_code' => 'CAD',
                 'value' => '5.00' // Subscription price
             ],
             'description' => '1 Month Subscription to TEF Practice'
