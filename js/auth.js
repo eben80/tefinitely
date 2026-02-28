@@ -118,8 +118,8 @@ async function checkSession() {
                     loginPromptLandingPageElements.forEach(el => el.style.display = 'none');
                     if (subscriptionPrompt) {
                         subscriptionPrompt.style.display = 'block';
-                        if (typeof renderPayPalSubscriptionButton === 'function') {
-                            renderPayPalSubscriptionButton();
+                        if (typeof renderPayPalButtons === 'function') {
+                            renderPayPalButtons();
                         }
                     }
                     if (landingFooter) landingFooter.style.display = 'block';

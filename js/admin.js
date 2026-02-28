@@ -53,6 +53,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const paymentHistoryTableBody = document.getElementById('payment-history-table-body');
     const modalPaymentUserName = document.getElementById('modal-payment-user-name');
 
+    // Payment Plans elements
+    const plansTableBody = document.getElementById('plans-table-body');
+    const planModal = document.getElementById('plan-modal');
+    const planForm = document.getElementById('plan-form');
+    const planTypeSelect = document.getElementById('plan-type');
+    const durationField = document.getElementById('duration-field');
+    const paypalPlanField = document.getElementById('paypal-plan-field');
+    const addPlanBtn = document.getElementById('add-plan-btn');
+
     let currentEditingUserId = null;
     let currentViewingCallsUserId = null;
     let usersData = []; // Cache user data
@@ -163,6 +172,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 loadSupportTickets();
             } else if (targetTab === 'financial-overview') {
                 loadFinancialStats();
+            } else if (targetTab === 'payment-settings') {
+                loadPaymentPlans();
             }
         });
     });
@@ -196,6 +207,35 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (bulkDeleteBtn) {
         bulkDeleteBtn.addEventListener('click', handleBulkDelete);
+    }
+
+    if (addPlanBtn) {
+        addPlanBtn.addEventListener('click', () => {
+            planForm.reset();
+            document.getElementById('plan-id').value = '';
+            document.getElementById('plan-modal-title').textContent = 'Add New Payment Plan';
+            togglePlanFields();
+            planModal.style.display = 'block';
+        });
+    }
+
+    if (planTypeSelect) {
+        planTypeSelect.addEventListener('change', togglePlanFields);
+    }
+
+    if (planForm) {
+        planForm.addEventListener('submit', handleSavePlan);
+    }
+
+    function togglePlanFields() {
+        const type = planTypeSelect.value;
+        if (type === 'subscription') {
+            durationField.style.display = 'none';
+            paypalPlanField.style.display = 'block';
+        } else {
+            durationField.style.display = 'block';
+            paypalPlanField.style.display = 'none';
+        }
     }
 
     // --- Functions ---
@@ -459,6 +499,121 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (error) {
             console.error('Failed to load payment history:', error);
+        }
+    }
+
+    let paymentPlans = [];
+    async function loadPaymentPlans() {
+        try {
+            const response = await fetch('api/admin/manage_payment_plans.php');
+            const data = await response.json();
+            if (response.ok) {
+                paymentPlans = data.plans;
+                populatePlansTable(paymentPlans);
+            }
+        } catch (error) {
+            console.error('Failed to load payment plans:', error);
+        }
+    }
+
+    function populatePlansTable(plans) {
+        plansTableBody.innerHTML = '';
+        plans.forEach(plan => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${plan.id}</td>
+                <td>${escapeHTML(plan.name)}</td>
+                <td>${escapeHTML(plan.type)}</td>
+                <td>${parseFloat(plan.price).toFixed(2)}</td>
+                <td>${escapeHTML(plan.currency)}</td>
+                <td>${plan.duration_days || 'N/A'}</td>
+                <td>${escapeHTML(plan.paypal_plan_id) || 'N/A'}</td>
+                <td>${plan.is_active ? '<span class="status-active">Active</span>' : '<span class="status-inactive">Inactive</span>'}</td>
+                <td>
+                    <button class="edit-plan-btn" data-id="${plan.id}">Edit</button>
+                    <button class="delete-plan-btn" data-id="${plan.id}" style="background-color: #dc3545; color: white;">Delete</button>
+                </td>
+            `;
+            plansTableBody.appendChild(row);
+        });
+
+        document.querySelectorAll('.edit-plan-btn').forEach(btn => {
+            btn.addEventListener('click', openEditPlanModal);
+        });
+        document.querySelectorAll('.delete-plan-btn').forEach(btn => {
+            btn.addEventListener('click', handleDeletePlan);
+        });
+    }
+
+    function openEditPlanModal(e) {
+        const id = e.target.dataset.id;
+        const plan = paymentPlans.find(p => p.id == id);
+        if (plan) {
+            document.getElementById('plan-id').value = plan.id;
+            document.getElementById('plan-name').value = plan.name;
+            document.getElementById('plan-type').value = plan.type;
+            document.getElementById('plan-price').value = plan.price;
+            document.getElementById('plan-currency').value = plan.currency;
+            document.getElementById('plan-duration').value = plan.duration_days;
+            document.getElementById('plan-paypal-id').value = plan.paypal_plan_id;
+            document.getElementById('plan-description').value = plan.description;
+            document.getElementById('plan-active').value = plan.is_active;
+
+            document.getElementById('plan-modal-title').textContent = 'Edit Payment Plan';
+            togglePlanFields();
+            planModal.style.display = 'block';
+        }
+    }
+
+    async function handleSavePlan(e) {
+        e.preventDefault();
+        const id = document.getElementById('plan-id').value;
+        const payload = {
+            action: id ? 'update_plan' : 'add_plan',
+            id: id,
+            name: document.getElementById('plan-name').value,
+            type: document.getElementById('plan-type').value,
+            price: document.getElementById('plan-price').value,
+            currency: document.getElementById('plan-currency').value,
+            duration_days: document.getElementById('plan-duration').value,
+            paypal_plan_id: document.getElementById('plan-paypal-id').value,
+            description: document.getElementById('plan-description').value,
+            is_active: document.getElementById('plan-active').value
+        };
+
+        try {
+            const response = await fetch('api/admin/manage_payment_plans.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const result = await response.json();
+            showToast(result.message, response.ok ? 'success' : 'error');
+            if (response.ok) {
+                planModal.style.display = 'none';
+                loadPaymentPlans();
+            }
+        } catch (error) {
+            console.error('Failed to save plan:', error);
+            showToast('An error occurred while saving the plan.', 'error');
+        }
+    }
+
+    async function handleDeletePlan(e) {
+        if (!confirm('Are you sure you want to delete this plan?')) return;
+        const id = e.target.dataset.id;
+        try {
+            const response = await fetch('api/admin/manage_payment_plans.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'delete_plan', id: id })
+            });
+            const result = await response.json();
+            showToast(result.message, response.ok ? 'success' : 'error');
+            if (response.ok) loadPaymentPlans();
+        } catch (error) {
+            console.error('Failed to delete plan:', error);
+            showToast('An error occurred while deleting the plan.', 'error');
         }
     }
 

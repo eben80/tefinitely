@@ -100,6 +100,7 @@ checkAccess(true, true); // Admin only
 
             <div class="tabs">
                 <button class="tab-link active" data-tab="user-management">User Management</button>
+                <button class="tab-link" data-tab="payment-settings">Payment Settings</button>
                 <button class="tab-link" data-tab="financial-overview">Financial Overview</button>
                 <button class="tab-link" data-tab="audit-logs">Audit Logs</button>
                 <button class="tab-link" data-tab="login-history">Login History</button>
@@ -208,6 +209,33 @@ checkAccess(true, true); // Admin only
                         </thead>
                         <tbody id="login-history-table-body">
                             <!-- Login history will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="payment-settings-tab" class="tab-content">
+                <div class="header-with-button">
+                    <h2>Payment Settings (Plans & One-Time)</h2>
+                    <button id="add-plan-btn" class="action-btn">Add New Plan</button>
+                </div>
+                <div class="table-container">
+                    <table id="plans-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>Price</th>
+                                <th>Currency</th>
+                                <th>Duration (Days)</th>
+                                <th>PayPal Plan ID</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="plans-table-body">
+                            <!-- Plans will be inserted here -->
                         </tbody>
                     </table>
                 </div>
@@ -390,6 +418,52 @@ checkAccess(true, true); // Admin only
                 <label for="email-message">Message</label>
                 <textarea id="email-message" rows="10" required></textarea>
                 <button type="submit" class="action-btn">Send Email</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal for adding/editing payment plan -->
+    <div id="plan-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2 id="plan-modal-title">Add New Payment Plan</h2>
+            <form id="plan-form">
+                <input type="hidden" id="plan-id">
+                <label for="plan-name">Plan Name</label>
+                <input type="text" id="plan-name" required placeholder="e.g. Monthly Premium">
+
+                <label for="plan-type">Type</label>
+                <select id="plan-type" required>
+                    <option value="subscription">Subscription (Recurring)</option>
+                    <option value="one-time">One-Time Payment</option>
+                </select>
+
+                <label for="plan-price">Price</label>
+                <input type="number" id="plan-price" step="0.01" required>
+
+                <label for="plan-currency">Currency</label>
+                <input type="text" id="plan-currency" value="CAD" required>
+
+                <div id="duration-field" style="display: none;">
+                    <label for="plan-duration">Duration (Days)</label>
+                    <input type="number" id="plan-duration" placeholder="e.g. 30">
+                </div>
+
+                <div id="paypal-plan-field">
+                    <label for="plan-paypal-id">PayPal Plan ID (for subscriptions)</label>
+                    <input type="text" id="plan-paypal-id" placeholder="P-XXXXXXXXXXXXXXXXXXXX">
+                </div>
+
+                <label for="plan-description">Description</label>
+                <textarea id="plan-description" rows="3"></textarea>
+
+                <label for="plan-active">Active</label>
+                <select id="plan-active">
+                    <option value="1">Yes</option>
+                    <option value="0">No</option>
+                </select>
+
+                <button type="submit" class="action-btn" id="save-plan-btn">Save Plan</button>
             </form>
         </div>
     </div>

@@ -69,10 +69,26 @@ if (!$access_token) {
 $capture_details = capture_paypal_order($access_token, $orderID);
 
 if (isset($capture_details->status) && $capture_details->status === 'COMPLETED') {
+    // Get plan details from custom_id (which we set in create_payment.php)
+    $plan_id = $capture_details->purchase_units[0]->custom_id ?? null;
+    $duration_days = 30; // default
+    $plan_name = "One-Time Access";
+
+    if ($plan_id) {
+        $stmt_plan = $conn->prepare("SELECT name, duration_days FROM payment_plans WHERE id = ?");
+        $stmt_plan->bind_param("i", $plan_id);
+        $stmt_plan->execute();
+        $plan_info = $stmt_plan->get_result()->fetch_assoc();
+        if ($plan_info) {
+            $duration_days = $plan_info['duration_days'];
+            $plan_name = $plan_info['name'];
+        }
+    }
+
     // --- Payment is successful, now update our database ---
     $transaction_id = $capture_details->id; // Or $capture_details->purchase_units[0]->payments->captures[0]->id for more specificity
     $start_date = date('Y-m-d H:i:s');
-    $end_date = date('Y-m-d H:i:s', strtotime('+30 days'));
+    $end_date = date('Y-m-d H:i:s', strtotime("+$duration_days days"));
 
     // Use a transaction to ensure both updates succeed or fail together
     $conn->begin_transaction();

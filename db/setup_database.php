@@ -17,7 +17,8 @@ $sql_files = [
     __DIR__ . '/../sql/create_subscription_payments_table.sql',
     __DIR__ . '/../sql/create_admin_audit_logs_table.sql',
     __DIR__ . '/../sql/create_login_history_table.sql',
-    __DIR__ . '/../sql/create_support_tickets_table.sql'
+    __DIR__ . '/../sql/create_support_tickets_table.sql',
+    __DIR__ . '/../sql/create_payment_plans_table.sql'
 ];
 
 echo "<h2>Database Setup</h2>";
