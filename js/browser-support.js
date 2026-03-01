@@ -33,24 +33,32 @@
 
     function isRecommended(info) {
         if (info.os === "Windows" && info.browser === "Chrome") return true;
+        if (info.os === "Android" && info.browser === "Chrome") return true;
         if ((info.os === "Mac" || info.os === "iOS") && info.browser === "Safari") return true;
         return false;
     }
 
-    function showSupportPopup() {
-        if (localStorage.getItem('browserSupportPopupShown')) return;
+    function showSupportPopup(isManual = false) {
+        if (!isManual && localStorage.getItem('browserSupportPopupShown')) return;
 
         const info = getBrowserInfo();
-        if (isRecommended(info)) return;
+        if (!isManual && isRecommended(info)) return;
+
+        // Remove existing popup if any
+        const existingPopup = document.getElementById('browser-support-popup');
+        if (existingPopup) {
+            existingPopup.remove();
+        }
 
         const popup = document.createElement('div');
         popup.id = 'browser-support-popup';
         popup.innerHTML = `
             <div class="browser-support-popup-content">
-                <h3>Recommended Browser & OS</h3>
+                <h3>Supported OS & Browsers</h3>
                 <p>For the best experience, especially with speech functionality, we recommend using one of the following combinations:</p>
                 <ul>
                     <li><strong>Windows</strong> with <strong>Google Chrome</strong></li>
+                    <li><strong>Android</strong> with <strong>Google Chrome</strong></li>
                     <li><strong>iOS or macOS</strong> with <strong>Safari</strong></li>
                 </ul>
                 <p>Support for other combinations might vary with regards to speech functionality.</p>
@@ -62,14 +70,31 @@
         document.body.appendChild(popup);
 
         document.getElementById('close-support-popup').addEventListener('click', () => {
-            popup.style.display = 'none';
-            localStorage.setItem('browserSupportPopupShown', 'true');
+            popup.remove();
+            if (!isManual) {
+                localStorage.setItem('browserSupportPopupShown', 'true');
+            }
+        });
+
+        // Close when clicking outside the content
+        popup.addEventListener('click', (e) => {
+            if (e.target === popup) {
+                popup.remove();
+                if (!isManual) {
+                    localStorage.setItem('browserSupportPopupShown', 'true');
+                }
+            }
         });
     }
 
+    // Expose globally for footer link
+    window.showBrowserSupportPopup = function() {
+        showSupportPopup(true);
+    };
+
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', showSupportPopup);
+        document.addEventListener('DOMContentLoaded', () => showSupportPopup(false));
     } else {
-        showSupportPopup();
+        showSupportPopup(false);
     }
 })();

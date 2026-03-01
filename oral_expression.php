@@ -133,9 +133,8 @@ checkAccess();
                 <p><a href="mailto:tefinitely@gmail.com">Email Us</a></p>
             </div>
             <div class="footer-column">
-                <h4>Supported Browsers</h4>
-                <p>Windows: Chrome</p>
-                <p>iOS / Mac: Safari</p>
+                <h4>Supported Devices</h4>
+                <p><a href="javascript:void(0)" onclick="window.showBrowserSupportPopup()">Supported OS / Browsers</a></p>
             </div>
         </div>
         <div class="footer-bottom">
