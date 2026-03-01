@@ -631,6 +631,7 @@ checkAccess();
 
 
 <script src="js/toast.js"></script>
+<script src="js/browser-support.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/nav.js"></script>
 <script>

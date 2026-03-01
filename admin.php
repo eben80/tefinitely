@@ -332,6 +332,11 @@ checkAccess(true, true); // Admin only
                 <h4>Contact</h4>
                 <p><a href="mailto:tefinitely@gmail.com">Email Us</a></p>
             </div>
+            <div class="footer-column">
+                <h4>Supported Browsers</h4>
+                <p>Windows: Chrome</p>
+                <p>iOS / Mac: Safari</p>
+            </div>
         </div>
         <div class="footer-bottom">
             <p>© 2026 tefinitely.com | All Rights Reserved</p>
@@ -510,6 +515,7 @@ checkAccess(true, true); // Admin only
 
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="js/toast.js"></script>
+    <script src="js/browser-support.js"></script>
     <script src="js/admin.js"></script>
     <script>
         flatpickr("#modal-sub-start", {
