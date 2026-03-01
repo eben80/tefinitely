@@ -128,9 +128,34 @@ async function renderPayPalButtons(containerId = '#paypal-button-container') {
                 } else {
                     const instance = await getPayPalV6Instance();
                     if (instance) {
-                        renderOneTimeButton(instance, plan.id, `#${buttonId}`);
-                        renderGooglePayButton(instance, plan.id, `#${buttonId}`);
-                        renderApplePayButton(instance, plan.id, `#${buttonId}`);
+                        const ppId = `${buttonId}-paypal`;
+                        const gpId = `${buttonId}-googlepay`;
+                        const apId = `${buttonId}-applepay`;
+                        const cfId = `${buttonId}-cardfields`;
+
+                        const methodsContainer = document.createElement('div');
+                        methodsContainer.className = 'payment-methods-container';
+                        methodsContainer.innerHTML = `
+                            <div id="${ppId}"></div>
+                            <div id="${gpId}"></div>
+                            <div id="${apId}"></div>
+                            <div id="${cfId}" class="card-fields-container" style="display: none;">
+                                <hr>
+                                <h5>Pay with Credit Card</h5>
+                                <div id="${cfId}-number" class="card-field"></div>
+                                <div style="display: flex; gap: 10px;">
+                                    <div id="${cfId}-expiry" class="card-field" style="flex: 1;"></div>
+                                    <div id="${cfId}-cvv" class="card-field" style="flex: 1;"></div>
+                                </div>
+                                <button id="${cfId}-submit" class="card-field-submit">Pay with Card</button>
+                            </div>
+                        `;
+                        document.querySelector(`#${buttonId}`).appendChild(methodsContainer);
+
+                        renderOneTimeButton(instance, plan.id, `#${ppId}`);
+                        renderGooglePayButton(instance, plan.id, `#${gpId}`);
+                        renderApplePayButton(instance, plan.id, `#${apId}`);
+                        renderCardFields(instance, plan.id, cfId);
                     }
                 }
             }
@@ -207,6 +232,50 @@ async function renderGooglePayButton(instance, planId, containerId) {
         }
     } catch (err) {
         console.error('Failed to initialize Google Pay:', err);
+    }
+}
+
+async function renderCardFields(instance, planId, cfId) {
+    try {
+        const cardFields = await instance.createCardFields({
+            onApprove: async (data) => {
+                handlePaymentApproval('api/paypal/capture_payment.php', { orderID: data.orderId });
+            },
+            onError: (err) => {
+                console.error('Card Fields error:', err);
+                if (typeof showToast === 'function') showToast('Card payment failed. Please check your details.', 'error');
+            }
+        });
+
+        if (cardFields.isEligible()) {
+            document.getElementById(cfId).style.display = 'block';
+
+            const numberField = cardFields.createNumberField();
+            await numberField.render(`#${cfId}-number`);
+
+            const expiryField = cardFields.createExpiryField();
+            await expiryField.render(`#${cfId}-expiry`);
+
+            const cvvField = cardFields.createCVVField();
+            await cvvField.render(`#${cfId}-cvv`);
+
+            document.getElementById(`${cfId}-submit`).addEventListener('click', async () => {
+                try {
+                    const response = await fetch('api/paypal/create_payment.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ plan_id: planId })
+                    });
+                    const data = await response.json();
+
+                    await cardFields.submit({ orderId: data.orderID });
+                } catch (err) {
+                    console.error('Card submission error:', err);
+                }
+            });
+        }
+    } catch (err) {
+        console.error('Failed to initialize Card Fields:', err);
     }
 }
 
