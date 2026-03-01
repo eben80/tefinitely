@@ -33,6 +33,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const tabContents = document.querySelectorAll('.tab-content');
     const auditLogsTableBody = document.getElementById('audit-logs-table-body');
     const loginHistoryTableBody = document.getElementById('login-history-table-body');
+    const loginSearchInput = document.getElementById('login-search-input');
+    const loginSearchBtn = document.getElementById('login-search-btn');
+    const loginResetBtn = document.getElementById('login-reset-btn');
+    const clearLoginHistoryBtn = document.getElementById('clear-login-history-btn');
+    const clearAuditLogsBtn = document.getElementById('clear-audit-logs-btn');
+    const resetFinancialBtn = document.getElementById('reset-financial-btn');
     const supportTicketsTableBody = document.getElementById('support-tickets-table-body');
 
     const sendEmailModal = document.getElementById('send-email-modal');
@@ -225,6 +231,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (planForm) {
         planForm.addEventListener('submit', handleSavePlan);
+    }
+
+    if (loginSearchBtn) {
+        loginSearchBtn.addEventListener('click', () => loadLoginHistory(loginSearchInput.value));
+    }
+    if (loginResetBtn) {
+        loginResetBtn.addEventListener('click', () => {
+            loginSearchInput.value = '';
+            loadLoginHistory();
+        });
+    }
+    if (clearLoginHistoryBtn) {
+        clearLoginHistoryBtn.addEventListener('click', () => handleClearLogs('login_history'));
+    }
+    if (clearAuditLogsBtn) {
+        clearAuditLogsBtn.addEventListener('click', () => handleClearLogs('audit_logs'));
+    }
+    if (resetFinancialBtn) {
+        resetFinancialBtn.addEventListener('click', () => handleClearLogs('financial'));
     }
 
     function togglePlanFields() {
@@ -833,10 +858,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    async function loadLoginHistory() {
+    async function loadLoginHistory(search = '') {
         loginHistoryTableBody.innerHTML = '<tr><td colspan="6">Loading history...</td></tr>';
         try {
-            const response = await fetch('api/admin/get_login_history.php');
+            const url = search ? `api/admin/get_login_history.php?search=${encodeURIComponent(search)}` : 'api/admin/get_login_history.php';
+            const response = await fetch(url);
             const data = await response.json();
             if (response.ok && data.status === 'success') {
                 populateLoginHistoryTable(data.history);
@@ -846,6 +872,34 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('Error loading login history:', error);
             loginHistoryTableBody.innerHTML = '<tr><td colspan="6">An error occurred while fetching history.</td></tr>';
+        }
+    }
+
+    async function handleClearLogs(type) {
+        const confirmMsg = {
+            'login_history': 'Are you sure you want to clear ALL login history? This cannot be undone.',
+            'audit_logs': 'Are you sure you want to clear ALL audit logs? This cannot be undone.',
+            'financial': 'Are you sure you want to reset financial data (clear all payment records)? This cannot be undone.'
+        };
+
+        if (!confirm(confirmMsg[type])) return;
+
+        try {
+            const response = await fetch('api/admin/clear_logs.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ type: type })
+            });
+            const result = await response.json();
+            showToast(result.message, response.ok ? 'success' : 'error');
+            if (response.ok) {
+                if (type === 'login_history') loadLoginHistory();
+                if (type === 'audit_logs') loadAuditLogs();
+                if (type === 'financial') loadFinancialStats();
+            }
+        } catch (error) {
+            console.error(`Clear ${type} failed:`, error);
+            showToast('An error occurred.', 'error');
         }
     }
 
