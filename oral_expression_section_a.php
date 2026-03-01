@@ -235,7 +235,7 @@ checkAccess();
             </div>
             <div class="footer-column">
                 <h4>Contact</h4>
-                <p>Email us at<br><a href="mailto:support@tefinitely.com">support@tefinitely.com</a></p>
+                <p><a href="mailto:tefinitely@gmail.com">Email Us</a></p>
             </div>
         </div>
         <div class="footer-bottom">
