@@ -3,36 +3,6 @@
 let paypalV6Instance = null;
 
 /**
- * Load the PayPal SDK v6 Core script (for One-Time Payments)
- */
-async function loadPayPalV6Core() {
-    if (document.getElementById('paypal-v6-script')) {
-        return new Promise((resolve) => {
-            if (window.paypal && window.paypal.createInstance) resolve();
-            else document.getElementById('paypal-v6-script').onload = resolve;
-        });
-    }
-
-    try {
-        const configResponse = await fetch('api/paypal/get_config.php');
-        const config = await configResponse.json();
-        const isSandbox = config.environment === 'sandbox';
-
-        const script = document.createElement('script');
-        script.src = isSandbox ? "https://www.sandbox.paypal.com/web-sdk/v6/core" : "https://www.paypal.com/web-sdk/v6/core";
-        script.id = 'paypal-v6-script';
-        script.async = true;
-        document.head.appendChild(script);
-
-        return new Promise((resolve) => {
-            script.onload = resolve;
-        });
-    } catch (error) {
-        console.error('Failed to load PayPal config:', error);
-    }
-}
-
-/**
  * Load the standard Subscriptions SDK (v5-style, for Subscriptions)
  */
 async function loadPayPalSubscriptionsSDK() {
@@ -65,28 +35,35 @@ async function loadPayPalSubscriptionsSDK() {
     }
 }
 
-async function getPayPalV6Instance() {
-    if (paypalV6Instance) return paypalV6Instance;
-
-    await loadPayPalV6Core();
+/**
+ * Load the Standard PayPal JS SDK for One-Time Payments
+ */
+async function loadPayPalOneTimeSDK() {
+    if (document.getElementById('paypal-onetime-script')) {
+        return new Promise((resolve) => {
+            if (window.paypal && window.paypal.Buttons) resolve();
+            else document.getElementById('paypal-onetime-script').onload = resolve;
+        });
+    }
 
     try {
-        const response = await fetch('api/paypal/get_client_token.php');
-        const data = await response.json();
+        const configResponse = await fetch('api/paypal/get_config.php');
+        const config = await configResponse.json();
+        const clientId = config.client_id;
 
-        if (data.status === 'success') {
-            paypalV6Instance = await window.paypal.createInstance({
-                clientToken: data.client_token,
-                components: ['paypal-payments', 'card-fields', 'googlepay-payments', 'applepay-payments']
-            });
-            return paypalV6Instance;
-        } else {
-            console.error('Failed to get client token:', data.message);
-        }
+        const script = document.createElement('script');
+        // Standard SDK for one-time
+        script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&components=buttons,funding-eligibility`;
+        script.id = 'paypal-onetime-script';
+        script.async = true;
+        document.head.appendChild(script);
+
+        return new Promise((resolve) => {
+            script.onload = resolve;
+        });
     } catch (error) {
-        console.error('Error initializing PayPal v6:', error);
+        console.error('Failed to load PayPal One-Time SDK:', error);
     }
-    return null;
 }
 
 async function renderPayPalButtons(containerId = '#paypal-button-container') {
@@ -126,37 +103,7 @@ async function renderPayPalButtons(containerId = '#paypal-button-container') {
                 if (plan.type === 'subscription') {
                     renderSubscriptionButton(plan.paypal_plan_id, `#${buttonId}`);
                 } else {
-                    const instance = await getPayPalV6Instance();
-                    if (instance) {
-                        const ppId = `${buttonId}-paypal`;
-                        const gpId = `${buttonId}-googlepay`;
-                        const apId = `${buttonId}-applepay`;
-                        const cfId = `${buttonId}-cardfields`;
-
-                        const methodsContainer = document.createElement('div');
-                        methodsContainer.className = 'payment-methods-container';
-                        methodsContainer.innerHTML = `
-                            <div id="${ppId}"></div>
-                            <div id="${gpId}"></div>
-                            <div id="${apId}"></div>
-                            <div id="${cfId}" class="card-fields-container" style="display: none;">
-                                <hr>
-                                <h5>Pay with Credit Card</h5>
-                                <div id="${cfId}-number" class="card-field"></div>
-                                <div style="display: flex; gap: 10px;">
-                                    <div id="${cfId}-expiry" class="card-field" style="flex: 1;"></div>
-                                    <div id="${cfId}-cvv" class="card-field" style="flex: 1;"></div>
-                                </div>
-                                <button id="${cfId}-submit" class="card-field-submit">Pay with Card</button>
-                            </div>
-                        `;
-                        document.querySelector(`#${buttonId}`).appendChild(methodsContainer);
-
-                        renderOneTimeButton(instance, plan.id, `#${ppId}`);
-                        renderGooglePayButton(instance, plan.id, `#${gpId}`);
-                        renderApplePayButton(instance, plan.id, `#${apId}`);
-                        renderCardFields(instance, plan.id, cfId);
-                    }
+                    renderOneTimeButtons(plan.id, `#${buttonId}`);
                 }
             }
         } else {
@@ -190,177 +137,37 @@ async function renderSubscriptionButton(paypalPlanId, containerId) {
     }
 }
 
-async function renderGooglePayButton(instance, planId, containerId) {
-    try {
-        const googlepay = await instance.createGooglePayPaymentSession({
-            onApprove: async (data) => {
-                handlePaymentApproval('api/paypal/capture_payment.php', { orderID: data.orderId });
+async function renderOneTimeButtons(planId, containerId) {
+    await loadPayPalOneTimeSDK();
+
+    if (window.paypal && window.paypal.Buttons) {
+        window.paypal.Buttons({
+            style: {
+                layout: 'vertical',
+                color: 'blue',
+                shape: 'rect',
+                label: 'pay'
+            },
+            createOrder: function(data, actions) {
+                return fetch('api/paypal/create_payment.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ plan_id: planId })
+                })
+                .then(res => res.json())
+                .then(data => data.orderID);
+            },
+            onApprove: function(data, actions) {
+                return handlePaymentApproval('api/paypal/capture_payment.php', { orderID: data.orderID });
             },
             onError: (err) => {
-                console.error('Google Pay error:', err);
+                console.error('PayPal One-Time error:', err);
+                if (typeof showToast === 'function') showToast('An error occurred with the payment button.', 'error');
             }
-        });
-
-        const isEligible = await googlepay.isEligible();
-        if (isEligible) {
-            const buttonContainer = document.createElement('div');
-            buttonContainer.className = 'googlepay-button-container';
-            buttonContainer.style.marginTop = '10px';
-            document.querySelector(containerId).appendChild(buttonContainer);
-
-            const button = document.createElement('googlepay-button');
-            button.setAttribute('button-type', 'plain');
-            button.setAttribute('button-color', 'black');
-            buttonContainer.appendChild(button);
-
-            button.addEventListener('click', async () => {
-                try {
-                    const response = await fetch('api/paypal/create_payment.php', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ plan_id: planId })
-                    });
-                    const data = await response.json();
-                    await googlepay.start({
-                        orderId: data.orderID,
-                        presentationMode: 'auto'
-                    });
-                } catch (err) {
-                    console.error('Google Pay start error:', err);
-                }
-            });
-        }
-    } catch (err) {
-        console.error('Failed to initialize Google Pay:', err);
+        }).render(containerId);
+    } else {
+        console.error('PayPal One-Time SDK not loaded correctly.');
     }
-}
-
-async function renderCardFields(instance, planId, cfId) {
-    try {
-        const cardFields = await instance.createCardFields({
-            onApprove: async (data) => {
-                handlePaymentApproval('api/paypal/capture_payment.php', { orderID: data.orderId });
-            },
-            onError: (err) => {
-                console.error('Card Fields error:', err);
-                if (typeof showToast === 'function') showToast('Card payment failed. Please check your details.', 'error');
-            }
-        });
-
-        if (cardFields.isEligible()) {
-            document.getElementById(cfId).style.display = 'block';
-
-            const numberField = cardFields.createNumberField();
-            await numberField.render(`#${cfId}-number`);
-
-            const expiryField = cardFields.createExpiryField();
-            await expiryField.render(`#${cfId}-expiry`);
-
-            const cvvField = cardFields.createCVVField();
-            await cvvField.render(`#${cfId}-cvv`);
-
-            document.getElementById(`${cfId}-submit`).addEventListener('click', async () => {
-                try {
-                    const response = await fetch('api/paypal/create_payment.php', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ plan_id: planId })
-                    });
-                    const data = await response.json();
-
-                    await cardFields.submit({ orderId: data.orderID });
-                } catch (err) {
-                    console.error('Card submission error:', err);
-                }
-            });
-        }
-    } catch (err) {
-        console.error('Failed to initialize Card Fields:', err);
-    }
-}
-
-async function renderApplePayButton(instance, planId, containerId) {
-    try {
-        const applepay = await instance.createApplePayPaymentSession({
-            onApprove: async (data) => {
-                handlePaymentApproval('api/paypal/capture_payment.php', { orderID: data.orderId });
-            },
-            onError: (err) => {
-                console.error('Apple Pay error:', err);
-            }
-        });
-
-        const isEligible = await applepay.isEligible();
-        if (isEligible) {
-            const buttonContainer = document.createElement('div');
-            buttonContainer.className = 'applepay-button-container';
-            buttonContainer.style.marginTop = '10px';
-            document.querySelector(containerId).appendChild(buttonContainer);
-
-            const button = document.createElement('applepay-button');
-            button.setAttribute('buttonstyle', 'black');
-            button.setAttribute('type', 'plain');
-            button.setAttribute('locale', 'en-US');
-            buttonContainer.appendChild(button);
-
-            button.addEventListener('click', async () => {
-                try {
-                    const response = await fetch('api/paypal/create_payment.php', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ plan_id: planId })
-                    });
-                    const data = await response.json();
-                    await applepay.start({
-                        orderId: data.orderID,
-                        presentationMode: 'auto'
-                    });
-                } catch (err) {
-                    console.error('Apple Pay start error:', err);
-                }
-            });
-        }
-    } catch (err) {
-        console.error('Failed to initialize Apple Pay:', err);
-    }
-}
-
-async function renderOneTimeButton(instance, planId, containerId) {
-    const orderPromise = async () => {
-        try {
-            const response = await fetch('api/paypal/create_payment.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ plan_id: planId })
-            });
-            const data = await response.json();
-            // v6 SDK expects an object with orderId (case sensitive)
-            return { orderId: data.orderID };
-        } catch (err) {
-            console.error('Create Order error:', err);
-            throw err;
-        }
-    };
-
-    const session = await instance.createPayPalOneTimePaymentSession({
-        onApprove: async (data) => {
-            handlePaymentApproval('api/paypal/capture_payment.php', { orderID: data.orderId });
-        },
-        onError: (err) => {
-            console.error('PayPal One-Time error:', err);
-            if (typeof showToast === 'function') showToast('An error occurred with the payment button.', 'error');
-        }
-    });
-
-    const button = document.createElement('paypal-button');
-    button.setAttribute('color', 'blue');
-    document.querySelector(containerId).appendChild(button);
-    // session.start(options, orderPromise) - orderPromise is the 2nd argument in v6
-    // The SDK specifically expects a Promise as the second argument.
-    button.addEventListener('click', () => {
-        session.start({ presentationMode: 'auto' }, orderPromise())
-            .catch(err => console.error('Failed to start PayPal session:', err));
-    });
 }
 
 async function handlePaymentApproval(endpoint, payload) {
