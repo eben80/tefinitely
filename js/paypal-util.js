@@ -54,7 +54,7 @@ async function loadPayPalOneTimeSDK() {
 
         const script = document.createElement('script');
         // Standard SDK for one-time
-        script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&components=buttons,funding-eligibility&currency=${currency}`;
+        script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&components=buttons,funding-eligibility&currency=${currency}&intent=capture`;
         script.id = 'paypal-onetime-script';
         script.async = true;
         document.head.appendChild(script);
