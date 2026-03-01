@@ -16,12 +16,12 @@ async function loadPayPalSubscriptionsSDK() {
     try {
         const configResponse = await fetch('api/paypal/get_config.php');
         const config = await configResponse.json();
-        const isSandbox = config.environment === 'sandbox';
         const clientId = config.client_id;
+        const currency = config.currency || 'CAD';
 
         const script = document.createElement('script');
         // We use a different namespace (paypalSubscriptions) to avoid conflicts with v6 window.paypal
-        script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&vault=true&intent=subscription&components=buttons`;
+        script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&vault=true&intent=subscription&components=buttons&currency=${currency}`;
         script.setAttribute('data-namespace', 'paypalSubscriptions');
         script.id = 'paypal-subscriptions-script';
         script.async = true;
@@ -50,10 +50,11 @@ async function loadPayPalOneTimeSDK() {
         const configResponse = await fetch('api/paypal/get_config.php');
         const config = await configResponse.json();
         const clientId = config.client_id;
+        const currency = config.currency || 'CAD';
 
         const script = document.createElement('script');
         // Standard SDK for one-time
-        script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&components=buttons,funding-eligibility`;
+        script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&components=buttons,funding-eligibility&currency=${currency}`;
         script.id = 'paypal-onetime-script';
         script.async = true;
         document.head.appendChild(script);
@@ -220,6 +221,10 @@ async function renderOneTimeButtons(planId, containerId) {
         if (fundingSources.includes(window.paypal.FUNDING.CARD)) {
             window.paypal.Buttons({
                 ...baseConfig,
+                style: {
+                    ...baseConfig.style,
+                    color: 'black' // Card button only supports 'black' or 'white'
+                },
                 fundingSource: window.paypal.FUNDING.CARD
             }).render(`#card-container-${planId}`);
         }
