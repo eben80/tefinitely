@@ -33,7 +33,6 @@
 
     function isRecommended(info) {
         if (info.os === "Windows" && info.browser === "Chrome") return true;
-        if (info.os === "Android" && info.browser === "Chrome") return true;
         if ((info.os === "Mac" || info.os === "iOS") && info.browser === "Safari") return true;
         return false;
     }
@@ -58,7 +57,6 @@
                 <p>For the best experience, especially with speech functionality, we recommend using one of the following combinations:</p>
                 <ul>
                     <li><strong>Windows</strong> with <strong>Google Chrome</strong></li>
-                    <li><strong>Android</strong> with <strong>Google Chrome</strong></li>
                     <li><strong>iOS or macOS</strong> with <strong>Safari</strong></li>
                 </ul>
                 <p>Support for other combinations might vary with regards to speech functionality.</p>
