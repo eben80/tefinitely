@@ -80,7 +80,7 @@ checkAccess();
                 <div class="dropdown-content">
                     <a href="oral_expression_section_a.php">Flashcards</a>
                     <a href="practise/section_a/index.php">Section A Practice</a>
-                    <a href="practise/section_b/index.php">Section B Practice</a>
+                    <a href="practise/section_b/index.php">Section B Practice <span class="non-functional-sticker">Non-Functional</span></a>
                 </div>
             </div>
             <a href="training.php">Phased Training</a>
@@ -99,7 +99,7 @@ checkAccess();
 
     <div class="section-card">
         <h2>Oral Expression Practice</h2>
-        <p>Master essential phrases for the TEF Canada exam. Practice pronunciation and build a strong foundation for success in Section A, or engage in realistic dialogues in Section B.</p>
+        <p>Master essential phrases for the TEF Canada exam. Practice pronunciation and build a strong foundation for success in Section A, or engage in realistic dialogues in Section B <span class="non-functional-sticker">Non-Functional</span>.</p>
         <a href="oral_expression.php">Go to Oral Expression</a>
     </div>
 

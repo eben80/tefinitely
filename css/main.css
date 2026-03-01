@@ -471,3 +471,17 @@ a {
 .browser-support-popup-content button:hover {
     background: #0056b3;
 }
+
+/* --- Non-Functional Sticker --- */
+.non-functional-sticker {
+    display: inline-block;
+    background-color: #ffc107;
+    color: #333;
+    font-size: 0.7rem;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 5px;
+    vertical-align: middle;
+    text-transform: uppercase;
+}

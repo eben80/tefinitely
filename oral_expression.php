@@ -79,7 +79,7 @@ checkAccess();
                 <div class="dropdown-content">
                     <a href="oral_expression_section_a.php">Flashcards</a>
                     <a href="practise/section_a/index.php">Section A Practice</a>
-                    <a href="practise/section_b/index.php">Section B Practice</a>
+                    <a href="practise/section_b/index.php">Section B Practice <span class="non-functional-sticker">Non-Functional</span></a>
                 </div>
             </div>
             <a href="training.php">Phased Training</a>
@@ -109,9 +109,9 @@ checkAccess();
     </div>
 
     <div class="section-card">
-        <h2>Interactive Practice: Section B</h2>
+        <h2>Interactive Practice: Section B <span class="non-functional-sticker">Non-Functional</span></h2>
         <p>Engage in realistic dialogues and interactive scenarios to apply your knowledge in context. This section will challenge you to think on your feet and respond naturally in French.</p>
-        <a href="practise/section_b/index.php">Start Section B Practice</a>
+        <a href="practise/section_b/index.php">Start Section B Practice <span class="non-functional-sticker">Non-Functional</span></a>
     </div>
 
     <footer class="landing-footer">

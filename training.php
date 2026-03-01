@@ -129,7 +129,7 @@ checkAccess();
                 <div class="dropdown-content">
                     <a href="oral_expression_section_a.php">Flashcards</a>
                     <a href="practise/section_a/index.php">Section A Practice</a>
-                    <a href="practise/section_b/index.php">Section B Practice</a>
+                    <a href="practise/section_b/index.php">Section B Practice <span class="non-functional-sticker">Non-Functional</span></a>
                 </div>
             </div>
             <a href="training.php">Phased Training</a>
@@ -153,7 +153,7 @@ checkAccess();
     <div class="training-nav">
         <button id="phase1-btn" class="active">Phase 1: Shadowing</button>
         <button id="phase2-btn">Phase 2: Question Drills</button>
-        <button id="phase3-btn">Phase 3: Roleplays</button>
+        <button id="phase3-btn">Phase 3: Roleplays <span class="non-functional-sticker">Non-Functional</span></button>
         <button id="phase4-btn">Phase 4: Spontaneity</button>
         <button id="phase5-btn">Phase 5: Script Writing</button>
     </div>
@@ -200,12 +200,12 @@ checkAccess();
     </div>
 
     <div id="phase3-module" class="training-module">
-        <h2>Phase 3: Semi-Guided Roleplays</h2>
+        <h2>Phase 3: Semi-Guided Roleplays <span class="non-functional-sticker">Non-Functional</span></h2>
         <p>Practice fluid, realistic dialogue in context. Start with a cloze (fill-in-the-blanks) activity.</p>
         <div id="roleplay-setup">
             <label for="roleplay-scenario-select">Choose a scenario:</label>
             <select id="roleplay-scenario-select"></select>
-            <button id="start-roleplay-btn">Start Cloze Activity</button>
+            <button id="start-roleplay-btn">Start Cloze Activity <span class="non-functional-sticker">Non-Functional</span></button>
         </div>
         <div id="roleplay-container" style="display: none; margin-top: 1rem; padding: 1rem; background: #fff; border-radius: 8px;">
             <h3 id="roleplay-title"></h3>

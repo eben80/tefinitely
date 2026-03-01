@@ -95,7 +95,7 @@ checkAccess(false); // Does not require active subscription to view profile
                 <div class="dropdown-content">
                     <a href="oral_expression_section_a.php">Flashcards</a>
                     <a href="practise/section_a/index.php">Section A Practice</a>
-                    <a href="practise/section_b/index.php">Section B Practice</a>
+                    <a href="practise/section_b/index.php">Section B Practice <span class="non-functional-sticker">Non-Functional</span></a>
                 </div>
                 </div>
             <a href="training.php">Phased Training</a>
