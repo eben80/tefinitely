@@ -98,11 +98,31 @@ async function renderPayPalButtons(containerId = '#paypal-button-container') {
                 const buttonContainer = document.createElement('div');
                 buttonContainer.id = buttonId;
                 planWrapper.appendChild(buttonContainer);
-                container.appendChild(planWrapper);
 
                 if (plan.type === 'subscription') {
+                    container.appendChild(planWrapper);
                     renderSubscriptionButton(plan.paypal_plan_id, `#${buttonId}`);
                 } else {
+                    // Create containers for additional funding sources for one-time payments
+                    const gpayContainer = document.createElement('div');
+                    gpayContainer.id = `googlepay-container-${plan.id}`;
+                    gpayContainer.className = 'googlepay-container';
+                    gpayContainer.style.marginTop = '10px';
+                    planWrapper.appendChild(gpayContainer);
+
+                    const applepayContainer = document.createElement('div');
+                    applepayContainer.id = `applepay-container-${plan.id}`;
+                    applepayContainer.className = 'applepay-container';
+                    applepayContainer.style.marginTop = '10px';
+                    planWrapper.appendChild(applepayContainer);
+
+                    const cardContainer = document.createElement('div');
+                    cardContainer.id = `card-container-${plan.id}`;
+                    cardContainer.className = 'card-container';
+                    cardContainer.style.marginTop = '10px';
+                    planWrapper.appendChild(cardContainer);
+
+                    container.appendChild(planWrapper);
                     renderOneTimeButtons(plan.id, `#${buttonId}`);
                 }
             }
@@ -141,7 +161,11 @@ async function renderOneTimeButtons(planId, containerId) {
     await loadPayPalOneTimeSDK();
 
     if (window.paypal && window.paypal.Buttons) {
-        window.paypal.Buttons({
+        // Log funding sources for diagnostics as requested
+        const fundingSources = window.paypal.getFundingSources();
+        console.log('PayPal Available Funding Sources:', fundingSources);
+
+        const baseConfig = {
             style: {
                 layout: 'vertical',
                 color: 'blue',
@@ -164,7 +188,41 @@ async function renderOneTimeButtons(planId, containerId) {
                 console.error('PayPal One-Time error:', err);
                 if (typeof showToast === 'function') showToast('An error occurred with the payment button.', 'error');
             }
+        };
+
+        // Render standard PayPal button (explicitly selecting PayPal funding source to avoid redundancy)
+        window.paypal.Buttons({
+            ...baseConfig,
+            fundingSource: window.paypal.FUNDING.PAYPAL
         }).render(containerId);
+
+        // Explicitly render Google Pay if eligible
+        if (fundingSources.includes(window.paypal.FUNDING.GOOGLEPAY)) {
+            window.paypal.Buttons({
+                ...baseConfig,
+                fundingSource: window.paypal.FUNDING.GOOGLEPAY
+            }).render(`#googlepay-container-${planId}`);
+        }
+
+        // Explicitly render Apple Pay if eligible
+        if (window.paypal.Applepay && fundingSources.includes(window.paypal.FUNDING.APPLEPAY)) {
+             window.paypal.Applepay().isEligible().then(eligible => {
+                if (eligible) {
+                    window.paypal.Buttons({
+                        ...baseConfig,
+                        fundingSource: window.paypal.FUNDING.APPLEPAY
+                    }).render(`#applepay-container-${planId}`);
+                }
+            });
+        }
+
+        // Explicitly render Card if eligible
+        if (fundingSources.includes(window.paypal.FUNDING.CARD)) {
+            window.paypal.Buttons({
+                ...baseConfig,
+                fundingSource: window.paypal.FUNDING.CARD
+            }).render(`#card-container-${planId}`);
+        }
     } else {
         console.error('PayPal One-Time SDK not loaded correctly.');
     }
@@ -192,4 +250,9 @@ async function handlePaymentApproval(endpoint, payload) {
 
 async function renderPayPalSubscriptionButton(containerId = '#paypal-button-container') {
     return renderPayPalButtons(containerId);
+}
+
+// Compatibility alias for profile.php
+async function loadPayPalSDK() {
+    return loadPayPalOneTimeSDK();
 }
