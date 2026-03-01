@@ -1,12 +1,15 @@
 // js/paypal-util.js
 
-let paypalInstance = null;
+let paypalV6Instance = null;
 
-async function loadPayPalSDK() {
-    if (document.getElementById('paypal-sdk-script')) {
+/**
+ * Load the PayPal SDK v6 Core script (for One-Time Payments)
+ */
+async function loadPayPalV6Core() {
+    if (document.getElementById('paypal-v6-script')) {
         return new Promise((resolve) => {
             if (window.paypal && window.paypal.createInstance) resolve();
-            else document.getElementById('paypal-sdk-script').onload = resolve;
+            else document.getElementById('paypal-v6-script').onload = resolve;
         });
     }
 
@@ -16,9 +19,8 @@ async function loadPayPalSDK() {
         const isSandbox = config.environment === 'sandbox';
 
         const script = document.createElement('script');
-        // Using v6 core
         script.src = isSandbox ? "https://www.sandbox.paypal.com/web-sdk/v6/core" : "https://www.paypal.com/web-sdk/v6/core";
-        script.id = 'paypal-sdk-script';
+        script.id = 'paypal-v6-script';
         script.async = true;
         document.head.appendChild(script);
 
@@ -30,21 +32,54 @@ async function loadPayPalSDK() {
     }
 }
 
-async function getPayPalInstance() {
-    if (paypalInstance) return paypalInstance;
+/**
+ * Load the standard Subscriptions SDK (v5-style, for Subscriptions)
+ */
+async function loadPayPalSubscriptionsSDK() {
+    if (document.getElementById('paypal-subscriptions-script')) {
+        return new Promise((resolve) => {
+            if (window.paypalSubscriptions) resolve();
+            else document.getElementById('paypal-subscriptions-script').onload = resolve;
+        });
+    }
 
-    await loadPayPalSDK();
+    try {
+        const configResponse = await fetch('api/paypal/get_config.php');
+        const config = await configResponse.json();
+        const isSandbox = config.environment === 'sandbox';
+        const clientId = config.client_id;
+
+        const script = document.createElement('script');
+        // We use a different namespace (paypalSubscriptions) to avoid conflicts with v6 window.paypal
+        script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&vault=true&intent=subscription&components=buttons`;
+        script.setAttribute('data-namespace', 'paypalSubscriptions');
+        script.id = 'paypal-subscriptions-script';
+        script.async = true;
+        document.head.appendChild(script);
+
+        return new Promise((resolve) => {
+            script.onload = resolve;
+        });
+    } catch (error) {
+        console.error('Failed to load PayPal Subscriptions SDK:', error);
+    }
+}
+
+async function getPayPalV6Instance() {
+    if (paypalV6Instance) return paypalV6Instance;
+
+    await loadPayPalV6Core();
 
     try {
         const response = await fetch('api/paypal/get_client_token.php');
         const data = await response.json();
 
         if (data.status === 'success') {
-            paypalInstance = await window.paypal.createInstance({
+            paypalV6Instance = await window.paypal.createInstance({
                 clientToken: data.client_token,
-                components: ['paypal-payments', 'paypal-subscriptions', 'card-fields']
+                components: ['paypal-payments', 'card-fields']
             });
-            return paypalInstance;
+            return paypalV6Instance;
         } else {
             console.error('Failed to get client token:', data.message);
         }
@@ -63,9 +98,6 @@ async function renderPayPalButtons(containerId = '#paypal-button-container') {
         container.innerHTML = ''; // Clear existing
 
         if (data.status === 'success' && data.plans.length > 0) {
-            const instance = await getPayPalInstance();
-            if (!instance) return;
-
             for (const plan of data.plans) {
                 const planWrapper = document.createElement('div');
                 planWrapper.className = 'plan-option';
@@ -92,9 +124,10 @@ async function renderPayPalButtons(containerId = '#paypal-button-container') {
                 container.appendChild(planWrapper);
 
                 if (plan.type === 'subscription') {
-                    renderSubscriptionButton(instance, plan.paypal_plan_id, `#${buttonId}`);
+                    renderSubscriptionButton(plan.paypal_plan_id, `#${buttonId}`);
                 } else {
-                    renderOneTimeButton(instance, plan.id, `#${buttonId}`);
+                    const instance = await getPayPalV6Instance();
+                    if (instance) renderOneTimeButton(instance, plan.id, `#${buttonId}`);
                 }
             }
         } else {
@@ -105,21 +138,27 @@ async function renderPayPalButtons(containerId = '#paypal-button-container') {
     }
 }
 
-async function renderSubscriptionButton(instance, paypalPlanId, containerId) {
-    const session = await instance.createPayPalSubscriptionSession({
-        planId: paypalPlanId,
-        onApprove: async (data) => {
-            handlePaymentApproval('api/paypal/capture_subscription.php', { subscriptionID: data.subscriptionID });
-        },
-        onError: (err) => {
-            console.error('PayPal Subscription error:', err);
-            if (typeof showToast === 'function') showToast('An error occurred with the subscription button.', 'error');
-        }
-    });
+async function renderSubscriptionButton(paypalPlanId, containerId) {
+    await loadPayPalSubscriptionsSDK();
 
-    const button = document.createElement('paypal-button');
-    document.querySelector(containerId).appendChild(button);
-    button.addEventListener('click', () => session.start());
+    if (window.paypalSubscriptions && window.paypalSubscriptions.Buttons) {
+        window.paypalSubscriptions.Buttons({
+            createSubscription: function(data, actions) {
+                return actions.subscription.create({
+                    plan_id: paypalPlanId
+                });
+            },
+            onApprove: function(data) {
+                handlePaymentApproval('api/paypal/capture_subscription.php', { subscriptionID: data.subscriptionID });
+            },
+            onError: (err) => {
+                console.error('PayPal Subscription error:', err);
+                if (typeof showToast === 'function') showToast('An error occurred with the subscription button.', 'error');
+            }
+        }).render(containerId);
+    } else {
+        console.error('PayPal Subscriptions SDK not loaded correctly.');
+    }
 }
 
 async function renderOneTimeButton(instance, planId, containerId) {
