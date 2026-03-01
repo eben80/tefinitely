@@ -174,7 +174,10 @@ checkAccess(true, true); // Admin only
             </div>
 
             <div id="audit-logs-tab" class="tab-content">
-                <h2>Audit Logs</h2>
+                <div class="header-with-button">
+                    <h2>Audit Logs</h2>
+                    <button id="clear-audit-logs-btn" class="action-btn" style="background-color: #dc3545;">Clear Audit Logs</button>
+                </div>
                 <div class="table-container">
                     <table id="audit-logs-table">
                         <thead>
@@ -194,7 +197,18 @@ checkAccess(true, true); // Admin only
             </div>
 
             <div id="login-history-tab" class="tab-content">
-                <h2>Login History</h2>
+                <div class="header-with-button">
+                    <h2>Login History</h2>
+                    <button id="clear-login-history-btn" class="action-btn" style="background-color: #dc3545;">Clear History</button>
+                </div>
+                <div class="filter-bar">
+                    <div class="filter-group">
+                        <label for="login-search-input">Search:</label>
+                        <input type="search" id="login-search-input" placeholder="IP, Email, or Name...">
+                    </div>
+                    <button id="login-search-btn" class="action-btn">Search</button>
+                    <button id="login-reset-btn" class="action-btn" style="background-color: #6c757d;">Reset</button>
+                </div>
                 <div class="table-container">
                     <table id="login-history-table">
                         <thead>
@@ -242,7 +256,10 @@ checkAccess(true, true); // Admin only
             </div>
 
             <div id="financial-overview-tab" class="tab-content">
-                <h2>Financial Overview</h2>
+                <div class="header-with-button">
+                    <h2>Financial Overview</h2>
+                    <button id="reset-financial-btn" class="action-btn" style="background-color: #dc3545;">Reset Financial Data</button>
+                </div>
                 <div id="financial-stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
                     <div class="stat-card">
                         <h3>Active Subscribers</h3>

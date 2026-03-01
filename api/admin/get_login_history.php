@@ -9,6 +9,8 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     exit;
 }
 
+$search = $_GET['search'] ?? '';
+
 $query = "
     SELECT
         l.id,
@@ -23,12 +25,26 @@ $query = "
         login_history l
     LEFT JOIN
         users u ON l.user_id = u.id
-    ORDER BY
-        l.created_at DESC
-    LIMIT 200
 ";
 
-$result = $conn->query($query);
+$params = [];
+$types = "";
+
+if ($search) {
+    $query .= " WHERE l.email LIKE ? OR l.ip_address LIKE ? OR u.first_name LIKE ? OR u.last_name LIKE ? ";
+    $searchTerm = "%$search%";
+    $params = [$searchTerm, $searchTerm, $searchTerm, $searchTerm];
+    $types = "ssss";
+}
+
+$query .= " ORDER BY l.created_at DESC LIMIT 200";
+
+$stmt = $conn->prepare($query);
+if ($search) {
+    $stmt->bind_param($types, ...$params);
+}
+$stmt->execute();
+$result = $stmt->get_result();
 $history = [];
 
 if ($result) {
