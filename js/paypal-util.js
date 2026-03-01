@@ -192,13 +192,10 @@ async function renderOneTimeButton(instance, planId, containerId) {
     button.setAttribute('color', 'blue');
     document.querySelector(containerId).appendChild(button);
     // session.start(options, orderPromise) - orderPromise is the 2nd argument in v6
-    button.addEventListener('click', async () => {
-        try {
-            const order = await orderPromise();
-            await session.start({ presentationMode: 'auto' }, order);
-        } catch (err) {
-            console.error('Failed to start PayPal session:', err);
-        }
+    // The SDK specifically expects a Promise as the second argument.
+    button.addEventListener('click', () => {
+        session.start({ presentationMode: 'auto' }, orderPromise())
+            .catch(err => console.error('Failed to start PayPal session:', err));
     });
 }
 
