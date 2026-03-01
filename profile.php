@@ -78,6 +78,18 @@ checkAccess(false); // Does not require active subscription to view profile
         table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
         th, td { border: 1px solid #ddd; padding: 0.75rem; text-align: left; }
         th { background-color: #f2f2f2; }
+        .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 1rem; }
+
+        @media (max-width: 640px) {
+            body { margin: 0; }
+            .container { padding: 1rem; }
+            .subscription-prompt { padding: 1.5rem; margin: 2rem auto; }
+            .subscription-prompt h2 { font-size: 1.5rem; }
+            .profile-info p { font-size: 1rem; }
+            button { width: 100%; margin-bottom: 0.5rem; }
+            .form-toggle-links { display: flex; flex-direction: column; gap: 0.5rem; }
+            .form-toggle-links a { margin-right: 0; }
+        }
     </style>
 </head>
 <body>
@@ -175,13 +187,13 @@ checkAccess(false); // Does not require active subscription to view profile
         <div class="form-section">
             <h2>Your Progress</h2>
             <h3>Flashcard Progress</h3>
-            <div id="progress-container"></div>
+            <div id="progress-container" class="table-container"></div>
             <div style="margin-top: 1rem; margin-bottom: 2rem;">
                 <button id="reset-stats-btn" style="background-color: #dc3545;">Reset Flashcard Stats</button>
             </div>
 
             <h3>Phase 1: Shadowing Performance</h3>
-            <div id="dialogue-progress-container">
+            <div id="dialogue-progress-container" class="table-container">
                 <!-- Dialogue progress will be loaded here -->
             </div>
         </div>

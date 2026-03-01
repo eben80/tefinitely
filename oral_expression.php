@@ -40,6 +40,12 @@ checkAccess();
     margin-left: auto;
     margin-right: auto;
   }
+
+  @media (max-width: 640px) {
+    body { margin: 0; }
+    .section-card { padding: 1.5rem; margin: 1rem; }
+    .section-card a { display: block; text-align: center; }
+  }
   .section-card h2 {
     margin-top: 0;
     color: #004d99;

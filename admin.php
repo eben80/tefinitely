@@ -39,8 +39,8 @@ checkAccess(true, true); // Admin only
         .edit-user-btn { background-color: #007bff; color: white; }
         .edit-user-btn:hover { background-color: #0069d9; }
         td button { padding: 0.3rem 0.6rem; border: none; border-radius: 4px; cursor: pointer; margin-right: 0.3rem; }
-        .modal { display: none; position: fixed; z-index: 2001; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); }
-        .modal-content { background-color: #fefefe; margin: 10% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 600px; border-radius: 8px; }
+        .modal { display: none; position: fixed; z-index: 2001; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); padding-top: 50px; }
+        .modal-content { background-color: #fefefe; margin: 0 auto 50px auto; padding: 20px; border: 1px solid #888; width: 90%; max-width: 600px; border-radius: 8px; }
         .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; }
         .close-btn:hover, .close-btn:focus { color: black; text-decoration: none; cursor: pointer; }
         .modal input, .modal textarea, .modal select { width: 100%; padding: 0.5rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; margin-bottom: 1rem; }
@@ -61,6 +61,17 @@ checkAccess(true, true); // Admin only
         /* Filter bar */
         .filter-bar { display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; align-items: center; background: #f8f9fa; padding: 1rem; border-radius: 8px; }
         .filter-group { display: flex; align-items: center; gap: 0.5rem; }
+
+        @media (max-width: 768px) {
+            .tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            .tab-link { flex-shrink: 0; }
+            .header-with-button { flex-direction: column; align-items: stretch; }
+            .header-with-button button { width: 100%; }
+            .filter-group { width: 100%; }
+            .filter-group select, .filter-group input { flex-grow: 1; }
+            .bulk-actions-bar { flex-direction: column; align-items: stretch; }
+            .bulk-actions-bar button { width: 100%; }
+        }
     </style>
 </head>
 <body>
@@ -115,7 +126,7 @@ checkAccess(true, true); // Admin only
                     </div>
                 </div>
 
-                <div style="margin-bottom: 1rem; display: flex; gap: 0.5rem; align-items: center; background: #e9ecef; padding: 1rem; border-radius: 8px;">
+                <div class="bulk-actions-bar" style="margin-bottom: 1rem; display: flex; gap: 0.5rem; align-items: center; background: #e9ecef; padding: 1rem; border-radius: 8px;">
                     <strong>Bulk Actions:</strong>
                     <button id="bulk-email-btn" class="action-btn" style="background-color: #17a2b8;">Email Selected</button>
                     <button id="bulk-activate-btn" class="action-btn" style="background-color: #28a745;">Activate Selected</button>

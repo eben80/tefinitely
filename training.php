@@ -37,11 +37,14 @@ checkAccess();
   .training-nav {
       margin-bottom: 2rem;
       text-align: center;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
   }
   .training-nav button {
       padding: 0.8rem 1.2rem;
       font-size: 1rem;
-      margin: 0 0.5rem;
       cursor: pointer;
       border: 1px solid #ccc;
       background-color: #fff;
@@ -102,13 +105,23 @@ checkAccess();
   /* --- Responsive Design --- */
   @media (max-width: 640px) {
     body {
-      margin: 1rem;
+      margin: 0;
     }
     h1 {
       font-size: 1.5rem;
     }
     .flashcard {
         height: 180px; /* Adjust height for smaller screens */
+    }
+    .training-nav {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .training-nav button {
+        margin: 0;
+    }
+    #global-controls input {
+        width: 100%;
     }
   }
 </style>
