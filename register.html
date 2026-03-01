@@ -22,6 +22,9 @@
         button:hover { background-color: #0056b3; }
         .link { text-align: center; margin-top: 1rem; }
         .link a { color: #007bff; text-decoration: none; }
+        .requirements { text-align: left; font-size: 0.85rem; color: #666; margin-bottom: 1rem; margin-top: 0.5rem; }
+        .requirements ul { padding-left: 1.2rem; margin: 0.3rem 0; }
+        .error { color: #dc3545; font-size: 0.9rem; margin-top: 0.5rem; text-align: center; }
     </style>
 </head>
 <body>
@@ -47,7 +50,21 @@
             <div class="form-group">
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" required>
+                <div class="requirements">
+                    Password must contain:
+                    <ul>
+                        <li id="req-length">At least 8 characters</li>
+                        <li id="req-upper">One uppercase letter</li>
+                        <li id="req-lower">One lowercase letter</li>
+                        <li id="req-number">One number</li>
+                    </ul>
+                </div>
             </div>
+            <div class="form-group">
+                <label for="confirm_password">Confirm Password</label>
+                <input type="password" id="confirm_password" name="confirm_password" required>
+            </div>
+            <div id="error-message" class="error"></div>
             <button type="submit">Register</button>
         </form>
         <div class="link">
@@ -60,13 +77,59 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const registerForm = document.getElementById('registerForm');
+            const passwordInput = document.getElementById('password');
+            const confirmInput = document.getElementById('confirm_password');
+            const errorMsg = document.getElementById('error-message');
+
+            const reqLength = document.getElementById('req-length');
+            const reqUpper = document.getElementById('req-upper');
+            const reqLower = document.getElementById('req-lower');
+            const reqNumber = document.getElementById('req-number');
+
+            function validatePassword(pass) {
+                const isLength = pass.length >= 8;
+                const hasUpper = /[A-Z]/.test(pass);
+                const hasLower = /[a-z]/.test(pass);
+                const hasNumber = /[0-9]/.test(pass);
+
+                reqLength.style.color = isLength ? 'green' : '#666';
+                reqUpper.style.color = hasUpper ? 'green' : '#666';
+                reqLower.style.color = hasLower ? 'green' : '#666';
+                reqNumber.style.color = hasNumber ? 'green' : '#666';
+
+                return isLength && hasUpper && hasLower && hasNumber;
+            }
+
+            passwordInput.addEventListener('input', () => {
+                validatePassword(passwordInput.value);
+                errorMsg.textContent = '';
+            });
+
+            confirmInput.addEventListener('input', () => {
+                errorMsg.textContent = '';
+            });
+
             if (registerForm) {
                 registerForm.addEventListener('submit', (e) => {
                     e.preventDefault();
                     const first_name = document.getElementById('first_name').value;
                     const last_name = document.getElementById('last_name').value;
                     const email = document.getElementById('email').value;
-                    const password = document.getElementById('password').value;
+                    const password = passwordInput.value;
+                    const confirmPassword = confirmInput.value;
+
+                    errorMsg.textContent = '';
+
+                    if (!validatePassword(password)) {
+                        errorMsg.textContent = 'Password does not meet requirements.';
+                        return;
+                    }
+
+                    if (password !== confirmPassword) {
+                        errorMsg.textContent = 'Passwords do not match.';
+                        return;
+                    }
+
                     registerUser(first_name, last_name, email, password);
                 });
             }
