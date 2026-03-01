@@ -77,7 +77,7 @@ async function getPayPalV6Instance() {
         if (data.status === 'success') {
             paypalV6Instance = await window.paypal.createInstance({
                 clientToken: data.client_token,
-                components: ['paypal-payments', 'card-fields']
+                components: ['paypal-payments', 'card-fields', 'googlepay-payments', 'applepay-payments']
             });
             return paypalV6Instance;
         } else {
@@ -127,7 +127,11 @@ async function renderPayPalButtons(containerId = '#paypal-button-container') {
                     renderSubscriptionButton(plan.paypal_plan_id, `#${buttonId}`);
                 } else {
                     const instance = await getPayPalV6Instance();
-                    if (instance) renderOneTimeButton(instance, plan.id, `#${buttonId}`);
+                    if (instance) {
+                        renderOneTimeButton(instance, plan.id, `#${buttonId}`);
+                        renderGooglePayButton(instance, plan.id, `#${buttonId}`);
+                        renderApplePayButton(instance, plan.id, `#${buttonId}`);
+                    }
                 }
             }
         } else {
@@ -158,6 +162,97 @@ async function renderSubscriptionButton(paypalPlanId, containerId) {
         }).render(containerId);
     } else {
         console.error('PayPal Subscriptions SDK not loaded correctly.');
+    }
+}
+
+async function renderGooglePayButton(instance, planId, containerId) {
+    try {
+        const googlepay = await instance.createGooglePayPaymentSession({
+            onApprove: async (data) => {
+                handlePaymentApproval('api/paypal/capture_payment.php', { orderID: data.orderId });
+            },
+            onError: (err) => {
+                console.error('Google Pay error:', err);
+            }
+        });
+
+        const isEligible = await googlepay.isEligible();
+        if (isEligible) {
+            const buttonContainer = document.createElement('div');
+            buttonContainer.className = 'googlepay-button-container';
+            buttonContainer.style.marginTop = '10px';
+            document.querySelector(containerId).appendChild(buttonContainer);
+
+            const button = document.createElement('googlepay-button');
+            button.setAttribute('button-type', 'plain');
+            button.setAttribute('button-color', 'black');
+            buttonContainer.appendChild(button);
+
+            button.addEventListener('click', async () => {
+                try {
+                    const response = await fetch('api/paypal/create_payment.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ plan_id: planId })
+                    });
+                    const data = await response.json();
+                    await googlepay.start({
+                        orderId: data.orderID,
+                        presentationMode: 'auto'
+                    });
+                } catch (err) {
+                    console.error('Google Pay start error:', err);
+                }
+            });
+        }
+    } catch (err) {
+        console.error('Failed to initialize Google Pay:', err);
+    }
+}
+
+async function renderApplePayButton(instance, planId, containerId) {
+    try {
+        const applepay = await instance.createApplePayPaymentSession({
+            onApprove: async (data) => {
+                handlePaymentApproval('api/paypal/capture_payment.php', { orderID: data.orderId });
+            },
+            onError: (err) => {
+                console.error('Apple Pay error:', err);
+            }
+        });
+
+        const isEligible = await applepay.isEligible();
+        if (isEligible) {
+            const buttonContainer = document.createElement('div');
+            buttonContainer.className = 'applepay-button-container';
+            buttonContainer.style.marginTop = '10px';
+            document.querySelector(containerId).appendChild(buttonContainer);
+
+            const button = document.createElement('applepay-button');
+            button.setAttribute('buttonstyle', 'black');
+            button.setAttribute('type', 'plain');
+            button.setAttribute('locale', 'en-US');
+            buttonContainer.appendChild(button);
+
+            button.addEventListener('click', async () => {
+                try {
+                    const response = await fetch('api/paypal/create_payment.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ plan_id: planId })
+                    });
+                    const data = await response.json();
+                    await applepay.start({
+                        orderId: data.orderID,
+                        presentationMode: 'auto'
+                    });
+                } catch (err) {
+                    console.error('Apple Pay start error:', err);
+                }
+            });
+        }
+    } catch (err) {
+        console.error('Failed to initialize Apple Pay:', err);
     }
 }
 
