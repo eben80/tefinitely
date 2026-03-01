@@ -352,6 +352,9 @@ a {
     .container {
         padding: 1rem;
     }
+    .payment-methods-container {
+        max-width: 100%;
+    }
 }
 
 /* --- Flashcard Styles --- */
