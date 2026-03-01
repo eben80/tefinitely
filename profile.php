@@ -206,7 +206,7 @@ checkAccess(false); // Does not require active subscription to view profile
             </div>
         </div>
         <div class="footer-bottom">
-            <p>© 2025 TEFinitely.ca | All Rights Reserved</p>
+            <p>© 2026 tefinitely.com | All Rights Reserved</p>
         </div>
     </footer>
 

@@ -1,7 +1,7 @@
-# TEFinitely.ca - Internal Documentation
+# tefinitely.com - Internal Documentation
 
 ## 1. Project Overview
-TEFinitely.ca is a web application designed to help users prepare for the TEF Canada (Test d'Évaluation de Français) exam. It provides interactive tools, flashcards, and structured training modules to improve French language proficiency, specifically targeting the Oral Expression component of the exam.
+tefinitely.com is a web application designed to help users prepare for the TEF Canada (Test d'Évaluation de Français) exam. It provides interactive tools, flashcards, and structured training modules to improve French language proficiency, specifically targeting the Oral Expression component of the exam.
 
 ## 2. Core Functionalities & Content
 
