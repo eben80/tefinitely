@@ -162,7 +162,7 @@ async function renderSubscriptionButton(paypalPlanId, containerId) {
 }
 
 async function renderOneTimeButton(instance, planId, containerId) {
-    const createOrder = async () => {
+    const orderPromise = async () => {
         try {
             const response = await fetch('api/paypal/create_payment.php', {
                 method: 'POST',
@@ -170,15 +170,17 @@ async function renderOneTimeButton(instance, planId, containerId) {
                 body: JSON.stringify({ plan_id: planId })
             });
             const data = await response.json();
-            return data.orderID;
+            // v6 SDK expects an object with orderId (case sensitive)
+            return { orderId: data.orderID };
         } catch (err) {
             console.error('Create Order error:', err);
+            throw err;
         }
     };
 
     const session = await instance.createPayPalOneTimePaymentSession({
         onApprove: async (data) => {
-            handlePaymentApproval('api/paypal/capture_payment.php', { orderID: data.orderID });
+            handlePaymentApproval('api/paypal/capture_payment.php', { orderID: data.orderId });
         },
         onError: (err) => {
             console.error('PayPal One-Time error:', err);
@@ -189,7 +191,15 @@ async function renderOneTimeButton(instance, planId, containerId) {
     const button = document.createElement('paypal-button');
     button.setAttribute('color', 'blue');
     document.querySelector(containerId).appendChild(button);
-    button.addEventListener('click', () => session.start({ createOrder }));
+    // session.start(options, orderPromise) - orderPromise is the 2nd argument in v6
+    button.addEventListener('click', async () => {
+        try {
+            const order = await orderPromise();
+            await session.start({ presentationMode: 'auto' }, order);
+        } catch (err) {
+            console.error('Failed to start PayPal session:', err);
+        }
+    });
 }
 
 async function handlePaymentApproval(endpoint, payload) {
