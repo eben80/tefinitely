@@ -16,6 +16,7 @@ checkAccess(false); // Does not require active subscription to view profile
     <link rel="stylesheet" href="css/toast.css">
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <script src="https://applepay.cdn-apple.com/jsapi/v1/apple-pay-sdk.js"></script>
     <script src="js/paypal-util.js"></script>
     <script>
         loadPayPalSDK();
