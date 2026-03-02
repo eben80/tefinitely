@@ -119,7 +119,11 @@ async function checkSession() {
                     if (subscriptionPrompt) {
                         subscriptionPrompt.style.display = 'block';
                         if (typeof renderPayPalButtons === 'function') {
-                            renderPayPalButtons();
+                            try {
+                                renderPayPalButtons();
+                            } catch (e) {
+                                console.error('Error rendering PayPal buttons:', e);
+                            }
                         }
                     }
                     if (landingFooter) landingFooter.style.display = 'block';
@@ -143,7 +147,7 @@ async function checkSession() {
             if (landingNav) landingNav.style.display = 'flex';
             if (authContainer) authContainer.style.display = 'block';
             loginPromptLandingPageElements.forEach(el => el.style.display = 'block');
-            if (subscriptionPrompt) subscriptionPrompt.style.display = 'block';
+            if (subscriptionPrompt) subscriptionPrompt.style.display = 'none';
             if (landingFooter) landingFooter.style.display = 'block';
         }
     } catch (uiError) {
