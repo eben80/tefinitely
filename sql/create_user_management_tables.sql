@@ -36,3 +36,7 @@ CREATE TABLE subscriptions (
 -- The password is 'adminpass'
 INSERT INTO users (first_name, last_name, email, password, role, subscription_status) VALUES
 ('Admin', 'User', 'admin@example.com', '$2y$10$I0jS6..L.pL4h3Y/G8k.S.V0hJz.uV0g6wzJ.o6wzJ.o6wzJ.o6w', 'admin', 'active');
+
+-- Add tour completion tracking for Section A and Section B
+ALTER TABLE users ADD COLUMN IF NOT EXISTS tour_section_a_completed BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS tour_section_b_completed BOOLEAN NOT NULL DEFAULT FALSE;

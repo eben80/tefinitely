@@ -12,6 +12,8 @@ $user_id = $_SESSION['user_id'];
 $data = json_decode(file_get_contents('php://input'), true);
 
 $tour_completed = isset($data['tour_completed']) ? ($data['tour_completed'] ? 1 : 0) : null;
+$tour_section_a_completed = isset($data['tour_section_a_completed']) ? ($data['tour_section_a_completed'] ? 1 : 0) : null;
+$tour_section_b_completed = isset($data['tour_section_b_completed']) ? ($data['tour_section_b_completed'] ? 1 : 0) : null;
 $last_topic = isset($data['last_topic']) ? $data['last_topic'] : null;
 $last_card_index = isset($data['last_card_index']) ? $data['last_card_index'] : null;
 $first_name = isset($data['first_name']) ? trim($data['first_name']) : null;
@@ -24,6 +26,18 @@ $types = "";
 if ($tour_completed !== null) {
     $sql .= "tour_completed = ?, ";
     $params[] = $tour_completed;
+    $types .= "i";
+}
+
+if ($tour_section_a_completed !== null) {
+    $sql .= "tour_section_a_completed = ?, ";
+    $params[] = $tour_section_a_completed;
+    $types .= "i";
+}
+
+if ($tour_section_b_completed !== null) {
+    $sql .= "tour_section_b_completed = ?, ";
+    $params[] = $tour_section_b_completed;
     $types .= "i";
 }
 

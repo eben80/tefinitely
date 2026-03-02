@@ -15,6 +15,7 @@ checkAccess();
 <link rel="manifest" href="img/favicon/site.webmanifest">
 <link rel="stylesheet" href="css/toast.css">
 <link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/shepherd.js@10.0.1/dist/css/shepherd.css"/>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 <style>
     /* Reset some main.css styles for this app-like page */
@@ -656,6 +657,8 @@ checkAccess();
 <script src="js/browser-support.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/nav.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/shepherd.js@10.0.1/dist/js/shepherd.min.js"></script>
+<script src="js/tour.js"></script>
 <script>
 const chatContainer = document.getElementById('chat');
 const instructionDisplay = document.getElementById('instruction-display');
