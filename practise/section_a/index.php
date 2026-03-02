@@ -131,8 +131,8 @@ checkAccess();
         }
 
         header .logo {
-            max-height: 30px !important;
-            margin: 5px auto !important;
+            max-width: 260px !important;
+            margin: 1rem auto !important;
         }
 
         .main-nav {
@@ -368,10 +368,22 @@ checkAccess();
     #speak-btn {
         background: #6c757d;
         color: white;
+        position: relative;
     }
 
     #speak-btn:hover {
         background: #5a6268;
+    }
+
+    #speak-btn.listening {
+        background: #dc3545;
+        animation: pulse-red 1.5s infinite;
+    }
+
+    @keyframes pulse-red {
+        0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+        70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+        100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
     }
 
     #hint-btn {
@@ -484,7 +496,7 @@ checkAccess();
         border-radius: 12px;
         box-shadow: 0 4px 20px rgba(0,0,0,0.08);
         margin: auto; /* Center vertically in app-container */
-        width: 100%;
+        width: 90%;
         max-width: 500px;
     }
 
@@ -528,7 +540,7 @@ checkAccess();
 <body>
 
 <header>
-    <a href="index.html"><img src="img/top_logo_light.png" alt="TEFinitely Logo" class="logo" style="max-height: 60px; margin: 10px auto; display: block;"></a>
+    <a href="index.html"><img src="img/top_logo_light.png" alt="TEFinitely Logo" class="logo"></a>
 </header>
 
 <div id="toast-container"></div>
@@ -544,7 +556,7 @@ checkAccess();
                 <div class="dropdown-content">
                     <a href="oral_expression_section_a.php">Flashcards</a>
                     <a href="practise/section_a/index.php">Section A Practice</a>
-                    <a href="practise/section_b/index.php">Section B Practice <span class="non-functional-sticker">Non-Functional</span></a>
+                    <a href="practise/section_b/index.php">Section B Practice</a>
                 </div>
             </div>
             <a href="training.php">Phased Training</a>
@@ -715,6 +727,7 @@ const translations = {
         nextBtn: 'Suivant',
         nextBtnTitle: 'Annonce suivante',
         speakBtn: '🎤 Parler',
+        listeningBtn: '🎤 À l\'écoute...',
         hintBtnTitle: "Besoin d'aide ?",
         modalTitle: 'Idées de questions',
         loadingHints: 'Génération des questions...',
@@ -741,6 +754,7 @@ const translations = {
         nextBtn: 'Next',
         nextBtnTitle: 'Next Scenario',
         speakBtn: '🎤 Speak',
+        listeningBtn: '🎤 Listening...',
         hintBtnTitle: "Need help?",
         modalTitle: 'Question Ideas',
         loadingHints: 'Generating questions...',
@@ -1152,6 +1166,24 @@ function setupRecognition(language) {
         recognition.lang = language === 'fr' ? 'fr-FR' : 'en-US';
         recognition.interimResults = false;
         recognition.maxAlternatives = 1;
+
+        recognition.onstart = function() {
+            speakButton.classList.add('listening');
+            const t = translations[languageSelector.value];
+            speakButton.textContent = t.listeningBtn;
+        };
+
+        recognition.onend = function() {
+            speakButton.classList.remove('listening');
+            const t = translations[languageSelector.value];
+            speakButton.textContent = t.speakBtn;
+        };
+
+        recognition.onerror = function() {
+            speakButton.classList.remove('listening');
+            const t = translations[languageSelector.value];
+            speakButton.textContent = t.speakBtn;
+        };
 
         recognition.onresult = function(event) {
             inputField.value = event.results[0][0].transcript;

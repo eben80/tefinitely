@@ -131,8 +131,8 @@ checkAccess();
         }
 
         header .logo {
-            max-height: 30px !important;
-            margin: 5px auto !important;
+            max-width: 260px !important;
+            margin: 1rem auto !important;
         }
 
         .main-nav {
@@ -496,7 +496,7 @@ checkAccess();
         border-radius: 12px;
         box-shadow: 0 4px 20px rgba(0,0,0,0.08);
         margin: auto; /* Center vertically in app-container */
-        width: 100%;
+        width: 90%;
         max-width: 500px;
     }
 
@@ -540,7 +540,7 @@ checkAccess();
 <body>
 
 <header>
-    <a href="index.html"><img src="img/top_logo_light.png" alt="TEFinitely Logo" class="logo" style="max-height: 60px; margin: 10px auto; display: block;"></a>
+    <a href="index.html"><img src="img/top_logo_light.png" alt="TEFinitely Logo" class="logo"></a>
 </header>
 
 <div id="toast-container"></div>
@@ -636,7 +636,7 @@ checkAccess();
 <div id="hints-modal" class="modal">
     <div class="modal-content" id="modal-content">
         <div class="modal-header" id="modal-header">
-            <h2 id="modal-title">Idées de questions</h2>
+            <h2 id="modal-title">Idées d'arguments</h2>
             <span class="close">&times;</span>
         </div>
         <div class="modal-body" id="modal-body">
@@ -645,7 +645,7 @@ checkAccess();
                 <div class="spinner-border text-primary" role="status">
                     <span class="visually-hidden">Chargement...</span>
                 </div>
-                <p>Génération des questions...</p>
+                <p>Génération des arguments...</p>
             </div>
         </div>
     </div>
