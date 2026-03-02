@@ -579,7 +579,12 @@ checkAccess();
                 <span id="speed-value">1.0</span>
             </div>
         </div>
-        <button id="start-btn">Démarrer</button>
+        <button id="start-btn">
+            <span class="btn-text">Démarrer</span>
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </button>
     </div>
 
     <div id="main-content">
@@ -603,7 +608,12 @@ checkAccess();
                 <input type="text" id="user-input" placeholder="Tapez votre phrase ici..." />
                 <button id="hint-btn" title="Besoin d'aide ?">💡</button>
                 <button id="send-btn">Envoyer</button>
-                <button id="next-btn" title="Annonce suivante">Suivant</button>
+                <button id="next-btn" title="Annonce suivante">
+                    <span class="btn-text">Suivant</span>
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </button>
                 <button id="speak-btn">🎤 Parler</button>
             </div>
         </div>
@@ -750,11 +760,11 @@ function updateInterface(lang) {
     pageTitle.textContent = t.pageTitle;
     langLabel.textContent = t.langLabel;
     levelLabel.textContent = t.levelLabel;
-    startButton.textContent = t.startBtn;
+    startButton.querySelector('.btn-text').textContent = t.startBtn;
     speedLabel.textContent = t.speedLabel;
     inputField.placeholder = t.userPlaceholder;
     sendButton.textContent = t.sendBtn;
-    nextButton.textContent = t.nextBtn;
+    nextButton.querySelector('.btn-text').textContent = t.nextBtn;
     nextButton.title = t.nextBtnTitle;
     speakButton.textContent = t.speakBtn;
     hintButton.title = t.hintBtnTitle;
@@ -875,6 +885,8 @@ function appendMessage(role, text) {
 // -------------------- Start session --------------------
 async function startSession(level, language) {
     setActionButtonsDisabled(true);
+    if (startButton) startButton.classList.add('loading');
+    if (nextButton) nextButton.classList.add('loading');
 
     currentLevel = level;
     currentLanguage = language;
@@ -928,6 +940,8 @@ async function startSession(level, language) {
         console.error('Error starting session:', error);
     } finally {
         setActionButtonsDisabled(false);
+        if (startButton) startButton.classList.remove('loading');
+        if (nextButton) nextButton.classList.remove('loading');
     }
 }
 

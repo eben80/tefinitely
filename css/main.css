@@ -547,3 +547,47 @@ googlepay-button, applepay-button {
     display: block;
     cursor: pointer;
 }
+
+/* --- Loading Spinner --- */
+.spinner-border {
+    display: inline-block;
+    width: 1.5rem;
+    height: 1.5rem;
+    vertical-align: text-bottom;
+    border: 0.25em solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spinner-border 0.75s linear infinite;
+}
+
+@keyframes spinner-border {
+    to { transform: rotate(360deg); }
+}
+
+.visually-hidden {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0,0,0,0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+button .spinner-border {
+    width: 1rem;
+    height: 1rem;
+    margin-left: 0.5rem;
+    display: none;
+}
+
+button.loading .spinner-border {
+    display: inline-block;
+}
+
+button.loading {
+    pointer-events: none;
+    opacity: 0.65;
+}
