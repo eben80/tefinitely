@@ -7,110 +7,118 @@ header('Content-Type: application/json');
 $level = $_POST['level'] ?? 'A2';
 $language = $_POST['language'] ?? 'fr'; // 'fr' or 'en'
 
-// ------------------ Broader scenario categories ------------------
+// ------------------ Broader scenario categories (Idea/Activity/Product) ------------------
 
 $categories = [
-    "un festival de musique en plein air",
-    "un cours de cuisine thématique",
-    "un voyage organisé dans une destination insolite",
-    "une nouvelle application de fitness",
-    "un service de livraison de repas sains",
-    "une activité de bénévolat pour l'environnement",
-    "une inscription dans une salle de sport innovante",
-    "l'achat d'une voiture électrique",
-    "la participation à un marathon ou une course solidaire",
-    "un club de lecture ou de discussion",
-    "un espace de coworking moderne",
-    "un restaurant avec un concept original (ex: manger dans le noir)",
-    "un saut en parachute ou une activité extrême",
-    "une expérience culinaire à base d'insectes",
-    "l'utilisation d'huile de ricin pour l'entretien de la voiture",
-    "la journée de la ville propre",
-    "un service de conciergerie à domicile",
-    "une séance de yoga en plein air",
-    "un abonnement à une bibliothèque numérique",
-    "une exposition d'art contemporain"
+    "un festival de musique en plein air engagé pour l'environnement",
+    "un cours de cuisine zéro déchet",
+    "un voyage humanitaire ou solidaire à l'étranger",
+    "une nouvelle application de méditation et bien-être",
+    "un service de livraison de repas exclusivement végétaliens",
+    "une activité de nettoyage des plages ou forêts",
+    "une inscription dans un club de sport très intensif (CrossFit, etc.)",
+    "l'achat d'un véhicule électrique partagé entre voisins",
+    "la participation à un marathon caritatif pour une cause médicale",
+    "un club de lecture sur la philosophie contemporaine",
+    "un espace de travail partagé sans Wi-Fi pour booster la concentration",
+    "un restaurant immersif sans lumière pour redécouvrir les saveurs",
+    "un défi de 30 jours sans réseaux sociaux",
+    "une dégustation culinaire à base de grillons et insectes",
+    "un système de compostage collectif dans l'immeuble",
+    "la journée de la ville sans voiture",
+    "un service de troc de vêtements et d'objets",
+    "un stage de survie en forêt pour le week-end",
+    "un abonnement à une coopérative de produits locaux",
+    "une exposition d'art provocatrice sur le climat",
+    "remplacer les voitures personnelles par des vélos électriques dans le quartier",
+    "adopter la semaine de quatre jours pour gagner en productivité",
+    "déménager dans un logement plus petit et écologique (Tiny House)",
+    "utiliser un miroir intelligent qui donne des conseils de santé et de mode",
+    "confier ses économies à un conseiller financier 100% IA"
 ];
 
 $categories_en = [
-    "an outdoor music festival",
-    "a themed cooking class",
-    "an organized trip to an unusual destination",
-    "a new fitness app",
-    "a healthy meal delivery service",
-    "an environmental volunteering activity",
-    "a membership at an innovative gym",
-    "buying an electric car",
-    "participating in a marathon or charity run",
-    "a book or discussion club",
-    "a modern coworking space",
-    "a restaurant with an original concept (e.g., dining in the dark)",
-    "skydiving or an extreme activity",
-    "a culinary experience based on insects",
-    "using castor oil for car maintenance",
-    "Clean City Day",
-    "a home concierge service",
-    "an outdoor yoga session",
-    "a digital library subscription",
-    "a contemporary art exhibition"
+    "an eco-friendly outdoor music festival",
+    "a zero-waste cooking class",
+    "a humanitarian or solidarity trip abroad",
+    "a new meditation and wellness app",
+    "an exclusively vegan meal delivery service",
+    "a beach or forest cleanup activity",
+    "joining a high-intensity sports club (CrossFit, etc.)",
+    "buying a shared electric vehicle with neighbors",
+    "participating in a charity marathon for a medical cause",
+    "a book club on contemporary philosophy",
+    "a shared workspace without Wi-Fi to boost concentration",
+    "an immersive dark restaurant to rediscover flavors",
+    "a 30-day no-social-media challenge",
+    "a culinary tasting based on crickets and insects",
+    "a collective composting system in the building",
+    "Car-Free City Day",
+    "a clothing and object swap service",
+    "a survival training weekend in the forest",
+    "a subscription to a local produce cooperative",
+    "a provocative art exhibition about climate change",
+    "replacing personal cars with e-bikes in the neighborhood",
+    "adopting a four-day work week to increase productivity",
+    "moving to a smaller, eco-friendly home (Tiny House)",
+    "using a smart mirror that provides health and fashion advice",
+    "entrusting savings to a 100% AI financial advisor"
 ];
 
 // Pick a random category
 if ($language === 'fr') {
     $chosen = $categories[array_rand($categories)];
-    $scenario_instructions = "Crée une mise en situation de type TEF Canada Section B. L'annonce doit porter sur : $chosen. L'annonce doit inclure une consigne claire adressée au candidat, suivie du contenu de l'annonce. Fournis ensuite la première réplique naturelle de l'ami (l'examinateur).";
-    $system_prompt = "Vous êtes examinateur TEF Canada.
+    $scenario_instructions = "Crée une mise en situation de type TEF Canada Section B. Le sujet est : $chosen. L'annonce doit inclure une consigne précise et le contenu de l'annonce. Fournis ensuite la première réplique de l'ami.";
+    $system_prompt = "Vous êtes examinateur TEF Canada spécialisé dans la Section B.
 
 OBJECTIF :
-Générer une Section B réaliste. Dans cette section, le candidat doit convaincre un ami (vous) de participer à une activité, d'utiliser un service ou d'acheter un produit basé sur une annonce.
+Générer une Section B réaliste. Le candidat doit convaincre un ami (vous) d'adopter une idée, de participer à une activité ou d'utiliser un service. Vous devez activement contester ses arguments.
 
 STRUCTURE DE LA RÉPONSE :
-1) Une ligne d’instruction adressée au candidat commençant par : « CONSIGNE : ». Cette consigne DOIT préciser que le candidat doit présenter le document à son ami et essayer de le convaincre d'y participer ou de l'utiliser pendant environ 10 minutes.
-2) Une annonce courte et attractive (Titre, points forts, prix ou date).
+1) CONSIGNE : Expliquez que le candidat doit présenter le document, structurer ses arguments avec des exemples, répondre à vos objections et essayer de vous persuader pendant 10 minutes.
+2) ANNONCE : Un texte court présentant l'idée/l'activité (Titre, concept, avantages, contraintes).
 
 RÔLES :
-- Le candidat (l'utilisateur) est votre ami.
-- Vous êtes l'ami qui reçoit l'appel ou la proposition.
-- Soyez naturel, un peu sceptique ou indifférent au début pour laisser de la place à l'argumentation.
+- Le candidat est votre ami.
+- Vous êtes l'ami initialement opposé ou très sceptique.
 - Ne parlez jamais à la place du candidat.
 
 LANGUE :
 - Tout en français.
-- Niveau adapté : {$level}.
+- Niveau : {$level}.
 
 FORMAT DE SORTIE (JSON UNIQUEMENT) :
 {
-  \"instruction\": \"La ligne de consigne uniquement (ex: CONSIGNE : Vous avez lu cette annonce. Présentez-la à votre ami et essayez de le convaincre d'y participer avec vous. Vous avez 10 minutes.)\",
-  \"advertisement\": \"Le texte de l'annonce uniquement\",
-  \"assistant_opening\": \"Première réplique naturelle de l'ami (ex: Allô ? Oui, salut ! Quoi de neuf ?)\"
+  \"instruction\": \"CONSIGNE : Vous avez lu ce document. Présentez-le à votre ami, développez des arguments structurés avec des exemples et essayez de le convaincre malgré ses réticences. Vous avez 10 minutes.\",
+  \"advertisement\": \"Texte de l'annonce\",
+  \"assistant_opening\": \"Réplique initiale (ex: Allô ? Oui, je t'écoute, qu'est-ce que tu voulais me proposer ?)\"
 }";
 } else {
     $chosen = $categories_en[array_rand($categories_en)];
-    $scenario_instructions = "Create a TEF Canada Section B style scenario. The ad should be about: $chosen. The scenario must include a clear instruction addressed to the candidate, followed by the advertisement content. Then provide the friend's (examiner's) first natural spoken line.";
-    $system_prompt = "You are a TEF Canada examiner.
+    $scenario_instructions = "Create a TEF Canada Section B style scenario. Subject: $chosen. Include clear instructions and ad content. Provide the friend's first line.";
+    $system_prompt = "You are a TEF Canada examiner for Section B.
 
 OBJECTIVE:
-Generate a realistic Section B scenario. In this section, the candidate must convince a friend (you) to participate in an activity, use a service, or buy a product based on an advertisement.
+Generate a realistic Section B scenario. The candidate must convince a friend (you) to adopt an idea, participate in an activity, or use a service. You must actively challenge their arguments.
 
 ADVERTISEMENT STRUCTURE:
-1) A candidate instruction line starting with: “INSTRUCTION:”. This instruction MUST state that the candidate is expected to present the document to their friend and try to convince them to join or use it for about 10 minutes.
-2) A realistic short advertisement (Title, highlights, price or date).
+1) INSTRUCTION: State that the candidate must present the document, structure arguments with examples, respond to your objections, and try to persuade you for 10 minutes.
+2) ADVERTISEMENT: A short text presenting the idea/activity (Title, concept, benefits, constraints).
 
 ROLES:
-- The learner (user) is your friend.
-- You are the friend receiving the call or proposal.
-- Be natural, slightly skeptical or indifferent at first to allow for persuasion.
+- The learner is your friend.
+- You are the friend who is initially opposed or very skeptical.
 - Never speak as the learner.
 
 LANGUAGE:
 - All in English.
-- Keep language appropriate for level {$level}.
+- Level: {$level}.
 
 OUTPUT FORMAT (JSON ONLY):
 {
-  \"instruction\": \"The instruction line only (e.g., INSTRUCTION: You have read this advertisement. Present it to your friend and try to convince them to join you. You have 10 minutes.)\",
-  \"advertisement\": \"The advertisement text only\",
-  \"assistant_opening\": \"Friend's first natural spoken line (e.g., Hey! How's it going? What's up?)\"
+  \"instruction\": \"INSTRUCTION: You have read this document. Present it to your friend, provide structured arguments with examples, and try to convince them despite their objections. You have 10 minutes.\",
+  \"advertisement\": \"Advertisement text\",
+  \"assistant_opening\": \"Initial line (e.g., Hey! Yeah, I'm listening, what did you want to tell me about?)\"
 }";
 }
 
