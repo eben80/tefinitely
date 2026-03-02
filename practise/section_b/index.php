@@ -368,10 +368,22 @@ checkAccess();
     #speak-btn {
         background: #6c757d;
         color: white;
+        position: relative;
     }
 
     #speak-btn:hover {
         background: #5a6268;
+    }
+
+    #speak-btn.listening {
+        background: #dc3545;
+        animation: pulse-red 1.5s infinite;
+    }
+
+    @keyframes pulse-red {
+        0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+        70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+        100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
     }
 
     #hint-btn {
@@ -715,6 +727,7 @@ const translations = {
         nextBtn: 'Suivant',
         nextBtnTitle: 'Annonce suivante',
         speakBtn: '🎤 Parler',
+        listeningBtn: '🎤 À l\'écoute...',
         hintBtnTitle: "Besoin d'aide ?",
         modalTitle: 'Idées d\'arguments',
         loadingHints: 'Génération des arguments...',
@@ -741,6 +754,7 @@ const translations = {
         nextBtn: 'Next',
         nextBtnTitle: 'Next Scenario',
         speakBtn: '🎤 Speak',
+        listeningBtn: '🎤 Listening...',
         hintBtnTitle: "Need help?",
         modalTitle: 'Argument Ideas',
         loadingHints: 'Generating arguments...',
@@ -1152,6 +1166,24 @@ function setupRecognition(language) {
         recognition.lang = language === 'fr' ? 'fr-FR' : 'en-US';
         recognition.interimResults = false;
         recognition.maxAlternatives = 1;
+
+        recognition.onstart = function() {
+            speakButton.classList.add('listening');
+            const t = translations[languageSelector.value];
+            speakButton.textContent = t.listeningBtn;
+        };
+
+        recognition.onend = function() {
+            speakButton.classList.remove('listening');
+            const t = translations[languageSelector.value];
+            speakButton.textContent = t.speakBtn;
+        };
+
+        recognition.onerror = function() {
+            speakButton.classList.remove('listening');
+            const t = translations[languageSelector.value];
+            speakButton.textContent = t.speakBtn;
+        };
 
         recognition.onresult = function(event) {
             inputField.value = event.results[0][0].transcript;
