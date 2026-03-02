@@ -4,11 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (path.endsWith('logged_in.php')) {
         setTimeout(() => checkTourStatus('main'), 500);
-    } else if (path.includes('practise/section_a/')) {
-        setTimeout(() => checkTourStatus('section_a'), 500);
-    } else if (path.includes('practise/section_b/')) {
-        setTimeout(() => checkTourStatus('section_b'), 500);
     }
+    // Section A and B tours are now triggered manually after session starts
 });
 
 async function checkTourStatus(tourType) {
@@ -35,6 +32,10 @@ async function checkTourStatus(tourType) {
         console.error('Error checking tour status:', error);
     }
 }
+
+// Global exposure for manual triggers
+window.startSectionATourIfNecessary = () => checkTourStatus('section_a');
+window.startSectionBTourIfNecessary = () => checkTourStatus('section_b');
 
 function createTourInstance() {
     if (typeof Shepherd === 'undefined') {
@@ -147,9 +148,9 @@ function startSectionATour() {
     if (!tour) return;
 
     tour.addStep({
-        id: 'section-a-welcome',
-        text: 'Welcome to <strong>Section A Practice</strong>! Here you will practice gathering information through questions.',
-        attachTo: { element: '#page-title', on: 'bottom' },
+        id: 'section-a-simulation-welcome',
+        text: 'Welcome to your <strong>Section A Simulation</strong>! Let’s walk through the tools available during your practice.',
+        attachTo: { element: '#instruction-display', on: 'bottom' },
         buttons: [
             { text: 'Skip', action: tour.cancel, classes: 'shepherd-button-secondary' },
             { text: 'Next', action: tour.next }
@@ -157,23 +158,19 @@ function startSectionATour() {
     });
 
     tour.addStep({
-        id: 'setup-options',
-        text: 'Start by choosing your language, level, and speech speed.',
-        attachTo: { element: '#setup-container', on: 'top' },
+        id: 'advertisement-focus',
+        text: 'This is the <strong>Advertisement</strong>. Your task is to ask questions based on this information.',
+        attachTo: { element: '#advertisement-poster', on: 'top' },
         buttons: [
             { text: 'Back', action: tour.back, classes: 'shepherd-button-secondary' },
             { text: 'Next', action: tour.next }
         ]
     });
 
-    // We can't easily highlight elements inside #main-content if it's hidden,
-    // but the tour will wait for startSession to show it.
-    // For now, let's assume they start it.
-
     tour.addStep({
-        id: 'start-session',
-        text: 'Click <strong>Démarrer</strong> (or Start) to begin your simulation.',
-        attachTo: { element: '#start-btn', on: 'bottom' },
+        id: 'chat-area',
+        text: 'The <strong>Chat</strong> shows your conversation with the examiner. Try to stay formal and polite!',
+        attachTo: { element: '#chat-container', on: 'top' },
         buttons: [
             { text: 'Back', action: tour.back, classes: 'shepherd-button-secondary' },
             { text: 'Next', action: tour.next }
@@ -182,7 +179,7 @@ function startSectionATour() {
 
     tour.addStep({
         id: 'interaction-area',
-        text: 'During the simulation, use the input box to ask questions. You can also use <strong>🎤 Parler</strong> for speech-to-text.',
+        text: 'Type your questions here. You can also use <strong>🎤 Parler</strong> to practice your speaking and get a transcript.',
         attachTo: { element: '#input-area', on: 'top' },
         buttons: [
             { text: 'Back', action: tour.back, classes: 'shepherd-button-secondary' },
@@ -191,8 +188,18 @@ function startSectionATour() {
     });
 
     tour.addStep({
+        id: 'timer-counter',
+        text: 'Keep an eye on the <strong>Timer</strong> and the <strong>Question Counter</strong>. Aim for at least 10 relevant questions!',
+        attachTo: { element: '#question-counter', on: 'bottom' },
+        buttons: [
+            { text: 'Back', action: tour.back, classes: 'shepherd-button-secondary' },
+            { text: 'Next', action: tour.next }
+        ]
+    });
+
+    tour.addStep({
         id: 'hints-section-a',
-        text: 'Stuck? The <strong>💡</strong> button provides question ideas matching the advertisement.',
+        text: 'If you’re stuck, click the <strong>💡 Hint</strong> button for question ideas tailored to this specific advertisement.',
         attachTo: { element: '#hint-btn', on: 'top' },
         buttons: [
             { text: 'Back', action: tour.back, classes: 'shepherd-button-secondary' },
@@ -210,9 +217,9 @@ function startSectionBTour() {
     if (!tour) return;
 
     tour.addStep({
-        id: 'section-b-welcome',
-        text: 'Welcome to <strong>Section B Practice</strong>! This section focuses on persuasion and structured arguments.',
-        attachTo: { element: '#page-title', on: 'bottom' },
+        id: 'section-b-simulation-welcome',
+        text: 'Welcome to <strong>Section B Practice</strong>! In this simulation, you must persuade a skeptical friend.',
+        attachTo: { element: '#instruction-display', on: 'bottom' },
         buttons: [
             { text: 'Skip', action: tour.cancel, classes: 'shepherd-button-secondary' },
             { text: 'Next', action: tour.next }
@@ -220,19 +227,9 @@ function startSectionBTour() {
     });
 
     tour.addStep({
-        id: 'setup-options-b',
-        text: 'Configure your practice session here.',
-        attachTo: { element: '#setup-container', on: 'top' },
-        buttons: [
-            { text: 'Back', action: tour.back, classes: 'shepherd-button-secondary' },
-            { text: 'Next', action: tour.next }
-        ]
-    });
-
-    tour.addStep({
-        id: 'persuasion-task',
-        text: 'In Section B, you must convince a skeptical friend. Click <strong>Démarrer</strong> to begin.',
-        attachTo: { element: '#start-btn', on: 'bottom' },
+        id: 'topic-focus',
+        text: 'Here is the <strong>Topic</strong> or advertisement you need to pitch to your friend.',
+        attachTo: { element: '#advertisement-poster', on: 'top' },
         buttons: [
             { text: 'Back', action: tour.back, classes: 'shepherd-button-secondary' },
             { text: 'Next', action: tour.next }
@@ -241,7 +238,7 @@ function startSectionBTour() {
 
     tour.addStep({
         id: 'interaction-area-b',
-        text: 'Present your arguments here. Your partner will push back, so be prepared to defend your position!',
+        text: 'Present your arguments here. Your friend will challenge you with objections—be prepared to defend your position with examples!',
         attachTo: { element: '#input-area', on: 'top' },
         buttons: [
             { text: 'Back', action: tour.back, classes: 'shepherd-button-secondary' },
@@ -250,8 +247,18 @@ function startSectionBTour() {
     });
 
     tour.addStep({
+        id: 'timer-counter-b',
+        text: 'This task lasts up to 10 minutes. Use the <strong>Échanges</strong> counter to track your progress.',
+        attachTo: { element: '#question-counter', on: 'bottom' },
+        buttons: [
+            { text: 'Back', action: tour.back, classes: 'shepherd-button-secondary' },
+            { text: 'Next', action: tour.next }
+        ]
+    });
+
+    tour.addStep({
         id: 'hints-section-b',
-        text: 'Need arguments? The <strong>💡</strong> button gives you persuasive ideas for the current topic.',
+        text: 'Need persuasive points? Click the <strong>💡 Idea</strong> button for structured arguments for this topic.',
         attachTo: { element: '#hint-btn', on: 'top' },
         buttons: [
             { text: 'Back', action: tour.back, classes: 'shepherd-button-secondary' },

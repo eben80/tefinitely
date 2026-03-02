@@ -957,6 +957,11 @@ async function startSession(level, language) {
         setupContainer.style.display = 'none';
         mainContent.style.display = 'flex';
         console.log('Session started successfully');
+
+        // Start the guided tour if this is the first time
+        if (window.startSectionATourIfNecessary) {
+            window.startSectionATourIfNecessary();
+        }
     } catch (error) {
         console.error('Error starting session:', error);
     } finally {
