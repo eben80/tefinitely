@@ -238,7 +238,11 @@ checkAccess(false); // Does not require active subscription to view profile
                 const response = await fetch('api/profile/update_user_details.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ tour_completed: false })
+                    body: JSON.stringify({
+                        tour_completed: false,
+                        tour_section_a_completed: false,
+                        tour_section_b_completed: false
+                    })
                 });
                 const data = await response.json();
                 if (data.status === 'success') {
