@@ -8,7 +8,7 @@ require_once '../db/db_config.php'; // For the debug_log function
 
 if (isset($_SESSION['user_id'])) {
     $user_id = $_SESSION['user_id'];
-    $stmt = $conn->prepare("SELECT u.role, u.subscription_status, u.tour_completed, u.last_topic, u.last_card_index, s.subscription_start_date, s.subscription_end_date FROM users u LEFT JOIN subscriptions s ON u.id = s.user_id WHERE u.id = ? ORDER BY s.subscription_end_date DESC LIMIT 1");
+    $stmt = $conn->prepare("SELECT u.role, u.subscription_status, u.tour_completed, u.tour_section_a_completed, u.tour_section_b_completed, u.last_topic, u.last_card_index, s.subscription_start_date, s.subscription_end_date FROM users u LEFT JOIN subscriptions s ON u.id = s.user_id WHERE u.id = ? ORDER BY s.subscription_end_date DESC LIMIT 1");
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
     $result = $stmt->get_result();
