@@ -4,12 +4,13 @@
 }
 body {
   font-family: Arial, sans-serif;
-  margin: 0; /* Changed from 2rem to 0 for full-width elements */
+  margin: 2rem; /* Reverting to 2rem as per index.html original */
   background: #f5f0ea;
   color: #333;
 }
 
 h1, h2, h3, h4, h5, h6 {
+  margin-bottom: 1rem;
   color: #333;
 }
 
@@ -58,9 +59,11 @@ a {
 }
 
 .logo {
-  width: 100%;
-  max-width: 500px;
-  margin: 1rem 0 2rem 0;
+  display: block;
+  width: 90%;
+  max-width: 350px;
+  height: auto;
+  margin: 1.5rem auto;
 }
 
 /* --- Main App Navigation --- */
@@ -418,8 +421,8 @@ a {
         margin: 0;
     }
     .logo {
-        max-width: 280px;
-        margin: 1rem 0;
+        max-width: 260px;
+        margin: 1rem auto;
     }
     .container {
         padding: 1rem;
