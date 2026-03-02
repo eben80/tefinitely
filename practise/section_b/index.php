@@ -544,7 +544,7 @@ checkAccess();
                 <div class="dropdown-content">
                     <a href="oral_expression_section_a.php">Flashcards</a>
                     <a href="practise/section_a/index.php">Section A Practice</a>
-                    <a href="practise/section_b/index.php">Section B Practice <span class="non-functional-sticker">Non-Functional</span></a>
+                    <a href="practise/section_b/index.php">Section B Practice</a>
                 </div>
             </div>
             <a href="training.php">Phased Training</a>
@@ -589,12 +589,12 @@ checkAccess();
         <div id="chat-container">
             <div id="question-counter">
                 <div>
-                    <span id="counter-label">Questions posées :</span>
+                    <span id="counter-label">Échanges :</span>
                     <span class="count-badge" id="question-count">0</span>
                 </div>
                 <div id="timer-container">
                     <span id="timer-label">Temps restant :</span>
-                    <span id="timer-display">05:00</span>
+                    <span id="timer-display">10:00</span>
                 </div>
             </div>
             <div id="chat" style="display: flex; flex-direction: column;"></div>
@@ -677,7 +677,7 @@ const questionCountDisplay = document.getElementById('question-count');
 const counterLabel = document.getElementById('counter-label');
 
 let timerInterval = null;
-let timeLeft = 300; // 5 minutes
+let timeLeft = 600; // 10 minutes
 const timerDisplay = document.getElementById('timer-display');
 const timerLabel = document.getElementById('timer-label');
 
@@ -716,10 +716,10 @@ const translations = {
         nextBtnTitle: 'Annonce suivante',
         speakBtn: '🎤 Parler',
         hintBtnTitle: "Besoin d'aide ?",
-        modalTitle: 'Idées de questions',
-        loadingHints: 'Génération des questions...',
+        modalTitle: 'Idées d\'arguments',
+        loadingHints: 'Génération des arguments...',
         loadingPartner: 'Chargement de votre partenaire...',
-        counterLabel: 'Questions posées :',
+        counterLabel: 'Échanges :',
         timerLabel: 'Temps restant :',
         levels: {
             A1: 'A1 - Débutant',
@@ -742,10 +742,10 @@ const translations = {
         nextBtnTitle: 'Next Scenario',
         speakBtn: '🎤 Speak',
         hintBtnTitle: "Need help?",
-        modalTitle: 'Question Ideas',
-        loadingHints: 'Generating questions...',
+        modalTitle: 'Argument Ideas',
+        loadingHints: 'Generating arguments...',
         loadingPartner: 'Loading your partner...',
-        counterLabel: 'Questions asked:',
+        counterLabel: 'Interactions:',
         timerLabel: 'Time remaining:',
         levels: {
             A1: 'A1 - Beginner',
@@ -905,7 +905,7 @@ async function startSession(level, language) {
     // Reset Timer
     if (timerInterval) clearInterval(timerInterval);
     timerInterval = null;
-    timeLeft = 300;
+    timeLeft = 600;
     updateTimerDisplay();
 
     try {

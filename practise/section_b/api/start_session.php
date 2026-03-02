@@ -10,86 +10,69 @@ $language = $_POST['language'] ?? 'fr'; // 'fr' or 'en'
 // ------------------ Broader scenario categories ------------------
 
 $categories = [
-    "un magasin de prêt-sur-gage qui rachète des bijoux",
-    "un service de location de bateaux",
-    "une boutique en ligne qui vend des lunettes",
-    "un service de bénévolat",
-    "une banque 100% en ligne sans agence physique et sans frais de tenue de compte",
-    "une bibliothèque numérique avec inscription en ligne et livres en version numérique",
-    "une annonce pour un spectacle musical avec pass 1 jour ou 2 jours et possibilité de passer la nuit",
-    "une agence qui organise des fêtes et événements",
-    "un sondage auprès du public",
-    "une activité de scooter nautique",
-    "un service d’entretien automobile",
-    "un magasin de costumes et déguisements",
-    "un service de garde pour animaux",
-    "une boulangerie qui fait des livraisons de petit-déjeuner",
-    "une exposition d’art culinaire intitulée « Un printemps de chefs »",
-    "des vacances à bord d’un train touristique",
-    "un festival de musique organisé par un club dans un parc",
-    "une activité de football en plein air avec bulles géantes",
-    "un club de marche",
-    "le nouveau catalogue d’une agence de voyages",
-    "un séjour dans un château entre montagne et rivière avec ateliers gastronomiques",
-    "une bibliothèque locale qui propose réservation de salles, prêt de livres et activités pour enfants",
-    "une école de ski et de snowboard",
-    "une discothèque installée dans un bus",
-    "une formation en parachutisme",
-    "un théâtre qui organise un spectacle spécial pour enfants"
+    "un festival de musique en plein air",
+    "un cours de cuisine thématique",
+    "un voyage organisé dans une destination insolite",
+    "une nouvelle application de fitness",
+    "un service de livraison de repas sains",
+    "une activité de bénévolat pour l'environnement",
+    "une inscription dans une salle de sport innovante",
+    "l'achat d'une voiture électrique",
+    "la participation à un marathon ou une course solidaire",
+    "un club de lecture ou de discussion",
+    "un espace de coworking moderne",
+    "un restaurant avec un concept original (ex: manger dans le noir)",
+    "un saut en parachute ou une activité extrême",
+    "une expérience culinaire à base d'insectes",
+    "l'utilisation d'huile de ricin pour l'entretien de la voiture",
+    "la journée de la ville propre",
+    "un service de conciergerie à domicile",
+    "une séance de yoga en plein air",
+    "un abonnement à une bibliothèque numérique",
+    "une exposition d'art contemporain"
 ];
 
 $categories_en = [
-    "a pawn shop that buys jewelry",
-    "a boat rental service",
-    "an online store that sells eyeglasses",
-    "a volunteer service",
-    "a 100% online bank with no physical branches and no account fees",
-    "a digital library with online registration and e-books",
-    "a musical show with 1-day or 2-day passes and overnight stay option",
-    "an event planning agency for parties",
-    "a public survey",
-    "a jet ski activity",
-    "a car maintenance service",
-    "a costume clothing store",
-    "a pet care service",
-    "a bakery that delivers breakfast",
-    "a culinary art exhibition called 'Un printemps de chefs'",
-    "a vacation spent on a tourist train",
-    "a music festival organized by a club in a park",
-    "an outdoor football activity played with giant bubble suits",
-    "a walking club",
-    "a travel agency’s new catalogue",
-    "a stay in a château between mountains and a river with food workshops",
-    "a local library offering room reservations, book borrowing and children’s activities",
-    "a ski and snowboarding school",
-    "a nightclub inside a bus",
-    "a parachute training course",
-    "a theatre organizing a special show for children"
+    "an outdoor music festival",
+    "a themed cooking class",
+    "an organized trip to an unusual destination",
+    "a new fitness app",
+    "a healthy meal delivery service",
+    "an environmental volunteering activity",
+    "a membership at an innovative gym",
+    "buying an electric car",
+    "participating in a marathon or charity run",
+    "a book or discussion club",
+    "a modern coworking space",
+    "a restaurant with an original concept (e.g., dining in the dark)",
+    "skydiving or an extreme activity",
+    "a culinary experience based on insects",
+    "using castor oil for car maintenance",
+    "Clean City Day",
+    "a home concierge service",
+    "an outdoor yoga session",
+    "a digital library subscription",
+    "a contemporary art exhibition"
 ];
 
 // Pick a random category
 if ($language === 'fr') {
     $chosen = $categories[array_rand($categories)];
-    $scenario_instructions = "Crée une mise en situation de type TEF Canada Section B sous la forme d’une annonce ou affiche. L’annonce doit inclure une consigne claire adressée au candidat, suivie du contenu de l’annonce concernant $chosen. Fournis ensuite la première réplique naturelle du représentant.";
+    $scenario_instructions = "Crée une mise en situation de type TEF Canada Section B. L'annonce doit porter sur : $chosen. L'annonce doit inclure une consigne claire adressée au candidat, suivie du contenu de l'annonce. Fournis ensuite la première réplique naturelle de l'ami (l'examinateur).";
     $system_prompt = "Vous êtes examinateur TEF Canada.
 
 OBJECTIF :
-Générer une Section B réaliste.
+Générer une Section B réaliste. Dans cette section, le candidat doit convaincre un ami (vous) de participer à une activité, d'utiliser un service ou d'acheter un produit basé sur une annonce.
 
-STRUCTURE DE L'ANNONCE :
-1) Une ligne d’instruction adressée au candidat commençant par : « CONSIGNE : ». Cette consigne DOIT préciser que le candidat doit poser environ 10 à 15 questions naturellement en 5 minutes.
-2) Une annonce rédigée comme une vraie affiche publicitaire (Titre, description, infos partielles).
-
-IMPORTANT :
-- Ne donnez PAS toutes les informations.
-- L’annonce doit encourager au moins 10 questions potentielles.
-- Style authentique d’affiche ou publicité.
+STRUCTURE DE LA RÉPONSE :
+1) Une ligne d’instruction adressée au candidat commençant par : « CONSIGNE : ». Cette consigne DOIT préciser que le candidat doit présenter le document à son ami et essayer de le convaincre d'y participer ou de l'utiliser pendant environ 10 minutes.
+2) Une annonce courte et attractive (Titre, points forts, prix ou date).
 
 RÔLES :
-- L’apprenant est toujours la personne qui appelle ou se renseigne.
-- Vous êtes le représentant lié à l’annonce.
+- Le candidat (l'utilisateur) est votre ami.
+- Vous êtes l'ami qui reçoit l'appel ou la proposition.
+- Soyez naturel, un peu sceptique ou indifférent au début pour laisser de la place à l'argumentation.
 - Ne parlez jamais à la place du candidat.
-- Commencez naturellement la conversation comme si le candidat appelait.
 
 LANGUE :
 - Tout en français.
@@ -97,32 +80,27 @@ LANGUE :
 
 FORMAT DE SORTIE (JSON UNIQUEMENT) :
 {
-  \"instruction\": \"La ligne de consigne uniquement (ex: CONSIGNE : Vous avez lu l'annonce suivante. Vous téléphonez pour obtenir des renseignements. Vous devez poser environ 10 à 15 questions naturellement en 5 minutes.)\",
-  \"advertisement\": \"Le texte de l'affiche publicitaire uniquement (avec titre et détails)\",
-  \"assistant_opening\": \"Première phrase naturelle du représentant en français\"
+  \"instruction\": \"La ligne de consigne uniquement (ex: CONSIGNE : Vous avez lu cette annonce. Présentez-la à votre ami et essayez de le convaincre d'y participer avec vous. Vous avez 10 minutes.)\",
+  \"advertisement\": \"Le texte de l'annonce uniquement\",
+  \"assistant_opening\": \"Première réplique naturelle de l'ami (ex: Allô ? Oui, salut ! Quoi de neuf ?)\"
 }";
 } else {
     $chosen = $categories_en[array_rand($categories_en)];
-    $scenario_instructions = "Create a TEF Canada Section B style scenario formatted as an advertisement or poster. The scenario must include a clear instruction addressed to the candidate, followed by the advertisement content about $chosen. Then provide the assistant’s first natural spoken line.";
+    $scenario_instructions = "Create a TEF Canada Section B style scenario. The ad should be about: $chosen. The scenario must include a clear instruction addressed to the candidate, followed by the advertisement content. Then provide the friend's (examiner's) first natural spoken line.";
     $system_prompt = "You are a TEF Canada examiner.
 
 OBJECTIVE:
-Generate a realistic Section B scenario.
+Generate a realistic Section B scenario. In this section, the candidate must convince a friend (you) to participate in an activity, use a service, or buy a product based on an advertisement.
 
 ADVERTISEMENT STRUCTURE:
-1) A candidate instruction line starting with: “INSTRUCTION:”. This instruction MUST state that the candidate is expected to ask around 10–15 questions naturally within 5 minutes.
-2) A realistic advertisement/poster (Title, description, partial details).
-
-IMPORTANT:
-- Do NOT provide complete information.
-- The advertisement must allow at least 10 possible follow-up questions.
-- It must look like a real promotional ad or poster.
+1) A candidate instruction line starting with: “INSTRUCTION:”. This instruction MUST state that the candidate is expected to present the document to their friend and try to convince them to join or use it for about 10 minutes.
+2) A realistic short advertisement (Title, highlights, price or date).
 
 ROLES:
-- The learner is always the person calling or enquiring.
-- You are the representative connected to the advertisement.
+- The learner (user) is your friend.
+- You are the friend receiving the call or proposal.
+- Be natural, slightly skeptical or indifferent at first to allow for persuasion.
 - Never speak as the learner.
-- Start naturally as if answering their call.
 
 LANGUAGE:
 - All in English.
@@ -130,9 +108,9 @@ LANGUAGE:
 
 OUTPUT FORMAT (JSON ONLY):
 {
-  \"instruction\": \"The instruction line only (e.g., INSTRUCTION: You have read the following advertisement. You call to obtain more information. You are expected to ask around 10–15 questions naturally within 5 minutes.)\",
-  \"advertisement\": \"The advertisement poster text only (with title and details)\",
-  \"assistant_opening\": \"Representative’s first natural spoken line in English\"
+  \"instruction\": \"The instruction line only (e.g., INSTRUCTION: You have read this advertisement. Present it to your friend and try to convince them to join you. You have 10 minutes.)\",
+  \"advertisement\": \"The advertisement text only\",
+  \"assistant_opening\": \"Friend's first natural spoken line (e.g., Hey! How's it going? What's up?)\"
 }";
 }
 
