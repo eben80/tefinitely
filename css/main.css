@@ -57,6 +57,12 @@ a {
   font-weight: bold;
 }
 
+.logo {
+  width: 100%;
+  max-width: 500px;
+  margin: 1rem 0 2rem 0;
+}
+
 /* --- Main App Navigation --- */
 .main-nav {
     display: flex;
@@ -167,6 +173,46 @@ a {
   margin: 0 0.5rem;
   transition: background-color 0.3s;
 }
+
+/* --- Subscription Prompt --- */
+.subscription-prompt {
+  max-width: 600px;
+  margin: 4rem auto;
+  background: #fff;
+  padding: 2rem 2.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  text-align: center;
+}
+.subscription-prompt h2 {
+  font-size: 1.8rem;
+  color: #004d99;
+  margin-bottom: 1rem;
+}
+.subscription-prompt .lead {
+  font-size: 1.1rem;
+  color: #666;
+  margin-bottom: 2rem;
+}
+.subscription-prompt .benefits-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0 auto 2rem auto;
+  text-align: left;
+  max-width: 350px;
+}
+.subscription-prompt .benefits-list li {
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+}
+.subscription-prompt .benefits-list li::before {
+  content: '✓';
+  color: #28a745;
+  font-size: 1.5rem;
+  margin-right: 1rem;
+}
 .landing-page .cta-buttons a:hover {
   background: #0056b3;
 }
@@ -232,11 +278,20 @@ a {
 }
 
 .sample-section {
-  padding: 3rem 2rem;
+  padding: 3rem 0;
 }
 .sample-section h2 {
   font-size: 2.5rem;
   margin-bottom: 2rem;
+}
+#sample-nav button {
+    padding: 0.4rem 1rem;
+    margin: 1rem 0.5rem 0 0.5rem;
+    font-size: 1rem;
+}
+#paypal-button-container {
+    max-width: 300px;
+    margin: 1rem auto 0 auto;
 }
 
 /* --- Footer --- */
@@ -349,11 +404,54 @@ a {
     .landing-page .hero h1 {
         font-size: 2.2rem;
     }
+    .landing-nav {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1.5rem;
+    }
+    .landing-nav .nav-links {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    .landing-nav .nav-links a {
+        margin: 0;
+    }
+    .logo {
+        max-width: 280px;
+        margin: 1rem 0;
+    }
     .container {
         padding: 1rem;
     }
     .payment-methods-container {
         max-width: 100%;
+    }
+
+    /* Additional Mobile Adjustments from index.html */
+    .landing-page .hero h1 {
+        font-size: 2.5rem;
+    }
+    .landing-page .cta-buttons a {
+        display: block;
+        margin: 0 0 1rem 0;
+    }
+    .landing-page .hero {
+        padding: 2rem 0;
+    }
+    .landing-page .features, .landing-page .sample-section {
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+    }
+    body {
+      margin: 1rem;
+    }
+    h1 {
+      font-size: 1.5rem;
+    }
+    .subscription-prompt {
+        padding: 1.5rem;
+        margin: 2rem 1rem;
     }
 }
 
