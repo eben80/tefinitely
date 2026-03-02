@@ -579,12 +579,7 @@ checkAccess();
                 <span id="speed-value">1.0</span>
             </div>
         </div>
-        <button id="start-btn">
-            <span class="btn-text">Démarrer</span>
-            <div class="spinner-border" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-        </button>
+        <button id="start-btn">Démarrer</button>
     </div>
 
     <div id="main-content">
@@ -608,15 +603,20 @@ checkAccess();
                 <input type="text" id="user-input" placeholder="Tapez votre phrase ici..." />
                 <button id="hint-btn" title="Besoin d'aide ?">💡</button>
                 <button id="send-btn">Envoyer</button>
-                <button id="next-btn" title="Annonce suivante">
-                    <span class="btn-text">Suivant</span>
-                    <div class="spinner-border" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                </button>
+                <button id="next-btn" title="Annonce suivante">Suivant</button>
                 <button id="speak-btn">🎤 Parler</button>
             </div>
         </div>
+    </div>
+</div>
+
+<!-- Loading Popup -->
+<div id="loading-popup" class="loading-popup">
+    <div class="loading-popup-content">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p id="loading-text">Loading your partner...</p>
     </div>
 </div>
 
@@ -660,6 +660,8 @@ const speedSlider = document.getElementById('speech-speed');
 const speedValue = document.getElementById('speed-value');
 const mainContent = document.getElementById('main-content');
 const setupContainer = document.getElementById('setup-container');
+const loadingPopup = document.getElementById('loading-popup');
+const loadingText = document.getElementById('loading-text');
 
 function setActionButtonsDisabled(disabled) {
     sendButton.disabled = disabled;
@@ -716,6 +718,7 @@ const translations = {
         hintBtnTitle: "Besoin d'aide ?",
         modalTitle: 'Idées de questions',
         loadingHints: 'Génération des questions...',
+        loadingPartner: 'Chargement de votre partenaire...',
         counterLabel: 'Questions posées :',
         timerLabel: 'Temps restant :',
         levels: {
@@ -741,6 +744,7 @@ const translations = {
         hintBtnTitle: "Need help?",
         modalTitle: 'Question Ideas',
         loadingHints: 'Generating questions...',
+        loadingPartner: 'Loading your partner...',
         counterLabel: 'Questions asked:',
         timerLabel: 'Time remaining:',
         levels: {
@@ -758,13 +762,14 @@ const translations = {
 function updateInterface(lang) {
     const t = translations[lang];
     pageTitle.textContent = t.pageTitle;
+    loadingText.textContent = t.loadingPartner;
     langLabel.textContent = t.langLabel;
     levelLabel.textContent = t.levelLabel;
-    startButton.querySelector('.btn-text').textContent = t.startBtn;
+    startButton.textContent = t.startBtn;
     speedLabel.textContent = t.speedLabel;
     inputField.placeholder = t.userPlaceholder;
     sendButton.textContent = t.sendBtn;
-    nextButton.querySelector('.btn-text').textContent = t.nextBtn;
+    nextButton.textContent = t.nextBtn;
     nextButton.title = t.nextBtnTitle;
     speakButton.textContent = t.speakBtn;
     hintButton.title = t.hintBtnTitle;
@@ -885,8 +890,7 @@ function appendMessage(role, text) {
 // -------------------- Start session --------------------
 async function startSession(level, language) {
     setActionButtonsDisabled(true);
-    if (startButton) startButton.classList.add('loading');
-    if (nextButton) nextButton.classList.add('loading');
+    loadingPopup.style.display = 'flex';
 
     currentLevel = level;
     currentLanguage = language;
@@ -940,8 +944,7 @@ async function startSession(level, language) {
         console.error('Error starting session:', error);
     } finally {
         setActionButtonsDisabled(false);
-        if (startButton) startButton.classList.remove('loading');
-        if (nextButton) nextButton.classList.remove('loading');
+        loadingPopup.style.display = 'none';
     }
 }
 
