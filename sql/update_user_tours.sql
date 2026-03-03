@@ -1,0 +1,3 @@
+ALTER TABLE users
+ADD COLUMN tour_section_a_completed BOOLEAN NOT NULL DEFAULT FALSE,
+ADD COLUMN tour_section_b_completed BOOLEAN NOT NULL DEFAULT FALSE;
