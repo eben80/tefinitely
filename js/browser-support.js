@@ -59,7 +59,7 @@
                 <ul>
                     <li><strong>Windows</strong> with <strong>Google Chrome</strong></li>
                     <li><strong>iOS or macOS</strong> with <strong>Safari</strong></li>
-                    <li><strong>Android</strong> with <strong>Google Chrome</strong></li>
+                    <li><strong>Android</strong> with <strong>Chrome</strong></li>
                 </ul>
                 <p>Support for other combinations might vary with regards to speech functionality.</p>
                 <div style="text-align: right; margin-top: 1.5rem;">
