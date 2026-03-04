@@ -10,7 +10,7 @@ if (php_sapi_name() !== 'cli' && (!isset($_GET['key']) || $_GET['key'] !== 'YOUR
     die("Unauthorized.");
 }
 
-$stmt = $conn->prepare("DELETE FROM users WHERE email_verified = FALSE AND created_at < NOW() - INTERVAL 24 HOUR");
+$stmt = $conn->prepare("DELETE FROM users WHERE email_verified = FALSE AND role = 'user' AND created_at < NOW() - INTERVAL 24 HOUR");
 
 if ($stmt->execute()) {
     $deleted_rows = $stmt->affected_rows;
