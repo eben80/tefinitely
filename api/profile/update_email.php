@@ -30,6 +30,21 @@ if (!filter_var($new_email, FILTER_VALIDATE_EMAIL)) {
 }
 
 try {
+    // Check if the new email is already the user's current email
+    $stmt_current = $conn->prepare("SELECT email FROM users WHERE id = ?");
+    $stmt_current->bind_param("i", $user_id);
+    $stmt_current->execute();
+    $result_current = $stmt_current->get_result();
+    $current_user_data = $result_current->fetch_assoc();
+
+    if ($current_user_data && $current_user_data['email'] === $new_email) {
+        http_response_code(200);
+        echo json_encode(['status' => 'success', 'message' => 'The email address is already set to this value.']);
+        $stmt_current->close();
+        exit;
+    }
+    $stmt_current->close();
+
     // Check if the new email is already taken by another user
     $stmt_check = $conn->prepare("SELECT id FROM users WHERE email = ? AND id != ?");
     $stmt_check->bind_param("si", $new_email, $user_id);
