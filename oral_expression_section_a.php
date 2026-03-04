@@ -99,6 +99,17 @@ checkAccess();
     padding: 0.4rem 1rem;
     margin-right: 0.7rem;
   }
+  #startRecordBtn.listening {
+    background: #dc3545 !important;
+    color: white !important;
+    animation: pulse-red 1.5s infinite;
+    border-color: #dc3545 !important;
+  }
+  @keyframes pulse-red {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+    70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+  }
   /* --- Responsive Design --- */
   @media (max-width: 640px) {
     .logo {
@@ -207,16 +218,12 @@ checkAccess();
             <button id="flipCardBtn">Flip</button>
             <button id="playPhraseBtn">Play Phrase</button>
             <button id="nextPhraseBtn" disabled>Next</button>
+            <button id="startRecordBtn" title="Speak"><i class="bi bi-mic-fill"></i></button>
         </div>
+        <p id="recordingResult" style="text-align: center; margin-top: 0.5rem;"></p>
         <div id="pagination-display" style="text-align: center; margin-top: 1rem; font-weight: bold;">
             <span id="current-card"></span> / <span id="total-cards"></span>
         </div>
-    </div>
-
-    <div id="recordingSection" style="display:none;">
-      <button id="startRecordBtn">Speak</button>
-      <audio id="userAudio" controls style="display:none;"></audio>
-      <p id="recordingResult"></p>
     </div>
 
     <footer class="landing-footer">
