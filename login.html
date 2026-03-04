@@ -53,6 +53,14 @@
     <script src="js/auth.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('verified')) {
+                showToast('Email verified successfully! You can now log in.', 'success');
+            }
+            if (urlParams.has('registered')) {
+                showToast('Registration successful! Please check your email to verify your account.', 'info', 10000);
+            }
+
             const loginForm = document.getElementById('loginForm');
             if (loginForm) {
                 loginForm.addEventListener('submit', (e) => {

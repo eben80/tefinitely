@@ -44,13 +44,32 @@ try {
     }
     $stmt_check->close();
 
-    // Update the user's email
-    $stmt_update = $conn->prepare("UPDATE users SET email = ? WHERE id = ?");
-    $stmt_update->bind_param("si", $new_email, $user_id);
+    // Generate verification token
+    $verification_token = bin2hex(random_bytes(32));
+
+    // Update the user's pending_email and token
+    $stmt_update = $conn->prepare("UPDATE users SET pending_email = ?, verification_token = ? WHERE id = ?");
+    $stmt_update->bind_param("ssi", $new_email, $verification_token, $user_id);
 
     if ($stmt_update->execute()) {
+        // Send verification email
+        require_once __DIR__ . '/../services/EmailService.php';
+
+        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https://" : "http://";
+        $host = $_SERVER['HTTP_HOST'];
+        $verification_link = $protocol . $host . "/api/auth/verify_email.php?token=" . $verification_token;
+
+        $subject = "Verify Your New Email Address - Tefinitely";
+        $body_html = "<h1>Email Change Request</h1>
+                      <p>You have requested to change your email address to <strong>{$new_email}</strong>. Please click the link below to verify this new email address:</p>
+                      <p><a href='{$verification_link}'>{$verification_link}</a></p>
+                      <p>If you did not request this change, please contact support.</p>";
+        $body_text = "Email Change Request\n\nYou have requested to change your email address to {$new_email}. Please click the link below to verify this new email address:\n{$verification_link}\n\nIf you did not request this change, please contact support.";
+
+        sendEmail($new_email, $subject, $body_html, $body_text);
+
         http_response_code(200);
-        echo json_encode(['status' => 'success', 'message' => 'Email updated successfully.']);
+        echo json_encode(['status' => 'success', 'message' => 'A verification email has been sent to your new email address. Please click the link in that email to confirm the change.']);
     } else {
         throw new Exception("Failed to update email.");
     }

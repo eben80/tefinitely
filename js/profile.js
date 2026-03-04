@@ -25,6 +25,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 firstNameSpan.textContent = profile.first_name;
                 lastNameSpan.textContent = profile.last_name;
                 emailSpan.textContent = profile.email;
+                if (profile.pending_email) {
+                    emailSpan.innerHTML += ` <br><small style="color: #666;">(Pending verification: ${profile.pending_email})</small>`;
+                }
                 document.getElementById('new-first-name').value = profile.first_name;
                 document.getElementById('new-last-name').value = profile.last_name;
                 document.getElementById('new-email').value = profile.email;

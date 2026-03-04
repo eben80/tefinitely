@@ -37,7 +37,7 @@ try {
     }
 
     // Fetch user from the database
-    $stmt = $conn->prepare("SELECT id, first_name, password, role, subscription_status FROM users WHERE email = ?");
+    $stmt = $conn->prepare("SELECT id, first_name, password, role, subscription_status, email_verified FROM users WHERE email = ?");
     if (!$stmt) {
         throw new Exception("Database prepare failed: " . $conn->error);
     }
@@ -47,6 +47,12 @@ try {
 
     if ($result->num_rows === 1) {
         $user = $result->fetch_assoc();
+
+        // Check if email is verified
+        if ($user['email_verified'] == 0) {
+            throw new Exception('Please verify your email address before logging in.', 403);
+        }
+
         // Verify password
         if (password_verify($password, $user['password'])) {
             // Password is correct, log success and start the session

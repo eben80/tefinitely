@@ -19,7 +19,8 @@ $sql_files = [
     __DIR__ . '/../sql/create_login_history_table.sql',
     __DIR__ . '/../sql/create_support_tickets_table.sql',
     __DIR__ . '/../sql/create_payment_plans_table.sql',
-    __DIR__ . '/../sql/update_user_tours.sql'
+    __DIR__ . '/../sql/update_user_tours.sql',
+    __DIR__ . '/../sql/update_users_table_for_verification.sql'
 ];
 
 echo "<h2>Database Setup</h2>";
