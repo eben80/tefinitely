@@ -27,9 +27,9 @@ async function apiRequest(url, data) {
 async function registerUser(first_name, last_name, email, password) {
     try {
         const result = await apiRequest('api/register.php', { first_name, last_name, email, password });
-        showToast(result.message, 'success');
+        showToast(result.message, 'success', 5000);
         // Redirect to login page on successful registration
-        setTimeout(() => { window.location.href = 'login.html'; }, 1000);
+        setTimeout(() => { window.location.href = 'login.html?registered=true'; }, 5000);
     } catch (error) {
         showToast(`Registration Failed: ${error.message}`, 'error');
     }
