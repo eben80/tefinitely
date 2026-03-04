@@ -139,5 +139,6 @@ union() {
         <p style="color:red;">Could not generate the STL file.</p>
     <?php endif; ?>
 
+<script src="js/cookie-banner.js"></script>
 </body>
 </html>

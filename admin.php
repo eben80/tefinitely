@@ -537,5 +537,6 @@ checkAccess(true, true); // Admin only
             dateFormat: "Y-m-d H:i:S",
         });
     </script>
+<script src="js/cookie-banner.js"></script>
 </body>
 </html>

@@ -152,5 +152,6 @@ checkAccess();
 <script src="js/browser-support.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/nav.js"></script>
+<script src="js/cookie-banner.js"></script>
 </body>
 </html>

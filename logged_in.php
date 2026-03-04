@@ -155,5 +155,6 @@ checkAccess();
 <script src="js/nav.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/shepherd.js@10.0.1/dist/js/shepherd.min.js"></script>
 <script src="js/tour.js"></script>
+<script src="js/cookie-banner.js"></script>
 </body>
 </html>
