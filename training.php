@@ -1097,5 +1097,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
+<script src="js/cookie-banner.js"></script>
 </body>
 </html>

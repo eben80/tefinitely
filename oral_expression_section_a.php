@@ -253,5 +253,6 @@ checkAccess();
 <script src="js/nav.js"></script>
 <script src="js/oral_expression_section_a.js"></script>
 </div>
+<script src="js/cookie-banner.js"></script>
 </body>
 </html>

@@ -358,5 +358,6 @@ checkAccess(false); // Does not require active subscription to view profile
             }
         });
     </script>
+<script src="js/cookie-banner.js"></script>
 </body>
 </html>
