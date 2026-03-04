@@ -23,6 +23,7 @@ if ($method === 'GET') {
             u.email,
             u.role,
             u.subscription_status,
+            u.email_verified,
             u.created_at,
             MAX(s.subscription_end_date) AS subscription_end_date,
             COALESCE(cl.calls_1h, 0) as calls_1h,
@@ -264,6 +265,7 @@ if ($method === 'GET') {
             $user_id = $data['user_id'];
             $start_date = !empty($data['start_date']) ? $data['start_date'] : null;
             $end_date = !empty($data['end_date']) ? $data['end_date'] : null;
+            $email_verified = isset($data['email_verified']) ? (int)$data['email_verified'] : null;
 
             // Find the latest subscription to update it.
             // If none exists, create one.
@@ -296,7 +298,14 @@ if ($method === 'GET') {
             $stmt_status->bind_param("si", $new_status, $user_id);
             $stmt_status->execute();
 
-            logAdminAction($conn, $_SESSION['user_id'], 'update_subscription_dates', $user_id, "Start: $start_date, End: $end_date, New status: $new_status");
+            if ($email_verified !== null) {
+                $stmt_verified = $conn->prepare("UPDATE users SET email_verified = ? WHERE id = ?");
+                $stmt_verified->bind_param("ii", $email_verified, $user_id);
+                $stmt_verified->execute();
+                $stmt_verified->close();
+            }
+
+            logAdminAction($conn, $_SESSION['user_id'], 'update_subscription_dates', $user_id, "Start: $start_date, End: $end_date, New status: $new_status, Verified: $email_verified");
 
             echo json_encode(['status' => 'success', 'message' => 'Subscription dates and status updated successfully.']);
             break;

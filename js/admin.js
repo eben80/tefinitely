@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalPasswordInput = document.getElementById('modal-password');
     const modalSubStartInput = document.getElementById('modal-sub-start');
     const modalSubEndInput = document.getElementById('modal-sub-end');
+    const modalEmailVerifiedCheckbox = document.getElementById('modal-email-verified');
     const editEmailForm = document.getElementById('edit-email-form');
     const editPasswordForm = document.getElementById('edit-password-form');
     const editSubscriptionForm = document.getElementById('edit-subscription-form');
@@ -358,6 +359,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     ${escapeHTML(endDate)}
                     <br>
                     <a href="javascript:void(0)" class="view-payments-link" data-userid="${user.id}" data-name="${escapeHTML(fullName)}" style="font-size: 0.8rem;">View History</a>
+                </td>
+                <td>
+                    ${user.email_verified == 1 ? '<span class="status-active">Yes</span>' : '<span class="status-inactive">No</span>'}
                 </td>
                 <td>
                     <a href="javascript:void(0)" class="view-calls-link" data-userid="${user.id}" data-name="${escapeHTML(fullName)}">
@@ -760,6 +764,7 @@ document.addEventListener('DOMContentLoaded', () => {
             modalPasswordInput.value = ''; // Clear password field
             modalSubStartInput.value = user.subscription_start_date || '';
             modalSubEndInput.value = user.subscription_end_date || '';
+            modalEmailVerifiedCheckbox.checked = user.email_verified == 1;
             modal.style.display = 'block';
         }
     }
@@ -797,10 +802,12 @@ document.addEventListener('DOMContentLoaded', () => {
         event.preventDefault();
         const startDate = modalSubStartInput.value;
         const endDate = modalSubEndInput.value;
+        const emailVerified = modalEmailVerifiedCheckbox.checked ? 1 : 0;
         await updateUser('update_subscription_dates', {
             user_id: currentEditingUserId,
             start_date: startDate,
-            end_date: endDate
+            end_date: endDate,
+            email_verified: emailVerified
         });
     }
 
