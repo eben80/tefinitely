@@ -170,6 +170,7 @@ checkAccess(true, true); // Admin only
                                 <th>Role</th>
                                 <th>Sub Status</th>
                                 <th>Sub End Date</th>
+                                <th>Verified</th>
                                 <th>OpenAI Calls (1h/24h/7d/30d/Life)</th>
                                 <th>Created At</th>
                                 <th>Manage Sub</th>
@@ -375,7 +376,11 @@ checkAccess(true, true); // Admin only
                 <input type="text" id="modal-sub-start" placeholder="YYYY-MM-DD HH:MM:SS">
                 <label for="modal-sub-end">Subscription End (YYYY-MM-DD)</label>
                 <input type="text" id="modal-sub-end" placeholder="YYYY-MM-DD HH:MM:SS">
-                <button type="submit">Update Subscription Dates</button>
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                    <input type="checkbox" id="modal-email-verified" style="width: auto; margin: 0;">
+                    <label for="modal-email-verified" style="margin: 0;">Email Verified</label>
+                </div>
+                <button type="submit">Update Subscription & Verification</button>
             </form>
         </div>
     </div>

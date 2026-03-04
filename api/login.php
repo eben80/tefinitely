@@ -48,8 +48,8 @@ try {
     if ($result->num_rows === 1) {
         $user = $result->fetch_assoc();
 
-        // Check if email is verified
-        if ($user['email_verified'] == 0) {
+        // Check if email is verified (admins can bypass)
+        if ($user['email_verified'] == 0 && $user['role'] !== 'admin') {
             throw new Exception('Please verify your email address before logging in.', 403);
         }
 
