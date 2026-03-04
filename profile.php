@@ -172,16 +172,21 @@ checkAccess(false); // Does not require active subscription to view profile
             </form>
         </div>
 
-        <div class="form-section">
-            <h2>Contact Support</h2>
-            <p>Have a question or issue? Send us a message and we'll get back to you as soon as possible.</p>
-            <form id="contact-support-form">
-                <label for="support-subject">Subject</label>
-                <input type="text" id="support-subject" required>
-                <label for="support-message">Message</label>
-                <textarea id="support-message" rows="5" required></textarea>
-                <button type="submit">Submit Request</button>
-            </form>
+        <div class="collapsible-wrapper" id="support-collapsible">
+            <div class="collapsible-header" id="toggle-support">
+                <h2>Contact Support</h2>
+                <i class="bi bi-chevron-down collapsible-icon"></i>
+            </div>
+            <div class="collapsible-content">
+                <p>Have a question or issue? Send us a message and we'll get back to you as soon as possible.</p>
+                <form id="contact-support-form">
+                    <label for="support-subject">Subject</label>
+                    <input type="text" id="support-subject" required>
+                    <label for="support-message">Message</label>
+                    <textarea id="support-message" rows="5" required></textarea>
+                    <button type="submit">Submit Request</button>
+                </form>
+            </div>
         </div>
 
         <div class="form-section">
@@ -332,6 +337,11 @@ checkAccess(false); // Does not require active subscription to view profile
                     showToast('An error occurred while resetting your stats.', 'error');
                 }
             }
+        });
+
+        // Collapsible Logic
+        document.getElementById('toggle-support').addEventListener('click', () => {
+            document.getElementById('support-collapsible').classList.toggle('is-open');
         });
 
         // Support Contact Form Logic
