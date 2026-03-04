@@ -207,16 +207,12 @@ checkAccess();
             <button id="flipCardBtn">Flip</button>
             <button id="playPhraseBtn">Play Phrase</button>
             <button id="nextPhraseBtn" disabled>Next</button>
+            <button id="startRecordBtn"><i class="bi bi-mic-fill"></i></button>
         </div>
+        <div id="recordingResult" style="text-align: center; margin-top: 0.8rem; font-weight: 600;"></div>
         <div id="pagination-display" style="text-align: center; margin-top: 1rem; font-weight: bold;">
             <span id="current-card"></span> / <span id="total-cards"></span>
         </div>
-    </div>
-
-    <div id="recordingSection" style="display:none;">
-      <button id="startRecordBtn">Speak</button>
-      <audio id="userAudio" controls style="display:none;"></audio>
-      <p id="recordingResult"></p>
     </div>
 
     <footer class="landing-footer">

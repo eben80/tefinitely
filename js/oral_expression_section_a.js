@@ -188,7 +188,6 @@ function initializeMainFlashcard() {
               return;
             }
             startRecordBtn.disabled = true;
-            recordingResult.textContent = "Recording... speak now.";
 
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             recognition = new SpeechRecognition();
@@ -196,7 +195,10 @@ function initializeMainFlashcard() {
             recognition.interimResults = false;
             recognition.maxAlternatives = 1;
 
-            recognition.onstart = () => console.log('Speech recognition started.');
+            recognition.onstart = () => {
+                console.log('Speech recognition started.');
+                startRecordBtn.classList.add('listening');
+            };
             recognition.onspeechend = () => {
               console.log('Speech has stopped being detected.');
               recognition.stop();
@@ -213,7 +215,10 @@ function initializeMainFlashcard() {
             };
             recognition.onend = () => {
               console.log('Speech recognition ended.');
-              if (startRecordBtn) startRecordBtn.disabled = false;
+              if (startRecordBtn) {
+                  startRecordBtn.disabled = false;
+                  startRecordBtn.classList.remove('listening');
+              }
             };
 
             recognition.start();
@@ -259,7 +264,6 @@ function initializeMainFlashcard() {
             if (currentPhraseIndex >= phrases.length) currentPhraseIndex = 0;
             displayPhrase(currentPhraseIndex);
             phraseBox.style.display = 'block';
-            mainContent.querySelector('#recordingSection').style.display = 'block';
         } catch (e) {
             showToast('Error loading phrases: ' + e.message, 'error');
         }
