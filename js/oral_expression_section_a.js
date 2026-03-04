@@ -243,6 +243,7 @@ function initializeMainFlashcard() {
         updateNavButtons();
         currentCardSpan.textContent = idx + 1;
         savePosition(currentTopic, idx);
+        if (recordingResult) recordingResult.textContent = '';
     }
 
     function updateNavButtons() {
