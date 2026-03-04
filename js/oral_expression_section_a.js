@@ -158,20 +158,20 @@ function updateTopicProgressDisplay(topicValue) {
 
 function initializeMainFlashcard() {
     const mainContent = document.getElementById('main-content');
-    const topicSelect = mainContent.querySelector('#topicSelect');
-    const phraseBox = mainContent.querySelector('#phraseBox');
-    const phraseFrench = mainContent.querySelector('#phraseFrench');
-    const phraseEnglish = mainContent.querySelector('#phraseEnglish');
-    const playPhraseBtn = mainContent.querySelector('#playPhraseBtn');
-    const firstCardBtn = mainContent.querySelector('#firstCardBtn');
-    const prevPhraseBtn = mainContent.querySelector('#prevPhraseBtn');
-    const nextPhraseBtn = mainContent.querySelector('#nextPhraseBtn');
-    const flipCardBtn = mainContent.querySelector('#flipCardBtn');
-    const flashcard = mainContent.querySelector('.flashcard');
-    const currentCardSpan = mainContent.querySelector('#current-card');
-    const totalCardsSpan = mainContent.querySelector('#total-cards');
-    const startRecordBtn = mainContent.querySelector('#startRecordBtn');
-    const recordingResult = mainContent.querySelector('#recordingResult');
+    const topicSelect = document.getElementById('topicSelect');
+    const phraseBox = document.getElementById('phraseBox');
+    const phraseFrench = document.getElementById('phraseFrench');
+    const phraseEnglish = document.getElementById('phraseEnglish');
+    const playPhraseBtn = document.getElementById('playPhraseBtn');
+    const firstCardBtn = document.getElementById('firstCardBtn');
+    const prevPhraseBtn = document.getElementById('prevPhraseBtn');
+    const nextPhraseBtn = document.getElementById('nextPhraseBtn');
+    const flipCardBtn = document.getElementById('flipCardBtn');
+    const flashcard = document.querySelector('.flashcard');
+    const currentCardSpan = document.getElementById('current-card');
+    const totalCardsSpan = document.getElementById('total-cards');
+    const startRecordBtn = document.getElementById('startRecordBtn');
+    const recordingResult = document.getElementById('recordingResult');
 
     if(startRecordBtn) {
         startRecordBtn.onclick = () => {
