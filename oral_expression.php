@@ -135,11 +135,15 @@ checkAccess();
                 </ul>
             </div>
             <div class="footer-column">
-                <h4>Contact</h4>
-                <p><a href="mailto:tefinitely@gmail.com">Email Us</a></p>
+                <h4>Legal</h4>
+                <ul>
+                    <li><a href="terms.html">Terms of Service</a></li>
+                    <li><a href="privacy.html">Privacy Policy</a></li>
+                </ul>
             </div>
             <div class="footer-column">
-                <h4>Supported Devices</h4>
+                <h4>Contact</h4>
+                <p><a href="mailto:tefinitely@gmail.com">Email Us</a></p>
                 <p><a href="javascript:void(0)" onclick="window.showBrowserSupportPopup()">Supported OS / Browsers</a></p>
             </div>
         </div>
