@@ -1,5 +1,6 @@
 <?php
-session_start();
+require_once 'session_init.php';
+init_session();
 header('Content-Type: application/json; charset=utf-8');
 echo json_encode([
     'status' => 'success',

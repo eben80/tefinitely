@@ -36,9 +36,9 @@ async function registerUser(first_name, last_name, email, password) {
 }
 
 // --- Login ---
-async function loginUser(email, password) {
+async function loginUser(email, password, remember = false) {
     try {
-        const result = await apiRequest('api/login.php', { email, password });
+        const result = await apiRequest('api/login.php', { email, password, remember });
         showToast(result.message, 'success');
         // Redirect to the logged-in dashboard on successful login
         setTimeout(() => { window.location.href = 'logged_in.php'; }, 1000);

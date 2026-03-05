@@ -1,5 +1,6 @@
 <?php
-session_start();
+require_once 'session_init.php';
+init_session();
 header('Content-Type: application/json; charset=utf-8');
 
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['subscription_status']) || $_SESSION['subscription_status'] !== 'active') {

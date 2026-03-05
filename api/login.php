@@ -1,6 +1,6 @@
 <?php
-session_start();
 header('Content-Type: application/json; charset=utf-8');
+require_once 'session_init.php';
 require_once '../db/db_config.php';
 
 // --- Main Logic ---
@@ -20,6 +20,7 @@ try {
 
     $email = trim($data['email']);
     $password = trim($data['password']);
+    $remember = isset($data['remember']) ? (bool)$data['remember'] : false;
     $ip_address = $_SERVER['REMOTE_ADDR'];
     $user_agent = $_SERVER['HTTP_USER_AGENT'];
 
@@ -60,6 +61,8 @@ try {
             $stmt_log->bind_param("isss", $user['id'], $email, $ip_address, $user_agent);
             $stmt_log->execute();
             $stmt_log->close();
+
+            init_session($remember);
 
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['first_name'] = $user['first_name'];
