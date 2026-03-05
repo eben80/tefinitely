@@ -83,9 +83,21 @@ checkAccess();
             <div class="dropdown">
                 <a href="oral_expression.php" class="dropbtn">Oral Expression</a>
                 <div class="dropdown-content">
-                    <a href="oral_expression_section_a.php">Flashcards</a>
-                    <a href="practise/section_a/index.php">Section A Practice</a>
-                    <a href="practise/section_b/index.php">Section B Practice</a>
+                    <div class="sub-dropdown">
+                        <a href="javascript:void(0)" class="sub-dropbtn">TEF Canada <i class="bi bi-chevron-right"></i></a>
+                        <div class="sub-dropdown-content">
+                            <a href="oral_expression_section_a.php">Flashcards</a>
+                            <a href="practise/tef_canada/section_a/index.php">Section A Practice</a>
+                            <a href="practise/tef_canada/section_b/index.php">Section B Practice</a>
+                        </div>
+                    </div>
+                    <div class="sub-dropdown">
+                        <a href="javascript:void(0)" class="sub-dropbtn">CELPIP <i class="bi bi-chevron-right"></i></a>
+                        <div class="sub-dropdown-content">
+                            <a href="practise/celpip/section_a/index.php">Section A Practice</a>
+                            <a href="practise/celpip/section_b/index.php">Section B Practice</a>
+                        </div>
+                    </div>
                 </div>
             </div>
             <a href="training.php">Phased Training</a>
@@ -102,6 +114,7 @@ checkAccess();
 <div id="main-content">
     <h1 style="text-align: center;">Oral Expression Practice</h1>
 
+    <h2 style="text-align: center;">TEF Canada</h2>
     <div class="section-card">
         <h2>Flashcards: Essential Phrases</h2>
         <p>Master the foundational phrases for the TEF Canada exam. Practice your pronunciation, flip the cards for translations, and track your progress across different topics.</p>
@@ -111,13 +124,26 @@ checkAccess();
     <div class="section-card">
         <h2>Interactive Practice: Section A</h2>
         <p>Practice asking questions naturally in a simulated conversation. Get instant feedback and suggestions to improve your fluency and accuracy.</p>
-        <a href="practise/section_a/index.php">Start Section A Practice</a>
+        <a href="practise/tef_canada/section_a/index.php">Start Section A Practice</a>
     </div>
 
     <div class="section-card">
         <h2>Interactive Practice: Section B</h2>
         <p>Engage in realistic dialogues and interactive scenarios to apply your knowledge in context. This section will challenge you to think on your feet and respond naturally in French.</p>
-        <a href="practise/section_b/index.php">Start Section B Practice</a>
+        <a href="practise/tef_canada/section_b/index.php">Start Section B Practice</a>
+    </div>
+
+    <h2 style="text-align: center; margin-top: 3rem;">CELPIP</h2>
+    <div class="section-card">
+        <h2>Interactive Practice: Section A</h2>
+        <p>Practice your English oral expression for CELPIP Section A. Engage in realistic conversations and improve your fluency.</p>
+        <a href="practise/celpip/section_a/index.php">Start Section A Practice</a>
+    </div>
+
+    <div class="section-card">
+        <h2>Interactive Practice: Section B</h2>
+        <p>Improve your persuasion skills for CELPIP Section B. Practice with our AI to prepare for real-life scenarios.</p>
+        <a href="practise/celpip/section_b/index.php">Start Section B Practice</a>
     </div>
 
     <footer class="landing-footer">

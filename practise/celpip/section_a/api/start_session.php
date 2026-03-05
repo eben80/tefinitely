@@ -6,7 +6,7 @@ require_once __DIR__ . '/openai.php';
 header('Content-Type: application/json');
 
 $level = $_POST['level'] ?? 'A2';
-$language = $_POST['language'] ?? 'fr'; // 'fr' or 'en'
+$language = 'en'; // Force English for CELPIP
 
 // ------------------ Broader scenario categories ------------------
 
@@ -69,43 +69,9 @@ $categories_en = [
 ];
 
 // Pick a random category
-if ($language === 'fr') {
-    $chosen = $categories[array_rand($categories)];
-    $scenario_instructions = "Crée une mise en situation de type TEF Canada Section A sous la forme d’une annonce ou affiche. L’annonce doit inclure une consigne claire adressée au candidat, suivie du contenu de l’annonce concernant $chosen. Fournis ensuite la première réplique naturelle du représentant.";
-    $system_prompt = "Vous êtes examinateur TEF Canada.
-
-OBJECTIF :
-Générer une Section A réaliste.
-
-STRUCTURE DE L'ANNONCE :
-1) Une ligne d’instruction adressée au candidat commençant par : « CONSIGNE : ». Cette consigne DOIT préciser que le candidat doit poser environ 10 à 15 questions naturellement en 5 minutes.
-2) Une annonce rédigée comme une vraie affiche publicitaire (Titre, description, infos partielles).
-
-IMPORTANT :
-- Ne donnez PAS toutes les informations.
-- L’annonce doit encourager au moins 10 questions potentielles.
-- Style authentique d’affiche ou publicité.
-
-RÔLES :
-- L’apprenant est toujours la personne qui appelle ou se renseigne.
-- Vous êtes le représentant lié à l’annonce.
-- Ne parlez jamais à la place du candidat.
-- Commencez naturellement la conversation comme si le candidat appelait.
-
-LANGUE :
-- Tout en français.
-- Niveau adapté : {$level}.
-
-FORMAT DE SORTIE (JSON UNIQUEMENT) :
-{
-  \"instruction\": \"La ligne de consigne uniquement (ex: CONSIGNE : Vous avez lu l'annonce suivante. Vous téléphonez pour obtenir des renseignements. Vous devez poser environ 10 à 15 questions naturellement en 5 minutes.)\",
-  \"advertisement\": \"Le texte de l'affiche publicitaire uniquement (avec titre et détails)\",
-  \"assistant_opening\": \"Première phrase naturelle du représentant en français\"
-}";
-} else {
-    $chosen = $categories_en[array_rand($categories_en)];
-    $scenario_instructions = "Create a TEF Canada Section A style scenario formatted as an advertisement or poster. The scenario must include a clear instruction addressed to the candidate, followed by the advertisement content about $chosen. Then provide the assistant’s first natural spoken line.";
-    $system_prompt = "You are a TEF Canada examiner.
+$chosen = $categories_en[array_rand($categories_en)];
+$scenario_instructions = "Create a CELPIP Section A style scenario formatted as an advertisement or poster. The scenario must include a clear instruction addressed to the candidate, followed by the advertisement content about $chosen. Then provide the assistant’s first natural spoken line.";
+$system_prompt = "You are a CELPIP examiner.
 
 OBJECTIVE:
 Generate a realistic Section A scenario.
@@ -135,7 +101,6 @@ OUTPUT FORMAT (JSON ONLY):
   \"advertisement\": \"The advertisement poster text only (with title and details)\",
   \"assistant_opening\": \"Representative’s first natural spoken line in English\"
 }";
-}
 
 // ------------------ SYSTEM prompt ------------------
 $messages = [

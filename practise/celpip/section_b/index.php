@@ -3,12 +3,12 @@ require_once '../../api/auth_check.php';
 checkAccess();
 ?>
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
 <base href="/">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Oral Expression - Section A</title>
+<title>Oral Expression - Section B</title>
 <link rel="icon" href="img/favicon/favicon.ico" sizes="any">
 <link rel="icon" href="img/favicon/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="img/favicon/apple-touch-icon.png">
@@ -555,9 +555,21 @@ checkAccess();
             <div class="dropdown">
                 <a href="oral_expression.php" class="dropbtn">Oral Expression</a>
                 <div class="dropdown-content">
-                    <a href="oral_expression_section_a.php">Flashcards</a>
-                    <a href="practise/section_a/index.php">Section A Practice</a>
-                    <a href="practise/section_b/index.php">Section B Practice</a>
+                    <div class="sub-dropdown">
+                        <a href="javascript:void(0)" class="sub-dropbtn">TEF Canada <i class="bi bi-chevron-right"></i></a>
+                        <div class="sub-dropdown-content">
+                            <a href="oral_expression_section_a.php">Flashcards</a>
+                            <a href="practise/tef_canada/section_a/index.php">Section A Practice</a>
+                            <a href="practise/tef_canada/section_b/index.php">Section B Practice</a>
+                        </div>
+                    </div>
+                    <div class="sub-dropdown">
+                        <a href="javascript:void(0)" class="sub-dropbtn">CELPIP <i class="bi bi-chevron-right"></i></a>
+                        <div class="sub-dropdown-content">
+                            <a href="practise/celpip/section_a/index.php">Section A Practice</a>
+                            <a href="practise/celpip/section_b/index.php">Section B Practice</a>
+                        </div>
+                    </div>
                 </div>
             </div>
             <a href="training.php">Phased Training</a>
@@ -574,11 +586,10 @@ checkAccess();
 <div id="app-container">
     <div id="setup-container">
         <h2 id="page-title">Conversation Practice</h2>
-        <div class="form-group">
-            <label id="lang-label">Langue:</label>
+        <div class="form-group" style="display: none;">
+            <label id="lang-label">Language:</label>
             <select id="language" class="form-control">
-                <option value="fr" selected>Français</option>
-                <option value="en">English</option>
+                <option value="en" selected>English</option>
             </select>
         </div>
         <div class="form-group">
@@ -602,12 +613,12 @@ checkAccess();
         <div id="chat-container">
             <div id="question-counter">
                 <div>
-                    <span id="counter-label">Questions posées :</span>
+                    <span id="counter-label">Échanges :</span>
                     <span class="count-badge" id="question-count">0</span>
                 </div>
                 <div id="timer-container">
                     <span id="timer-label">Temps restant :</span>
-                    <span id="timer-display">05:00</span>
+                    <span id="timer-display">10:00</span>
                 </div>
             </div>
             <div id="chat" style="display: flex; flex-direction: column;"></div>
@@ -637,7 +648,7 @@ checkAccess();
 <div id="hints-modal" class="modal">
     <div class="modal-content" id="modal-content">
         <div class="modal-header" id="modal-header">
-            <h2 id="modal-title">Idées de questions</h2>
+            <h2 id="modal-title">Idées d'arguments</h2>
             <span class="close">&times;</span>
         </div>
         <div class="modal-body" id="modal-body">
@@ -646,7 +657,7 @@ checkAccess();
                 <div class="spinner-border text-primary" role="status">
                     <span class="visually-hidden">Chargement...</span>
                 </div>
-                <p>Génération des questions...</p>
+                <p>Génération des arguments...</p>
             </div>
         </div>
     </div>
@@ -692,7 +703,7 @@ const questionCountDisplay = document.getElementById('question-count');
 const counterLabel = document.getElementById('counter-label');
 
 let timerInterval = null;
-let timeLeft = 300; // 5 minutes
+let timeLeft = 600; // 10 minutes
 const timerDisplay = document.getElementById('timer-display');
 const timerLabel = document.getElementById('timer-label');
 
@@ -720,7 +731,7 @@ const speedLabel = document.getElementById('speed-label');
 // -------------------- Translations --------------------
 const translations = {
     fr: {
-        pageTitle: 'Expression Orale - Section A',
+        pageTitle: 'Expression Orale - Section B',
         langLabel: 'Langue:',
         levelLabel: 'Niveau:',
         startBtn: 'Démarrer',
@@ -732,10 +743,10 @@ const translations = {
         speakBtn: '🎤 Parler',
         listeningBtn: '🎤 À l\'écoute...',
         hintBtnTitle: "Besoin d'aide ?",
-        modalTitle: 'Idées de questions',
-        loadingHints: 'Génération des questions...',
+        modalTitle: 'Idées d\'arguments',
+        loadingHints: 'Génération des arguments...',
         loadingPartner: 'Chargement de votre partenaire...',
-        counterLabel: 'Questions posées :',
+        counterLabel: 'Échanges :',
         timerLabel: 'Temps restant :',
         levels: {
             A1: 'A1 - Débutant',
@@ -747,7 +758,7 @@ const translations = {
         }
     },
     en: {
-        pageTitle: 'Oral Expression - Section A',
+        pageTitle: 'Oral Expression - Section B',
         langLabel: 'Language:',
         levelLabel: 'Level:',
         startBtn: 'Start',
@@ -759,10 +770,10 @@ const translations = {
         speakBtn: '🎤 Speak',
         listeningBtn: '🎤 Listening...',
         hintBtnTitle: "Need help?",
-        modalTitle: 'Question Ideas',
-        loadingHints: 'Generating questions...',
+        modalTitle: 'Argument Ideas',
+        loadingHints: 'Generating arguments...',
         loadingPartner: 'Loading your partner...',
-        counterLabel: 'Questions asked:',
+        counterLabel: 'Interactions:',
         timerLabel: 'Time remaining:',
         levels: {
             A1: 'A1 - Beginner',
@@ -809,7 +820,7 @@ languageSelector.addEventListener('change', () => {
     updateInterface(languageSelector.value);
 });
 
-updateInterface(languageSelector.value);
+updateInterface('en');
 
 // -------------------- Speech queue --------------------
 let speaking = false;
@@ -922,12 +933,12 @@ async function startSession(level, language) {
     // Reset Timer
     if (timerInterval) clearInterval(timerInterval);
     timerInterval = null;
-    timeLeft = 300;
+    timeLeft = 600;
     updateTimerDisplay();
 
     try {
         console.log('Starting session...');
-        const res = await fetch('practise/section_a/api/start_session.php', {
+        const res = await fetch('practise/celpip/section_b/api/start_session.php', {
             method: 'POST',
             headers: {'Content-Type': 'application/x-www-form-urlencoded'},
             body: 'level=' + encodeURIComponent(level) + '&language=' + encodeURIComponent(language)
@@ -959,8 +970,8 @@ async function startSession(level, language) {
         console.log('Session started successfully');
 
         // Start the guided tour if this is the first time
-        if (window.startSectionATourIfNecessary) {
-            window.startSectionATourIfNecessary();
+        if (window.startSectionBTourIfNecessary) {
+            window.startSectionBTourIfNecessary();
         }
     } catch (error) {
         console.error('Error starting session:', error);
@@ -1012,7 +1023,7 @@ async function sendMessage() {
     unlockTTS();
 
     try {
-        const res = await fetch('practise/section_a/api/continue_session.php', {
+        const res = await fetch('practise/celpip/section_b/api/continue_session.php', {
             method: 'POST',
             headers: {'Content-Type': 'application/x-www-form-urlencoded'},
             body: 'text=' + encodeURIComponent(text) + '&language=' + encodeURIComponent(languageSelector.value)
@@ -1041,7 +1052,7 @@ async function showHints() {
     hintsLoading.style.display = "block";
 
     try {
-        const res = await fetch('practise/section_a/api/get_hints.php');
+        const res = await fetch('practise/celpip/section_b/api/get_hints.php');
         const data = await res.json();
         hintsLoading.style.display = "none";
 

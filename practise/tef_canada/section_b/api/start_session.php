@@ -6,7 +6,7 @@ require_once __DIR__ . '/openai.php';
 header('Content-Type: application/json');
 
 $level = $_POST['level'] ?? 'A2';
-$language = $_POST['language'] ?? 'fr'; // 'fr' or 'en'
+$language = 'fr'; // Force French for TEF Canada
 
 // ------------------ Broader scenario categories (Idea/Activity/Product) ------------------
 
@@ -67,10 +67,9 @@ $categories_en = [
 ];
 
 // Pick a random category
-if ($language === 'fr') {
-    $chosen = $categories[array_rand($categories)];
-    $scenario_instructions = "Crée une mise en situation de type TEF Canada Section B. Le sujet est : $chosen. L'annonce doit inclure une consigne précise et le contenu de l'annonce. Fournis ensuite la première réplique de l'ami.";
-    $system_prompt = "Vous êtes examinateur TEF Canada spécialisé dans la Section B.
+$chosen = $categories[array_rand($categories)];
+$scenario_instructions = "Crée une mise en situation de type TEF Canada Section B. Le sujet est : $chosen. L'annonce doit inclure une consigne précise et le contenu de l'annonce. Fournis ensuite la première réplique de l'ami.";
+$system_prompt = "Vous êtes examinateur TEF Canada spécialisé dans la Section B.
 
 OBJECTIF :
 Générer une Section B réaliste. Le candidat doit convaincre un ami (vous) d'adopter une idée, de participer à une activité ou d'utiliser un service. Vous devez activement contester ses arguments.
@@ -94,34 +93,6 @@ FORMAT DE SORTIE (JSON UNIQUEMENT) :
   \"advertisement\": \"Texte de l'annonce\",
   \"assistant_opening\": \"Réplique initiale (ex: Allô ? Oui, je t'écoute, qu'est-ce que tu voulais me proposer ?)\"
 }";
-} else {
-    $chosen = $categories_en[array_rand($categories_en)];
-    $scenario_instructions = "Create a TEF Canada Section B style scenario. Subject: $chosen. Include clear instructions and ad content. Provide the friend's first line.";
-    $system_prompt = "You are a TEF Canada examiner for Section B.
-
-OBJECTIVE:
-Generate a realistic Section B scenario. The candidate must convince a friend (you) to adopt an idea, participate in an activity, or use a service. You must actively challenge their arguments.
-
-ADVERTISEMENT STRUCTURE:
-1) INSTRUCTION: State that the candidate must present the document, structure arguments with examples, respond to your objections, and try to persuade you for 10 minutes.
-2) ADVERTISEMENT: A short text presenting the idea/activity (Title, concept, benefits, constraints).
-
-ROLES:
-- The learner is your friend.
-- You are the friend who is initially opposed or very skeptical.
-- Never speak as the learner.
-
-LANGUAGE:
-- All in English.
-- Level: {$level}.
-
-OUTPUT FORMAT (JSON ONLY):
-{
-  \"instruction\": \"INSTRUCTION: You have read this document. Present it to your friend, provide structured arguments with examples, and try to convince them despite their objections. You have 10 minutes.\",
-  \"advertisement\": \"Advertisement text\",
-  \"assistant_opening\": \"Initial line (e.g., Hey! Yeah, I'm listening, what did you want to tell me about?)\"
-}";
-}
 
 // ------------------ SYSTEM prompt ------------------
 $messages = [

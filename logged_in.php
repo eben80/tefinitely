@@ -84,9 +84,21 @@ checkAccess();
             <div class="dropdown">
                 <a href="oral_expression.php" class="dropbtn">Oral Expression</a>
                 <div class="dropdown-content">
-                    <a href="oral_expression_section_a.php">Flashcards</a>
-                    <a href="practise/section_a/index.php">Section A Practice</a>
-                    <a href="practise/section_b/index.php">Section B Practice</a>
+                    <div class="sub-dropdown">
+                        <a href="javascript:void(0)" class="sub-dropbtn">TEF Canada <i class="bi bi-chevron-right"></i></a>
+                        <div class="sub-dropdown-content">
+                            <a href="oral_expression_section_a.php">Flashcards</a>
+                            <a href="practise/tef_canada/section_a/index.php">Section A Practice</a>
+                            <a href="practise/tef_canada/section_b/index.php">Section B Practice</a>
+                        </div>
+                    </div>
+                    <div class="sub-dropdown">
+                        <a href="javascript:void(0)" class="sub-dropbtn">CELPIP <i class="bi bi-chevron-right"></i></a>
+                        <div class="sub-dropdown-content">
+                            <a href="practise/celpip/section_a/index.php">Section A Practice</a>
+                            <a href="practise/celpip/section_b/index.php">Section B Practice</a>
+                        </div>
+                    </div>
                 </div>
             </div>
             <a href="training.php">Phased Training</a>
