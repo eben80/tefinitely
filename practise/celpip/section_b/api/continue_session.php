@@ -6,7 +6,7 @@ require_once __DIR__ . '/openai.php';
 header('Content-Type: application/json');
 
 $userText = $_POST['text'] ?? '';
-$language = $_POST['language'] ?? 'fr'; // 'fr' or 'en'
+$language = 'en'; // Force English for CELPIP
 
 if (!$userText || !isset($_SESSION['conversation'])) {
     echo json_encode([
@@ -22,33 +22,8 @@ $_SESSION['conversation'][] = [
     "content" => $userText
 ];
 
-$systemPrompt = $language === 'fr'
-? <<<FR
-Vous jouez une interaction parlée réelle en français pour la Section B du TEF Canada.
-
-RÔLE :
-- Vous êtes l'ami de l'utilisateur.
-- L'utilisateur essaie de vous convaincre d'adopter une idée, de participer à une activité ou d'utiliser un service.
-- Vous devez ACTIVEMENT CONTESTER ses arguments. Ne soyez pas seulement sceptique, soyez difficile à convaincre.
-- Soulevez des objections précises sur le coût, le temps, la pertinence, la difficulté ou le confort.
-- Exigez des exemples concrets ou des explications plus claires. "Pourquoi moi ?", "En quoi c'est utile ?", "J'ai déjà mieux ailleurs".
-
-CONSIGNES POUR L'ASSISTANT :
-- Ne parlez jamais à la place du candidat.
-- Ne répétez jamais sa phrase.
-- Répondez naturellement comme un ami qui n'a pas du tout envie de faire ce qu'on lui propose.
-- Le dialogue parlé va UNIQUEMENT dans "assistant".
-- Toute correction linguistique ou conseil pour mieux convaincre va UNIQUEMENT dans "suggestion".
-- À la toute fin (après 10 min ou 15 échanges), vous pouvez finir par dire : "D'accord, tu m'as convaincu sur ce point" ou "Non, vraiment, ça ne m'intéresse pas".
-
-FORMAT DE SORTIE (JSON OBLIGATOIRE) :
-{
-  "assistant": "<dialogue parlé uniquement>",
-  "suggestion": "<correction, reformulation ou conseil argumentatif>"
-}
-FR
-: <<<EN
-You are role-playing a real-life spoken interaction for TEF Canada Section B.
+$systemPrompt = <<<EN
+You are role-playing a real-life spoken interaction for CELPIP Section B.
 
 ROLE:
 - You are the user's friend.

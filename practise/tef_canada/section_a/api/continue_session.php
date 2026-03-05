@@ -6,7 +6,7 @@ require_once __DIR__ . '/openai.php';
 header('Content-Type: application/json');
 
 $userText = $_POST['text'] ?? '';
-$language = $_POST['language'] ?? 'fr'; // 'fr' or 'en'
+$language = 'fr'; // Force French for TEF Canada
 
 if (!$userText || !isset($_SESSION['conversation'])) {
     echo json_encode([
@@ -22,8 +22,7 @@ $_SESSION['conversation'][] = [
     "content" => $userText
 ];
 
-$systemPrompt = $language === 'fr'
-? <<<FR
+$systemPrompt = <<<FR
 Vous jouez une interaction parlée réelle en français.
 
 RÔLE :
@@ -49,41 +48,7 @@ NE JAMAIS :
 - Mettre des suggestions dans "assistant".
 - Ajouter du texte avant ou après le JSON.
 - Utiliser du markdown ou des backticks.
-FR
-: <<<EN
-You are role-playing a real-life spoken interaction in English.
-
-ROLE:
-- You are the conversational partner.
-- You are also a language teacher who ALWAYS gives corrections, improvements, or more natural phrasing.
-
-
-OUTPUT FORMAT (MANDATORY JSON):
-Respond ONLY with a JSON object containing exactly these two keys:
-{
-  "assistant": "<spoken dialogue only>",
-  "suggestion": "<correction, hint, or empty>"
-}
-
-STRICT RULES:
-- Never speak as the learner.
-- Never repeat the learner's sentence.
-- Reply naturally to what the learner says. Do not systematically ask a follow-up question. Only ask a question if the learner's request is unclear, or if you feel the learner needs a nudge to reach their 10-15 question target.
-- Spoken dialogue must appear ONLY in "assistant" JSON object.
-- All corrections, improvements, or feedback go ONLY in "suggestion" JSON object.
-- Be proactive with your suggestions: even if the learner's sentence is correct, almost always suggest a more natural, sophisticated, or formal alternative. Only leave the suggestion empty if the sentence is absolutely perfect and cannot be improved in any way.
-- Respond ONLY with a JSON object with exactly two keys: "assistant" and "suggestion". 
-- Do NOT put the JSON inside a string that goes in the "assistant" JSON object. Do NOT include extra text, markdown, or backticks. 
-- The "assistant" field should contain the dialogue only, and "suggestion" should contain any suggestions, corrections or hints, or be an empty string.
-
-
-
-
-NEVER:
-- Include suggestions in "assistant" JSON oject.
-- Add any text before or after JSON.
-- Use markdown or backticks.
-EN;
+FR;
 
 
 
@@ -131,7 +96,7 @@ $suggestion = trim($suggestion);
 
 // 5️⃣ Fallback suggestion if none
 // if (!$suggestion) {
-//     $suggestion = $language === 'fr' ? "Essayez de reformuler pour plus de clarté." : "Try to rephrase for clarity.";
+//     $suggestion = "Essayez de reformuler pour plus de clarté.";
 // }
 
 // Save assistant response in session
