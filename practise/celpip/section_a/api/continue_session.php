@@ -1,5 +1,5 @@
 <?php
-require_once '../../../api/session_init.php';
+require_once '../../../../api/session_init.php';
 init_session();
 require_once __DIR__ . '/openai.php';
 

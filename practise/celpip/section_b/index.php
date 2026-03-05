@@ -1,5 +1,5 @@
 <?php
-require_once '../../api/auth_check.php';
+require_once '../../../api/auth_check.php';
 checkAccess();
 ?>
 <!DOCTYPE html>
