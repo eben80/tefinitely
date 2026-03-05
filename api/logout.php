@@ -1,5 +1,6 @@
 <?php
-session_start();
+require_once 'session_init.php';
+init_session();
 header('Content-Type: application/json; charset=utf-8');
 
 // Unset all of the session variables
@@ -14,6 +15,10 @@ if (ini_get("session.use_cookies")) {
         $params["secure"], $params["httponly"]
     );
 }
+
+// Clear the remember me flag cookie
+$is_https = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on';
+setcookie('remember_me_flag', '', time() - 42000, '/', '', $is_https, true);
 
 // Finally, destroy the session.
 session_destroy();

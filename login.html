@@ -40,6 +40,10 @@
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" required>
             </div>
+            <div class="form-group remember-me">
+                <input type="checkbox" id="remember" name="remember" style="width: auto; margin-right: 0.5rem;">
+                <label for="remember" style="display: inline; font-weight: normal;">Remember me</label>
+            </div>
             <button type="submit">Login</button>
         </form>
         <div class="link">
@@ -67,7 +71,8 @@
                     e.preventDefault();
                     const email = document.getElementById('email').value;
                     const password = document.getElementById('password').value;
-                    loginUser(email, password);
+                    const remember = document.getElementById('remember').checked;
+                    loginUser(email, password, remember);
                 });
             }
         });
