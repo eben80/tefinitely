@@ -218,7 +218,7 @@ function updateUI() {
     questionIndexDisplay.textContent = `${currentQuestionIndex + 1} / 20`;
     progressInner.style.width = `${((currentQuestionIndex + 1) / 20) * 100}%`;
     prevBtn.style.display = 'none';
-    nextBtn.textContent = currentQuestionIndex === 19 ? 'Terminer' : 'Suivant';
+    nextBtn.textContent = currentQuestionIndex === 19 ? 'Finish' : 'Next';
     nextBtn.disabled = !userAnswers[currentQuestionIndex];
 }
 
@@ -279,6 +279,17 @@ function showResults() {
     scoreDisplay.textContent = score;
     let estimatedLevel = levelsOrder[finalDifficultyIndex];
     levelResult.textContent = estimatedLevel;
+
+    // Save result to backend
+    fetch('api/level_test/save_result.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            score: score,
+            estimated_level: estimatedLevel,
+            test_type: 'vocabulary'
+        })
+    }).catch(err => console.error('Failed to save test result:', err));
 
     const descriptions = {
         'A1': 'Vous avez des bases très limitées. Continuez vos efforts pour acquérir le vocabulaire de base.',

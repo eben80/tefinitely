@@ -126,7 +126,7 @@ checkAccess(false); // Does not require active subscription to view profile
             <div class="dropdown">
                 <a href="javascript:void(0)" class="dropbtn">Test</a>
                 <div class="dropdown-content">
-                    <a href="practise/french_level_test/vocabulary.php">French Level Test</a>
+                    <a href="practise/french_level_test/index.php">French Level Test</a>
                 </div>
             </div>
             <a href="training.php">Phased Training</a>
@@ -218,6 +218,11 @@ checkAccess(false); // Does not require active subscription to view profile
             <h3>Phase 1: Shadowing Performance</h3>
             <div id="dialogue-progress-container" class="table-container">
                 <!-- Dialogue progress will be loaded here -->
+            </div>
+
+            <h3>French Level Test History</h3>
+            <div id="level-history-container" class="table-container">
+                <p>Loading test history...</p>
             </div>
         </div>
     </div>
@@ -340,6 +345,40 @@ checkAccess(false); // Does not require active subscription to view profile
         }
 
         fetchDialogueProgress();
+
+        async function fetchLevelHistory() {
+            try {
+                const response = await fetch('api/level_test/get_history.php');
+                const data = await response.json();
+                const container = document.getElementById('level-history-container');
+
+                if (data.status === 'success') {
+                    if (data.history.length === 0) {
+                        container.innerHTML = '<p>No test history yet. Take your first level test to see your progress!</p>';
+                        return;
+                    }
+
+                    let html = '<table>';
+                    html += '<tr><th>Date</th><th>Score</th><th>Estimated Level</th></tr>';
+                    data.history.forEach(item => {
+                        const date = new Date(item.created_at).toLocaleDateString();
+                        html += `<tr>
+                                    <td>${date}</td>
+                                    <td>${item.score} / 20</td>
+                                    <td><strong>${item.estimated_level}</strong></td>
+                                 </tr>`;
+                    });
+                    html += '</table>';
+                    container.innerHTML = html;
+                } else {
+                    container.innerHTML = '<p>Failed to load level history.</p>';
+                }
+            } catch (error) {
+                console.error('Error fetching level history:', error);
+            }
+        }
+
+        fetchLevelHistory();
 
         document.getElementById('reset-stats-btn').addEventListener('click', async () => {
             if (confirm('Are you sure you want to reset your stats? This action cannot be undone.')) {

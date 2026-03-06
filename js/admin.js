@@ -377,6 +377,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </td>
                 <td>
                     <button class="edit-user-btn" data-userid="${user.id}">Edit</button>
+                    <button class="reset-test-btn" data-userid="${user.id}" title="Allow immediate re-test" style="background-color: #17a2b8; color: white;">Reset Test</button>
                     <button class="delete-user-btn" data-userid="${user.id}">Delete</button>
                 </td>
                 <td>
@@ -395,6 +396,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         document.querySelectorAll('.delete-user-btn').forEach(button => {
             button.addEventListener('click', handleDeleteUser);
+        });
+        document.querySelectorAll('.reset-test-btn').forEach(button => {
+            button.addEventListener('click', handleResetLevelTest);
         });
         document.querySelectorAll('.view-calls-link').forEach(link => {
             link.addEventListener('click', openCallsModal);
@@ -778,6 +782,11 @@ document.addEventListener('DOMContentLoaded', () => {
     async function handleDeleteUser(event) {
         const userId = event.target.dataset.userid;
         await updateUser('delete_user', { user_id: userId });
+    }
+
+    async function handleResetLevelTest(event) {
+        const userId = event.target.dataset.userid;
+        await updateUser('reset_level_test', { user_id: userId });
     }
 
     async function handleEmailUpdate(event) {

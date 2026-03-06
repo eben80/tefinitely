@@ -108,7 +108,7 @@ checkAccess(true, true); // Admin only
             <div class="dropdown">
                 <a href="javascript:void(0)" class="dropbtn">Test</a>
                 <div class="dropdown-content">
-                    <a href="practise/french_level_test/vocabulary.php">French Level Test</a>
+                    <a href="practise/french_level_test/index.php">French Level Test</a>
                 </div>
             </div>
             <a href="training.php">Phased Training</a>
@@ -565,6 +565,8 @@ checkAccess(true, true); // Admin only
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="js/toast.js"></script>
     <script src="js/browser-support.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/nav.js"></script>
     <script src="js/admin.js"></script>
     <script>
         flatpickr("#modal-sub-start", {

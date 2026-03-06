@@ -396,6 +396,25 @@ if ($method === 'GET') {
             echo json_encode(['status' => 'success', 'message' => "Email sent to $sent_count users."]);
             break;
 
+        case 'reset_level_test':
+            if (!isset($data['user_id'])) {
+                http_response_code(400);
+                echo json_encode(['status' => 'error', 'message' => 'Missing user_id.']);
+                exit;
+            }
+            $user_id = $data['user_id'];
+            $stmt = $conn->prepare("UPDATE users SET next_test_allowed_at = NULL WHERE id = ?");
+            $stmt->bind_param("i", $user_id);
+            if ($stmt->execute()) {
+                logAdminAction($conn, $_SESSION['user_id'], 'reset_level_test', $user_id, "Restriction removed");
+                echo json_encode(['status' => 'success', 'message' => 'User can now take the level test again immediately.']);
+            } else {
+                http_response_code(500);
+                echo json_encode(['status' => 'error', 'message' => 'Failed to reset test restriction.']);
+            }
+            $stmt->close();
+            break;
+
         default:
             http_response_code(400);
             echo json_encode(['status' => 'error', 'message' => 'Invalid action specified.']);
