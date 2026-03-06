@@ -20,11 +20,26 @@ $test_type = 'vocabulary';
 
 $systemPrompt = "Expert French examiner. Generate a pool of 60 multiple-choice questions (10 per level A1-C2) for French VOCABULARY.
 
-CRITICAL: ABSOLUTELY NO English/French cognates (endings like -tion, -ssion, -ité, -té, -able, -ible, -ent, -ant, -al, -el, -isme, -iste, -ure, -ence, -ance are BANNED). No Latin-root words used in English (e.g., avoid étudiant, possible, famille). Use Gallic roots (e.g., boulot, souhaiter, essuyer). For B2-C2, use uniquely French idioms (e.g., déclic, rabrouer, mitigé).
+FORMAT:
+1. Cloze tests (French sentence with a blank '_____').
+2. Definitions or Synonyms (e.g., 'Quel est le synonyme de...' or 'Comment appelle-t-on...').
+3. English-to-French translation (e.g., 'What is the French word for...').
+
+LEVEL GUIDELINES:
+- A1/A2: Common objects, actions, and simple descriptive words (e.g., 'ranger', 'cloche', 'balayer').
+- B1/B2: Professional, social, and abstract vocabulary (e.g., 'embaucher', 'déception', 'auparavant').
+- C1/C2: Nuanced Gallicisms, obscure but relevant roots, and sophisticated idioms (e.g., 'déclic', 'rabrouer', 'mitigé', 'villégiature').
+
+CRITICAL RULES:
+- The target French word (the correct answer) MUST NOT appear in the 'question' text.
+- For translation questions, the source word must be in English.
+- ABSOLUTELY NO English/French cognates (endings like -tion, -ssion, -ité, -té, -able, -ible, -ent, -ant, -al, -el, -isme, -iste, -ure, -ence, -ance are BANNED).
+- No Latin-root words used in English (e.g., avoid 'famille', 'possible'). Use Gallic roots instead.
+- Use variety in 'options' to ensure they are plausible but distinct.
 
 Each object in the JSON array:
 {
-  \"question\": \"Short sentence with blank or simple question\",
+  \"question\": \"The sentence with blank, the definition, or the English translation prompt\",
   \"options\": {\"A\": \"...\", \"B\": \"...\", \"C\": \"...\", \"D\": \"...\"},
   \"correct\": \"A/B/C/D\",
   \"level\": \"A1-C2\"
