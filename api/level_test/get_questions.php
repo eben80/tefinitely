@@ -24,7 +24,12 @@ The pool must contain exactly 10 questions for each of the following levels:
 - C1 (advanced)
 - C2 (mastery)
 
-CRITICAL CONSTRAINT: Avoid using words that are similar in English and French (cognates), such as \"important\", \"possible\", \"intelligent\", etc. This is especially important for higher level questions (B2, C1, C2). Focus on French-specific vocabulary, idioms, and nuances that do not have direct, similar-sounding equivalents in English.
+CRITICAL ANTI-COGNATE CONSTRAINT: You MUST avoid all words that have similar spellings or sounds in English and French.
+1. ABSOLUTELY BANNED: Any word ending in -tion, -ssion, -ité, -té, -able, -ible, -ent, -ant, -al, -el, -isme, -iste, -ure, -ence, -ance.
+2. ABSOLUTELY BANNED: Latin-root words that exist in English (e.g., \"étudiant\", \"possible\", \"famille\", \"difficile\", \"étudier\").
+3. PRIORITY: Use words with Germanic/Gallic roots (e.g., \"souhaiter\" instead of \"désirer\", \"boulot\" instead of \"travail\", \"essuyer\", \"accrocher\", \"éteindre\").
+4. SCOPE: This applies to the question text, the correct answer, and ALL three distractors.
+5. HIGHER LEVELS (B2-C2): Use sophisticated, uniquely French idioms and specific nouns/verbs that have no direct morphological equivalent in English (e.g., \"déclic\", \"rabrouer\", \"mitigé\", \"louper\", \"pénible\").
 
 Each question must have:
 - A clear question or a sentence with a blank.
