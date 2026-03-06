@@ -7,7 +7,7 @@
 function openai_chat(array $messages): array
 {
     // Shared log directory
-    $log_dir = __DIR__ . '/../practise/tef_canada/section_a/api/logs';
+    $log_dir = __DIR__ . '/logs';
     if (!is_dir($log_dir)) {
         mkdir($log_dir, 0777, true);
     }
