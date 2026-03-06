@@ -190,6 +190,13 @@ checkAccess(false); // Does not require active subscription to view profile
             </form>
         </div>
 
+        <div class="form-section" id="level-test-history-section">
+            <h2>French Level Test History</h2>
+            <div id="level-history-container" class="table-container">
+                <p>Loading test history...</p>
+            </div>
+        </div>
+
         <div class="collapsible-wrapper" id="support-collapsible">
             <div class="collapsible-header" id="toggle-support">
                 <h2>Contact Support</h2>
@@ -218,11 +225,6 @@ checkAccess(false); // Does not require active subscription to view profile
             <h3>Phase 1: Shadowing Performance</h3>
             <div id="dialogue-progress-container" class="table-container">
                 <!-- Dialogue progress will be loaded here -->
-            </div>
-
-            <h3>French Level Test History</h3>
-            <div id="level-history-container" class="table-container">
-                <p>Loading test history...</p>
             </div>
         </div>
     </div>

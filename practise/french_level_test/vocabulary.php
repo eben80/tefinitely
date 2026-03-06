@@ -68,17 +68,24 @@ checkAccess();
 
 <div id="main-content" class="level-test-container">
     <div id="loading-screen" class="test-loading-screen">
-        <div class="spinner-border" role="status">
-            <span class="visually-hidden">Chargement...</span>
+        <div id="loading-spinner">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Chargement...</span>
+            </div>
+        <p style="margin-top: 1rem;">Chargement de vos questions personnalisées...</p>
         </div>
-        <p style="margin-top: 1rem;">Génération de vos questions personnalisées...</p>
+        <div id="loading-error" style="display: none;">
+            <p style="color: #dc3545; font-weight: bold;">Erreur lors de la génération des questions.</p>
+            <p>Cela peut arriver si la connexion est lente ou si le service est temporairement indisponible.</p>
+            <button onclick="fetchQuestions()" class="btn-primary" style="margin-top: 1rem;">Réessayer</button>
+            <a href="practise/french_level_test/index.php" class="btn-secondary" style="margin-top: 1rem; display: block;">Retour</a>
+        </div>
     </div>
 
     <div id="test-container" style="display: none;">
         <div id="progress-bar" class="test-progress-bar"><div id="progress-inner" class="test-progress-inner"></div></div>
         <div id="questions-wrapper"></div>
         <div id="controls" class="test-controls">
-            <button id="prev-btn" class="btn-secondary" style="display: none;">Précédent</button>
             <span id="question-index">1 / 20</span>
             <button id="next-btn" class="btn-primary" disabled>Suivant</button>
         </div>
@@ -111,7 +118,6 @@ const loadingScreen = document.getElementById('loading-screen');
 const testContainer = document.getElementById('test-container');
 const questionsWrapper = document.getElementById('questions-wrapper');
 const nextBtn = document.getElementById('next-btn');
-const prevBtn = document.getElementById('prev-btn');
 const questionIndexDisplay = document.getElementById('question-index');
 const progressInner = document.getElementById('progress-inner');
 const resultScreen = document.getElementById('result-screen');
@@ -120,18 +126,24 @@ const levelDescription = document.getElementById('level-description');
 const scoreDisplay = document.getElementById('score-display');
 
 async function fetchQuestions() {
+    document.getElementById('loading-spinner').style.display = 'block';
+    document.getElementById('loading-error').style.display = 'none';
+
     try {
         const response = await fetch('api/level_test/get_questions.php?type=vocabulary');
+        if (!response.ok) throw new Error('Network response was not ok');
         const data = await response.json();
         if (data.status === 'success') {
             allQuestionsPool = data.questions;
             startAdaptiveTest();
         } else {
-            showToast('Erreur lors de la génération des questions.', 'error');
+            throw new Error(data.message || 'API error');
         }
     } catch (error) {
         console.error('Error fetching questions:', error);
-        showToast('Erreur de connexion.', 'error');
+        document.getElementById('loading-spinner').style.display = 'none';
+        document.getElementById('loading-error').style.display = 'block';
+        showToast('Erreur lors de la génération des questions.', 'error');
     }
 }
 
@@ -217,7 +229,6 @@ function renderCurrentQuestion() {
 function updateUI() {
     questionIndexDisplay.textContent = `${currentQuestionIndex + 1} / 20`;
     progressInner.style.width = `${((currentQuestionIndex + 1) / 20) * 100}%`;
-    prevBtn.style.display = 'none';
     nextBtn.textContent = currentQuestionIndex === 19 ? 'Finish' : 'Next';
     nextBtn.disabled = !userAnswers[currentQuestionIndex];
 }

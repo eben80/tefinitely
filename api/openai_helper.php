@@ -1,12 +1,17 @@
 <?php
 /**
- * openai.php
- * OpenAI chat helper with conversation support
+ * openai_helper.php
+ * Centralized OpenAI chat helper with database logging
  */
 
 function openai_chat(array $messages): array
 {
-    $log_file = __DIR__ . '/logs/openai_called.log';
+    // Shared log directory
+    $log_dir = __DIR__ . '/../practise/tef_canada/section_a/api/logs';
+    if (!is_dir($log_dir)) {
+        mkdir($log_dir, 0777, true);
+    }
+    $log_file = $log_dir . '/openai_called.log';
 
     $apiKey = getenv('OPENAI_API_KEY');
     if (!$apiKey) {
@@ -35,7 +40,9 @@ function openai_chat(array $messages): array
     $error = curl_error($ch);
     curl_close($ch);
 
-    file_put_contents($log_file, date('Y-m-d H:i:s') . "\n$response\n\n", FILE_APPEND);
+    if ($response) {
+        file_put_contents($log_file, date('Y-m-d H:i:s') . "\n$response\n\n", FILE_APPEND);
+    }
 
     if (!$response) {
         error_log("cURL error: $error");
@@ -47,20 +54,20 @@ function openai_chat(array $messages): array
     // Log to database if user is logged in
     if (isset($json['id']) && isset($_SESSION['user_id'])) {
         try {
-            require __DIR__ . '/../../../../db/db_config.php';
-            // Note: db_config.php defines $conn. Since we use 'require' (not require_once),
-            // it will be available even if openai_chat is called multiple times.
-            if (isset($conn) && $conn instanceof mysqli) {
-                $stmt = $conn->prepare("INSERT INTO openai_calls_log (user_id, openai_id, model) VALUES (?, ?, ?)");
-                if ($stmt) {
-                    $user_id = $_SESSION['user_id'];
-                    $openai_id = $json['id'];
-                    $model = $json['model'] ?? 'gpt-4o';
-                    $stmt->bind_param("iss", $user_id, $openai_id, $model);
-                    $stmt->execute();
-                    $stmt->close();
-                }
-                $conn->close(); // Close the local connection
+            // Relative from api/
+            require_once __DIR__ . '/../db/db_config.php';
+
+            // Re-open if closed or use existing
+            global $conn;
+
+            $stmt = $conn->prepare("INSERT INTO openai_calls_log (user_id, openai_id, model) VALUES (?, ?, ?)");
+            if ($stmt) {
+                $user_id = $_SESSION['user_id'];
+                $openai_id = $json['id'];
+                $model = $json['model'] ?? 'gpt-4o';
+                $stmt->bind_param("iss", $user_id, $openai_id, $model);
+                $stmt->execute();
+                $stmt->close();
             }
         } catch (Exception $e) {
             error_log("Failed to log OpenAI call to database: " . $e->getMessage());

@@ -152,6 +152,7 @@ checkAccess(true, true); // Admin only
                 <div class="header-with-button">
                     <h2>User Management</h2>
                     <div style="display: flex; gap: 0.5rem;">
+                        <button id="update-test-questions-btn" class="action-btn" style="background-color: #17a2b8;">Update Test Questions</button>
                         <button id="add-user-btn" class="action-btn">Add New User</button>
                     </div>
                 </div>
