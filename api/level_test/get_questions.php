@@ -14,15 +14,15 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['subscription_status']) || 
 // Note: Oral expression test has been removed. Only vocabulary is supported now.
 $type = 'vocabulary';
 
-$systemPrompt = "You are an expert French language examiner. Your task is to generate 20 multiple-choice questions to determine a user's CEFR level (A1 to C2) in French VOCABULARY.
+$systemPrompt = "You are an expert French language examiner. Your task is to generate a pool of 60 multiple-choice questions to determine a user's CEFR level (A1 to C2) in French VOCABULARY.
 
-The questions should be distributed as follows:
-- 4 questions for A1 (very basic)
-- 4 questions for A2 (elementary)
-- 4 questions for B1 (intermediate)
-- 3 questions for B2 (upper intermediate)
-- 3 questions for C1 (advanced)
-- 2 questions for C2 (mastery)
+The pool must contain exactly 10 questions for each of the following levels:
+- A1 (very basic)
+- A2 (elementary)
+- B1 (intermediate)
+- B2 (upper intermediate)
+- C1 (advanced)
+- C2 (mastery)
 
 CRITICAL CONSTRAINT: Avoid using words that are similar in English and French (cognates), such as \"important\", \"possible\", \"intelligent\", etc. This is especially important for higher level questions (B2, C1, C2). Focus on French-specific vocabulary, idioms, and nuances that do not have direct, similar-sounding equivalents in English.
 
@@ -32,7 +32,7 @@ Each question must have:
 - Exactly one correct answer.
 - A difficulty level (A1, A2, B1, B2, C1, C2).
 
-Respond ONLY with a JSON array of 20 objects like this:
+Respond ONLY with a JSON array of 60 objects like this:
 [
   {
     \"id\": 1,
@@ -51,7 +51,7 @@ Respond ONLY with a JSON array of 20 objects like this:
 
 $messages = [
     ["role" => "system", "content" => $systemPrompt],
-    ["role" => "user", "content" => "Generate the 20 questions in French now."]
+    ["role" => "user", "content" => "Generate the 60 questions in French now."]
 ];
 
 $response = openai_chat($messages);
@@ -61,7 +61,7 @@ $raw = trim($response['content'] ?? '');
 if (preg_match('/\[.*\]/s', $raw, $matches)) {
     $jsonText = $matches[0];
     $questions = json_decode($jsonText, true);
-    if ($questions && count($questions) === 20) {
+    if ($questions && count($questions) >= 50) { // Allow some flexibility but target 60
         echo json_encode(['status' => 'success', 'questions' => $questions]);
         exit;
     }

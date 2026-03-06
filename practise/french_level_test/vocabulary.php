@@ -99,9 +99,13 @@ checkAccess();
 <script src="js/toast.js"></script>
 <script src="js/nav.js"></script>
 <script>
-let questions = [];
+let allQuestionsPool = []; // Pool of questions from API
+let adaptiveQuestions = []; // Selected adaptively
 let currentQuestionIndex = 0;
 let userAnswers = {};
+
+const levelsOrder = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+let currentDifficultyIndex = 1; // Start at A2
 
 const loadingScreen = document.getElementById('loading-screen');
 const testContainer = document.getElementById('test-container');
@@ -120,11 +124,8 @@ async function fetchQuestions() {
         const response = await fetch('api/level_test/get_questions.php?type=vocabulary');
         const data = await response.json();
         if (data.status === 'success') {
-            questions = data.questions;
-            renderQuestions();
-            loadingScreen.style.display = 'none';
-            testContainer.style.display = 'block';
-            updateUI();
+            allQuestionsPool = data.questions;
+            startAdaptiveTest();
         } else {
             showToast('Erreur lors de la génération des questions.', 'error');
         }
@@ -134,96 +135,149 @@ async function fetchQuestions() {
     }
 }
 
-function renderQuestions() {
+function startAdaptiveTest() {
+    currentQuestionIndex = 0;
+    adaptiveQuestions = [];
+    userAnswers = {};
+    currentDifficultyIndex = 1; // Start at A2
+    pickNextQuestion();
+    loadingScreen.style.display = 'none';
+    testContainer.style.display = 'block';
+}
+
+function pickNextQuestion() {
+    const levelLabel = levelsOrder[currentDifficultyIndex];
+    const usedIds = adaptiveQuestions.map(q => q.id);
+    const available = allQuestionsPool.filter(q => q.level === levelLabel && !usedIds.includes(q.id));
+
+    let nextQ;
+    if (available.length > 0) {
+        nextQ = available[Math.floor(Math.random() * available.length)];
+    } else {
+        const unused = allQuestionsPool.filter(q => !usedIds.includes(q.id));
+        if (unused.length === 0) { showResults(); return; }
+        unused.sort((a, b) => {
+            const distA = Math.abs(levelsOrder.indexOf(a.level) - currentDifficultyIndex);
+            const distB = Math.abs(levelsOrder.indexOf(b.level) - currentDifficultyIndex);
+            return distA - distB;
+        });
+        nextQ = unused[0];
+    }
+
+    adaptiveQuestions.push(nextQ);
+    renderCurrentQuestion();
+    updateUI();
+}
+
+function renderCurrentQuestion() {
+    const q = adaptiveQuestions[currentQuestionIndex];
     questionsWrapper.innerHTML = '';
-    questions.forEach((q, index) => {
-        const div = document.createElement('div');
-        div.className = `question-card ${index === 0 ? 'active' : ''}`;
-        div.id = `q-${index}`;
-        div.innerHTML = `
-            <h3>Question ${index + 1}</h3>
-            <p style="font-size: 1.2rem; margin-top: 1rem;">${q.question}</p>
-            <div class="test-options">
-                ${Object.entries(q.options).map(([key, text]) => `
-                    <button class="option-btn" data-question="${index}" data-option="${key}">
-                        <strong>${key}:</strong> ${text}
-                    </button>
-                `).join('')}
-            </div>
-        `;
-        questionsWrapper.appendChild(div);
-    });
 
-    document.querySelectorAll('.option-btn').forEach(btn => {
+    const div = document.createElement('div');
+    div.className = 'question-card active';
+    div.id = `q-${currentQuestionIndex}`;
+
+    const h3 = document.createElement('h3');
+    h3.textContent = `Question ${currentQuestionIndex + 1}`;
+    div.appendChild(h3);
+
+    const p = document.createElement('p');
+    p.style.fontSize = '1.2rem';
+    p.style.marginTop = '1rem';
+    p.textContent = q.question;
+    div.appendChild(p);
+
+    const optionsDiv = document.createElement('div');
+    optionsDiv.className = 'test-options';
+
+    Object.entries(q.options).forEach(([key, text]) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        if (userAnswers[currentQuestionIndex] === key) btn.classList.add('selected');
+
+        const strong = document.createElement('strong');
+        strong.textContent = `${key}: `;
+        btn.appendChild(strong);
+        btn.appendChild(document.createTextNode(text));
+
         btn.addEventListener('click', () => {
-            const qIdx = btn.getAttribute('data-question');
-            const opt = btn.getAttribute('data-option');
-
-            // Unselect others in same question
-            document.querySelectorAll(`#q-${qIdx} .option-btn`).forEach(b => b.classList.remove('selected'));
+            document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
             btn.classList.add('selected');
-
-            userAnswers[qIdx] = opt;
+            userAnswers[currentQuestionIndex] = key;
             nextBtn.disabled = false;
         });
+
+        optionsDiv.appendChild(btn);
     });
+
+    div.appendChild(optionsDiv);
+    questionsWrapper.appendChild(div);
 }
 
 function updateUI() {
-    document.querySelectorAll('.question-card').forEach(card => card.classList.remove('active'));
-    document.getElementById(`q-${currentQuestionIndex}`).classList.add('active');
-
-    questionIndexDisplay.textContent = `${currentQuestionIndex + 1} / ${questions.length}`;
-    progressInner.style.width = `${((currentQuestionIndex + 1) / questions.length) * 100}%`;
-
-    prevBtn.style.display = currentQuestionIndex === 0 ? 'none' : 'block';
-    nextBtn.textContent = currentQuestionIndex === questions.length - 1 ? 'Terminer' : 'Suivant';
+    questionIndexDisplay.textContent = `${currentQuestionIndex + 1} / 20`;
+    progressInner.style.width = `${((currentQuestionIndex + 1) / 20) * 100}%`;
+    prevBtn.style.display = 'none';
+    nextBtn.textContent = currentQuestionIndex === 19 ? 'Terminer' : 'Suivant';
     nextBtn.disabled = !userAnswers[currentQuestionIndex];
 }
 
 nextBtn.addEventListener('click', () => {
-    if (currentQuestionIndex < questions.length - 1) {
+    const currentQ = adaptiveQuestions[currentQuestionIndex];
+    const isCorrect = userAnswers[currentQuestionIndex] === currentQ.correct;
+
+    if (isCorrect) {
+        if (currentDifficultyIndex < levelsOrder.length - 1) currentDifficultyIndex++;
+    } else {
+        if (currentDifficultyIndex > 0) currentDifficultyIndex--;
+    }
+
+    if (currentQuestionIndex < 19) {
         currentQuestionIndex++;
-        updateUI();
+        if (adaptiveQuestions[currentQuestionIndex]) {
+            renderCurrentQuestion();
+            updateUI();
+        } else {
+            pickNextQuestion();
+        }
     } else {
         showResults();
     }
-});
-
-prevBtn.addEventListener('click', () => {
-    if (currentQuestionIndex > 0) {
-        currentQuestionIndex--;
-        updateUI();
-    }
-});
+} );
 
 function showResults() {
     testContainer.style.display = 'none';
     resultScreen.style.display = 'block';
 
     let score = 0;
-    let levelPoints = {
-        'A1': 0, 'A2': 0, 'B1': 0, 'B2': 0, 'C1': 0, 'C2': 0
-    };
+    let levelSum = 0;
+    let correctCountInLastHalf = 0;
 
-    questions.forEach((q, index) => {
-        if (userAnswers[index] === q.correct) {
+    adaptiveQuestions.forEach((q, index) => {
+        const isCorrect = userAnswers[index] === q.correct;
+        if (isCorrect) {
             score++;
-            levelPoints[q.level]++;
+            if (index >= 10) {
+                levelSum += levelsOrder.indexOf(q.level);
+                correctCountInLastHalf++;
+            }
         }
     });
 
+    let finalDifficultyIndex = 0;
+    if (correctCountInLastHalf > 0) {
+        finalDifficultyIndex = Math.round(levelSum / correctCountInLastHalf);
+    } else {
+        const lastQLevel = levelsOrder.indexOf(adaptiveQuestions[adaptiveQuestions.length-1].level);
+        finalDifficultyIndex = Math.max(0, lastQLevel - 1);
+    }
+
+    if (score < 5) finalDifficultyIndex = Math.min(finalDifficultyIndex, 1);
+    if (score < 3) finalDifficultyIndex = 0;
+    if (score > 17 && finalDifficultyIndex < 4) finalDifficultyIndex = 4;
+
     scoreDisplay.textContent = score;
-
-    // Simple level logic
-    let estimatedLevel = 'A1';
-    if (score >= 19) estimatedLevel = 'C2';
-    else if (score >= 17) estimatedLevel = 'C1';
-    else if (score >= 14) estimatedLevel = 'B2';
-    else if (score >= 10) estimatedLevel = 'B1';
-    else if (score >= 5) estimatedLevel = 'A2';
-    else estimatedLevel = 'A1';
-
+    let estimatedLevel = levelsOrder[finalDifficultyIndex];
     levelResult.textContent = estimatedLevel;
 
     const descriptions = {
