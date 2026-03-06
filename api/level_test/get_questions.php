@@ -24,6 +24,8 @@ if ($type === 'vocabulary') {
     - 3 questions for C1 (advanced)
     - 2 questions for C2 (mastery)
 
+    CRITICAL CONSTRAINT: Avoid using words that are similar in English and French (cognates), such as "important", "possible", "intelligent", etc. This is especially important for higher level questions (B2, C1, C2). Focus on French-specific vocabulary, idioms, and nuances that do not have direct, similar-sounding equivalents in English.
+
     Each question must have:
     - A clear question or a sentence with a blank.
     - 4 options (A, B, C, D).
