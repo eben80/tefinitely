@@ -3,6 +3,7 @@ require_once '../../api/session_init.php';
 init_session();
 require_once __DIR__ . '/../../practise/tef_canada/section_a/api/openai.php';
 
+set_time_limit(180); // Increase time limit for OpenAI generation
 header('Content-Type: application/json; charset=utf-8');
 
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['subscription_status']) || $_SESSION['subscription_status'] !== 'active') {
@@ -32,45 +33,20 @@ if ($user_res['role'] !== 'admin') {
 // Note: Oral expression test has been removed. Only vocabulary is supported now.
 $type = 'vocabulary';
 
-$systemPrompt = "You are an expert French language examiner. Your task is to generate a pool of 60 multiple-choice questions to determine a user's CEFR level (A1 to C2) in French VOCABULARY.
+$systemPrompt = "Expert French examiner. Generate a pool of 60 multiple-choice questions (10 per level A1-C2) for French VOCABULARY.
 
-The pool must contain exactly 10 questions for each of the following levels:
-- A1 (very basic)
-- A2 (elementary)
-- B1 (intermediate)
-- B2 (upper intermediate)
-- C1 (advanced)
-- C2 (mastery)
+CRITICAL: ABSOLUTELY NO English/French cognates (endings like -tion, -ssion, -ité, -té, -able, -ible, -ent, -ant, -al, -el, -isme, -iste, -ure, -ence, -ance are BANNED). No Latin-root words used in English (e.g., avoid étudiant, possible, famille). Use Gallic roots (e.g., boulot, souhaiter, essuyer). For B2-C2, use uniquely French idioms (e.g., déclic, rabrouer, mitigé).
 
-CRITICAL ANTI-COGNATE CONSTRAINT: You MUST avoid all words that have similar spellings or sounds in English and French.
-1. ABSOLUTELY BANNED: Any word ending in -tion, -ssion, -ité, -té, -able, -ible, -ent, -ant, -al, -el, -isme, -iste, -ure, -ence, -ance.
-2. ABSOLUTELY BANNED: Latin-root words that exist in English (e.g., \"étudiant\", \"possible\", \"famille\", \"difficile\", \"étudier\").
-3. PRIORITY: Use words with Germanic/Gallic roots (e.g., \"souhaiter\" instead of \"désirer\", \"boulot\" instead of \"travail\", \"essuyer\", \"accrocher\", \"éteindre\").
-4. SCOPE: This applies to the question text, the correct answer, and ALL three distractors.
-5. HIGHER LEVELS (B2-C2): Use sophisticated, uniquely French idioms and specific nouns/verbs that have no direct morphological equivalent in English (e.g., \"déclic\", \"rabrouer\", \"mitigé\", \"louper\", \"pénible\").
+Each object in the JSON array:
+{
+  \"id\": int,
+  \"question\": \"Short sentence with blank or simple question\",
+  \"options\": {\"A\": \"...\", \"B\": \"...\", \"C\": \"...\", \"D\": \"...\"},
+  \"correct\": \"A/B/C/D\",
+  \"level\": \"A1-C2\"
+}
 
-Each question must have:
-- A clear question or a sentence with a blank.
-- 4 options (A, B, C, D).
-- Exactly one correct answer.
-- A difficulty level (A1, A2, B1, B2, C1, C2).
-
-Respond ONLY with a JSON array of 60 objects like this:
-[
-  {
-    \"id\": 1,
-    \"question\": \"Question text here...\",
-    \"options\": {
-      \"A\": \"Option A\",
-      \"B\": \"Option B\",
-      \"C\": \"Option C\",
-      \"D\": \"Option D\"
-    },
-    \"correct\": \"A\",
-    \"level\": \"A1\"
-  },
-  ...
-]";
+Return ONLY the JSON array of 60 objects.";
 
 $messages = [
     ["role" => "system", "content" => $systemPrompt],
