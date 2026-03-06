@@ -126,8 +126,7 @@ checkAccess(false); // Does not require active subscription to view profile
             <div class="dropdown">
                 <a href="javascript:void(0)" class="dropbtn">Test</a>
                 <div class="dropdown-content">
-                    <a href="practise/french_level_test/vocabulary.php">Vocabulaire</a>
-                    <a href="practise/french_level_test/oral.php">Expression Orale</a>
+                    <a href="practise/french_level_test/vocabulary.php">French Level Test</a>
                 </div>
             </div>
             <a href="training.php">Phased Training</a>

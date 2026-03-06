@@ -11,83 +11,43 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['subscription_status']) || 
     exit;
 }
 
-$type = $_GET['type'] ?? 'vocabulary'; // 'vocabulary' or 'oral'
+// Note: Oral expression test has been removed. Only vocabulary is supported now.
+$type = 'vocabulary';
 
-if ($type === 'vocabulary') {
-    $systemPrompt = "You are an expert French language examiner. Your task is to generate 20 multiple-choice questions to determine a user's CEFR level (A1 to C2) in French VOCABULARY.
+$systemPrompt = "You are an expert French language examiner. Your task is to generate 20 multiple-choice questions to determine a user's CEFR level (A1 to C2) in French VOCABULARY.
 
-    The questions should be distributed as follows:
-    - 4 questions for A1 (very basic)
-    - 4 questions for A2 (elementary)
-    - 4 questions for B1 (intermediate)
-    - 3 questions for B2 (upper intermediate)
-    - 3 questions for C1 (advanced)
-    - 2 questions for C2 (mastery)
+The questions should be distributed as follows:
+- 4 questions for A1 (very basic)
+- 4 questions for A2 (elementary)
+- 4 questions for B1 (intermediate)
+- 3 questions for B2 (upper intermediate)
+- 3 questions for C1 (advanced)
+- 2 questions for C2 (mastery)
 
-    CRITICAL CONSTRAINT: Avoid using words that are similar in English and French (cognates), such as "important", "possible", "intelligent", etc. This is especially important for higher level questions (B2, C1, C2). Focus on French-specific vocabulary, idioms, and nuances that do not have direct, similar-sounding equivalents in English.
+CRITICAL CONSTRAINT: Avoid using words that are similar in English and French (cognates), such as \"important\", \"possible\", \"intelligent\", etc. This is especially important for higher level questions (B2, C1, C2). Focus on French-specific vocabulary, idioms, and nuances that do not have direct, similar-sounding equivalents in English.
 
-    Each question must have:
-    - A clear question or a sentence with a blank.
-    - 4 options (A, B, C, D).
-    - Exactly one correct answer.
-    - A difficulty level (A1, A2, B1, B2, C1, C2).
+Each question must have:
+- A clear question or a sentence with a blank.
+- 4 options (A, B, C, D).
+- Exactly one correct answer.
+- A difficulty level (A1, A2, B1, B2, C1, C2).
 
-    Respond ONLY with a JSON array of 20 objects like this:
-    [
-      {
-        \"id\": 1,
-        \"question\": \"Question text here...\",
-        \"options\": {
-          \"A\": \"Option A\",
-          \"B\": \"Option B\",
-          \"C\": \"Option C\",
-          \"D\": \"Option D\"
-        },
-        \"correct\": \"A\",
-        \"level\": \"A1\"
-      },
-      ...
-    ]";
-} else {
-    $systemPrompt = "You are an expert French language examiner. Your task is to generate 20 multiple-choice questions to determine a user's CEFR level (A1 to C2) in French ORAL EXPRESSION situations and pragmatics.
-
-    The questions should focus on:
-    - Choosing the appropriate response in a spoken dialogue.
-    - Identifying the correct register (formal vs. informal).
-    - Understanding spoken idioms and common conversational fillers.
-    - Pragmatics: how to ask for things, apologize, or disagree naturally in French.
-
-    The questions should be distributed as follows:
-    - 4 questions for A1
-    - 4 questions for A2
-    - 4 questions for B1
-    - 3 questions for B2
-    - 3 questions for C1
-    - 2 questions for C2
-
-    Each question must have:
-    - A description of a situation or a dialogue snippet.
-    - 4 options (A, B, C, D) for what would be most appropriate to say.
-    - Exactly one correct answer.
-    - A difficulty level (A1, A2, B1, B2, C1, C2).
-
-    Respond ONLY with a JSON array of 20 objects like this:
-    [
-      {
-        \"id\": 1,
-        \"question\": \"Situation: ... What do you say?\",
-        \"options\": {
-          \"A\": \"Option A\",
-          \"B\": \"Option B\",
-          \"C\": \"Option C\",
-          \"D\": \"Option D\"
-        },
-        \"correct\": \"A\",
-        \"level\": \"A1\"
-      },
-      ...
-    ]";
-}
+Respond ONLY with a JSON array of 20 objects like this:
+[
+  {
+    \"id\": 1,
+    \"question\": \"Question text here...\",
+    \"options\": {
+      \"A\": \"Option A\",
+      \"B\": \"Option B\",
+      \"C\": \"Option C\",
+      \"D\": \"Option D\"
+    },
+    \"correct\": \"A\",
+    \"level\": \"A1\"
+  },
+  ...
+]";
 
 $messages = [
     ["role" => "system", "content" => $systemPrompt],
