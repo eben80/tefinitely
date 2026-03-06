@@ -23,11 +23,10 @@ checkAccess();
         background: #f5f0ea;
         display: flex;
         flex-direction: column;
-        height: 100vh;
-        height: 100dvh; /* Dynamic viewport height for mobile */
+        min-height: 100vh;
+        min-height: 100dvh; /* Dynamic viewport height for mobile */
         margin: 0;
         padding: 0;
-        overflow: hidden; /* Prevent body scroll */
     }
 
     header {
@@ -156,7 +155,6 @@ checkAccess();
         margin: 0 auto;
         width: 100%;
         padding: 0 15px;
-        overflow: hidden; /* Container doesn't scroll */
     }
 
     #main-content {
@@ -168,7 +166,6 @@ checkAccess();
         display: none; /* Shown after session starts */
         flex-direction: column;
         flex: 1;
-        overflow: hidden;
     }
 
     #instruction-display {
