@@ -1008,3 +1008,96 @@ googlepay-button, applepay-button {
         width: 100%;
     }
 }
+
+/* --- Level Test Styles --- */
+.level-test-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+.question-card {
+    display: none;
+}
+.question-card.active {
+    display: block;
+}
+.test-options {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.8rem;
+    margin-top: 1.5rem;
+}
+.option-btn {
+    padding: 1rem;
+    border: 2px solid #eee;
+    border-radius: 8px;
+    background: white;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 1.1rem;
+    width: 100%;
+}
+.option-btn:hover {
+    border-color: #004d99;
+    background: #f0f7ff;
+}
+.option-btn.selected {
+    border-color: #004d99;
+    background: #004d99;
+    color: white;
+}
+.test-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+}
+.test-progress-bar {
+    width: 100%;
+    height: 10px;
+    background: #eee;
+    border-radius: 5px;
+    margin-bottom: 2rem;
+    overflow: hidden;
+}
+.test-progress-inner {
+    height: 100%;
+    background: #004d99;
+    width: 0%;
+    transition: width 0.3s;
+}
+.level-result-container {
+    text-align: center;
+    display: none;
+}
+.level-badge {
+    font-size: 3rem;
+    font-weight: bold;
+    color: #004d99;
+    margin: 1rem 0;
+}
+.test-loading-screen {
+    text-align: center;
+    padding: 3rem;
+}
+
+@media (max-width: 640px) {
+    .level-test-container {
+        margin: 1rem;
+        padding: 1.5rem;
+        border-radius: 8px;
+    }
+    .level-badge {
+        font-size: 2.5rem;
+    }
+    .option-btn {
+        font-size: 1rem;
+        padding: 0.8rem;
+    }
+}

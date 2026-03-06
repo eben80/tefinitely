@@ -569,6 +569,13 @@ checkAccess();
                     </div>
                 </div>
             </div>
+            <div class="dropdown">
+                <a href="javascript:void(0)" class="dropbtn">Test</a>
+                <div class="dropdown-content">
+                    <a href="practise/french_level_test/vocabulary.php">Vocabulaire</a>
+                    <a href="practise/french_level_test/oral.php">Expression Orale</a>
+                </div>
+            </div>
             <a href="training.php">Phased Training</a>
             <a href="profile.php">Profile</a>
             <a id="admin-link" href="admin.php" style="display: none;">Admin Portal</a>
