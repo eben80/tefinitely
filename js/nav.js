@@ -3,14 +3,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const navContent = document.getElementById('nav-content');
 
     if (hamburgerMenu && navContent) {
-        hamburgerMenu.addEventListener('click', () => {
-            navContent.classList.toggle('is-open');
-            const isExpanded = navContent.classList.contains('is-open');
-            hamburgerMenu.setAttribute('aria-expanded', isExpanded);
+        hamburgerMenu.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isOpen = navContent.classList.toggle('is-open');
+            hamburgerMenu.setAttribute('aria-expanded', isOpen);
         });
     }
 
-    // Toggle for main dropdowns on mobile
+    // Handle Dropdowns
     const dropdowns = document.querySelectorAll('.dropdown');
     dropdowns.forEach(dropdown => {
         const btn = dropdown.querySelector('.dropbtn');
@@ -18,24 +18,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (btn && content) {
             btn.addEventListener('click', (e) => {
+                // Mobile behavior: toggle on click
                 if (window.innerWidth <= 768) {
                     e.preventDefault();
                     e.stopPropagation();
-                    content.classList.toggle('is-open');
 
-                    // Close other dropdowns
-                    dropdowns.forEach(other => {
-                        if (other !== dropdown) {
-                            const otherContent = other.querySelector('.dropdown-content');
-                            if (otherContent) otherContent.classList.remove('is-open');
-                        }
+                    const wasOpen = content.classList.contains('is-open');
+
+                    // Close all other main dropdowns
+                    document.querySelectorAll('.dropdown-content.is-open').forEach(el => {
+                        if (el !== content) el.classList.remove('is-open');
                     });
+                    // Close all sub-dropdowns when switching main dropdowns
+                    document.querySelectorAll('.sub-dropdown.is-open, .sub-dropdown-content.is-open').forEach(el => {
+                        el.classList.remove('is-open');
+                    });
+
+                    if (!wasOpen) {
+                        content.classList.add('is-open');
+                    }
                 }
             });
         }
     });
 
-    // Toggle for sub-dropdowns (both mobile and potentially desktop click)
+    // Handle Sub-Dropdowns
     const subDropdowns = document.querySelectorAll('.sub-dropdown');
     subDropdowns.forEach(sub => {
         const btn = sub.querySelector('.sub-dropbtn');
@@ -45,29 +52,36 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                sub.classList.toggle('is-open');
-                content.classList.toggle('is-open');
+
+                const wasOpen = content.classList.contains('is-open');
 
                 // Close other sub-dropdowns in the same parent
-                const parent = sub.parentElement;
-                const siblings = parent.querySelectorAll('.sub-dropdown');
-                siblings.forEach(sibling => {
-                    if (sibling !== sub) {
-                        sibling.classList.remove('is-open');
-                        const siblingContent = sibling.querySelector('.sub-dropdown-content');
-                        if (siblingContent) siblingContent.classList.remove('is-open');
-                    }
-                });
+                const parentContent = sub.closest('.dropdown-content');
+                if (parentContent) {
+                    parentContent.querySelectorAll('.sub-dropdown').forEach(el => {
+                        if (el !== sub) {
+                            el.classList.remove('is-open');
+                            const c = el.querySelector('.sub-dropdown-content');
+                            if (c) c.classList.remove('is-open');
+                        }
+                    });
+                }
+
+                if (!wasOpen) {
+                    sub.classList.add('is-open');
+                    content.classList.add('is-open');
+                } else {
+                    sub.classList.remove('is-open');
+                    content.classList.remove('is-open');
+                }
             });
         }
     });
 
-    // Close menus when clicking outside
+    // Close on outside click
     document.addEventListener('click', (e) => {
         if (!e.target.closest('.main-nav')) {
-            const openContents = document.querySelectorAll('.dropdown-content.is-open, .sub-dropdown-content.is-open, .sub-dropdown.is-open');
-            openContents.forEach(el => el.classList.remove('is-open'));
-            if (navContent) navContent.classList.remove('is-open');
+            document.querySelectorAll('.is-open').forEach(el => el.classList.remove('is-open'));
             if (hamburgerMenu) hamburgerMenu.setAttribute('aria-expanded', 'false');
         }
     });
