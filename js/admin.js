@@ -14,6 +14,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const editPasswordForm = document.getElementById('edit-password-form');
     const editSubscriptionForm = document.getElementById('edit-subscription-form');
     const addUserBtn = document.getElementById('add-user-btn');
+    const updateVocabBtn = document.getElementById('update-vocabulary-btn');
+    const updateOralBtn = document.getElementById('update-oral-btn');
     const addUserModal = document.getElementById('add-user-modal');
     const addUserForm = document.getElementById('add-user-form');
     const closeBtns = document.querySelectorAll('.close-btn');
@@ -84,6 +86,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 addUserModal.style.display = 'block';
             }
         });
+    }
+
+    if (updateVocabBtn) {
+        updateVocabBtn.addEventListener('click', () => handleUpdatePool('vocabulary', updateVocabBtn));
+    }
+
+    if (updateOralBtn) {
+        updateOralBtn.addEventListener('click', () => handleUpdatePool('oral', updateOralBtn));
     }
 
     const createUserBtn = document.getElementById('create-user-btn');
@@ -1037,6 +1047,31 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('Update ticket status failed:', error);
             showToast('An error occurred while updating the ticket status.', 'error');
+        }
+    }
+
+    async function handleUpdatePool(type, btn) {
+        const typeLabel = type === 'vocabulary' ? 'Vocabulary' : 'Oral Expression';
+        if (!confirm(`Are you sure you want to refresh the French ${typeLabel} question pool? This will call OpenAI and update the shared database for all users.`)) return;
+
+        btn.disabled = true;
+        const originalText = btn.textContent;
+        btn.textContent = 'Updating...';
+
+        try {
+            const response = await fetch('api/admin/update_level_test_questions.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ type: type })
+            });
+            const result = await response.json();
+            showToast(result.message, response.ok ? 'success' : 'error');
+        } catch (error) {
+            console.error(`Update ${type} pool failed:`, error);
+            showToast('An error occurred during the update.', 'error');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = originalText;
         }
     }
 

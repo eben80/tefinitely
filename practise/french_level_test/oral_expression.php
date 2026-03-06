@@ -8,7 +8,7 @@ checkAccess();
 <base href="/">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Test de Niveau - Vocabulaire Français</title>
+<title>Test de Niveau - Expression Orale Française</title>
 <link rel="icon" href="img/favicon/favicon.ico" sizes="any">
 <link rel="icon" href="img/favicon/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="img/favicon/apple-touch-icon.png">
@@ -52,7 +52,7 @@ checkAccess();
             <div class="dropdown">
                 <a href="javascript:void(0)" class="dropbtn">Test</a>
                 <div class="dropdown-content">
-                    <a href="practise/french_level_test/vocabulary.php">French Level Test</a>
+                    <a href="practise/french_level_test/index.php">French Level Test</a>
                 </div>
             </div>
             <a href="training.php">Phased Training</a>
@@ -72,11 +72,11 @@ checkAccess();
             <div class="spinner-border" role="status">
                 <span class="visually-hidden">Chargement...</span>
             </div>
-        <p style="margin-top: 1rem;">Chargement de vos questions personnalisées...</p>
+            <p style="margin-top: 1rem;">Chargement de vos questions personnalisées...</p>
         </div>
         <div id="loading-error" style="display: none;">
-            <p style="color: #dc3545; font-weight: bold;">Erreur lors de la génération des questions.</p>
-            <p>Cela peut arriver si la connexion est lente ou si le service est temporairement indisponible.</p>
+            <p style="color: #dc3545; font-weight: bold;">Erreur lors du chargement des questions.</p>
+            <p>Cela peut arriver si la connexion est lente ou si le pool de questions est vide.</p>
             <button onclick="fetchQuestions()" class="btn-primary" style="margin-top: 1rem;">Réessayer</button>
             <a href="practise/french_level_test/index.php" class="btn-secondary" style="margin-top: 1rem; display: block;">Retour</a>
         </div>
@@ -92,7 +92,7 @@ checkAccess();
     </div>
 
     <div id="result-screen" class="level-result-container">
-        <h2>Votre niveau estimé en vocabulaire :</h2>
+        <h2>Votre niveau estimé en expression orale :</h2>
         <div class="level-badge" id="level-result">--</div>
         <p id="level-description"></p>
         <p style="margin-top: 2rem;">
@@ -106,8 +106,8 @@ checkAccess();
 <script src="js/toast.js"></script>
 <script src="js/nav.js"></script>
 <script>
-let allQuestionsPool = []; // Pool of questions from API
-let adaptiveQuestions = []; // Selected adaptively
+let allQuestionsPool = [];
+let adaptiveQuestions = [];
 let currentQuestionIndex = 0;
 let userAnswers = {};
 
@@ -130,7 +130,7 @@ async function fetchQuestions() {
     document.getElementById('loading-error').style.display = 'none';
 
     try {
-        const response = await fetch('api/level_test/get_questions.php?type=vocabulary');
+        const response = await fetch('api/level_test/get_questions.php?type=oral');
         if (!response.ok) throw new Error('Network response was not ok');
         const data = await response.json();
         if (data.status === 'success') {
@@ -143,7 +143,7 @@ async function fetchQuestions() {
         console.error('Error fetching questions:', error);
         document.getElementById('loading-spinner').style.display = 'none';
         document.getElementById('loading-error').style.display = 'block';
-        showToast('Erreur lors de la génération des questions.', 'error');
+        showToast('Erreur lors du chargement des questions.', 'error');
     }
 }
 
@@ -151,7 +151,7 @@ function startAdaptiveTest() {
     currentQuestionIndex = 0;
     adaptiveQuestions = [];
     userAnswers = {};
-    currentDifficultyIndex = 1; // Start at A2
+    currentDifficultyIndex = 1;
     pickNextQuestion();
     loadingScreen.style.display = 'none';
     testContainer.style.display = 'block';
@@ -298,17 +298,17 @@ function showResults() {
         body: JSON.stringify({
             score: score,
             estimated_level: estimatedLevel,
-            test_type: 'vocabulary'
+            test_type: 'oral'
         })
     }).catch(err => console.error('Failed to save test result:', err));
 
     const descriptions = {
-        'A1': 'Vous avez des bases très limitées. Continuez vos efforts pour acquérir le vocabulaire de base.',
-        'A2': 'Vous comprenez des expressions courantes. Vous pouvez communiquer dans des situations simples.',
-        'B1': 'Vous pouvez vous débrouiller dans la plupart des situations linguistiques rencontrées en voyage.',
-        'B2': 'Vous comprenez le contenu essentiel de sujets complexes et pouvez communiquer avec aisance.',
-        'C1': 'Vous avez un large répertoire lexical et pouvez vous exprimer couramment et spontanément.',
-        'C2': 'Votre maîtrise du vocabulaire est proche de celle d\'un locuteur natif.'
+        'A1': 'Vous pouvez comprendre des expressions très simples et répondre à des besoins concrets.',
+        'A2': 'Vous pouvez communiquer dans des tâches simples et habituelles.',
+        'B1': 'Vous pouvez vous exprimer de manière simple et cohérente sur des sujets familiers.',
+        'B2': 'Vous pouvez communiquer avec un degré de spontanéité et d\'aisance.',
+        'C1': 'Vous pouvez vous exprimer spontanément et très couramment sans trop apparemment chercher vos mots.',
+        'C2': 'Vous pouvez vous exprimer spontanément, très couramment et de façon précise.'
     };
 
     levelDescription.textContent = descriptions[estimatedLevel];
@@ -316,7 +316,7 @@ function showResults() {
 
 document.addEventListener('DOMContentLoaded', fetchQuestions);
 
-// User status check (simplified from training.php)
+// User status check
 fetch('api/check_session.php')
     .then(r => r.json())
     .then(data => {

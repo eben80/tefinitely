@@ -22,7 +22,8 @@ $sql_files = [
     __DIR__ . '/../sql/update_user_tours.sql',
     __DIR__ . '/../sql/update_users_table_for_verification.sql',
     __DIR__ . '/../sql/create_level_test_results_table.sql',
-    __DIR__ . '/../sql/add_level_test_restriction_to_users.sql'
+    __DIR__ . '/../sql/add_level_test_restriction_to_users.sql',
+    __DIR__ . '/../sql/create_level_test_questions_table.sql'
 ];
 
 echo "<h2>Database Setup</h2>";

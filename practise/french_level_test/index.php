@@ -50,7 +50,7 @@ if ($is_admin) {
         padding: 2.5rem;
         border-radius: 12px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        max-width: 700px;
+        max-width: 800px;
         margin: 4rem auto;
         line-height: 1.6;
     }
@@ -73,20 +73,39 @@ if ($is_admin) {
         margin: 2rem 0;
         border-radius: 4px;
     }
-    .btn-container {
-        text-align: center;
+    .test-options-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
         margin-top: 2rem;
+    }
+    .test-option-card {
+        background: #f8f9fa;
+        padding: 2rem;
+        border-radius: 8px;
+        text-align: center;
+        border: 1px solid #dee2e6;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .test-option-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+    .test-option-card i {
+        font-size: 3rem;
+        color: #004d99;
+        margin-bottom: 1rem;
     }
     .btn-start {
         display: inline-block;
         background: #28a745;
         color: white;
-        padding: 1rem 2.5rem;
+        padding: 0.8rem 1.5rem;
         border-radius: 5px;
         font-weight: bold;
-        font-size: 1.2rem;
         text-decoration: none;
         transition: background 0.3s;
+        margin-top: 1rem;
     }
     .btn-start:hover {
         background: #218838;
@@ -98,7 +117,13 @@ if ($is_admin) {
     .wait-message {
         color: #dc3545;
         font-weight: bold;
-        margin-top: 1rem;
+        margin-top: 2rem;
+        text-align: center;
+    }
+    @media (max-width: 768px) {
+        .test-options-grid {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
 </head>
@@ -152,27 +177,45 @@ if ($is_admin) {
 
 <div class="container">
     <div class="intro-card">
-        <h1>French Vocabulary Level Test</h1>
-        <p>Welcome to our adaptive French proficiency assessment. This test is designed to accurately estimate your current CEFR level (from A1 to C2) through a series of vocabulary challenges.</p>
+        <h1>French Level Assessment</h1>
+        <p>Welcome to our adaptive French proficiency assessment. Choose between two types of tests to estimate your current CEFR level (from A1 to C2).</p>
 
         <ul class="test-features">
-            <li><strong>Adaptive Difficulty:</strong> The test dynamically adjusts to your performance. If you answer correctly, the questions get harder; if you struggle, they get easier.</li>
+            <li><strong>Adaptive Difficulty:</strong> The test dynamically adjusts to your performance.</li>
             <li><strong>20 Questions:</strong> A focused session of 20 multiple-choice questions.</li>
-            <li><strong>Anti-Cognate Focus:</strong> We specifically exclude words similar to English, ensuring we measure your actual French knowledge.</li>
-            <li><strong>Progress Tracking:</strong> Your results will be saved to your profile so you can track your improvement over time.</li>
+            <li><strong>Progress Tracking:</strong> Your results will be saved to your profile history.</li>
         </ul>
 
         <div class="alert-info">
-            <p><i class="bi bi-info-circle-fill"></i> <strong>Important Note:</strong> To ensure accurate tracking and fair use of our AI resources, you can only take this test <strong>once every 7 days</strong>.</p>
+            <p><i class="bi bi-info-circle-fill"></i> <strong>Retake Policy:</strong> You can take a level test <strong>once every 7 days</strong>. This limit is shared across all test types.</p>
         </div>
 
-        <div class="btn-container">
-            <?php if ($can_take_test): ?>
-                <a href="practise/french_level_test/vocabulary.php" class="btn-start">Confirm & Start Test</a>
-            <?php else: ?>
-                <button class="btn-start btn-disabled" disabled>Start Test</button>
-                <p class="wait-message"><?php echo $wait_message; ?></p>
-            <?php endif; ?>
+        <?php if (!$can_take_test): ?>
+            <p class="wait-message"><?php echo $wait_message; ?></p>
+        <?php endif; ?>
+
+        <div class="test-options-grid">
+            <div class="test-option-card">
+                <i class="bi bi-translate"></i>
+                <h3>Vocabulary Test</h3>
+                <p>Focuses on uniquely French vocabulary and idioms while strictly avoiding English cognates.</p>
+                <?php if ($can_take_test): ?>
+                    <a href="practise/french_level_test/vocabulary.php" class="btn-start">Start Vocabulary Test</a>
+                <?php else: ?>
+                    <button class="btn-start btn-disabled" disabled>Locked</button>
+                <?php endif; ?>
+            </div>
+
+            <div class="test-option-card">
+                <i class="bi bi-chat-dots"></i>
+                <h3>Oral Expression Test</h3>
+                <p>Tests situational communication, social registers, and natural spoken French conventions.</p>
+                <?php if ($can_take_test): ?>
+                    <a href="practise/french_level_test/oral_expression.php" class="btn-start">Start Oral Expression Test</a>
+                <?php else: ?>
+                    <button class="btn-start btn-disabled" disabled>Locked</button>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
 </div>

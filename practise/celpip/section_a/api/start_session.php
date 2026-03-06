@@ -1,7 +1,7 @@
 <?php
 require_once '../../../../api/session_init.php';
 init_session();
-require_once __DIR__ . '/openai.php';
+require_once __DIR__ . '/../../../../api/openai_helper.php';
 
 header('Content-Type: application/json');
 
