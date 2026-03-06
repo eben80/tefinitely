@@ -16,6 +16,8 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 
 set_time_limit(300);
 
+$test_type = 'vocabulary';
+
 $systemPrompt = "Expert French examiner. Generate a pool of 60 multiple-choice questions (10 per level A1-C2) for French VOCABULARY.
 
 CRITICAL: ABSOLUTELY NO English/French cognates (endings like -tion, -ssion, -ité, -té, -able, -ible, -ent, -ant, -al, -el, -isme, -iste, -ure, -ence, -ance are BANNED). No Latin-root words used in English (e.g., avoid étudiant, possible, famille). Use Gallic roots (e.g., boulot, souhaiter, essuyer). For B2-C2, use uniquely French idioms (e.g., déclic, rabrouer, mitigé).
@@ -41,7 +43,7 @@ $raw = trim($response['content'] ?? '');
 if (preg_match('/\[.*\]/s', $raw, $matches)) {
     $jsonText = $matches[0];
     $questions = json_decode($jsonText, true);
-    if ($questions && count($questions) >= 50) {
+    if ($questions && count($questions) >= 40) {
 
         $conn->begin_transaction();
         try {

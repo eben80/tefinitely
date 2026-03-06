@@ -178,40 +178,30 @@ if ($is_admin) {
 <div class="container">
     <div class="intro-card">
         <h1>French Level Assessment</h1>
-        <p>Welcome to our adaptive French proficiency assessment. Choose between two types of tests to estimate your current CEFR level (from A1 to C2).</p>
+        <p>Welcome to our adaptive French proficiency assessment. This test estimates your current CEFR level (from A1 to C2) through a series of vocabulary-based questions.</p>
 
         <ul class="test-features">
-            <li><strong>Adaptive Difficulty:</strong> The test dynamically adjusts to your performance.</li>
-            <li><strong>20 Questions:</strong> A focused session of 20 multiple-choice questions.</li>
+            <li><strong>Adaptive Difficulty:</strong> The test dynamically adjusts difficulty based on your performance.</li>
+            <li><strong>20 Questions:</strong> A focused session of 20 multiple-choice vocabulary questions.</li>
+            <li><strong>Gallicism Focus:</strong> Questions focus on uniquely French roots and idioms, avoiding common English cognates.</li>
             <li><strong>Progress Tracking:</strong> Your results will be saved to your profile history.</li>
         </ul>
 
         <div class="alert-info">
-            <p><i class="bi bi-info-circle-fill"></i> <strong>Retake Policy:</strong> You can take a level test <strong>once every 7 days</strong>. This limit is shared across all test types.</p>
+            <p><i class="bi bi-info-circle-fill"></i> <strong>Retake Policy:</strong> You can take the level test <strong>once every 7 days</strong>.</p>
         </div>
 
         <?php if (!$can_take_test): ?>
             <p class="wait-message"><?php echo $wait_message; ?></p>
         <?php endif; ?>
 
-        <div class="test-options-grid">
-            <div class="test-option-card">
+        <div style="display: flex; justify-content: center; margin-top: 2rem;">
+            <div class="test-option-card" style="max-width: 400px;">
                 <i class="bi bi-translate"></i>
                 <h3>Vocabulary Test</h3>
-                <p>Focuses on uniquely French vocabulary and idioms while strictly avoiding English cognates.</p>
+                <p>Assess your mastery of French vocabulary across various difficulty levels.</p>
                 <?php if ($can_take_test): ?>
                     <a href="practise/french_level_test/vocabulary.php" class="btn-start">Start Vocabulary Test</a>
-                <?php else: ?>
-                    <button class="btn-start btn-disabled" disabled>Locked</button>
-                <?php endif; ?>
-            </div>
-
-            <div class="test-option-card">
-                <i class="bi bi-chat-dots"></i>
-                <h3>Oral Expression Test</h3>
-                <p>Tests situational communication, social registers, and natural spoken French conventions.</p>
-                <?php if ($can_take_test): ?>
-                    <a href="practise/french_level_test/oral_expression.php" class="btn-start">Start Oral Expression Test</a>
                 <?php else: ?>
                     <button class="btn-start btn-disabled" disabled>Locked</button>
                 <?php endif; ?>
