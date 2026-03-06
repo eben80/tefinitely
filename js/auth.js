@@ -89,7 +89,7 @@ async function checkSession() {
 
             if (data.user.subscription_status !== 'active') {
                 // Handle restricted links for inactive users
-                const restrictedPaths = ['logged_in.php', 'oral_expression.php', 'oral_expression_section_a.php', 'practise/tef_canada/section_a/index.php', 'practise/tef_canada/section_b/index.php', 'practise/celpip/section_a/index.php', 'practise/celpip/section_b/index.php', 'practise/french_level_test/vocabulary.php', 'training.php', 'admin.php'];
+                const restrictedPaths = ['logged_in.php', 'oral_expression.php', 'oral_expression_section_a.php', 'practise/tef_canada/section_a/index.php', 'practise/tef_canada/section_b/index.php', 'practise/celpip/section_a/index.php', 'practise/celpip/section_b/index.php', 'practise/french_level_test/index.php', 'training.php', 'admin.php'];
 
                 // Select all links that might be restricted (nav and footer)
                 const allLinks = document.querySelectorAll('a');

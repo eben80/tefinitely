@@ -1,0 +1,1 @@
+ALTER TABLE users ADD COLUMN next_test_allowed_at TIMESTAMP NULL DEFAULT NULL;

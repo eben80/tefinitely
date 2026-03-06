@@ -11,6 +11,24 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['subscription_status']) || 
     exit;
 }
 
+require_once '../../db/db_config.php';
+$user_id = $_SESSION['user_id'];
+
+// Check eligibility
+$stmt = $conn->prepare("SELECT role, next_test_allowed_at FROM users WHERE id = ?");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$user_res = $stmt->get_result()->fetch_assoc();
+$stmt->close();
+
+if ($user_res['role'] !== 'admin') {
+    if ($user_res['next_test_allowed_at'] && new DateTime() < new DateTime($user_res['next_test_allowed_at'])) {
+        http_response_code(403);
+        echo json_encode(['status' => 'error', 'message' => 'Test limit reached. You can only take the test once every 7 days.']);
+        exit;
+    }
+}
+
 // Note: Oral expression test has been removed. Only vocabulary is supported now.
 $type = 'vocabulary';
 
@@ -72,6 +90,6 @@ if (preg_match('/\[.*\]/s', $raw, $matches)) {
     }
 }
 
-// Fallback if JSON parsing fails or not 20 questions
+// Fallback if JSON parsing fails or not enough questions
 http_response_code(500);
 echo json_encode(['status' => 'error', 'message' => 'Failed to generate questions. Please try again.', 'debug' => $raw]);
