@@ -17,11 +17,6 @@ checkAccess();
 <link rel="stylesheet" href="css/main.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 <style>
-  .logo {
-    width: 100%;
-    max-width: 500px;
-    margin: 1rem 0 2rem 0;
-  }
   .container {
     padding: 1rem;
   }
@@ -101,9 +96,6 @@ checkAccess();
   }
   /* --- Responsive Design --- */
   @media (max-width: 640px) {
-    .logo {
-        margin: 0.5rem 0 1rem 0; /* Reduced vertical margins */
-    }
     .main-nav {
         margin: 0 0 1rem 0; /* Reduced vertical margins and remove side margins */
         padding: 0.5rem 0; /* Reduced padding, removed horizontal */

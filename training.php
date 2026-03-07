@@ -17,16 +17,6 @@ checkAccess();
 <link rel="stylesheet" href="css/main.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 <style>
-  .logo {
-    width: 100%;
-    max-width: 500px;
-    margin: 1rem 0 2rem 0;
-  }
-  body {
-    font-family: Arial, sans-serif;
-    margin: 2rem;
-    background: #f5f0ea;
-  }
   h1 {
     margin-bottom: 1rem;
     color: #333;

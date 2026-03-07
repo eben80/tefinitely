@@ -130,10 +130,6 @@ checkAccess();
             margin: auto 10px !important;
         }
 
-        header .logo {
-            max-width: 260px !important;
-            margin: 1rem auto !important;
-        }
 
         .main-nav {
             margin-bottom: 5px !important;
