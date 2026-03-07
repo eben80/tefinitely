@@ -115,7 +115,7 @@ a {
     align-items: center;
     gap: 1rem;
 }
-.main-nav .nav-user button {
+.main-nav .nav-user button, .main-nav .nav-user .btn-login {
     background: #6c757d;
     color: white;
     border: none;
