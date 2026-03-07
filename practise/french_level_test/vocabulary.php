@@ -98,6 +98,22 @@ checkAccess();
         <p style="margin-top: 2rem;">
             <strong>Score :</strong> <span id="score-display">0</span> / 20
         </p>
+
+        <div id="admin-breakdown" style="display: none; margin-top: 2rem; padding: 1rem; border: 1px solid #ddd; border-radius: 8px; background: #f9f9f9; text-align: left;">
+            <h4 style="margin-top: 0;">Admin: Level Breakdown</h4>
+            <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #ddd;">
+                        <th style="padding: 0.5rem;">Level</th>
+                        <th style="padding: 0.5rem;">Correct</th>
+                        <th style="padding: 0.5rem;">Wrong</th>
+                        <th style="padding: 0.5rem;">Total</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-breakdown-body"></tbody>
+            </table>
+        </div>
+
         <button onclick="location.reload()" class="btn-primary" style="margin-top: 2rem;">Recommencer le test</button>
         <a href="oral_expression.php" class="btn-secondary" style="margin-top: 1rem; display: block;">Retourner à l'entraînement</a>
     </div>
@@ -110,6 +126,7 @@ let allQuestionsPool = []; // Pool of questions from API
 let adaptiveQuestions = []; // Selected adaptively
 let currentQuestionIndex = 0;
 let userAnswers = {};
+let userRole = 'user';
 
 const levelsOrder = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 let currentDifficultyIndex = 1; // Start at A2
@@ -263,17 +280,42 @@ function showResults() {
     let score = 0;
     let levelSum = 0;
     let correctCountInLastHalf = 0;
+    let breakdown = {};
+    levelsOrder.forEach(l => breakdown[l] = { correct: 0, wrong: 0 });
 
     adaptiveQuestions.forEach((q, index) => {
         const isCorrect = userAnswers[index] === q.correct;
         if (isCorrect) {
             score++;
+            breakdown[q.level].correct++;
             if (index >= 10) {
                 levelSum += levelsOrder.indexOf(q.level);
                 correctCountInLastHalf++;
             }
+        } else {
+            breakdown[q.level].wrong++;
         }
     });
+
+    if (userRole === 'admin') {
+        const breakdownBody = document.getElementById('admin-breakdown-body');
+        breakdownBody.innerHTML = '';
+        levelsOrder.forEach(l => {
+            const total = breakdown[l].correct + breakdown[l].wrong;
+            if (total > 0) {
+                const tr = document.createElement('tr');
+                tr.style.borderBottom = '1px solid #eee';
+                tr.innerHTML = `
+                    <td style="padding: 0.5rem; text-align: center;">${l}</td>
+                    <td style="padding: 0.5rem; text-align: center; color: green;">${breakdown[l].correct}</td>
+                    <td style="padding: 0.5rem; text-align: center; color: red;">${breakdown[l].wrong}</td>
+                    <td style="padding: 0.5rem; text-align: center;">${total}</td>
+                `;
+                breakdownBody.appendChild(tr);
+            }
+        });
+        document.getElementById('admin-breakdown').style.display = 'block';
+    }
 
     let finalDifficultyIndex = 0;
     if (correctCountInLastHalf > 0) {
@@ -323,7 +365,8 @@ fetch('api/check_session.php')
         if (data.loggedIn && data.user.subscription_status === 'active') {
             document.getElementById('user-status').style.display = 'flex';
             document.getElementById('first-name-display').textContent = `Welcome, ${data.user.first_name}`;
-            if (data.user.role === 'admin') document.getElementById('admin-link').style.display = 'inline';
+            userRole = data.user.role;
+            if (userRole === 'admin') document.getElementById('admin-link').style.display = 'inline';
         } else {
             window.location.href = 'login.html';
         }
