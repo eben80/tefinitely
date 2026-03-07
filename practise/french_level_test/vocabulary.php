@@ -297,6 +297,33 @@ function showResults() {
         }
     });
 
+    // Mastery-based scoring algorithm
+    // Requires 60% accuracy at a level to progress to the next estimation tier.
+    let masteryThreshold = 0.6;
+    let finalDifficultyIndex = 0; // Default to A1
+
+    for (let i = 0; i < levelsOrder.length; i++) {
+        let levelLabel = levelsOrder[i];
+        let stats = breakdown[levelLabel];
+        let totalAtLevel = stats.correct + stats.wrong;
+
+        if (totalAtLevel > 0) {
+            let accuracy = stats.correct / totalAtLevel;
+            if (accuracy >= masteryThreshold) {
+                finalDifficultyIndex = i;
+            } else {
+                // Failed to master this level. Estimation stops here.
+                break;
+            }
+        } else {
+            // Level not tested. If we already passed lower levels and are testing higher,
+            // we assume mastery of skipped lower levels.
+            if (i < currentDifficultyIndex) {
+                finalDifficultyIndex = i;
+            }
+        }
+    }
+
     if (userRole === 'admin') {
         const breakdownBody = document.getElementById('admin-breakdown-body');
         breakdownBody.innerHTML = '';
@@ -316,18 +343,6 @@ function showResults() {
         });
         document.getElementById('admin-breakdown').style.display = 'block';
     }
-
-    let finalDifficultyIndex = 0;
-    if (correctCountInLastHalf > 0) {
-        finalDifficultyIndex = Math.round(levelSum / correctCountInLastHalf);
-    } else {
-        const lastQLevel = levelsOrder.indexOf(adaptiveQuestions[adaptiveQuestions.length-1].level);
-        finalDifficultyIndex = Math.max(0, lastQLevel - 1);
-    }
-
-    if (score < 5) finalDifficultyIndex = Math.min(finalDifficultyIndex, 1);
-    if (score < 3) finalDifficultyIndex = 0;
-    if (score > 17 && finalDifficultyIndex < 4) finalDifficultyIndex = 4;
 
     scoreDisplay.textContent = score;
     let estimatedLevel = levelsOrder[finalDifficultyIndex];
