@@ -492,7 +492,8 @@ checkAccess(false); // Does not require active subscription to view profile
             const btn = document.getElementById(t.btn);
             const wrapper = document.getElementById(t.wrapper);
             if (btn && wrapper) {
-                btn.addEventListener('click', () => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
                     wrapper.classList.toggle('is-open');
                 });
             }
