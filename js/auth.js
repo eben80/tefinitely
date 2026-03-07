@@ -75,17 +75,25 @@ async function checkSession() {
         const landingFooter = document.getElementById('landing-footer');
         const authContainer = document.getElementById('auth-container');
 
+        // Always show main nav
+        userStatusElements.forEach(el => el.style.display = 'flex');
+        if (landingNav) {
+            landingNav.style.display = 'none';
+        }
+
         if (data.loggedIn) {
-            userStatusElements.forEach(el => el.style.display = 'flex');
-            if (landingNav) {
-                landingNav.style.display = 'none';
-            }
             if (firstNameDisplay) {
                 firstNameDisplay.textContent = `Welcome, ${data.user.first_name}`;
+                firstNameDisplay.style.display = 'inline';
             }
             if (data.user.role === 'admin' && adminLink) {
                 adminLink.style.display = 'inline';
             }
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) logoutBtn.style.display = 'inline-block';
+
+            const navLoginBtn = document.getElementById('nav-login-btn');
+            if (navLoginBtn) navLoginBtn.style.display = 'none';
 
             // Always show landing page content on index.html even if logged in
             if (window.location.pathname.endsWith('index.html') || window.location.pathname === '/' || window.location.pathname === '') {
@@ -148,8 +156,15 @@ async function checkSession() {
             }
         } else {
             // Not logged in
-            userStatusElements.forEach(el => el.style.display = 'none');
-            if (landingNav) landingNav.style.display = 'flex';
+            if (firstNameDisplay) firstNameDisplay.style.display = 'none';
+            if (adminLink) adminLink.style.display = 'none';
+
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) logoutBtn.style.display = 'none';
+
+            const navLoginBtn = document.getElementById('nav-login-btn');
+            if (navLoginBtn) navLoginBtn.style.display = 'inline-block';
+
             if (authContainer) authContainer.style.display = 'block';
             loginPromptLandingPageElements.forEach(el => el.style.display = 'block');
             if (subscriptionPrompt) subscriptionPrompt.style.display = 'none';
