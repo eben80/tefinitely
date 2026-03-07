@@ -130,7 +130,7 @@ function startMainTour() {
 
     tour.addStep({
         id: 'profile-link',
-        text: 'Access your <strong>Profile</strong> to track progress or restart tours.',
+        text: 'Access your <strong>Dashboard</strong> to track progress or restart tours.',
         attachTo: { element: 'a[href="profile.php"]', on: 'bottom' },
         buttons: [
             { text: 'Back', action: tour.back, classes: 'shepherd-button-secondary' },

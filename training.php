@@ -94,9 +94,6 @@ checkAccess();
 
   /* --- Responsive Design --- */
   @media (max-width: 640px) {
-    body {
-      margin: 0;
-    }
     h1 {
       font-size: 1.5rem;
     }
@@ -126,7 +123,7 @@ checkAccess();
         <i class="bi bi-list"></i>
     </button>
     <div class="nav-content" id="nav-content">
-        <div class="nav-links">
+        <div class="nav-links"><a href="profile.php">Dashboard</a>
             <div class="dropdown">
                 <a href="oral_expression.php" class="dropbtn">Oral Expression</a>
                 <div class="dropdown-content">
@@ -154,7 +151,7 @@ checkAccess();
                 </div>
             </div>
             <a href="training.php">Phased Training</a>
-            <a href="profile.php">Profile</a>
+
             <a id="admin-link" href="admin.php" style="display: none;">Admin Portal</a>
         </div>
         <div class="nav-user">
@@ -291,9 +288,9 @@ checkAccess();
         <div class="footer-column">
             <h4>Quick Links</h4>
             <ul>
-                <li><a href="oral_expression.php">Oral Expression</a></li>
+                <li><a href="profile.php">Dashboard</a></li><li><a href="oral_expression.php">Oral Expression</a></li>
                 <li><a href="training.php">Phased Training</a></li>
-                <li><a href="profile.php">Profile</a></li>
+
             </ul>
         </div>
         <div class="footer-column">

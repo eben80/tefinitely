@@ -33,8 +33,6 @@ checkAccess();
   }
 
   @media (max-width: 640px) {
-    body { margin: 0; }
-    .section-card { padding: 1.5rem; margin: 1rem; }
     .section-card a { display: block; text-align: center; }
   }
   .section-card h2 {
@@ -70,7 +68,7 @@ checkAccess();
         <i class="bi bi-list"></i>
     </button>
     <div class="nav-content" id="nav-content">
-        <div class="nav-links">
+        <div class="nav-links"><a href="profile.php">Dashboard</a>
             <div class="dropdown">
                 <a href="oral_expression.php" class="dropbtn">Oral Expression</a>
                 <div class="dropdown-content">
@@ -98,7 +96,7 @@ checkAccess();
                 </div>
             </div>
             <a href="training.php">Phased Training</a>
-            <a href="profile.php">Profile</a>
+
             <a id="admin-link" href="admin.php" style="display: none;">Admin Portal</a>
         </div>
         <div class="nav-user">
@@ -124,9 +122,9 @@ checkAccess();
     </div>
 
     <div class="section-card">
-        <h2>Your Profile</h2>
+        <h2>Your Dashboard</h2>
         <p>Track your progress, view your performance statistics, and manage your account details. You can also restart the guided tour from your profile page.</p>
-        <a href="profile.php">Go to Profile</a>
+        <a href="profile.php">Go to Dashboard</a>
     </div>
 
     <footer class="landing-footer">
@@ -138,9 +136,9 @@ checkAccess();
             <div class="footer-column">
                 <h4>Quick Links</h4>
                 <ul>
-                    <li><a href="oral_expression.php">Oral Expression</a></li>
+                    <li><a href="profile.php">Dashboard</a></li><li><a href="oral_expression.php">Oral Expression</a></li>
                     <li><a href="training.php">Phased Training</a></li>
-                    <li><a href="profile.php">Profile</a></li>
+
                 </ul>
             </div>
             <div class="footer-column">
