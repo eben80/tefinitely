@@ -76,7 +76,7 @@ checkAccess(true, true); // Admin only
 </head>
 <body>
     <header>
-        <a href="index.html"><img src="img/top_logo_light.png" alt="TEFinitely Logo" class="logo" style="display: block; margin-left: auto; margin-right: auto;"></a>
+        <a href="index.html"><img src="img/top_logo_light.png" alt="TEFinitely Logo" class="logo"></a>
     </header>
     <div id="toast-container"></div>
     <nav class="main-nav" id="user-status" style="display: none;">
