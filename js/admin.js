@@ -355,38 +355,37 @@ document.addEventListener('DOMContentLoaded', () => {
             row.innerHTML = `
                 <td><input type="checkbox" class="user-checkbox" data-userid="${user.id}"></td>
                 <td>${escapeHTML(user.id)}</td>
-                <td>${escapeHTML(user.first_name)}</td>
-                <td>${escapeHTML(user.last_name)}</td>
-                <td>${escapeHTML(user.email)}</td>
+                <td>${escapeHTML(fullName)}</td>
+                <td style="font-size: 0.8rem;">${escapeHTML(user.email)}</td>
                 <td>${escapeHTML(user.role)}</td>
                 <td class="${statusClass}">${escapeHTML(user.subscription_status)}</td>
                 <td>
                     ${escapeHTML(endDate)}
                     <br>
-                    <a href="javascript:void(0)" class="view-payments-link" data-userid="${user.id}" data-name="${escapeHTML(fullName)}" style="font-size: 0.8rem;">View History</a>
+                    <a href="javascript:void(0)" class="view-payments-link" data-userid="${user.id}" data-name="${escapeHTML(fullName)}" style="font-size: 0.75rem;">History</a>
                 </td>
                 <td>
-                    ${user.email_verified == 1 ? '<span class="status-active">Yes</span>' : '<span class="status-inactive">No</span>'}
+                    ${user.email_verified == 1 ? '<span class="status-active" title="Verified">Y</span>' : '<span class="status-inactive" title="Not Verified">N</span>'}
                 </td>
                 <td>
-                    <a href="javascript:void(0)" class="view-calls-link" data-userid="${user.id}" data-name="${escapeHTML(fullName)}">
-                        ${user.calls_1h} / ${user.calls_24h} / ${user.calls_7d} / ${user.calls_30d} / ${user.calls_lifetime}
+                    <a href="javascript:void(0)" class="view-calls-link" data-userid="${user.id}" data-name="${escapeHTML(fullName)}" style="font-size: 0.8rem;">
+                        ${user.calls_1h}/${user.calls_24h}/${user.calls_7d}/${user.calls_30d}/${user.calls_lifetime}
                     </a>
                 </td>
                 <td>${new Date(user.created_at).toLocaleDateString()}</td>
                 <td>
-                    <select data-userid="${user.id}" class="status-select">
+                    <select data-userid="${user.id}" class="status-select" style="font-size: 0.8rem; padding: 0.2rem;">
                         <option value="active" ${user.subscription_status === 'active' ? 'selected' : ''}>Active</option>
                         <option value="inactive" ${user.subscription_status === 'inactive' ? 'selected' : ''}>Inactive</option>
                     </select>
                 </td>
-                <td>
-                    <button class="edit-user-btn" data-userid="${user.id}">Edit</button>
-                    <button class="reset-test-btn" data-userid="${user.id}" title="Allow immediate re-test" style="background-color: #17a2b8; color: white;">Reset Test</button>
-                    <button class="delete-user-btn" data-userid="${user.id}">Delete</button>
+                <td style="white-space: nowrap;">
+                    <button class="edit-user-btn" data-userid="${user.id}" title="Edit User" style="padding: 0.2rem 0.4rem;"><i class="bi bi-pencil"></i></button>
+                    <button class="reset-test-btn" data-userid="${user.id}" title="Reset Level Test" style="background-color: #17a2b8; color: white; padding: 0.2rem 0.4rem;"><i class="bi bi-arrow-clockwise"></i></button>
+                    <button class="delete-user-btn" data-userid="${user.id}" title="Delete User" style="padding: 0.2rem 0.4rem;"><i class="bi bi-trash"></i></button>
                 </td>
                 <td>
-                    <button class="send-email-btn" data-userid="${user.id}">Send Email</button>
+                    <button class="send-email-btn" data-userid="${user.id}" title="Send Email" style="padding: 0.2rem 0.4rem;"><i class="bi bi-envelope"></i></button>
                 </td>
             `;
             usersTableBody.appendChild(row);
