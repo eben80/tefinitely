@@ -887,8 +887,9 @@ googlepay-button, applepay-button {
 }
 
 .collapsible-wrapper.is-open .collapsible-content {
-    max-height: 1000px; /* Large enough value */
+    max-height: 5000px; /* Much larger value to accommodate long lists */
     padding: 1.5rem;
+    overflow: visible;
 }
 
 @keyframes pulse-red {
