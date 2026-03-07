@@ -107,7 +107,17 @@ checkAccess();
 </nav>
 
 <div id="main-content">
-    <h1 style="text-align: center;">Welcome to Your Dashboard</h1>
+    <div class="section-card">
+        <h2>Your Dashboard</h2>
+        <p>Track your progress, view your performance statistics, and manage your account details. You can also restart the guided tour from your profile page.</p>
+        <a href="profile.php">Go to Dashboard</a>
+    </div>
+
+    <div class="section-card">
+        <h2>Level Test</h2>
+        <p>Assess your current French language level with our adaptive vocabulary test. Get an instant estimation based on the CEFR scale (A1-C2).</p>
+        <a href="practise/french_level_test/index.php">Take Level Test</a>
+    </div>
 
     <div class="section-card">
         <h2>Oral Expression Practice</h2>
@@ -119,12 +129,6 @@ checkAccess();
         <h2>Phased Training</h2>
         <p>Follow our unique, phased training system to go from hesitant to fluent. Each phase builds on the last, targeting specific skills you'll need for the exam.</p>
         <a href="training.php">Go to Phased Training</a>
-    </div>
-
-    <div class="section-card">
-        <h2>Your Dashboard</h2>
-        <p>Track your progress, view your performance statistics, and manage your account details. You can also restart the guided tour from your profile page.</p>
-        <a href="profile.php">Go to Dashboard</a>
     </div>
 
     <footer class="landing-footer">
