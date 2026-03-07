@@ -87,6 +87,16 @@ async function checkSession() {
                 adminLink.style.display = 'inline';
             }
 
+            // Always show landing page content on index.html even if logged in
+            if (window.location.pathname.endsWith('index.html') || window.location.pathname === '/' || window.location.pathname === '') {
+                if (authContainer) authContainer.style.display = 'block';
+                if (landingFooter) landingFooter.style.display = 'block';
+                if (data.user.subscription_status === 'active') {
+                    loginPromptLandingPageElements.forEach(el => el.style.display = 'block');
+                    if (subscriptionPrompt) subscriptionPrompt.style.display = 'none';
+                }
+            }
+
             if (data.user.subscription_status !== 'active') {
                 // Handle restricted links for inactive users
                 const restrictedPaths = ['logged_in.php', 'oral_expression.php', 'oral_expression_section_a.php', 'practise/tef_canada/section_a/index.php', 'practise/tef_canada/section_b/index.php', 'practise/celpip/section_a/index.php', 'practise/celpip/section_b/index.php', 'practise/french_level_test/index.php', 'training.php', 'admin.php'];
@@ -135,11 +145,6 @@ async function checkSession() {
                         }, 500);
                     }
                 }
-            } else {
-                // Active subscriber on index page should be redirected to dashboard
-                if (window.location.pathname.endsWith('index.html') || window.location.pathname === '/' || window.location.pathname === '') {
-                    window.location.href = 'logged_in.php';
-                }
             }
         } else {
             // Not logged in
@@ -149,6 +154,20 @@ async function checkSession() {
             loginPromptLandingPageElements.forEach(el => el.style.display = 'block');
             if (subscriptionPrompt) subscriptionPrompt.style.display = 'none';
             if (landingFooter) landingFooter.style.display = 'block';
+
+            // Handle restricted links for guests
+            const restrictedPaths = ['logged_in.php', 'oral_expression.php', 'oral_expression_section_a.php', 'practise/tef_canada/section_a/index.php', 'practise/tef_canada/section_b/index.php', 'practise/celpip/section_a/index.php', 'practise/celpip/section_b/index.php', 'practise/french_level_test/index.php', 'training.php', 'admin.php', 'profile.php'];
+
+            const allLinks = document.querySelectorAll('a');
+            allLinks.forEach(link => {
+                const href = link.getAttribute('href');
+                if (href && restrictedPaths.some(rp => href.includes(rp))) {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        showToast('Please log in to access this feature.', 'info');
+                    });
+                }
+            });
         }
     } catch (uiError) {
         console.error('Error updating UI during session check:', uiError);

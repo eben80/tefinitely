@@ -20,11 +20,6 @@ checkAccess();
   .container {
     padding: 1rem;
   }
-  body {
-    font-family: Arial, sans-serif;
-    margin: 0; /* Removed margin to prevent overflow */
-    background: #f5f0ea;
-  }
   h1 {
     margin-bottom: 1rem;
     color: #333;
@@ -104,9 +99,6 @@ checkAccess();
         width: 100%;
         box-sizing: border-box; /* Include padding and border in the element's total width */
     }
-    body {
-      margin: 1rem;
-    }
     h1 {
       font-size: 1.5rem;
     }
@@ -145,7 +137,7 @@ checkAccess();
         <i class="bi bi-list"></i>
     </button>
     <div class="nav-content" id="nav-content">
-        <div class="nav-links">
+        <div class="nav-links"><a href="profile.php">Dashboard</a>
             <div class="dropdown">
                 <a href="oral_expression.php" class="dropbtn">Oral Expression</a>
                 <div class="dropdown-content">
@@ -173,7 +165,7 @@ checkAccess();
                 </div>
             </div>
             <a href="training.php">Phased Training</a>
-            <a href="profile.php">Profile</a>
+
             <a id="admin-link" href="admin.php" style="display: none;">Admin Portal</a>
         </div>
         <div class="nav-user">
@@ -234,9 +226,9 @@ checkAccess();
             <div class="footer-column">
                 <h4>Quick Links</h4>
                 <ul>
-                    <li><a href="oral_expression.php">Oral Expression</a></li>
+                    <li><a href="profile.php">Dashboard</a></li><li><a href="oral_expression.php">Oral Expression</a></li>
                     <li><a href="training.php">Phased Training</a></li>
-                    <li><a href="profile.php">Profile</a></li>
+
                 </ul>
             </div>
             <div class="footer-column">
