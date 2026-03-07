@@ -18,13 +18,13 @@ checkAccess(true, true); // Admin only
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
-        .container { max-width: 95%; margin: 0 auto; }
-        h1, h2 { color: #333; }
-        table { width: 100%; border-collapse: collapse; margin-top: 1rem; background: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        th, td { padding: 0.8rem; text-align: left; border-bottom: 1px solid #ddd; }
-        th { background-color: #007bff; color: white; }
+        .container { max-width: 98%; margin: 0 auto; }
+        h1, h2 { color: #333; font-size: 1.5rem; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; background: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-size: 0.85rem; }
+        th, td { padding: 0.5rem; text-align: left; border-bottom: 1px solid #ddd; word-break: break-word; }
+        th { background-color: #007bff; color: white; white-space: nowrap; }
         tr:hover { background-color: #f1f1f1; }
-        select, input[type="text"], input[type="email"], input[type="search"] { padding: 0.5rem; font-size: 0.9rem; border: 1px solid #ccc; border-radius: 4px; }
+        select, input[type="text"], input[type="email"], input[type="search"] { padding: 0.4rem; font-size: 0.85rem; border: 1px solid #ccc; border-radius: 4px; }
         .status-active { color: green; font-weight: bold; }
         .status-inactive { color: red; font-weight: bold; }
         .status-open { color: #dc3545; font-weight: bold; }
@@ -195,18 +195,17 @@ checkAccess(true, true); // Admin only
                             <tr>
                                 <th><input type="checkbox" id="select-all-users"></th>
                                 <th>ID</th>
-                                <th>First Name</th>
-                                <th>Last Name</th>
+                                <th>Name</th>
                                 <th>Email</th>
                                 <th>Role</th>
-                                <th>Sub Status</th>
-                                <th>Sub End Date</th>
-                                <th>Verified</th>
-                                <th>OpenAI Calls (1h/24h/7d/30d/Life)</th>
-                                <th>Created At</th>
-                                <th>Manage Sub</th>
+                                <th>Status</th>
+                                <th>End Date</th>
+                                <th>Ver.</th>
+                                <th>OpenAI (1h/24h/7d/30d/L)</th>
+                                <th>Created</th>
+                                <th>Manage</th>
                                 <th>Actions</th>
-                                <th>Email</th>
+                                <th>Msg</th>
                             </tr>
                         </thead>
                         <tbody id="users-table-body">
