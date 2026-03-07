@@ -865,9 +865,9 @@ googlepay-button, applepay-button {
     background: #e9ecef;
 }
 
-.collapsible-header h2 {
+.collapsible-header h2, .collapsible-header h3 {
     margin: 0;
-    font-size: 1.25rem;
+    font-size: 1.15rem;
 }
 
 .collapsible-icon {

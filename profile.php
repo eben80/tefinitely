@@ -22,63 +22,93 @@ checkAccess(false); // Does not require active subscription to view profile
         loadPayPalSDK();
     </script>
     <style>
-        .container { max-width: 900px; }
+        .container { max-width: 900px; padding: 1.5rem; }
         h1, h2 { color: #333; }
+        h2 { font-size: 1.4rem; margin-bottom: 0.75rem; }
+        h3 { font-size: 1.2rem; margin-bottom: 0.5rem; }
         .subscription-prompt {
             max-width: 600px;
-            margin: 4rem auto;
+            margin: 2rem auto;
             background: #fff;
-            padding: 2rem 2.5rem;
+            padding: 1.5rem 2rem;
             border-radius: 8px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             text-align: center;
         }
         .subscription-prompt h2 {
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             color: #004d99;
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem;
         }
         .subscription-prompt .lead {
-            font-size: 1.1rem;
+            font-size: 1rem;
             color: #666;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
         }
         .subscription-prompt .benefits-list {
             list-style-type: none;
             padding: 0;
-            margin: 0 auto 2rem auto;
+            margin: 0 auto 1.5rem auto;
             text-align: left;
             max-width: 350px;
         }
         .subscription-prompt .benefits-list li {
-            margin-bottom: 1rem;
-            font-size: 1.1rem;
+            margin-bottom: 0.75rem;
+            font-size: 1rem;
             display: flex;
             align-items: center;
         }
         .subscription-prompt .benefits-list li::before {
             content: '✓';
             color: #28a745;
-            font-size: 1.5rem;
-            margin-right: 1rem;
+            font-size: 1.3rem;
+            margin-right: 0.75rem;
         }
         #paypal-button-container {
             max-width: 300px;
             margin: 1rem auto 0 auto;
         }
-        .profile-info, .form-section { margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid #ddd; }
-        .profile-info p { font-size: 1.1rem; word-wrap: break-word; }
+        .profile-info, .form-section { margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 1px solid #ddd; }
+        .profile-info p { font-size: 1rem; word-wrap: break-word; margin-bottom: 0.5rem; }
         .profile-info strong { color: #0056b3; }
-        label { display: block; margin-bottom: 0.5rem; font-weight: bold; }
-        input, textarea { width: 100%; padding: 0.5rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; margin-bottom: 1rem; }
-        button { padding: 0.7rem 1.5rem; font-size: 1rem; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        label { display: block; margin-bottom: 0.4rem; font-weight: bold; font-size: 0.95rem; }
+        input, textarea { width: 100%; padding: 0.4rem; font-size: 0.95rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; margin-bottom: 0.75rem; }
+        button { padding: 0.6rem 1.2rem; font-size: 0.95rem; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
         button:hover { background-color: #0056b3; }
-        .form-toggle-links { margin-top: 1rem; }
-        .form-toggle-links a { text-decoration: none; color: #007bff; margin-right: 1rem; }
-        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-        th, td { border: 1px solid #ddd; padding: 0.75rem; text-align: left; }
+        .form-toggle-links { margin-top: 0.75rem; }
+        .form-toggle-links a { text-decoration: none; color: #007bff; margin-right: 1rem; font-size: 0.95rem; }
+        table { width: 100%; border-collapse: collapse; margin-top: 0.75rem; font-size: 0.95rem; }
+        th, td { border: 1px solid #ddd; padding: 0.6rem; text-align: left; }
         th { background-color: #f2f2f2; }
-        .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 1rem; }
+        .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 0.75rem; }
+
+        .latest-level-card {
+            background: #f0f7ff;
+            border: 1px solid #004d99;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .latest-level-card .level-info {
+            display: flex;
+            flex-direction: column;
+        }
+        .latest-level-card .level-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        .latest-level-card .level-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #004d99;
+        }
+        .latest-level-card .level-date {
+            font-size: 0.85rem;
+            color: #888;
+        }
 
         @media (max-width: 640px) {
             body { margin: 0; }
@@ -191,9 +221,21 @@ checkAccess(false); // Does not require active subscription to view profile
         </div>
 
         <div class="form-section" id="level-test-history-section">
-            <h2>French Level Test History</h2>
-            <div id="level-history-container" class="table-container">
-                <p>Loading test history...</p>
+            <h2>French Level Test</h2>
+            <div id="latest-level-container">
+                <!-- Latest result card will be injected here -->
+            </div>
+
+            <div class="collapsible-wrapper" id="history-collapsible">
+                <div class="collapsible-header" id="toggle-history">
+                    <h3>Full Test History</h3>
+                    <i class="bi bi-chevron-down collapsible-icon"></i>
+                </div>
+                <div class="collapsible-content">
+                    <div id="level-history-container" class="table-container">
+                        <p>Loading test history...</p>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -214,17 +256,32 @@ checkAccess(false); // Does not require active subscription to view profile
             </div>
         </div>
 
-        <div class="form-section">
+        <div class="form-section" id="your-progress-section">
             <h2>Your Progress</h2>
-            <h3>Flashcard Progress</h3>
-            <div id="progress-container" class="table-container"></div>
-            <div style="margin-top: 1rem; margin-bottom: 2rem;">
-                <button id="reset-stats-btn" style="background-color: #dc3545;">Reset Flashcard Stats</button>
+
+            <div class="collapsible-wrapper" id="flashcard-collapsible">
+                <div class="collapsible-header" id="toggle-flashcard">
+                    <h3>Flashcard Progress</h3>
+                    <i class="bi bi-chevron-down collapsible-icon"></i>
+                </div>
+                <div class="collapsible-content">
+                    <div id="progress-container" class="table-container"></div>
+                    <div style="margin-top: 1rem; margin-bottom: 1rem;">
+                        <button id="reset-stats-btn" style="background-color: #dc3545; padding: 0.5rem 1rem; font-size: 0.85rem;">Reset Flashcard Stats</button>
+                    </div>
+                </div>
             </div>
 
-            <h3>Phase 1: Shadowing Performance</h3>
-            <div id="dialogue-progress-container" class="table-container">
-                <!-- Dialogue progress will be loaded here -->
+            <div class="collapsible-wrapper" id="shadowing-collapsible">
+                <div class="collapsible-header" id="toggle-shadowing">
+                    <h3>Phase 1: Shadowing Performance</h3>
+                    <i class="bi bi-chevron-down collapsible-icon"></i>
+                </div>
+                <div class="collapsible-content">
+                    <div id="dialogue-progress-container" class="table-container">
+                        <!-- Dialogue progress will be loaded here -->
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -267,6 +324,7 @@ checkAccess(false); // Does not require active subscription to view profile
     <script src="js/nav.js"></script>
     <script src="js/profile.js"></script>
     <script>
+        document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('restart-tour').addEventListener('click', async () => {
             try {
                 const response = await fetch('api/profile/update_user_details.php', {
@@ -353,16 +411,36 @@ checkAccess(false); // Does not require active subscription to view profile
                 const response = await fetch('api/level_test/get_history.php');
                 const data = await response.json();
                 const container = document.getElementById('level-history-container');
+                const latestContainer = document.getElementById('latest-level-container');
 
                 if (data.status === 'success') {
                     if (data.history.length === 0) {
                         container.innerHTML = '<p>No test history yet. Take your first level test to see your progress!</p>';
+                        latestContainer.innerHTML = '<p>No results yet.</p>';
                         return;
                     }
 
+                    // Sort history by date descending (should already be from API, but just in case)
+                    const sortedHistory = data.history.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                    const latest = sortedHistory[0];
+                    const latestDate = new Date(latest.created_at).toLocaleDateString();
+
+                    latestContainer.innerHTML = `
+                        <div class="latest-level-card">
+                            <div class="level-info">
+                                <span class="level-label">Latest Estimated Level</span>
+                                <span class="level-value">${latest.estimated_level}</span>
+                                <span class="level-date">Assessed on ${latestDate}</span>
+                            </div>
+                            <div class="level-score">
+                                <strong>Score:</strong> ${latest.score} / 20
+                            </div>
+                        </div>
+                    `;
+
                     let html = '<table>';
                     html += '<tr><th>Date</th><th>Score</th><th>Estimated Level</th></tr>';
-                    data.history.forEach(item => {
+                    sortedHistory.forEach(item => {
                         const date = new Date(item.created_at).toLocaleDateString();
                         html += `<tr>
                                     <td>${date}</td>
@@ -403,8 +481,21 @@ checkAccess(false); // Does not require active subscription to view profile
         });
 
         // Collapsible Logic
-        document.getElementById('toggle-support').addEventListener('click', () => {
-            document.getElementById('support-collapsible').classList.toggle('is-open');
+        const toggles = [
+            { btn: 'toggle-support', wrapper: 'support-collapsible' },
+            { btn: 'toggle-history', wrapper: 'history-collapsible' },
+            { btn: 'toggle-flashcard', wrapper: 'flashcard-collapsible' },
+            { btn: 'toggle-shadowing', wrapper: 'shadowing-collapsible' }
+        ];
+
+        toggles.forEach(t => {
+            const btn = document.getElementById(t.btn);
+            const wrapper = document.getElementById(t.wrapper);
+            if (btn && wrapper) {
+                btn.addEventListener('click', () => {
+                    wrapper.classList.toggle('is-open');
+                });
+            }
         });
 
         // Support Contact Form Logic
@@ -429,6 +520,7 @@ checkAccess(false); // Does not require active subscription to view profile
             } catch (error) {
                 showToast('An error occurred. Please try again later.', 'error');
             }
+        });
         });
     </script>
 <script src="js/cookie-banner.js"></script>
