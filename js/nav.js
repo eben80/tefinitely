@@ -81,7 +81,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Close on outside click
     document.addEventListener('click', (e) => {
         if (!e.target.closest('.main-nav')) {
-            document.querySelectorAll('.is-open').forEach(el => el.classList.remove('is-open'));
+            // Only close dropdowns and hamburger menu, not all .is-open elements
+            document.querySelectorAll('.nav-content.is-open, .dropdown-content.is-open, .sub-dropdown-content.is-open, .sub-dropdown.is-open').forEach(el => {
+                el.classList.remove('is-open');
+            });
             if (hamburgerMenu) hamburgerMenu.setAttribute('aria-expanded', 'false');
         }
     });
