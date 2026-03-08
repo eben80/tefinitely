@@ -25,6 +25,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 firstNameSpan.textContent = profile.first_name;
                 lastNameSpan.textContent = profile.last_name;
                 emailSpan.textContent = profile.email;
+
+                // Update Summary Card
+                const summaryName = document.getElementById('summary-name');
+                if (summaryName) summaryName.textContent = `${profile.first_name} ${profile.last_name}`;
+                const summarySubStatus = document.getElementById('summary-sub-status');
+                if (summarySubStatus) summarySubStatus.textContent = `Status: ${profile.subscription_status.charAt(0).toUpperCase() + profile.subscription_status.slice(1)}`;
+
                 if (profile.pending_email) {
                     emailSpan.innerHTML += ` <br><small style="color: #666;">(Pending verification: ${profile.pending_email})</small>`;
                 }

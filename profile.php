@@ -8,7 +8,7 @@ checkAccess(false); // Does not require active subscription to view profile
     <base href="/">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Profile</title>
+    <title>Dashboard</title>
     <link rel="icon" href="img/favicon/favicon.ico" sizes="any">
     <link rel="icon" href="img/favicon/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="img/favicon/apple-touch-icon.png">
@@ -22,7 +22,7 @@ checkAccess(false); // Does not require active subscription to view profile
         loadPayPalSDK();
     </script>
     <style>
-        .container { max-width: 900px; padding: 1.5rem; }
+        .container { max-width: 1000px; padding: 1.5rem; }
         h1, h2 { color: #333; }
         h2 { font-size: 1.4rem; margin-bottom: 0.75rem; }
         h3 { font-size: 1.2rem; margin-bottom: 0.5rem; }
@@ -68,7 +68,7 @@ checkAccess(false); // Does not require active subscription to view profile
             max-width: 300px;
             margin: 1rem auto 0 auto;
         }
-        .profile-info, .form-section { margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 1px solid #ddd; }
+        .profile-info, .form-section { margin-bottom: 2rem; }
         .profile-info p { font-size: 1rem; word-wrap: break-word; margin-bottom: 0.5rem; }
         .profile-info strong { color: #0056b3; }
         label { display: block; margin-bottom: 0.4rem; font-weight: bold; font-size: 0.95rem; }
@@ -76,46 +76,16 @@ checkAccess(false); // Does not require active subscription to view profile
         button { padding: 0.6rem 1.2rem; font-size: 0.95rem; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
         button:hover { background-color: #0056b3; }
         .form-toggle-links { margin-top: 0.75rem; }
-        .form-toggle-links a { text-decoration: none; color: #007bff; margin-right: 1rem; font-size: 0.95rem; }
-        table { width: 100%; border-collapse: collapse; margin-top: 0.75rem; font-size: 0.95rem; }
+        .form-toggle-links a { text-decoration: none; color: #007bff; margin-right: 1rem; font-size: 0.9rem; }
+        table { width: 100%; border-collapse: collapse; margin-top: 0.75rem; font-size: 0.9rem; }
         th, td { border: 1px solid #ddd; padding: 0.6rem; text-align: left; }
-        th { background-color: #f2f2f2; }
-        .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 0.75rem; }
-
-        .latest-level-card {
-            background: #f0f7ff;
-            border: 1px solid #004d99;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .latest-level-card .level-info {
-            display: flex;
-            flex-direction: column;
-        }
-        .latest-level-card .level-label {
-            font-size: 0.9rem;
-            color: #666;
-        }
-        .latest-level-card .level-value {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #004d99;
-        }
-        .latest-level-card .level-date {
-            font-size: 0.85rem;
-            color: #888;
-        }
+        th { background-color: #f8f9fa; color: #333; }
+        .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
         @media (max-width: 640px) {
             body { margin: 0; }
             .container { padding: 1rem; }
             .subscription-prompt { padding: 1.5rem; margin: 2rem auto; }
-            .subscription-prompt h2 { font-size: 1.5rem; }
-            .profile-info p { font-size: 1rem; }
             button { width: 100%; margin-bottom: 0.5rem; }
             .form-toggle-links { display: flex; flex-direction: column; gap: 0.5rem; }
             .form-toggle-links a { margin-right: 0; }
@@ -132,7 +102,8 @@ checkAccess(false); // Does not require active subscription to view profile
         <i class="bi bi-list"></i>
     </button>
     <div class="nav-content" id="nav-content">
-        <div class="nav-links"><a href="profile.php">Dashboard</a>
+        <div class="nav-links">
+            <a href="profile.php">Dashboard</a>
             <div class="dropdown">
                 <a href="oral_expression.php" class="dropbtn">Oral Expression</a>
                 <div class="dropdown-content">
@@ -160,7 +131,7 @@ checkAccess(false); // Does not require active subscription to view profile
                 </div>
             </div>
             <a href="training.php">Phased Training</a>
-
+            <a href="support.php" class="nav-help-icon" title="Contact Support"><i class="bi bi-question-circle"></i></a>
             <a id="admin-link" href="admin.php" style="display: none;">Admin Portal</a>
         </div>
         <div class="nav-user">
@@ -183,41 +154,102 @@ checkAccess(false); // Does not require active subscription to view profile
             <div id="paypal-button-container"></div>
         </div>
 
-        <div id="profile-details" class="profile-info">
-            <h2>Account Information</h2>
-            <p><strong>Name:</strong> <span id="first-name"></span> <span id="last-name"></span></p>
-            <p><strong>Email:</strong> <span id="email"></span></p>
-            <p><strong>Subscription Status:</strong> <span id="sub-status"></span></p>
-            <p><strong>Subscription Ends:</strong> <span id="sub-end-date"></span></p>
-            <div class="form-toggle-links">
-                <a href="#" id="toggle-details-form">Update User Details</a>
-                <a href="#" id="toggle-password-form">Change Password</a>
-                <a href="#" id="restart-tour">Restart Guided Tour</a>
+        <div class="dashboard-grid">
+            <!-- Account Summary Card -->
+            <div class="summary-card clickable" id="toggle-account-details">
+                <div class="card-info">
+                    <span class="card-label">Account Info</span>
+                    <span class="card-value"><span id="summary-name">Loading...</span></span>
+                    <span class="card-subtext" id="summary-sub-status">Status: Loading...</span>
+                </div>
+                <div class="card-icon"><i class="bi bi-person-circle"></i></div>
+            </div>
+
+            <!-- Flashcard Summary Card -->
+            <div class="summary-card clickable" id="toggle-flashcard">
+                <div class="card-info">
+                    <span class="card-label">Flashcard Progress</span>
+                    <span class="card-value" id="summary-flashcard-count">0 Phrases</span>
+                    <span class="card-subtext" id="summary-flashcard-avg">Avg: 0%</span>
+                </div>
+                <div class="card-icon"><i class="bi bi-card-text"></i></div>
+            </div>
+
+            <!-- Shadowing Summary Card -->
+            <div class="summary-card clickable" id="toggle-shadowing">
+                <div class="card-info">
+                    <span class="card-label">Shadowing Stats</span>
+                    <span class="card-value" id="summary-shadowing-coverage">0% Coverage</span>
+                    <span class="card-subtext" id="summary-shadowing-avg">Avg Score: 0%</span>
+                </div>
+                <div class="card-icon"><i class="bi bi-mic"></i></div>
             </div>
         </div>
 
-        <div id="update-details-section" class="form-section" style="display: none;">
-            <h2>Update User Details</h2>
-            <form id="updateDetailsForm">
-                <label for="new-first-name">First Name</label>
-                <input type="text" id="new-first-name" required>
-                <label for="new-last-name">Last Name</label>
-                <input type="text" id="new-last-name" required>
-                <label for="new-email">Email Address</label>
-                <input type="email" id="new-email" required>
-                <button type="submit">Update Details</button>
-            </form>
+        <!-- Collapsible Account Details -->
+        <div class="collapsible-wrapper" id="account-details-collapsible">
+            <div class="collapsible-content">
+                <div id="profile-details" class="profile-info" style="border-bottom: none; padding-bottom: 0;">
+                    <h2>Account Information</h2>
+                    <p><strong>Name:</strong> <span id="first-name"></span> <span id="last-name"></span></p>
+                    <p><strong>Email:</strong> <span id="email"></span></p>
+                    <p><strong>Subscription Status:</strong> <span id="sub-status"></span></p>
+                    <p><strong>Subscription Ends:</strong> <span id="sub-end-date"></span></p>
+                    <div class="form-toggle-links">
+                        <a href="#" id="toggle-details-form">Update User Details</a>
+                        <a href="#" id="toggle-password-form">Change Password</a>
+                        <a href="#" id="restart-tour">Restart Guided Tour</a>
+                    </div>
+                </div>
+
+                <div id="update-details-section" class="form-section" style="display: none; margin-top: 1.5rem;">
+                    <h2>Update User Details</h2>
+                    <form id="updateDetailsForm">
+                        <label for="new-first-name">First Name</label>
+                        <input type="text" id="new-first-name" required>
+                        <label for="new-last-name">Last Name</label>
+                        <input type="text" id="new-last-name" required>
+                        <label for="new-email">Email Address</label>
+                        <input type="email" id="new-email" required>
+                        <button type="submit">Update Details</button>
+                    </form>
+                </div>
+
+                <div id="change-password-section" class="form-section" style="display: none; margin-top: 1.5rem;">
+                    <h2>Change Password</h2>
+                    <form id="updatePasswordForm">
+                        <label for="current-password">Current Password</label>
+                        <input type="password" id="current-password" required>
+                        <label for="new-password">New Password</label>
+                        <input type="password" id="new-password" required>
+                        <button type="submit">Update Password</button>
+                    </form>
+                </div>
+            </div>
         </div>
 
-        <div id="change-password-section" class="form-section" style="display: none;">
-            <h2>Change Password</h2>
-            <form id="updatePasswordForm">
-                <label for="current-password">Current Password</label>
-                <input type="password" id="current-password" required>
-                <label for="new-password">New Password</label>
-                <input type="password" id="new-password" required>
-                <button type="submit">Update Password</button>
-            </form>
+        <!-- Collapsible Flashcard Details -->
+        <div class="collapsible-wrapper" id="flashcard-collapsible">
+            <div class="collapsible-content">
+                <h2>Flashcard Progress</h2>
+                <div id="progress-container" class="table-container"></div>
+                <div style="margin-top: 1.5rem;">
+                    <button id="reset-stats-btn" style="background-color: #dc3545; padding: 0.5rem 1rem; font-size: 0.85rem;">Reset Flashcard Stats</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Collapsible Shadowing Details -->
+        <div class="collapsible-wrapper" id="shadowing-collapsible">
+            <div class="collapsible-content">
+                <h2>Phase 1: Shadowing Performance</h2>
+                <div id="dialogue-progress-container" class="table-container">
+                    <!-- Dialogue progress will be loaded here -->
+                </div>
+                <div style="margin-top: 1.5rem;">
+                    <button id="reset-shadowing-btn" style="background-color: #dc3545; padding: 0.5rem 1rem; font-size: 0.85rem;">Reset Shadowing Stats</button>
+                </div>
+            </div>
         </div>
 
         <div class="form-section" id="level-test-history-section">
@@ -239,51 +271,6 @@ checkAccess(false); // Does not require active subscription to view profile
             </div>
         </div>
 
-        <div class="collapsible-wrapper" id="support-collapsible">
-            <div class="collapsible-header" id="toggle-support">
-                <h2>Contact Support</h2>
-                <i class="bi bi-chevron-down collapsible-icon"></i>
-            </div>
-            <div class="collapsible-content">
-                <p>Have a question or issue? Send us a message and we'll get back to you as soon as possible.</p>
-                <form id="contact-support-form">
-                    <label for="support-subject">Subject</label>
-                    <input type="text" id="support-subject" required>
-                    <label for="support-message">Message</label>
-                    <textarea id="support-message" rows="5" required></textarea>
-                    <button type="submit">Submit Request</button>
-                </form>
-            </div>
-        </div>
-
-        <div class="form-section" id="your-progress-section">
-            <h2>Your Progress</h2>
-
-            <div class="collapsible-wrapper" id="flashcard-collapsible">
-                <div class="collapsible-header" id="toggle-flashcard">
-                    <h3>Flashcard Progress</h3>
-                    <i class="bi bi-chevron-down collapsible-icon"></i>
-                </div>
-                <div class="collapsible-content">
-                    <div id="progress-container" class="table-container"></div>
-                    <div style="margin-top: 1rem; margin-bottom: 1rem;">
-                        <button id="reset-stats-btn" style="background-color: #dc3545; padding: 0.5rem 1rem; font-size: 0.85rem;">Reset Flashcard Stats</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="collapsible-wrapper" id="shadowing-collapsible">
-                <div class="collapsible-header" id="toggle-shadowing">
-                    <h3>Phase 1: Shadowing Performance</h3>
-                    <i class="bi bi-chevron-down collapsible-icon"></i>
-                </div>
-                <div class="collapsible-content">
-                    <div id="dialogue-progress-container" class="table-container">
-                        <!-- Dialogue progress will be loaded here -->
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
     <footer class="landing-footer">
@@ -365,13 +352,28 @@ checkAccess(false); // Does not require active subscription to view profile
                     return;
                 }
 
+                let totalPhrasesCovered = 0;
+                let totalAverageQuality = 0;
+                let topicsWithProgress = 0;
+
                 let html = '<table>';
-                html += '<tr><th>Theme</th><th>Section</th><th>Phrases Covered</th><th>Average Matching Quality</th></tr>';
+                html += '<tr><th>Theme</th><th>Phrases Covered</th><th>Average Matching Quality</th></tr>';
                 data.progress.forEach(item => {
-                    html += `<tr><td>${formatName(item.theme)}</td><td>${formatName(item.section)}</td><td>${item.phrases_covered} out of ${item.total_phrases}</td><td>${(item.average_matching_quality * 100).toFixed(2)}%</td></tr>`;
+                    html += `<tr><td>${formatName(item.theme)}</td><td>${item.phrases_covered} out of ${item.total_phrases}</td><td>${(item.average_matching_quality * 100).toFixed(2)}%</td></tr>`;
+
+                    totalPhrasesCovered += item.phrases_covered;
+                    if (item.phrases_covered > 0) {
+                        totalAverageQuality += item.average_matching_quality;
+                        topicsWithProgress++;
+                    }
                 });
                 html += '</table>';
                 progressContainer.innerHTML = html;
+
+                // Update summary card
+                document.getElementById('summary-flashcard-count').textContent = `${totalPhrasesCovered} Phrases`;
+                const avgQuality = topicsWithProgress > 0 ? (totalAverageQuality / topicsWithProgress * 100).toFixed(0) : 0;
+                document.getElementById('summary-flashcard-avg').textContent = `Avg Quality: ${avgQuality}%`;
             }
         }
 
@@ -388,6 +390,10 @@ checkAccess(false); // Does not require active subscription to view profile
                     return;
                 }
 
+                let totalCoverage = 0;
+                let totalScore = 0;
+                let dialogueCount = data.progress.length;
+
                 let html = '<table>';
                 html += '<tr><th>Dialogue</th><th>Coverage</th><th>Average Score</th></tr>';
                 data.progress.forEach(item => {
@@ -398,9 +404,18 @@ checkAccess(false); // Does not require active subscription to view profile
                                 <td>${coveragePercent}% (${item.attempted_lines}/${item.total_lines} lines)</td>
                                 <td>${scorePercent}%</td>
                              </tr>`;
+
+                    totalCoverage += item.coverage;
+                    totalScore += item.average_score;
                 });
                 html += '</table>';
                 progressContainer.innerHTML = html;
+
+                // Update summary card
+                const avgCoverage = dialogueCount > 0 ? (totalCoverage / dialogueCount * 100).toFixed(0) : 0;
+                const avgScore = dialogueCount > 0 ? (totalScore / dialogueCount * 100).toFixed(0) : 0;
+                document.getElementById('summary-shadowing-coverage').textContent = `${avgCoverage}% Coverage`;
+                document.getElementById('summary-shadowing-avg').textContent = `Avg Score: ${avgScore}%`;
             }
         }
 
@@ -420,7 +435,6 @@ checkAccess(false); // Does not require active subscription to view profile
                         return;
                     }
 
-                    // Sort history by date descending (should already be from API, but just in case)
                     const sortedHistory = data.history.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
                     const latest = sortedHistory[0];
                     const latestDate = new Date(latest.created_at).toLocaleDateString();
@@ -461,7 +475,7 @@ checkAccess(false); // Does not require active subscription to view profile
         fetchLevelHistory();
 
         document.getElementById('reset-stats-btn').addEventListener('click', async () => {
-            if (confirm('Are you sure you want to reset your stats? This action cannot be undone.')) {
+            if (confirm('Are you sure you want to reset your flashcard stats? This action cannot be undone.')) {
                 try {
                     const response = await fetch('api/profile/reset_progress.php', {
                         method: 'POST',
@@ -469,8 +483,28 @@ checkAccess(false); // Does not require active subscription to view profile
                     });
                     const data = await response.json();
                     if (data.status === 'success') {
-                        showToast('Your stats have been reset.', 'success');
+                        showToast('Your flashcard stats have been reset.', 'success');
                         fetchProgress();
+                    } else {
+                        showToast(data.message || 'Failed to reset stats.', 'error');
+                    }
+                } catch (error) {
+                    showToast('An error occurred while resetting your stats.', 'error');
+                }
+            }
+        });
+
+        document.getElementById('reset-shadowing-btn').addEventListener('click', async () => {
+            if (confirm('Are you sure you want to reset your shadowing stats? This action cannot be undone.')) {
+                try {
+                    const response = await fetch('api/profile/reset_dialogue_progress.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    const data = await response.json();
+                    if (data.status === 'success') {
+                        showToast('Your shadowing stats have been reset.', 'success');
+                        fetchDialogueProgress();
                     } else {
                         showToast(data.message || 'Failed to reset stats.', 'error');
                     }
@@ -482,7 +516,7 @@ checkAccess(false); // Does not require active subscription to view profile
 
         // Collapsible Logic
         const toggles = [
-            { btn: 'toggle-support', wrapper: 'support-collapsible' },
+            { btn: 'toggle-account-details', wrapper: 'account-details-collapsible' },
             { btn: 'toggle-history', wrapper: 'history-collapsible' },
             { btn: 'toggle-flashcard', wrapper: 'flashcard-collapsible' },
             { btn: 'toggle-shadowing', wrapper: 'shadowing-collapsible' }
@@ -494,34 +528,17 @@ checkAccess(false); // Does not require active subscription to view profile
             if (btn && wrapper) {
                 btn.addEventListener('click', (e) => {
                     e.stopPropagation();
+                    // Close others
+                    toggles.forEach(other => {
+                        if (other.wrapper !== t.wrapper) {
+                            document.getElementById(other.wrapper).classList.remove('is-open');
+                        }
+                    });
                     wrapper.classList.toggle('is-open');
                 });
             }
         });
 
-        // Support Contact Form Logic
-        document.getElementById('contact-support-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const subject = document.getElementById('support-subject').value;
-            const message = document.getElementById('support-message').value;
-
-            try {
-                const response = await fetch('api/support/create_ticket.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ subject, message })
-                });
-                const data = await response.json();
-                if (data.status === 'success') {
-                    showToast('Your message has been sent. We will get back to you soon!', 'success');
-                    document.getElementById('contact-support-form').reset();
-                } else {
-                    showToast(data.message || 'Failed to send message.', 'error');
-                }
-            } catch (error) {
-                showToast('An error occurred. Please try again later.', 'error');
-            }
-        });
         });
     </script>
 <script src="js/cookie-banner.js"></script>
