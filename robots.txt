@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin.php
+Disallow: /profile.php
+Disallow: /practise/
+Disallow: /oral_expression.php
+Disallow: /oral_expression_section_a.php
+Disallow: /training.php
+
+Sitemap: https://tefinitely.com/sitemap.xml

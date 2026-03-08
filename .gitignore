@@ -4,3 +4,4 @@ test-results/
 verification/
 vendor/
 sessions/
+php_server.log
