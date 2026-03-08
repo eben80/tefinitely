@@ -57,11 +57,43 @@ $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 // Generate verification token
 $verification_token = bin2hex(random_bytes(32));
 
+// Check for trial settings
+$trial_enabled = false;
+$trial_days = 0;
+$settings_res = $conn->query("SELECT setting_key, setting_value FROM settings WHERE setting_key IN ('trial_enabled', 'trial_days')");
+if ($settings_res) {
+    while ($row = $settings_res->fetch_assoc()) {
+        if ($row['setting_key'] === 'trial_enabled') $trial_enabled = $row['setting_value'] === '1';
+        if ($row['setting_key'] === 'trial_days') $trial_days = (int)$row['setting_value'];
+    }
+}
+
 // Insert the new user
-$stmt = $conn->prepare("INSERT INTO users (first_name, last_name, email, password, verification_token) VALUES (?, ?, ?, ?, ?)");
-$stmt->bind_param("sssss", $first_name, $last_name, $email, $hashed_password, $verification_token);
+$trial_used = $trial_enabled ? 1 : 0;
+$stmt = $conn->prepare("INSERT INTO users (first_name, last_name, email, password, verification_token, trial_used) VALUES (?, ?, ?, ?, ?, ?)");
+$stmt->bind_param("sssssi", $first_name, $last_name, $email, $hashed_password, $verification_token, $trial_used);
 
 if ($stmt->execute()) {
+    $user_id = $stmt->insert_id;
+
+    if ($trial_enabled && $trial_days > 0) {
+        $start_date = date('Y-m-d H:i:s');
+        $end_date = date('Y-m-d H:i:s', strtotime("+$trial_days days"));
+        $sub_stmt = $conn->prepare("INSERT INTO subscriptions (user_id, paypal_subscription_id, subscription_start_date, subscription_end_date, status) VALUES (?, 'trial', ?, ?, 'active')");
+        $sub_stmt->bind_param("iss", $user_id, $start_date, $end_date);
+        $sub_stmt->execute();
+        $sub_stmt->close();
+
+        // Also update users table status
+        $update_status_stmt = $conn->prepare("UPDATE users SET subscription_status = 'active' WHERE id = ?");
+        $update_status_stmt->bind_param("i", $user_id);
+        $update_status_stmt->execute();
+        $update_status_stmt->close();
+
+        // Log the trial grant in audit logs (System automated)
+        require_once __DIR__ . '/admin/audit_logger.php';
+        logAdminAction($conn, 1, 'grant_trial', $user_id, "Automated $trial_days-day trial granted on registration.");
+    }
     // Collect user metadata
     $ip_address = $_SERVER['REMOTE_ADDR'] ?? 'Unknown';
     $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';

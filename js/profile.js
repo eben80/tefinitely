@@ -41,12 +41,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 subStatusSpan.textContent = profile.subscription_status;
                 subEndDateSpan.textContent = profile.subscription_end_date ? new Date(profile.subscription_end_date).toLocaleDateString() : 'N/A';
 
-                if (profile.subscription_status !== 'active') {
-                    const subscriptionPrompt = document.getElementById('subscription-prompt');
-                    if (subscriptionPrompt) {
+                const subscriptionPrompt = document.getElementById('subscription-prompt');
+                if (subscriptionPrompt) {
+                    if (profile.subscription_status !== 'active') {
                         subscriptionPrompt.style.display = 'block';
-                        renderPayPalSubscriptionButton();
                     }
+                    renderPayPalSubscriptionButton();
                 }
             } else {
                 // If not logged in or error, redirect

@@ -196,6 +196,7 @@ checkAccess(false); // Does not require active subscription to view profile
                     <p><strong>Subscription Status:</strong> <span id="sub-status"></span></p>
                     <p><strong>Subscription Ends:</strong> <span id="sub-end-date"></span></p>
                     <div class="form-toggle-links">
+                        <a href="javascript:void(0)" id="toggle-subscription-prompt" style="font-weight: bold; color: #28a745;">Manage Subscription</a>
                         <a href="#" id="toggle-details-form">Update User Details</a>
                         <a href="#" id="toggle-password-form">Change Password</a>
                         <a href="#" id="restart-tour">Restart Guided Tour</a>
@@ -542,6 +543,19 @@ checkAccess(false); // Does not require active subscription to view profile
                 });
             }
         });
+
+        const toggleSubBtn = document.getElementById('toggle-subscription-prompt');
+        if (toggleSubBtn) {
+            toggleSubBtn.addEventListener('click', () => {
+                const prompt = document.getElementById('subscription-prompt');
+                if (prompt) {
+                    prompt.style.display = prompt.style.display === 'none' ? 'block' : 'none';
+                    if (prompt.style.display === 'block') {
+                        prompt.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
+            });
+        }
 
         });
     </script>
