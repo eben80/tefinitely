@@ -393,6 +393,7 @@ checkAccess(false); // Does not require active subscription to view profile
                 let totalCoverage = 0;
                 let totalScore = 0;
                 let dialogueCount = data.progress.length;
+                let attemptedDialoguesCount = 0;
 
                 let html = '<table>';
                 html += '<tr><th>Dialogue</th><th>Coverage</th><th>Average Score</th></tr>';
@@ -406,14 +407,17 @@ checkAccess(false); // Does not require active subscription to view profile
                              </tr>`;
 
                     totalCoverage += item.coverage;
-                    totalScore += item.average_score;
+                    if (item.attempted_lines > 0) {
+                        totalScore += item.average_score;
+                        attemptedDialoguesCount++;
+                    }
                 });
                 html += '</table>';
                 progressContainer.innerHTML = html;
 
                 // Update summary card
                 const avgCoverage = dialogueCount > 0 ? (totalCoverage / dialogueCount * 100).toFixed(0) : 0;
-                const avgScore = dialogueCount > 0 ? (totalScore / dialogueCount * 100).toFixed(0) : 0;
+                const avgScore = attemptedDialoguesCount > 0 ? (totalScore / attemptedDialoguesCount * 100).toFixed(0) : 0;
                 document.getElementById('summary-shadowing-coverage').textContent = `${avgCoverage}% Coverage`;
                 document.getElementById('summary-shadowing-avg').textContent = `Avg Score: ${avgScore}%`;
             }
