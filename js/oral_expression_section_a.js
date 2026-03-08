@@ -145,7 +145,8 @@ function updateTopicProgressDisplay(topicValue) {
         progressDisplay.textContent = '';
         return;
     }
-    const [section, theme] = topicValue.split('-');
+    const [sectionShort, theme] = topicValue.split('-');
+    const section = `Section ${sectionShort}`;
     const topicProgress = userProgress.find(p => p.section === section && p.theme === theme);
 
     if (topicProgress) {

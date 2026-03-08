@@ -1,0 +1,81 @@
+[Sun Mar  8 07:44:01 2026] PHP 8.3.6 Development Server (http://localhost:8000) started
+[Sun Mar  8 07:44:49 2026] [::1]:52260 Accepted
+[Sun Mar  8 07:44:49 2026] PHP Warning:  require_once(/app/api/../db/db_config.php): Failed to open stream: No such file or directory in /app/api/auth_check.php on line 5
+[Sun Mar  8 07:44:49 2026] PHP Fatal error:  Uncaught Error: Failed opening required '/app/api/../db/db_config.php' (include_path='.:/usr/share/php') in /app/api/auth_check.php:5
+Stack trace:
+#0 /app/oral_expression_section_a.php(2): require_once()
+#1 {main}
+  thrown in /app/api/auth_check.php on line 5
+[Sun Mar  8 07:44:49 2026] [::1]:52260 [500]: GET /oral_expression_section_a.php - Uncaught Error: Failed opening required '/app/api/../db/db_config.php' (include_path='.:/usr/share/php') in /app/api/auth_check.php:5
+Stack trace:
+#0 /app/oral_expression_section_a.php(2): require_once()
+#1 {main}
+  thrown in /app/api/auth_check.php on line 5
+[Sun Mar  8 07:44:49 2026] [::1]:52260 Closing
+[Sun Mar  8 07:45:28 2026] [::1]:46118 Accepted
+[Sun Mar  8 07:45:28 2026] [::1]:46118 [200]: GET /oral_expression_section_a.php
+[Sun Mar  8 07:45:28 2026] [::1]:46118 Closing
+[Sun Mar  8 07:45:28 2026] [::1]:46120 Accepted
+[Sun Mar  8 07:45:28 2026] [::1]:46122 Accepted
+[Sun Mar  8 07:45:28 2026] [::1]:46120 [200]: GET /css/toast.css
+[Sun Mar  8 07:45:28 2026] [::1]:46122 [200]: GET /css/main.css
+[Sun Mar  8 07:45:28 2026] [::1]:46120 Closing
+[Sun Mar  8 07:45:28 2026] [::1]:46122 Closing
+[Sun Mar  8 07:45:28 2026] [::1]:46128 Accepted
+[Sun Mar  8 07:45:28 2026] [::1]:46144 Accepted
+[Sun Mar  8 07:45:28 2026] [::1]:46128 [200]: GET /img/top_logo_light.png
+[Sun Mar  8 07:45:28 2026] [::1]:46128 Closing
+[Sun Mar  8 07:45:28 2026] [::1]:46144 [200]: GET /js/toast.js
+[Sun Mar  8 07:45:28 2026] [::1]:46144 Closing
+[Sun Mar  8 07:45:28 2026] [::1]:46152 Accepted
+[Sun Mar  8 07:45:28 2026] [::1]:46158 Accepted
+[Sun Mar  8 07:45:28 2026] [::1]:46160 Accepted
+[Sun Mar  8 07:45:28 2026] [::1]:46168 Accepted
+[Sun Mar  8 07:45:28 2026] [::1]:46184 Accepted
+[Sun Mar  8 07:45:28 2026] [::1]:46152 [200]: GET /js/browser-support.js
+[Sun Mar  8 07:45:28 2026] [::1]:46152 Closing
+[Sun Mar  8 07:45:28 2026] [::1]:46158 [200]: GET /js/auth.js
+[Sun Mar  8 07:45:28 2026] [::1]:46158 Closing
+[Sun Mar  8 07:45:28 2026] [::1]:46160 [200]: GET /js/nav.js
+[Sun Mar  8 07:45:28 2026] [::1]:46168 [200]: GET /js/oral_expression_section_a.js
+[Sun Mar  8 07:45:28 2026] [::1]:46184 [200]: GET /js/cookie-banner.js
+[Sun Mar  8 07:45:28 2026] [::1]:46160 Closing
+[Sun Mar  8 07:45:28 2026] [::1]:46168 Closing
+[Sun Mar  8 07:45:28 2026] [::1]:46184 Closing
+[Sun Mar  8 07:45:28 2026] [::1]:46194 Accepted
+[Sun Mar  8 07:45:28 2026] [::1]:46194 [200]: GET /api/check_session.php
+[Sun Mar  8 07:45:28 2026] [::1]:46194 Closing
+[Sun Mar  8 07:45:28 2026] [::1]:46210 Accepted
+[Sun Mar  8 07:45:28 2026] [::1]:46210 [200]: GET /api/check_session.php
+[Sun Mar  8 07:45:28 2026] [::1]:46210 Closing
+[Sun Mar  8 07:45:28 2026] [::1]:46220 Accepted
+[Sun Mar  8 07:45:28 2026] [::1]:46220 [200]: GET /api/get_topics.php?section=A
+[Sun Mar  8 07:45:28 2026] [::1]:46220 Closing
+[Sun Mar  8 07:45:28 2026] [::1]:46224 Accepted
+[Sun Mar  8 07:45:28 2026] [::1]:46224 [200]: GET /api/profile/get_progress.php
+[Sun Mar  8 07:45:28 2026] [::1]:46224 Closing
+[Sun Mar  8 07:45:28 2026] [::1]:46226 Accepted
+[Sun Mar  8 07:45:28 2026] [::1]:46230 Accepted
+[Sun Mar  8 07:45:28 2026] PHP Warning:  require_once(/app/api/profile/../../db/db_config.php): Failed to open stream: No such file or directory in /app/api/profile/update_user_details.php on line 2
+[Sun Mar  8 07:45:28 2026] PHP Fatal error:  Uncaught Error: Failed opening required '/app/api/profile/../../db/db_config.php' (include_path='.:/usr/share/php') in /app/api/profile/update_user_details.php:2
+Stack trace:
+#0 {main}
+  thrown in /app/api/profile/update_user_details.php on line 2
+[Sun Mar  8 07:45:28 2026] [::1]:46226 [500]: POST /api/profile/update_user_details.php - Uncaught Error: Failed opening required '/app/api/profile/../../db/db_config.php' (include_path='.:/usr/share/php') in /app/api/profile/update_user_details.php:2
+Stack trace:
+#0 {main}
+  thrown in /app/api/profile/update_user_details.php on line 2
+[Sun Mar  8 07:45:28 2026] [::1]:46226 Closing
+[Sun Mar  8 07:45:28 2026] [::1]:46230 [200]: GET /api/get_phrases.php?theme=daily_life&section=A
+[Sun Mar  8 07:45:28 2026] [::1]:46230 Closing
+[Sun Mar  8 07:45:28 2026] [::1]:46238 Accepted
+[Sun Mar  8 07:45:28 2026] PHP Warning:  require_once(/app/api/profile/../../db/db_config.php): Failed to open stream: No such file or directory in /app/api/profile/update_user_details.php on line 2
+[Sun Mar  8 07:45:28 2026] PHP Fatal error:  Uncaught Error: Failed opening required '/app/api/profile/../../db/db_config.php' (include_path='.:/usr/share/php') in /app/api/profile/update_user_details.php:2
+Stack trace:
+#0 {main}
+  thrown in /app/api/profile/update_user_details.php on line 2
+[Sun Mar  8 07:45:28 2026] [::1]:46238 [500]: POST /api/profile/update_user_details.php - Uncaught Error: Failed opening required '/app/api/profile/../../db/db_config.php' (include_path='.:/usr/share/php') in /app/api/profile/update_user_details.php:2
+Stack trace:
+#0 {main}
+  thrown in /app/api/profile/update_user_details.php on line 2
+[Sun Mar  8 07:45:28 2026] [::1]:46238 Closing
