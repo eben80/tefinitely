@@ -142,6 +142,7 @@ checkAccess(true, true); // Admin only
             <div class="tabs">
                 <button class="tab-link active" data-tab="user-management">User Management</button>
                 <button class="tab-link" data-tab="payment-settings">Payment Settings</button>
+                <button class="tab-link" data-tab="promotion-settings">Promotion Settings</button>
                 <button class="tab-link" data-tab="financial-overview">Financial Overview</button>
                 <button class="tab-link" data-tab="audit-logs">Audit Logs</button>
                 <button class="tab-link" data-tab="login-history">Login History</button>
@@ -212,6 +213,23 @@ checkAccess(true, true); // Admin only
                             <!-- User rows will be inserted here by JavaScript -->
                         </tbody>
                     </table>
+                </div>
+            </div>
+
+            <div id="promotion-settings-tab" class="tab-content">
+                <div class="header-with-button">
+                    <h2>Promotion Settings</h2>
+                </div>
+                <div class="form-section" style="max-width: 500px; background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <form id="promotion-settings-form">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem;">
+                            <input type="checkbox" id="trial-enabled" style="width: auto; margin: 0;">
+                            <label for="trial-enabled" style="margin: 0;">Enable Free Trial for New Users</label>
+                        </div>
+                        <label for="trial-days">Free Trial Duration (Days)</label>
+                        <input type="number" id="trial-days" min="1" required style="width: 100%; margin-bottom: 1.5rem;">
+                        <button type="submit" class="action-btn">Save Promotion Settings</button>
+                    </form>
                 </div>
             </div>
 

@@ -51,8 +51,22 @@ try {
             $hashed_password = password_hash(bin2hex(random_bytes(16)), PASSWORD_DEFAULT); // Random password
             $email_verified = 1;
 
-            $insert_stmt = $conn->prepare("INSERT INTO users (first_name, last_name, email, password, email_verified) VALUES (?, ?, ?, ?, ?)");
-            $insert_stmt->bind_param("ssssi", $first_name, $last_name, $email, $hashed_password, $email_verified);
+            // Check for trial settings
+            $trial_enabled = false;
+            $trial_days = 0;
+            $settings_res = $conn->query("SELECT setting_key, setting_value FROM settings WHERE setting_key IN ('trial_enabled', 'trial_days')");
+            if ($settings_res) {
+                while ($row = $settings_res->fetch_assoc()) {
+                    if ($row['setting_key'] === 'trial_enabled') $trial_enabled = $row['setting_value'] === '1';
+                    if ($row['setting_key'] === 'trial_days') $trial_days = (int)$row['setting_value'];
+                }
+            }
+
+            $trial_used = $trial_enabled ? 1 : 0;
+            $subscription_status = ($trial_enabled && $trial_days > 0) ? 'active' : 'inactive';
+
+            $insert_stmt = $conn->prepare("INSERT INTO users (first_name, last_name, email, password, email_verified, subscription_status, trial_used) VALUES (?, ?, ?, ?, ?, ?, ?)");
+            $insert_stmt->bind_param("ssssisi", $first_name, $last_name, $email, $hashed_password, $email_verified, $subscription_status, $trial_used);
 
             if (!$insert_stmt->execute()) {
                 throw new Exception('Failed to register user via Google.');
@@ -61,11 +75,24 @@ try {
             $user_id = $insert_stmt->insert_id;
             $insert_stmt->close();
 
+            if ($trial_enabled && $trial_days > 0) {
+                $start_date = date('Y-m-d H:i:s');
+                $end_date = date('Y-m-d H:i:s', strtotime("+$trial_days days"));
+                $sub_stmt = $conn->prepare("INSERT INTO subscriptions (user_id, paypal_subscription_id, subscription_start_date, subscription_end_date, status) VALUES (?, 'trial', ?, ?, 'active')");
+                $sub_stmt->bind_param("iss", $user_id, $start_date, $end_date);
+                $sub_stmt->execute();
+                $sub_stmt->close();
+
+                // Log the trial grant in audit logs (System automated)
+                require_once __DIR__ . '/admin/audit_logger.php';
+                logAdminAction($conn, 1, 'grant_trial', $user_id, "Automated $trial_days-day trial granted via Google Login.");
+            }
+
             $user = [
                 'id' => $user_id,
                 'first_name' => $first_name,
                 'role' => 'user',
-                'subscription_status' => 'inactive'
+                'subscription_status' => $subscription_status
             ];
         }
 

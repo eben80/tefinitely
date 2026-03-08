@@ -178,6 +178,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (targetTab === 'audit-logs') {
                 loadAuditLogs();
+            } else if (targetTab === 'promotion-settings') {
+                loadPromotionSettings();
             } else if (targetTab === 'login-history') {
                 loadLoginHistory();
             } else if (targetTab === 'support-tickets') {
@@ -237,6 +239,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (planForm) {
         planForm.addEventListener('submit', handleSavePlan);
+    }
+
+    const promotionSettingsForm = document.getElementById('promotion-settings-form');
+    if (promotionSettingsForm) {
+        promotionSettingsForm.addEventListener('submit', handleSavePromotionSettings);
     }
 
     if (loginSearchBtn) {
@@ -892,6 +899,41 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('Error loading login history:', error);
             loginHistoryTableBody.innerHTML = '<tr><td colspan="6">An error occurred while fetching history.</td></tr>';
+        }
+    }
+
+    async function loadPromotionSettings() {
+        try {
+            const response = await fetch('api/admin/get_settings.php');
+            const data = await response.json();
+            if (response.ok && data.status === 'success') {
+                document.getElementById('trial-enabled').checked = data.settings.trial_enabled === '1';
+                document.getElementById('trial-days').value = data.settings.trial_days;
+            } else {
+                showToast('Failed to load promotion settings.', 'error');
+            }
+        } catch (error) {
+            console.error('Error loading promotion settings:', error);
+            showToast('An error occurred while fetching promotion settings.', 'error');
+        }
+    }
+
+    async function handleSavePromotionSettings(e) {
+        e.preventDefault();
+        const trial_enabled = document.getElementById('trial-enabled').checked;
+        const trial_days = document.getElementById('trial-days').value;
+
+        try {
+            const response = await fetch('api/admin/update_settings.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ trial_enabled, trial_days })
+            });
+            const result = await response.json();
+            showToast(result.message, response.ok ? 'success' : 'error');
+        } catch (error) {
+            console.error('Save promotion settings failed:', error);
+            showToast('An error occurred while saving promotion settings.', 'error');
         }
     }
 
