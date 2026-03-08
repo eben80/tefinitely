@@ -47,6 +47,17 @@ async function loginUser(email, password, remember = false) {
     }
 }
 
+// --- Google Login ---
+async function googleLogin(credential) {
+    try {
+        const result = await apiRequest('api/google_login.php', { credential });
+        showToast(result.message, 'success');
+        setTimeout(() => { window.location.href = 'logged_in.php'; }, 1000);
+    } catch (error) {
+        showToast(`Google Login Failed: ${error.message}`, 'error');
+    }
+}
+
 // --- Session Check ---
 async function checkSession() {
     let data = { loggedIn: false };
