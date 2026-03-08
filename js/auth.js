@@ -94,7 +94,11 @@ async function checkSession() {
 
         if (data.loggedIn) {
             if (firstNameDisplay) {
-                firstNameDisplay.textContent = `Welcome, ${data.user.first_name}`;
+                let displayText = `Welcome, ${data.user.first_name}`;
+                if (data.user.trial_days_left !== null) {
+                    displayText += ` (Trial: ${data.user.trial_days_left} days left)`;
+                }
+                firstNameDisplay.textContent = displayText;
                 firstNameDisplay.style.display = 'inline';
             }
 
