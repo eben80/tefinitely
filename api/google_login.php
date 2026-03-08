@@ -28,6 +28,7 @@ try {
         $email = $payload['email'];
         $first_name = $payload['given_name'] ?? 'User';
         $last_name = $payload['family_name'] ?? '';
+        $picture = $payload['picture'] ?? null;
 
         // Check if user exists by email
         $stmt = $conn->prepare("SELECT id, first_name, role, subscription_status FROM users WHERE email = ?");
@@ -74,6 +75,7 @@ try {
         $_SESSION['first_name'] = $user['first_name'];
         $_SESSION['role'] = $user['role'];
         $_SESSION['subscription_status'] = $user['subscription_status'];
+        $_SESSION['google_picture'] = $picture;
 
         echo json_encode([
             'status' => 'success',

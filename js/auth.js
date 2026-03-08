@@ -97,6 +97,31 @@ async function checkSession() {
                 firstNameDisplay.textContent = `Welcome, ${data.user.first_name}`;
                 firstNameDisplay.style.display = 'inline';
             }
+
+            // Handle Google profile picture
+            const navUser = document.querySelector('.nav-user');
+            if (navUser) {
+                let profileImg = document.getElementById('nav-profile-img');
+                if (data.user.google_picture) {
+                    if (!profileImg) {
+                        profileImg = document.createElement('img');
+                        profileImg.id = 'nav-profile-img';
+                        profileImg.className = 'nav-profile-img';
+                        // Insert before logout button if it exists
+                        const logoutBtn = document.getElementById('logoutBtn');
+                        if (logoutBtn) {
+                            navUser.insertBefore(profileImg, logoutBtn);
+                        } else {
+                            navUser.appendChild(profileImg);
+                        }
+                    }
+                    profileImg.src = data.user.google_picture;
+                    profileImg.style.display = 'inline-block';
+                } else if (profileImg) {
+                    profileImg.style.display = 'none';
+                }
+            }
+
             if (data.user.role === 'admin' && adminLink) {
                 adminLink.style.display = 'inline';
             }
@@ -168,6 +193,8 @@ async function checkSession() {
         } else {
             // Not logged in
             if (firstNameDisplay) firstNameDisplay.style.display = 'none';
+            const profileImg = document.getElementById('nav-profile-img');
+            if (profileImg) profileImg.style.display = 'none';
             if (adminLink) adminLink.style.display = 'none';
 
             const logoutBtn = document.getElementById('logoutBtn');
