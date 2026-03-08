@@ -1102,3 +1102,99 @@ googlepay-button, applepay-button {
         padding: 0.8rem;
     }
 }
+
+/* --- Dashboard & Summary Cards --- */
+.latest-level-card, .summary-card {
+    background: #f0f7ff;
+    border: 1px solid #004d99;
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.summary-card.clickable {
+    cursor: pointer;
+}
+
+.summary-card.clickable:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,77,153,0.15);
+}
+
+.latest-level-card .level-info, .summary-card .card-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.latest-level-card .level-label, .summary-card .card-label {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #666;
+    margin-bottom: 0.25rem;
+}
+
+.latest-level-card .level-value, .summary-card .card-value {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #004d99;
+}
+
+.latest-level-card .level-date, .summary-card .card-subtext {
+    font-size: 0.8rem;
+    color: #888;
+    margin-top: 0.25rem;
+}
+
+.summary-card .card-icon {
+    font-size: 1.75rem;
+    color: #004d99;
+    opacity: 0.8;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.nav-help-icon {
+    font-size: 1.4rem;
+    color: #333;
+    margin: 0 1rem;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s;
+}
+
+.nav-help-icon:hover {
+    color: #007bff;
+}
+
+@media (max-width: 768px) {
+    .nav-help-icon {
+        padding: 1rem 2rem;
+        border-bottom: 1px solid #eee;
+        width: 100%;
+        margin: 0;
+        display: flex; /* Show in mobile nav */
+    }
+}
+
+@media (max-width: 640px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+    .latest-level-card, .summary-card {
+        flex-direction: row; /* Keep horizontal on mobile if space allows */
+        padding: 1rem;
+    }
+    .card-value {
+        font-size: 1.1rem;
+    }
+}

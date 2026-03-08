@@ -165,7 +165,7 @@ if ($is_admin) {
                 </div>
             </div>
             <a href="training.php">Phased Training</a>
-
+            <a href="support.php" class="nav-help-icon" title="Contact Support"><i class="bi bi-question-circle"></i></a>
             <a id="admin-link" href="admin.php" style="display: none;">Admin Portal</a>
         </div>
         <div class="nav-user">
