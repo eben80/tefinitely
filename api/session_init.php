@@ -5,6 +5,16 @@
 function init_session($remember = null) {
     if (session_status() === PHP_SESSION_NONE) {
         $lifetime = 30 * 24 * 60 * 60; // 30 days in seconds
+        $session_path = __DIR__ . '/../sessions';
+
+        // Ensure custom session directory exists
+        if (!is_dir($session_path)) {
+            mkdir($session_path, 0700, true);
+        }
+        // Use custom session path to avoid system-level garbage collection (e.g. cron)
+        // which often ignores session.gc_maxlifetime and deletes files older than 24 mins.
+        session_save_path($session_path);
+
         $is_https = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on';
         $cookie_name = 'remember_me_flag';
 
