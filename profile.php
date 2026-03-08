@@ -125,7 +125,7 @@ checkAccess(false); // Does not require active subscription to view profile
                 </div>
             </div>
             <div class="dropdown">
-                <a href="javascript:void(0)" class="dropbtn">Test</a>
+                <a href="javascript:void(0)" class="dropbtn">Level Test</a>
                 <div class="dropdown-content">
                     <a href="practise/french_level_test/index.php">French Level Test</a>
                 </div>

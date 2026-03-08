@@ -77,9 +77,10 @@ a {
     margin: 1rem;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     position: relative; /* Needed for hamburger menu positioning */
+    box-sizing: border-box; /* Ensure padding doesn't affect width */
 }
 .main-nav .nav-content {
-    padding: 0 2rem; /* Added horizontal padding here */
+    padding: 0 1rem; /* Standardized horizontal padding */
 }
 
 .hamburger-menu {
@@ -105,10 +106,20 @@ a {
 }
 
 .main-nav .nav-links a {
-    margin: 0 1rem;
+    margin: 0 0.5rem;
+    padding: 0.5rem 0.75rem;
     text-decoration: none;
     color: #333;
     font-weight: bold;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.main-nav .nav-links a:hover,
+.main-nav .nav-links .dropdown:hover > .dropbtn,
+.main-nav .nav-links .dropdown.is-open > .dropbtn {
+    background-color: #f0f7ff;
+    color: #007bff;
 }
 .main-nav .nav-user {
     display: flex;
@@ -485,14 +496,18 @@ a {
     .main-nav .nav-content {
         display: none;
         flex-direction: column;
-        width: 100%; /* Full width of the parent */
+        width: calc(100% + 2px);
         position: absolute;
         top: 100%;
-        left: 0; /* Align with the parent's edge */
+        left: -1px;
         background: #f5f0ea;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        z-index: 1000; /* Ensure it's on top */
-        border-radius: 0 0 8px 8px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        z-index: 1000;
+        border-radius: 0 0 12px 12px;
+        padding: 0 !important;
+        border: 1px solid #ddd;
+        border-top: none;
+        overflow: hidden;
     }
 
     .main-nav .nav-content.is-open {
@@ -505,11 +520,24 @@ a {
         align-items: flex-start;
     }
 
+    .main-nav .dropdown {
+        width: 100%;
+    }
+
     .main-nav .nav-links a {
-        padding: 1rem 2rem;
+        padding: 1.15rem 1.5rem;
         border-bottom: 1px solid #eee;
         width: 100%;
         box-sizing: border-box;
+        border-radius: 0;
+        margin: 0;
+        font-size: 1.05rem;
+        text-align: left; /* Ensure alignment is consistent */
+    }
+
+    .main-nav .nav-links a:active,
+    .main-nav .nav-links a:hover {
+        background-color: #f0f7ff;
     }
 
     .main-nav .dropdown .dropdown-content {
@@ -531,14 +559,18 @@ a {
     }
 
     .main-nav .dropdown-content a {
-        padding-left: 3rem;
+        padding: 1rem 2rem 1rem 3rem;
         background: rgba(0,0,0,0.02);
-        min-height: 48px;
+        min-height: 52px;
         display: flex;
         align-items: center;
         width: 100%;
         border-radius: 0;
         margin-bottom: 0;
+    }
+
+    .main-nav .dropdown-content a:active {
+        background: rgba(0,0,0,0.05);
     }
 
     .main-nav .sub-dropdown-content {
@@ -560,9 +592,9 @@ a {
     }
 
     .main-nav .sub-dropdown-content a {
-        padding-left: 4.5rem;
+        padding: 1rem 2rem 1rem 4.5rem;
         background: rgba(0,0,0,0.04);
-        min-height: 48px;
+        min-height: 52px;
         display: flex;
         align-items: center;
         width: 100%;
@@ -570,17 +602,28 @@ a {
         margin-bottom: 0;
     }
 
+    .main-nav .sub-dropdown-content a:active {
+        background: rgba(0,0,0,0.07);
+    }
+
     .main-nav .sub-dropbtn {
-        padding-left: 3rem;
+        padding: 1rem 2rem 1rem 3rem;
+        min-height: 52px;
         border-radius: 0;
         background: rgba(0,0,0,0.02);
+        border-bottom: 1px solid #eee;
+    }
+
+    .main-nav .sub-dropbtn:active {
+        background: rgba(0,0,0,0.05);
     }
 
     .main-nav .nav-user {
-        padding: 1rem 2rem;
+        padding: 1.15rem 1.5rem;
         border-top: 1px solid #eee;
         width: 100%;
         box-sizing: border-box;
+        justify-content: flex-start;
     }
 
     .landing-page .hero h1 {
