@@ -18,7 +18,9 @@ checkAccess(false);
     <base href="/">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact Support</title>
+    <title>Contact Support - TEFinitely</title>
+    <meta name="description" content="Get help with your TEF Canada or CELPIP preparation. Contact TEFinitely support for any questions or issues.">
+    <link rel="canonical" href="https://tefinitely.com/support.php">
     <link rel="icon" href="img/favicon/favicon.ico" sizes="any">
     <link rel="icon" href="img/favicon/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="img/favicon/apple-touch-icon.png">
