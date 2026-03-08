@@ -24,7 +24,7 @@ checkAccess(true, true); // Admin only
         th, td { padding: 0.5rem; text-align: left; border-bottom: 1px solid #ddd; word-break: break-word; }
         th { background-color: #007bff; color: white; white-space: nowrap; }
         tr:hover { background-color: #f1f1f1; }
-        select, input[type="text"], input[type="email"], input[type="search"] { padding: 0.4rem; font-size: 0.85rem; border: 1px solid #ccc; border-radius: 4px; }
+        select, input[type="text"], input[type="email"], input[type="search"] { padding: 0.5rem; font-size: 0.9rem; border: 1px solid #ccc; border-radius: 4px; }
         .status-active { color: green; font-weight: bold; }
         .status-inactive { color: red; font-weight: bold; }
         .status-open { color: #dc3545; font-weight: bold; }
@@ -38,7 +38,8 @@ checkAccess(true, true); // Admin only
         .delete-user-btn:hover { background-color: #c82333; }
         .edit-user-btn { background-color: #007bff; color: white; }
         .edit-user-btn:hover { background-color: #0069d9; }
-        td button { padding: 0.3rem 0.6rem; border: none; border-radius: 4px; cursor: pointer; margin-right: 0.3rem; }
+        td button { padding: 0.5rem 0.8rem; border: none; border-radius: 4px; cursor: pointer; margin: 0.2rem; min-width: 40px; min-height: 40px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.1rem; transition: transform 0.1s; }
+        td button:active { transform: scale(0.95); }
         .modal { display: none; position: fixed; z-index: 2001; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); padding-top: 50px; }
         .modal-content { background-color: #fefefe; margin: 0 auto 50px auto; padding: 20px; border: 1px solid #888; width: 90%; max-width: 600px; border-radius: 8px; }
         .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; }

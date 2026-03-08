@@ -387,12 +387,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     </select>
                 </td>
                 <td style="white-space: nowrap;">
-                    <button class="edit-user-btn" data-userid="${user.id}" title="Edit User" style="padding: 0.2rem 0.4rem;"><i class="bi bi-pencil"></i></button>
-                    <button class="reset-test-btn" data-userid="${user.id}" title="Reset Level Test" style="background-color: #17a2b8; color: white; padding: 0.2rem 0.4rem;"><i class="bi bi-arrow-clockwise"></i></button>
-                    <button class="delete-user-btn" data-userid="${user.id}" title="Delete User" style="padding: 0.2rem 0.4rem;"><i class="bi bi-trash"></i></button>
+                    <button class="edit-user-btn" data-userid="${user.id}" title="Edit User"><i class="bi bi-pencil"></i></button>
+                    <button class="reset-test-btn" data-userid="${user.id}" title="Reset Level Test" style="background-color: #17a2b8; color: white;"><i class="bi bi-arrow-clockwise"></i></button>
+                    <button class="delete-user-btn" data-userid="${user.id}" title="Delete User"><i class="bi bi-trash"></i></button>
                 </td>
                 <td>
-                    <button class="send-email-btn" data-userid="${user.id}" title="Send Email" style="padding: 0.2rem 0.4rem;"><i class="bi bi-envelope"></i></button>
+                    <button class="send-email-btn" data-userid="${user.id}" title="Send Email"><i class="bi bi-envelope"></i></button>
                 </td>
             `;
             usersTableBody.appendChild(row);
@@ -469,7 +469,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function openEmailModal(event) {
-        const userId = event.target.dataset.userid;
+        const userId = event.currentTarget.dataset.userid;
         const user = usersData.find(u => u.id == userId);
         if (user) {
             emailUserIdInput.value = userId;
@@ -513,8 +513,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function openPaymentHistoryModal(event) {
-        const userId = event.target.dataset.userid;
-        const name = event.target.dataset.name;
+        const userId = event.currentTarget.dataset.userid;
+        const name = event.currentTarget.dataset.name;
         modalPaymentUserName.textContent = name;
         paymentHistoryTableBody.innerHTML = '<tr><td colspan="4">Loading...</td></tr>';
         paymentHistoryModal.style.display = 'block';
@@ -590,7 +590,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function openEditPlanModal(e) {
-        const id = e.target.dataset.id;
+        const id = e.currentTarget.dataset.id;
         const plan = paymentPlans.find(p => p.id == id);
         if (plan) {
             document.getElementById('plan-id').value = plan.id;
@@ -648,7 +648,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function handleDeletePlan(e) {
         if (!confirm('Are you sure you want to delete this plan?')) return;
-        const id = e.target.dataset.id;
+        const id = e.currentTarget.dataset.id;
         try {
             const response = await fetch('api/admin/manage_payment_plans.php', {
                 method: 'POST',
@@ -770,7 +770,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function openEditModal(event) {
-        currentEditingUserId = event.target.dataset.userid;
+        currentEditingUserId = event.currentTarget.dataset.userid;
         const user = usersData.find(u => u.id == currentEditingUserId);
 
         if (user) {
@@ -785,18 +785,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function handleSubscriptionChange(event) {
-        const userId = event.target.dataset.userid;
+        const userId = event.currentTarget.dataset.userid;
         const newStatus = event.target.value;
         await updateUser('update_subscription', { user_id: userId, subscription_status: newStatus });
     }
 
     async function handleDeleteUser(event) {
-        const userId = event.target.dataset.userid;
+        const userId = event.currentTarget.dataset.userid;
         await updateUser('delete_user', { user_id: userId });
     }
 
     async function handleResetLevelTest(event) {
-        const userId = event.target.dataset.userid;
+        const userId = event.currentTarget.dataset.userid;
         await updateUser('reset_level_test', { user_id: userId });
     }
 
@@ -1045,7 +1045,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.querySelectorAll('.view-ticket-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const ticketId = e.target.dataset.ticketid;
+                const ticketId = e.currentTarget.dataset.ticketid;
                 const ticket = tickets.find(t => t.id == ticketId);
                 if (ticket) {
                     alert(`From: ${ticket.email}\nSubject: ${ticket.subject}\n\n${ticket.message}`);
@@ -1055,9 +1055,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.querySelectorAll('.reply-ticket-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const userId = e.target.dataset.userid;
-                const email = e.target.dataset.email;
-                const subject = e.target.dataset.subject;
+                const userId = e.currentTarget.dataset.userid;
+                const email = e.currentTarget.dataset.email;
+                const subject = e.currentTarget.dataset.subject;
 
                 emailUserIdInput.value = userId;
                 emailModalUserName.textContent = email;
