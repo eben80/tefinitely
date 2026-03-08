@@ -4,7 +4,7 @@
     <base href="/">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Login / Register</title>
     <link rel="icon" href="img/favicon/favicon.ico" sizes="any">
     <link rel="icon" href="img/favicon/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="img/favicon/apple-touch-icon.png">
@@ -13,14 +13,30 @@
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <style>
-        .auth-container { max-width: 400px; margin: 4rem auto; padding: 2rem; background: #fff; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .form-group { margin-bottom: 1rem; }
+        .auth-container { max-width: 450px; margin: 2rem auto; padding: 2rem; background: #fff; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .auth-tabs { display: flex; margin-bottom: 2rem; border-bottom: 2px solid #eee; }
+        .auth-tab { flex: 1; padding: 1rem; text-align: center; cursor: pointer; border: none; background: none; font-weight: bold; font-size: 1.1rem; color: #666; transition: all 0.3s; }
+        .auth-tab.active { color: #007bff; border-bottom: 2px solid #007bff; margin-bottom: -2px; }
+
+        .form-group { margin-bottom: 1rem; text-align: left; }
         label { display: block; margin-bottom: 0.5rem; font-weight: bold; }
         input { width: 100%; padding: 0.5rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        .auth-btn { width: 100%; padding: 0.7rem; font-size: 1rem; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .auth-btn { width: 100%; padding: 0.7rem; font-size: 1rem; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 1rem; }
         .auth-btn:hover { background-color: #0056b3; }
-        .link { text-align: center; margin-top: 1rem; }
+
+        .social-auth { margin-top: 2rem; text-align: center; }
+        .social-auth hr { border: 0; border-top: 1px solid #eee; margin-bottom: 1.5rem; }
+        .social-auth p { position: relative; top: -2.3rem; background: #fff; display: inline-block; padding: 0 1rem; color: #888; font-size: 0.9rem; }
+        #google-btn-container { display: flex; justify-content: center; margin-top: -1rem; }
+
+        .link { text-align: center; margin-top: 1.5rem; }
         .link a { color: #007bff; text-decoration: none; font-weight: bold; }
+
+        .requirements { text-align: left; font-size: 0.85rem; color: #666; margin-bottom: 1rem; margin-top: 0.5rem; }
+        .requirements ul { padding-left: 1.2rem; margin: 0.3rem 0; }
+        .error { color: #dc3545; font-size: 0.9rem; margin-top: 0.5rem; text-align: center; }
+
+        h1 { text-align: center; margin-bottom: 1.5rem; font-size: 1.75rem; }
     </style>
 </head>
 <body>
@@ -28,6 +44,7 @@
         <a href="index.html"><img src="img/top_logo_light.png" alt="TEFinitely Logo" class="logo"></a>
     </header>
     <div id="toast-container"></div>
+
     <nav class="main-nav" id="user-status" style="display: none;">
         <button class="hamburger-menu" id="hamburger-menu" aria-label="Toggle menu" aria-expanded="false">
             <i class="bi bi-list"></i>
@@ -74,25 +91,76 @@
 
     <div class="container">
         <div class="auth-container">
-            <h1>Login</h1>
-            <form id="loginForm">
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" name="email" required>
+            <div class="auth-tabs">
+                <button id="loginTab" class="auth-tab active">Login</button>
+                <button id="registerTab" class="auth-tab">Register</button>
+            </div>
+
+            <div id="loginSection">
+                <h1>Login</h1>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="login-email">Email</label>
+                        <input type="email" id="login-email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" id="login-password" name="password" required>
+                    </div>
+                    <div class="form-group remember-me">
+                        <input type="checkbox" id="remember" name="remember" style="width: auto; margin-right: 0.5rem;">
+                        <label for="remember" style="display: inline; font-weight: normal;">Remember me</label>
+                    </div>
+                    <button type="submit" class="auth-btn">Login</button>
+                </form>
+                <div class="link">
+                    <p><a href="forgot_password.html">Forgot your password?</a></p>
                 </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" required>
+            </div>
+
+            <div id="registerSection" style="display: none;">
+                <h1>Register</h1>
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="first_name">First Name</label>
+                        <input type="text" id="first_name" name="first_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="last_name">Last Name</label>
+                        <input type="text" id="last_name" name="last_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-email">Email</label>
+                        <input type="email" id="register-email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password">Password</label>
+                        <input type="password" id="register-password" name="password" required>
+                        <div class="requirements">
+                            Password must contain:
+                            <ul>
+                                <li id="req-length">At least 8 characters</li>
+                                <li id="req-upper">One uppercase letter</li>
+                                <li id="req-lower">One lowercase letter</li>
+                                <li id="req-number">One number</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm_password">Confirm Password</label>
+                        <input type="password" id="confirm_password" name="confirm_password" required>
+                    </div>
+                    <div id="error-message" class="error"></div>
+                    <button type="submit" class="auth-btn">Register</button>
+                </form>
+            </div>
+
+            <div class="social-auth">
+                <hr>
+                <p>Or continue with</p>
+                <div id="google-btn-container">
+                    <!-- Google Sign-In button will be rendered here -->
                 </div>
-                <div class="form-group remember-me">
-                    <input type="checkbox" id="remember" name="remember" style="width: auto; margin-right: 0.5rem;">
-                    <label for="remember" style="display: inline; font-weight: normal;">Remember me</label>
-                </div>
-                <button type="submit" class="auth-btn">Login</button>
-            </form>
-            <div class="link">
-                <p>Don't have an account? <a href="register.html">Register here</a></p>
-                <p><a href="forgot_password.html">Forgot your password?</a></p>
             </div>
         </div>
     </div>
@@ -128,6 +196,7 @@
         </div>
     </footer>
 
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="js/toast.js"></script>
     <script src="js/browser-support.js"></script>
     <script src="js/auth.js"></script>
@@ -135,22 +204,132 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
+            const loginSection = document.getElementById('loginSection');
+            const registerSection = document.getElementById('registerSection');
+            const loginTab = document.getElementById('loginTab');
+            const registerTab = document.getElementById('registerTab');
+
+            function showLogin() {
+                loginSection.style.display = 'block';
+                registerSection.style.display = 'none';
+                loginTab.classList.add('active');
+                registerTab.classList.remove('active');
+            }
+
+            function showRegister() {
+                loginSection.style.display = 'none';
+                registerSection.style.display = 'block';
+                loginTab.classList.remove('active');
+                registerTab.classList.add('active');
+            }
+
+            loginTab.addEventListener('click', showLogin);
+            registerTab.addEventListener('click', showRegister);
+
+            // Handle mode from URL
+            if (urlParams.get('mode') === 'register') {
+                showRegister();
+            }
+
             if (urlParams.has('verified')) {
                 showToast('Email verified successfully! You can now log in.', 'success');
+                showLogin();
             }
             if (urlParams.has('registered')) {
                 showToast('Registration successful! Please check your email to verify your account.', 'info', 10000);
+                showLogin();
             }
 
+            // Login Logic
             const loginForm = document.getElementById('loginForm');
             if (loginForm) {
                 loginForm.addEventListener('submit', (e) => {
                     e.preventDefault();
-                    const email = document.getElementById('email').value;
-                    const password = document.getElementById('password').value;
+                    const email = document.getElementById('login-email').value;
+                    const password = document.getElementById('login-password').value;
                     const remember = document.getElementById('remember').checked;
                     loginUser(email, password, remember);
                 });
+            }
+
+            // Register Logic
+            const registerForm = document.getElementById('registerForm');
+            const passwordInput = document.getElementById('register-password');
+            const confirmInput = document.getElementById('confirm_password');
+            const errorMsg = document.getElementById('error-message');
+
+            const reqLength = document.getElementById('req-length');
+            const reqUpper = document.getElementById('req-upper');
+            const reqLower = document.getElementById('req-lower');
+            const reqNumber = document.getElementById('req-number');
+
+            function validatePassword(pass) {
+                const isLength = pass.length >= 8;
+                const hasUpper = /[A-Z]/.test(pass);
+                const hasLower = /[a-z]/.test(pass);
+                const hasNumber = /[0-9]/.test(pass);
+
+                reqLength.style.color = isLength ? 'green' : '#666';
+                reqUpper.style.color = hasUpper ? 'green' : '#666';
+                reqLower.style.color = hasLower ? 'green' : '#666';
+                reqNumber.style.color = hasNumber ? 'green' : '#666';
+
+                return isLength && hasUpper && hasLower && hasNumber;
+            }
+
+            passwordInput.addEventListener('input', () => {
+                validatePassword(passwordInput.value);
+                errorMsg.textContent = '';
+            });
+
+            confirmInput.addEventListener('input', () => {
+                errorMsg.textContent = '';
+            });
+
+            if (registerForm) {
+                registerForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const first_name = document.getElementById('first_name').value;
+                    const last_name = document.getElementById('last_name').value;
+                    const email = document.getElementById('register-email').value;
+                    const password = passwordInput.value;
+                    const confirmPassword = confirmInput.value;
+
+                    errorMsg.textContent = '';
+
+                    if (!validatePassword(password)) {
+                        errorMsg.textContent = 'Password does not meet requirements.';
+                        return;
+                    }
+
+                    if (password !== confirmPassword) {
+                        errorMsg.textContent = 'Passwords do not match.';
+                        return;
+                    }
+
+                    registerUser(first_name, last_name, email, password);
+                });
+            }
+
+            // Initialize Google Sign-In
+            // Note: This requires a Client ID to be functional.
+            window.onload = function () {
+                if (typeof google !== 'undefined') {
+                    google.accounts.id.initialize({
+                        client_id: "YOUR_GOOGLE_CLIENT_ID",
+                        callback: handleCredentialResponse
+                    });
+                    google.accounts.id.renderButton(
+                        document.getElementById("google-btn-container"),
+                        { theme: "outline", size: "large", width: 350 }
+                    );
+                }
+            };
+
+            function handleCredentialResponse(response) {
+                console.log("Encoded JWT ID token: " + response.credential);
+                showToast("Google Sign-In is currently in demonstration mode.", "info");
+                // In a real implementation, you would send response.credential to your backend
             }
         });
     </script>

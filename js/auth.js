@@ -29,7 +29,11 @@ async function registerUser(first_name, last_name, email, password) {
         const result = await apiRequest('api/register.php', { first_name, last_name, email, password });
         showToast(result.message, 'success', 5000);
         // Redirect to login page on successful registration
-        setTimeout(() => { window.location.href = 'login.html?registered=true'; }, 5000);
+        setTimeout(() => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const redirect = urlParams.get('registered') === 'true' ? '' : '?registered=true';
+            window.location.href = 'login.html' + redirect;
+        }, 5000);
     } catch (error) {
         showToast(`Registration Failed: ${error.message}`, 'error');
     }
