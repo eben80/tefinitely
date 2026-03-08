@@ -46,7 +46,7 @@ function checkAccess($requireSubscription = true, $requireAdmin = false) {
     }
 
     if ($requireAdmin && $role !== 'admin') {
-        header('Location: /logged_in.php');
+        header('Location: /index.html');
         exit;
     }
 

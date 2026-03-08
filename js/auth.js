@@ -40,8 +40,8 @@ async function loginUser(email, password, remember = false) {
     try {
         const result = await apiRequest('api/login.php', { email, password, remember });
         showToast(result.message, 'success');
-        // Redirect to the logged-in dashboard on successful login
-        setTimeout(() => { window.location.href = 'logged_in.php'; }, 1000);
+        // Redirect to the index page on successful login
+        setTimeout(() => { window.location.href = 'index.html'; }, 1000);
     } catch (error) {
         showToast(`Login Failed: ${error.message}`, 'error');
     }
@@ -52,7 +52,7 @@ async function googleLogin(credential) {
     try {
         const result = await apiRequest('api/google_login.php', { credential });
         showToast(result.message, 'success');
-        setTimeout(() => { window.location.href = 'logged_in.php'; }, 1000);
+        setTimeout(() => { window.location.href = 'index.html'; }, 1000);
     } catch (error) {
         showToast(`Google Login Failed: ${error.message}`, 'error');
     }

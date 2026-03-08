@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Determine which page we are on
     const path = window.location.pathname;
 
-    if (path.endsWith('logged_in.php')) {
+    if (path.endsWith('logged_in.php') || path.endsWith('index.html') || path === '/') {
         setTimeout(() => checkTourStatus('main'), 500);
     }
     // Section A and B tours are now triggered manually after session starts
