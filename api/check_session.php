@@ -48,6 +48,7 @@ if (isset($_SESSION['user_id'])) {
     $response_user = $user_details; // Start with all details from DB
     $response_user['user_id'] = $_SESSION['user_id'];
     $response_user['first_name'] = $_SESSION['first_name'];
+    $response_user['google_picture'] = $_SESSION['google_picture'] ?? null;
     // Overwrite subscription_status with the one we just calculated
     $response_user['subscription_status'] = $subscription_status;
     // The 'role' from $user_details is from the DB, which is more current than session.

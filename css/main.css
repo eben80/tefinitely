@@ -115,6 +115,15 @@ a {
     align-items: center;
     gap: 1rem;
 }
+
+.nav-profile-img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
 .main-nav .nav-user button, .main-nav .nav-user .btn-login {
     background: #6c757d;
     color: white;
