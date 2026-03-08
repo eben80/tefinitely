@@ -278,8 +278,6 @@ function showResults() {
     resultScreen.style.display = 'block';
 
     let score = 0;
-    let levelSum = 0;
-    let correctCountInLastHalf = 0;
     let breakdown = {};
     levelsOrder.forEach(l => breakdown[l] = { correct: 0, wrong: 0 });
 
@@ -288,41 +286,31 @@ function showResults() {
         if (isCorrect) {
             score++;
             breakdown[q.level].correct++;
-            if (index >= 10) {
-                levelSum += levelsOrder.indexOf(q.level);
-                correctCountInLastHalf++;
-            }
         } else {
             breakdown[q.level].wrong++;
         }
     });
 
-    // Mastery-based scoring algorithm
-    // Requires 60% accuracy at a level to progress to the next estimation tier.
-    let masteryThreshold = 0.6;
-    let finalDifficultyIndex = 0; // Default to A1
-
-    for (let i = 0; i < levelsOrder.length; i++) {
-        let levelLabel = levelsOrder[i];
-        let stats = breakdown[levelLabel];
-        let totalAtLevel = stats.correct + stats.wrong;
-
+    // Weighted scoring algorithm
+    // This approach sums the accuracy at each level and applies an offset.
+    // It allows performance at higher levels to influence the score while
+    // penalizing poor performance at lower levels.
+    let totalAccuracy = 0;
+    levelsOrder.forEach((l, i) => {
+        const stats = breakdown[l];
+        const totalAtLevel = stats.correct + stats.wrong;
         if (totalAtLevel > 0) {
-            let accuracy = stats.correct / totalAtLevel;
-            if (accuracy >= masteryThreshold) {
-                finalDifficultyIndex = i;
-            } else {
-                // Failed to master this level. Estimation stops here.
-                break;
-            }
-        } else {
-            // Level not tested. If we already passed lower levels and are testing higher,
-            // we assume mastery of skipped lower levels.
-            if (i < currentDifficultyIndex) {
-                finalDifficultyIndex = i;
-            }
+            totalAccuracy += stats.correct / totalAtLevel;
+        } else if (i < currentDifficultyIndex) {
+            // Assume mastery of lower levels if we jumped to higher levels and they weren't tested
+            totalAccuracy += 1.0;
         }
-    }
+    });
+
+    // Math.round(totalAccuracy - 1.1) roughly matches a 60% mastery threshold
+    // for the 'current' level while being responsive to performance across all levels.
+    let finalDifficultyIndex = Math.round(totalAccuracy - 1.1);
+    finalDifficultyIndex = Math.max(0, Math.min(finalDifficultyIndex, levelsOrder.length - 1));
 
     if (userRole === 'admin') {
         const breakdownBody = document.getElementById('admin-breakdown-body');
