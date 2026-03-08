@@ -6,7 +6,7 @@ require_once '../vendor/autoload.php';
 
 // Check for Google Client ID in config, but since I can't see it, I'll assume it's defined or needs to be.
 // For the purpose of this task, I'll use a placeholder if not found.
-$google_client_id = defined('GOOGLE_CLIENT_ID') ? GOOGLE_CLIENT_ID : '781919597384-rr0p6324is769j0ps7stj73s72h5pni8.apps.googleusercontent.com';
+$google_client_id = defined('GOOGLE_CLIENT_ID') ? GOOGLE_CLIENT_ID : '1032401011225-pcjeocvpdigthv15u1qu1hmv8p61cuc0.apps.googleusercontent.com';
 
 try {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
