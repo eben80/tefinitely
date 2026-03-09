@@ -147,7 +147,13 @@ function updateTopicProgressDisplay(topicValue) {
     }
     const [sectionShort, theme] = topicValue.split('-');
     const section = `Section ${sectionShort}`;
-    const topicProgress = userProgress.find(p => p.section === section && p.theme === theme);
+
+    // In our DB, section A is often stored as 'section_a' instead of 'Section A'
+    // Let's try to match both common formats
+    const topicProgress = userProgress.find(p =>
+        (p.section === section || p.section === `section_${sectionShort.toLowerCase()}`) &&
+        p.theme === theme
+    );
 
     if (topicProgress) {
         const scorePercent = (topicProgress.average_matching_quality * 100).toFixed(0);
