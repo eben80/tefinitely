@@ -26,6 +26,7 @@ if ($method === 'GET') {
             u.subscription_status,
             u.email_verified,
             u.created_at,
+            MAX(s.subscription_start_date) AS subscription_start_date,
             MAX(s.subscription_end_date) AS subscription_end_date,
             COALESCE(cl.calls_1h, 0) as calls_1h,
             COALESCE(cl.calls_24h, 0) as calls_24h,
