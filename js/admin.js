@@ -788,8 +788,27 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('modal-user-name').textContent = `${user.first_name} ${user.last_name}`;
             modalEmailInput.value = user.email;
             modalPasswordInput.value = ''; // Clear password field
-            modalSubStartInput.value = user.subscription_start_date || getCurrentDateTime();
-            modalSubEndInput.value = user.subscription_end_date || '';
+
+            let startDate = user.subscription_start_date;
+            // If the date is null, empty, or placeholder, use current date/time
+            if (!startDate || startDate === '0000-00-00 00:00:00' || startDate === 'null') {
+                startDate = getCurrentDateTime();
+            }
+
+            const endDate = user.subscription_end_date || '';
+
+            if (modalSubStartInput._flatpickr) {
+                modalSubStartInput._flatpickr.setDate(startDate);
+            } else {
+                modalSubStartInput.value = startDate;
+            }
+
+            if (modalSubEndInput._flatpickr) {
+                modalSubEndInput._flatpickr.setDate(endDate);
+            } else {
+                modalSubEndInput.value = endDate;
+            }
+
             modalEmailVerifiedCheckbox.checked = user.email_verified == 1;
             modal.style.display = 'block';
         }
