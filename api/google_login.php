@@ -23,6 +23,9 @@ try {
     $client = new Google_Client(['client_id' => $google_client_id]);
     $payload = $client->verifyIdToken($id_token);
 
+    $ip_address = $_SERVER['REMOTE_ADDR'] ?? 'Unknown';
+    $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
+
     if ($payload) {
         $google_id = $payload['sub'];
         $email = $payload['email'];
@@ -45,6 +48,12 @@ try {
             $update_stmt->bind_param("i", $user['id']);
             $update_stmt->execute();
             $update_stmt->close();
+
+            // Log successful login
+            $stmt_log = $conn->prepare("INSERT INTO login_history (user_id, email, ip_address, status, user_agent) VALUES (?, ?, ?, 'success', ?)");
+            $stmt_log->bind_param("isss", $user['id'], $email, $ip_address, $user_agent);
+            $stmt_log->execute();
+            $stmt_log->close();
 
         } else {
             // New user, register them
@@ -94,6 +103,12 @@ try {
                 'role' => 'user',
                 'subscription_status' => $subscription_status
             ];
+
+            // Log registration as a successful login
+            $stmt_log = $conn->prepare("INSERT INTO login_history (user_id, email, ip_address, status, user_agent) VALUES (?, ?, ?, 'success', ?)");
+            $stmt_log->bind_param("isss", $user['id'], $email, $ip_address, $user_agent);
+            $stmt_log->execute();
+            $stmt_log->close();
         }
 
         // Start session
@@ -115,6 +130,8 @@ try {
         ]);
 
     } else {
+        // Log failed Google login attempt if we have an email (but verifyIdToken failed, we might not have it reliably)
+        // If we can't verify the token, we shouldn't trust any data in it.
         throw new Exception('Invalid ID token.', 401);
     }
 
