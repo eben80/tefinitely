@@ -769,6 +769,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function getCurrentDateTime() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    }
+
     function openEditModal(event) {
         currentEditingUserId = event.currentTarget.dataset.userid;
         const user = usersData.find(u => u.id == currentEditingUserId);
@@ -777,7 +788,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('modal-user-name').textContent = `${user.first_name} ${user.last_name}`;
             modalEmailInput.value = user.email;
             modalPasswordInput.value = ''; // Clear password field
-            modalSubStartInput.value = user.subscription_start_date || '';
+            modalSubStartInput.value = user.subscription_start_date || getCurrentDateTime();
             modalSubEndInput.value = user.subscription_end_date || '';
             modalEmailVerifiedCheckbox.checked = user.email_verified == 1;
             modal.style.display = 'block';
