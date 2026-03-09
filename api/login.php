@@ -21,8 +21,8 @@ try {
     $email = trim($data['email']);
     $password = trim($data['password']);
     $remember = isset($data['remember']) ? (bool)$data['remember'] : false;
-    $ip_address = $_SERVER['REMOTE_ADDR'];
-    $user_agent = $_SERVER['HTTP_USER_AGENT'];
+    $ip_address = $_SERVER['REMOTE_ADDR'] ?? 'Unknown';
+    $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
 
     if (empty($email) || empty($password)) {
         throw new Exception('Email and password are required.', 400);
@@ -51,6 +51,12 @@ try {
 
         // Check if email is verified (admins can bypass)
         if ($user['email_verified'] == 0 && $user['role'] !== 'admin') {
+            // Log failed attempt due to unverified email
+            $stmt_log = $conn->prepare("INSERT INTO login_history (user_id, email, ip_address, status, user_agent) VALUES (?, ?, ?, 'failed', ?)");
+            $stmt_log->bind_param("isss", $user['id'], $email, $ip_address, $user_agent);
+            $stmt_log->execute();
+            $stmt_log->close();
+
             throw new Exception('Please verify your email address before logging in.', 403);
         }
 
