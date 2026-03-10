@@ -14,7 +14,8 @@ class GeoService {
 
         try {
             $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, "https://ipapi.co/{$ip_address}/json/");
+            // Using ip-api.com as it's more reliable in the current environment
+            curl_setopt($ch, CURLOPT_URL, "http://ip-api.com/json/{$ip_address}");
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($ch, CURLOPT_TIMEOUT, 2);
             $geo_data = curl_exec($ch);
@@ -22,8 +23,10 @@ class GeoService {
 
             if ($geo_data) {
                 $geo_json = json_decode($geo_data, true);
-                // 'country' field in ipapi.co is the 2-letter ISO code
-                return $geo_json['country'] ?? null;
+                // 'countryCode' field in ip-api.com is the 2-letter ISO code
+                if (isset($geo_json['status']) && $geo_json['status'] === 'success') {
+                    return $geo_json['countryCode'] ?? null;
+                }
             }
         } catch (Exception $e) {
             // Silently fail to not block login

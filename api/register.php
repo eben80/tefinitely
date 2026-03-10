@@ -127,15 +127,10 @@ if ($stmt->execute()) {
         }
     }
 
-    // Geolocation using ipapi.co (free tier)
-    if ($ip_address !== 'Unknown' && $ip_address !== '127.0.0.1' && $ip_address !== '::1') {
-        $geo_context = stream_context_create(['http' => ['timeout' => 2]]);
-        $geo_data = @file_get_contents("https://ipapi.co/{$ip_address}/json/", false, $geo_context);
-        if ($geo_data) {
-            $geo_json = json_decode($geo_data, true);
-            $country = $geo_json['country_name'] ?? "Unknown Country";
-        }
-    }
+    // Geolocation using GeoService
+    require_once __DIR__ . '/services/GeoService.php';
+    $country_code = GeoService::getCountryCode($ip_address);
+    $country = $country_code ?: "Unknown Country";
 
     // Send verification email
     require_once __DIR__ . '/services/EmailService.php';
