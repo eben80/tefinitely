@@ -522,9 +522,11 @@ a {
 
     .main-nav .dropdown {
         width: 100%;
+        display: block;
     }
 
     .main-nav .nav-links a {
+        display: block;
         padding: 1.15rem 1.5rem;
         border-bottom: 1px solid #eee;
         width: 100%;
@@ -533,6 +535,7 @@ a {
         margin: 0;
         font-size: 1.05rem;
         text-align: left; /* Ensure alignment is consistent */
+        line-height: 1.2;
     }
 
     .main-nav .nav-links a:active,
@@ -623,7 +626,27 @@ a {
         border-top: 1px solid #eee;
         width: 100%;
         box-sizing: border-box;
-        justify-content: flex-start;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .main-nav .nav-user #first-name-display {
+        width: 100%;
+        font-weight: bold;
+        color: #555;
+    }
+
+    .main-nav .nav-user #logoutBtn,
+    .main-nav .nav-user .btn-login {
+        width: 100%;
+        text-align: center;
+        padding: 0.8rem; /* Larger hit target */
+    }
+
+    .main-nav .nav-profile-img {
+        margin-bottom: 0.25rem;
     }
 
     .landing-page .hero h1 {
