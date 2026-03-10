@@ -197,10 +197,6 @@ if ($is_admin) {
             <li><strong>Progress Tracking:</strong> Your results will be saved to your profile history.</li>
         </ul>
 
-        <div class="alert-info">
-            <p><i class="bi bi-info-circle-fill"></i> <strong>Retake Policy:</strong> You can take the level test <strong>once every 7 days</strong>.</p>
-        </div>
-
         <?php if (!$can_take_test): ?>
             <p class="wait-message"><?php echo $wait_message; ?></p>
         <?php endif; ?>
@@ -216,6 +212,10 @@ if ($is_admin) {
                     <button class="btn-start btn-disabled" disabled>Locked</button>
                 <?php endif; ?>
             </div>
+        </div>
+
+        <div class="alert-info">
+            <p><i class="bi bi-info-circle-fill"></i> <strong>Retake Policy:</strong> You can take the level test <strong>once every 7 days</strong>.</p>
         </div>
     </div>
 </div>
