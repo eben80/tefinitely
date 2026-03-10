@@ -26,6 +26,7 @@ if ($method === 'GET') {
             u.subscription_status,
             u.email_verified,
             u.created_at,
+            (SELECT l.country_code FROM login_history l WHERE l.user_id = u.id AND l.status = 'success' ORDER BY l.created_at DESC LIMIT 1) as last_login_country,
             MAX(s.subscription_start_date) AS subscription_start_date,
             MAX(s.subscription_end_date) AS subscription_end_date,
             COALESCE(cl.calls_1h, 0) as calls_1h,
