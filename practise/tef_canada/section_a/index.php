@@ -161,6 +161,7 @@ checkAccess();
         margin: 0 auto;
         width: 100%;
         padding: 0 15px;
+        height: 0; /* Allow flex to control height */
     }
 
     #main-content {
@@ -172,6 +173,8 @@ checkAccess();
         display: none; /* Shown after session starts */
         flex-direction: column;
         flex: 1;
+        height: 0; /* Allow flex to control height */
+        min-height: 0; /* Important for flex items to shrink */
     }
 
     #instruction-display {
