@@ -33,10 +33,11 @@ checkAccess();
         background: #f5f0ea;
         display: flex;
         flex-direction: column;
-        min-height: 100vh;
-        min-height: 100dvh; /* Dynamic viewport height for mobile */
+        height: 100vh;
+        height: 100dvh; /* Dynamic viewport height for mobile */
         margin: 0;
         padding: 0;
+        overflow: hidden;
     }
 
     header {
@@ -45,13 +46,14 @@ checkAccess();
 
     .main-nav {
         flex: 0 0 auto;
-        margin: 0 0 10px 0 !important;
+        margin: 0 !important;
         position: relative !important;
         width: 100% !important;
         background: #f5f0ea !important;
         box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
         visibility: visible !important;
-        display: flex !important; /* Force display even if auth.js hasn't run, though auth.js will set it too */
+        display: flex !important;
+        z-index: 1001; /* Ensure nav is above other content */
     }
 
     .main-nav .nav-content {
@@ -160,21 +162,22 @@ checkAccess();
         max-width: 1000px;
         margin: 0 auto;
         width: 100%;
-        padding: 0 15px;
-        height: 0; /* Allow flex to control height */
+        padding: 10px 15px;
+        min-height: 0; /* Important for flex child to be able to shrink */
+        overflow: hidden; /* Contain children */
     }
 
     #main-content {
         background: white;
-        border-radius: 8px 8px 0 0;
+        border-radius: 8px;
         box-shadow: 0 4px 20px rgba(0,0,0,0.08);
         padding: 15px;
         margin-bottom: 0;
         display: none; /* Shown after session starts */
         flex-direction: column;
         flex: 1;
-        height: 0; /* Allow flex to control height */
-        min-height: 0; /* Important for flex items to shrink */
+        min-height: 0; /* Allow shrinking */
+        overflow: hidden; /* Prevent this container from scrolling itself */
     }
 
     #instruction-display {

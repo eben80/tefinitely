@@ -507,7 +507,9 @@ a {
         padding: 0 !important;
         border: 1px solid #ddd;
         border-top: none;
-        overflow: hidden;
+        overflow-y: auto;
+        max-height: calc(100vh - 100%);
+        max-height: calc(100dvh - 100%);
     }
 
     .main-nav .nav-content.is-open {
