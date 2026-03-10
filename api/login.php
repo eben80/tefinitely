@@ -24,6 +24,9 @@ try {
     $ip_address = $_SERVER['REMOTE_ADDR'] ?? 'Unknown';
     $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
 
+    require_once 'services/GeoService.php';
+    $country_code = GeoService::getCountryCode($ip_address);
+
     if (empty($email) || empty($password)) {
         throw new Exception('Email and password are required.', 400);
     }
@@ -52,8 +55,8 @@ try {
         // Check if email is verified (admins can bypass)
         if ($user['email_verified'] == 0 && $user['role'] !== 'admin') {
             // Log failed attempt due to unverified email
-            $stmt_log = $conn->prepare("INSERT INTO login_history (user_id, email, ip_address, status, user_agent) VALUES (?, ?, ?, 'failed', ?)");
-            $stmt_log->bind_param("isss", $user['id'], $email, $ip_address, $user_agent);
+            $stmt_log = $conn->prepare("INSERT INTO login_history (user_id, email, ip_address, country_code, status, user_agent) VALUES (?, ?, ?, ?, 'failed', ?)");
+            $stmt_log->bind_param("issss", $user['id'], $email, $ip_address, $country_code, $user_agent);
             $stmt_log->execute();
             $stmt_log->close();
 
@@ -63,8 +66,8 @@ try {
         // Verify password
         if (password_verify($password, $user['password'])) {
             // Password is correct, log success and start the session
-            $stmt_log = $conn->prepare("INSERT INTO login_history (user_id, email, ip_address, status, user_agent) VALUES (?, ?, ?, 'success', ?)");
-            $stmt_log->bind_param("isss", $user['id'], $email, $ip_address, $user_agent);
+            $stmt_log = $conn->prepare("INSERT INTO login_history (user_id, email, ip_address, country_code, status, user_agent) VALUES (?, ?, ?, ?, 'success', ?)");
+            $stmt_log->bind_param("issss", $user['id'], $email, $ip_address, $country_code, $user_agent);
             $stmt_log->execute();
             $stmt_log->close();
 
@@ -87,8 +90,8 @@ try {
             ]);
         } else {
             // Invalid password, log failure
-            $stmt_log = $conn->prepare("INSERT INTO login_history (user_id, email, ip_address, status, user_agent) VALUES (?, ?, ?, 'failed', ?)");
-            $stmt_log->bind_param("isss", $user['id'], $email, $ip_address, $user_agent);
+            $stmt_log = $conn->prepare("INSERT INTO login_history (user_id, email, ip_address, country_code, status, user_agent) VALUES (?, ?, ?, ?, 'failed', ?)");
+            $stmt_log->bind_param("issss", $user['id'], $email, $ip_address, $country_code, $user_agent);
             $stmt_log->execute();
             $stmt_log->close();
 
@@ -96,8 +99,8 @@ try {
         }
     } else {
         // User not found, log failure
-        $stmt_log = $conn->prepare("INSERT INTO login_history (user_id, email, ip_address, status, user_agent) VALUES (NULL, ?, ?, 'failed', ?)");
-        $stmt_log->bind_param("sss", $email, $ip_address, $user_agent);
+        $stmt_log = $conn->prepare("INSERT INTO login_history (user_id, email, ip_address, country_code, status, user_agent) VALUES (NULL, ?, ?, ?, 'failed', ?)");
+        $stmt_log->bind_param("ssss", $email, $ip_address, $country_code, $user_agent);
         $stmt_log->execute();
         $stmt_log->close();
 

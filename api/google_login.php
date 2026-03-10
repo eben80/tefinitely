@@ -26,6 +26,9 @@ try {
     $ip_address = $_SERVER['REMOTE_ADDR'] ?? 'Unknown';
     $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
 
+    require_once 'services/GeoService.php';
+    $country_code = GeoService::getCountryCode($ip_address);
+
     if ($payload) {
         $google_id = $payload['sub'];
         $email = $payload['email'];
@@ -50,8 +53,8 @@ try {
             $update_stmt->close();
 
             // Log successful login
-            $stmt_log = $conn->prepare("INSERT INTO login_history (user_id, email, ip_address, status, user_agent) VALUES (?, ?, ?, 'success', ?)");
-            $stmt_log->bind_param("isss", $user['id'], $email, $ip_address, $user_agent);
+            $stmt_log = $conn->prepare("INSERT INTO login_history (user_id, email, ip_address, country_code, status, user_agent) VALUES (?, ?, ?, ?, 'success', ?)");
+            $stmt_log->bind_param("issss", $user['id'], $email, $ip_address, $country_code, $user_agent);
             $stmt_log->execute();
             $stmt_log->close();
 
@@ -105,8 +108,8 @@ try {
             ];
 
             // Log registration as a successful login
-            $stmt_log = $conn->prepare("INSERT INTO login_history (user_id, email, ip_address, status, user_agent) VALUES (?, ?, ?, 'success', ?)");
-            $stmt_log->bind_param("isss", $user['id'], $email, $ip_address, $user_agent);
+            $stmt_log = $conn->prepare("INSERT INTO login_history (user_id, email, ip_address, country_code, status, user_agent) VALUES (?, ?, ?, ?, 'success', ?)");
+            $stmt_log->bind_param("issss", $user['id'], $email, $ip_address, $country_code, $user_agent);
             $stmt_log->execute();
             $stmt_log->close();
         }

@@ -17,6 +17,7 @@ $query = "
         l.id,
         l.email,
         l.ip_address,
+        l.country_code,
         l.status,
         l.user_agent,
         l.created_at,

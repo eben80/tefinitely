@@ -75,6 +75,19 @@ document.addEventListener('DOMContentLoaded', () => {
     let usersData = []; // Cache user data
     let currentCallsData = []; // Cache current calls data for export
 
+    function getFlagHTML(countryCode) {
+        if (!countryCode) return '';
+        const code = countryCode.toLowerCase();
+        return `<img src="https://flagcdn.com/16x12/${code}.png"
+                     srcset="https://flagcdn.com/32x24/${code}.png 2x,
+                             https://flagcdn.com/48x36/${code}.png 3x"
+                     width="16"
+                     height="12"
+                     alt="${countryCode}"
+                     title="${countryCode.toUpperCase()}"
+                     style="margin-left: 5px; vertical-align: middle; cursor: help;">`;
+    }
+
     // --- Initial Load ---
     checkAdminAccess();
 
@@ -379,7 +392,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         ${user.calls_1h}/${user.calls_24h}/${user.calls_7d}/${user.calls_30d}/${user.calls_lifetime}
                     </a>
                 </td>
-                <td>${new Date(user.created_at).toLocaleDateString()}</td>
+                <td>
+                    ${new Date(user.created_at).toLocaleDateString()}
+                    ${getFlagHTML(user.last_login_country)}
+                </td>
                 <td>
                     <select data-userid="${user.id}" class="status-select" style="font-size: 0.8rem; padding: 0.2rem;">
                         <option value="active" ${user.subscription_status === 'active' ? 'selected' : ''}>Active</option>
@@ -1010,7 +1026,10 @@ document.addEventListener('DOMContentLoaded', () => {
             row.innerHTML = `
                 <td>${new Date(entry.created_at).toLocaleString()}</td>
                 <td>${escapeHTML(entry.email)}</td>
-                <td>${escapeHTML(entry.ip_address)}</td>
+                <td>
+                    ${escapeHTML(entry.ip_address)}
+                    ${getFlagHTML(entry.country_code)}
+                </td>
                 <td class="${statusClass}">${escapeHTML(entry.status.toUpperCase())}</td>
                 <td>${escapeHTML(userInfo)}</td>
                 <td title="${escapeHTML(entry.user_agent)}" style="font-size: 0.8rem; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
