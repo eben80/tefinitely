@@ -33,11 +33,10 @@ checkAccess();
         background: #f5f0ea;
         display: flex;
         flex-direction: column;
-        height: 100vh;
-        height: 100dvh; /* Dynamic viewport height for mobile */
+        min-height: 100vh;
+        min-height: 100dvh; /* Dynamic viewport height for mobile */
         margin: 0;
         padding: 0;
-        overflow: hidden;
     }
 
     header {
@@ -163,8 +162,6 @@ checkAccess();
         margin: 0 auto;
         width: 100%;
         padding: 10px 15px;
-        min-height: 0; /* Important for flex child to be able to shrink */
-        overflow: hidden; /* Contain children */
     }
 
     #main-content {
@@ -175,8 +172,9 @@ checkAccess();
         margin-bottom: 0;
         display: none; /* Shown after session starts */
         flex-direction: column;
-        flex: 1;
-        min-height: 0; /* Allow shrinking */
+        height: 100vh;
+        height: 100dvh;
+        min-height: 0;
         overflow: hidden; /* Prevent this container from scrolling itself */
     }
 
