@@ -85,6 +85,8 @@ async function checkSession() {
         const subscriptionPrompt = document.getElementById('subscription-prompt');
         const landingFooter = document.getElementById('landing-footer');
         const authContainer = document.getElementById('auth-container');
+        const freeTrialBtn = document.getElementById('free-trial-btn');
+        const getStartedBtn = document.getElementById('get-started-btn');
 
         // Always show main nav
         userStatusElements.forEach(el => el.style.display = 'flex');
@@ -134,6 +136,9 @@ async function checkSession() {
 
             const navLoginBtn = document.getElementById('nav-login-btn');
             if (navLoginBtn) navLoginBtn.style.display = 'none';
+
+            if (freeTrialBtn) freeTrialBtn.style.display = 'none';
+            if (getStartedBtn) getStartedBtn.style.display = 'inline-block';
 
             // Always show landing page content on index.html even if logged in
             if (window.location.pathname.endsWith('index.html') || window.location.pathname === '/' || window.location.pathname === '') {
@@ -206,6 +211,9 @@ async function checkSession() {
 
             const navLoginBtn = document.getElementById('nav-login-btn');
             if (navLoginBtn) navLoginBtn.style.display = 'inline-block';
+
+            if (freeTrialBtn) freeTrialBtn.style.display = 'inline-block';
+            if (getStartedBtn) getStartedBtn.style.display = 'none';
 
             if (authContainer) authContainer.style.display = 'block';
             loginPromptLandingPageElements.forEach(el => el.style.display = 'block');
