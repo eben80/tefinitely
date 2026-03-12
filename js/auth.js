@@ -88,8 +88,12 @@ async function checkSession() {
         const freeTrialBtn = document.getElementById('free-trial-btn');
         const getStartedBtn = document.getElementById('get-started-btn');
 
-        // Always show main nav
-        userStatusElements.forEach(el => el.style.display = 'flex');
+        // Ensure main nav is visible (it should be by default now)
+        userStatusElements.forEach(el => {
+            if (el.style.display === 'none') {
+                el.style.display = 'flex';
+            }
+        });
         if (landingNav) {
             landingNav.style.display = 'none';
         }

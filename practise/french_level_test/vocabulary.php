@@ -33,7 +33,7 @@ checkAccess();
 </header>
 <div id="toast-container"></div>
 
-<nav class="main-nav" id="user-status" style="display: none;">
+<nav class="main-nav" id="user-status">
     <button class="hamburger-menu" id="hamburger-menu" aria-label="Toggle menu" aria-expanded="false">
         <i class="bi bi-list"></i>
     </button>
@@ -71,7 +71,8 @@ checkAccess();
         </div>
         <div class="nav-user">
             <span id="first-name-display"></span>
-            <button id="logoutBtn">Logout</button>
+            <button id="logoutBtn" style="display: none;">Logout</button>
+            <a href="login.html" id="nav-login-btn" class="btn-login">Login</a>
         </div>
     </div>
 </nav>
