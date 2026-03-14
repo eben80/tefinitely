@@ -42,6 +42,19 @@ try {
     $stmt->bind_param("isss", $user_id, $email, $subject, $message);
 
     if ($stmt->execute()) {
+        // Send notification email to support
+        require_once __DIR__ . '/../services/EmailService.php';
+        $support_subject = "New Support Ticket: " . $subject;
+        $support_body_html = "<h1>New Support Ticket</h1>
+                              <p><strong>From:</strong> {$email}</p>
+                              <p><strong>Subject:</strong> {$subject}</p>
+                              <p><strong>Message:</strong></p>
+                              <p>" . nl2br(htmlspecialchars($message)) . "</p>
+                              <p><strong>Date:</strong> " . date('Y-m-d H:i:s') . "</p>";
+        $support_body_text = "New Support Ticket\n\nFrom: {$email}\nSubject: {$subject}\n\nMessage:\n{$message}\n\nDate: " . date('Y-m-d H:i:s');
+
+        sendEmail(SUPPORT_NOTIFICATION_EMAIL, $support_subject, $support_body_html, $support_body_text);
+
         echo json_encode(['status' => 'success', 'message' => 'Your support request has been submitted.']);
     } else {
         throw new Exception('Failed to submit support request: ' . $conn->error);
