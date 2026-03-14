@@ -112,6 +112,26 @@ try {
             $stmt_log->bind_param("issss", $user['id'], $email, $ip_address, $country_code, $user_agent);
             $stmt_log->execute();
             $stmt_log->close();
+
+            // Send notification to support for new Google registration
+            require_once __DIR__ . '/services/EmailService.php';
+            $os = getOS($user_agent);
+
+            $support_subject = "New User Registered (Google): {$first_name} {$last_name}";
+            $support_body_html = "<h1>New Google Registration</h1>
+                                  <p>A new user has registered via Google on Tefinitely:</p>
+                                  <ul>
+                                      <li><strong>Name:</strong> {$first_name} {$last_name}</li>
+                                      <li><strong>Email:</strong> {$email}</li>
+                                      <li><strong>IP Address:</strong> {$ip_address}</li>
+                                      <li><strong>Country Code:</strong> " . ($country_code ?: 'Unknown') . "</li>
+                                      <li><strong>Operating System:</strong> {$os}</li>
+                                      <li><strong>User Agent:</strong> {$user_agent}</li>
+                                      <li><strong>Date:</strong> " . date('Y-m-d H:i:s') . "</li>
+                                  </ul>";
+            $support_body_text = "New Google Registration\n\nA new user has registered via Google on Tefinitely:\nName: {$first_name} {$last_name}\nEmail: {$email}\nIP Address: {$ip_address}\nCountry Code: " . ($country_code ?: 'Unknown') . "\nOperating System: {$os}\nUser Agent: {$user_agent}\nDate: " . date('Y-m-d H:i:s');
+
+            sendEmail(SUPPORT_NOTIFICATION_EMAIL, $support_subject, $support_body_html, $support_body_text);
         }
 
         // Start session
