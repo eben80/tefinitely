@@ -135,6 +135,20 @@ async function checkSession() {
             if (data.user.role === 'admin' && adminLink) {
                 adminLink.style.display = 'inline';
             }
+
+            // CELPIP Feature Flag for Navigation
+            if (data.user.celpip_enabled === false) {
+                const celpipNavs = document.querySelectorAll('a[href*="practise/celpip/"]');
+                celpipNavs.forEach(nav => {
+                    // Find the sub-dropdown parent and hide it
+                    const subDropdown = nav.closest('.sub-dropdown');
+                    if (subDropdown && subDropdown.textContent.includes('CELPIP')) {
+                        subDropdown.style.display = 'none';
+                    } else {
+                        nav.style.display = 'none';
+                    }
+                });
+            }
             const logoutBtn = document.getElementById('logoutBtn');
             if (logoutBtn) logoutBtn.style.display = 'inline-block';
 

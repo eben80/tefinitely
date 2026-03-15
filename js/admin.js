@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalSubStartInput = document.getElementById('modal-sub-start');
     const modalSubEndInput = document.getElementById('modal-sub-end');
     const modalEmailVerifiedCheckbox = document.getElementById('modal-email-verified');
+    const modalCelpipEnabledCheckbox = document.getElementById('modal-celpip-enabled');
     const editEmailForm = document.getElementById('edit-email-form');
     const editPasswordForm = document.getElementById('edit-password-form');
     const editSubscriptionForm = document.getElementById('edit-subscription-form');
@@ -386,6 +387,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 </td>
                 <td>
                     ${user.email_verified == 1 ? '<span class="status-active" title="Verified">Y</span>' : '<span class="status-inactive" title="Not Verified">N</span>'}
+                </td>
+                <td>
+                    ${user.celpip_enabled == 1 ? '<span class="status-active">On</span>' : '<span class="status-inactive">Off</span>'}
                 </td>
                 <td>
                     <a href="javascript:void(0)" class="view-calls-link" data-userid="${user.id}" data-name="${escapeHTML(fullName)}" style="font-size: 0.8rem;">
@@ -826,6 +830,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             modalEmailVerifiedCheckbox.checked = user.email_verified == 1;
+            modalCelpipEnabledCheckbox.checked = user.celpip_enabled == 1;
             modal.style.display = 'block';
         }
     }
@@ -869,11 +874,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const startDate = modalSubStartInput.value;
         const endDate = modalSubEndInput.value;
         const emailVerified = modalEmailVerifiedCheckbox.checked ? 1 : 0;
+        const celpipEnabled = modalCelpipEnabledCheckbox.checked ? 1 : 0;
         await updateUser('update_subscription_dates', {
             user_id: currentEditingUserId,
             start_date: startDate,
             end_date: endDate,
-            email_verified: emailVerified
+            email_verified: emailVerified,
+            celpip_enabled: celpipEnabled
         });
     }
 

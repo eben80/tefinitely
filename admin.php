@@ -214,6 +214,7 @@ checkAccess(true, true); // Admin only
                                 <th>Status</th>
                                 <th>End Date</th>
                                 <th>Ver.</th>
+                                <th>CELPIP</th>
                                 <th>OpenAI (1h/24h/7d/30d/L)</th>
                                 <th>Created</th>
                                 <th>Manage</th>
@@ -443,6 +444,10 @@ checkAccess(true, true); // Admin only
                 <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
                     <input type="checkbox" id="modal-email-verified" style="width: auto; margin: 0;">
                     <label for="modal-email-verified" style="margin: 0;">Email Verified</label>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                    <input type="checkbox" id="modal-celpip-enabled" style="width: auto; margin: 0;">
+                    <label for="modal-celpip-enabled" style="margin: 0;">CELPIP Enabled</label>
                 </div>
                 <button type="submit">Update Subscription & Verification</button>
             </form>

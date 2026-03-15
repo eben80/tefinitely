@@ -37,7 +37,7 @@ try {
         $picture = $payload['picture'] ?? null;
 
         // Check if user exists by email
-        $stmt = $conn->prepare("SELECT id, first_name, role, subscription_status FROM users WHERE email = ?");
+        $stmt = $conn->prepare("SELECT id, first_name, role, subscription_status, celpip_enabled FROM users WHERE email = ?");
         $stmt->bind_param("s", $email);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -104,7 +104,8 @@ try {
                 'id' => $user_id,
                 'first_name' => $first_name,
                 'role' => 'user',
-                'subscription_status' => $subscription_status
+                'subscription_status' => $subscription_status,
+                'celpip_enabled' => 1
             ];
 
             // Log registration as a successful login
@@ -141,6 +142,7 @@ try {
         $_SESSION['role'] = $user['role'];
         $_SESSION['subscription_status'] = $user['subscription_status'];
         $_SESSION['google_picture'] = $picture;
+        $_SESSION['celpip_enabled'] = (bool)$user['celpip_enabled'];
 
         echo json_encode([
             'status' => 'success',
@@ -148,7 +150,8 @@ try {
             'user' => [
                 'first_name' => $user['first_name'],
                 'role' => $user['role'],
-                'subscription_status' => $user['subscription_status']
+                'subscription_status' => $user['subscription_status'],
+                'celpip_enabled' => (bool)$user['celpip_enabled']
             ]
         ]);
 

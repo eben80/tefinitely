@@ -41,7 +41,7 @@ try {
     }
 
     // Fetch user from the database
-    $stmt = $conn->prepare("SELECT id, first_name, password, role, subscription_status, email_verified FROM users WHERE email = ?");
+    $stmt = $conn->prepare("SELECT id, first_name, password, role, subscription_status, email_verified, celpip_enabled FROM users WHERE email = ?");
     if (!$stmt) {
         throw new Exception("Database prepare failed: " . $conn->error);
     }
@@ -77,6 +77,7 @@ try {
             $_SESSION['first_name'] = $user['first_name'];
             $_SESSION['role'] = $user['role'];
             $_SESSION['subscription_status'] = $user['subscription_status'];
+            $_SESSION['celpip_enabled'] = (bool)$user['celpip_enabled'];
 
             http_response_code(200);
             echo json_encode([
@@ -85,7 +86,8 @@ try {
                 'user' => [
                     'first_name' => $user['first_name'],
                     'role' => $user['role'],
-                    'subscription_status' => $user['subscription_status']
+                    'subscription_status' => $user['subscription_status'],
+                    'celpip_enabled' => (bool)$user['celpip_enabled']
                 ]
             ]);
         } else {

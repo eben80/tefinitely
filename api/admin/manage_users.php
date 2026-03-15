@@ -24,6 +24,7 @@ if ($method === 'GET') {
             u.email,
             u.role,
             u.subscription_status,
+            u.celpip_enabled,
             u.email_verified,
             u.created_at,
             (SELECT l.country_code FROM login_history l WHERE l.user_id = u.id AND l.status = 'success' ORDER BY l.created_at DESC LIMIT 1) as last_login_country,
@@ -269,6 +270,7 @@ if ($method === 'GET') {
             $start_date = !empty($data['start_date']) ? $data['start_date'] : null;
             $end_date = !empty($data['end_date']) ? $data['end_date'] : null;
             $email_verified = isset($data['email_verified']) ? (int)$data['email_verified'] : null;
+            $celpip_enabled = isset($data['celpip_enabled']) ? (int)$data['celpip_enabled'] : null;
 
             // Find the latest subscription to update it.
             // If none exists, create one.
@@ -308,7 +310,14 @@ if ($method === 'GET') {
                 $stmt_verified->close();
             }
 
-            logAdminAction($conn, $_SESSION['user_id'], 'update_subscription_dates', $user_id, "Start: $start_date, End: $end_date, New status: $new_status, Verified: $email_verified");
+            if ($celpip_enabled !== null) {
+                $stmt_celpip = $conn->prepare("UPDATE users SET celpip_enabled = ? WHERE id = ?");
+                $stmt_celpip->bind_param("ii", $celpip_enabled, $user_id);
+                $stmt_celpip->execute();
+                $stmt_celpip->close();
+            }
+
+            logAdminAction($conn, $_SESSION['user_id'], 'update_subscription_dates', $user_id, "Start: $start_date, End: $end_date, New status: $new_status, Verified: $email_verified, CELPIP: $celpip_enabled");
 
             echo json_encode(['status' => 'success', 'message' => 'Subscription dates and status updated successfully.']);
             break;
