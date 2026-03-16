@@ -1,6 +1,6 @@
 <?php
 require_once '../../api/auth_check.php';
-$user_details = checkAccess();
+$user_details = checkAccess(false);
 require_once '../../db/db_config.php';
 
 $user_id = $_SESSION['user_id'];

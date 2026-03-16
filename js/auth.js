@@ -213,6 +213,7 @@ async function checkSession() {
                     if (window.location.search.includes('trigger=subscribe')) {
                         setTimeout(() => {
                             subscriptionPrompt.scrollIntoView({ behavior: 'smooth' });
+                            showToast('Please subscribe to access this feature.', 'info');
                         }, 500);
                     }
                 }
