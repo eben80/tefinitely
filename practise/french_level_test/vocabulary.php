@@ -1,6 +1,6 @@
 <?php
 require_once '../../api/auth_check.php';
-checkAccess();
+checkAccess(false);
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -376,7 +376,7 @@ document.addEventListener('DOMContentLoaded', fetchQuestions);
 fetch('api/check_session.php')
     .then(r => r.json())
     .then(data => {
-        if (data.loggedIn && data.user.subscription_status === 'active') {
+        if (data.loggedIn) {
             document.getElementById('user-status').style.display = 'flex';
             document.getElementById('first-name-display').textContent = `Welcome, ${data.user.first_name}`;
             userRole = data.user.role;

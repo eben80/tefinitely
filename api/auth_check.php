@@ -51,7 +51,7 @@ function checkAccess($requireSubscription = true, $requireAdmin = false) {
     }
 
     if ($requireSubscription && $subscription_status !== 'active') {
-        header('Location: /index.html');
+        header('Location: /index.html?trigger=subscribe');
         exit;
     }
 
