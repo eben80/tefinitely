@@ -3,7 +3,7 @@
     position: fixed;
     top: 20px;
     right: 20px;
-    z-index: 1050;
+    z-index: 9999;
     width: 300px;
 }
 
@@ -30,4 +30,28 @@
 
 .toast.error {
     background-color: #dc3545;
+}
+
+.toast.info {
+    background-color: #17a2b8;
+}
+
+@media (max-width: 768px) {
+    #toast-container {
+        top: auto;
+        bottom: 20px;
+        right: 10px;
+        left: 10px;
+        width: calc(100% - 20px);
+    }
+
+    .toast {
+        width: 100%;
+        transform: translateY(100%);
+        box-sizing: border-box;
+    }
+
+    .toast.show {
+        transform: translateY(0);
+    }
 }
