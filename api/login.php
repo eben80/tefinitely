@@ -112,16 +112,16 @@ try {
     $stmt->close();
     $conn->close();
 
-} catch (Exception $e) {
+} catch (Throwable $e) {
     // Log the actual error
     // debug_log("Login Error: " . $e->getMessage());
 
     // Send a generic, valid JSON error response
-    $http_code = ($e->getCode() > 0) ? $e->getCode() : 500;
+    $http_code = ($e->getCode() > 0 && $e->getCode() < 600) ? $e->getCode() : 500;
     http_response_code($http_code);
     echo json_encode([
         'status' => 'error',
-        'message' => $e->getMessage() // Or a generic message like 'An internal error occurred.'
+        'message' => $e->getMessage() ?: 'An internal error occurred. Please try again.'
     ]);
 }
 ?>

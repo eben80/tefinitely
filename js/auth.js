@@ -31,7 +31,7 @@ async function registerUser(first_name, last_name, email, password) {
         // Redirect to login page on successful registration
         setTimeout(() => { window.location.href = 'login.html?registered=true'; }, 5000);
     } catch (error) {
-        showToast(`Registration Failed: ${error.message}`, 'error');
+        showToast(`Registration Failed: ${error.message || 'An unexpected error occurred.'}`, 'error');
     }
 }
 
@@ -43,7 +43,7 @@ async function loginUser(email, password, remember = false) {
         // Redirect to the index page on successful login
         setTimeout(() => { window.location.href = 'index.html'; }, 1000);
     } catch (error) {
-        showToast(`Login Failed: ${error.message}`, 'error');
+        showToast(`Login Failed: ${error.message || 'Invalid email or password.'}`, 'error');
     }
 }
 
@@ -54,7 +54,7 @@ async function googleLogin(credential) {
         showToast(result.message, 'success');
         setTimeout(() => { window.location.href = 'index.html'; }, 1000);
     } catch (error) {
-        showToast(`Google Login Failed: ${error.message}`, 'error');
+        showToast(`Google Login Failed: ${error.message || 'An error occurred with Google Sign-In.'}`, 'error');
     }
 }
 
@@ -170,7 +170,7 @@ async function checkSession() {
 
             if (data.user.subscription_status !== 'active') {
                 // Handle restricted links for inactive users
-                const restrictedPaths = ['logged_in.php', 'oral_expression.php', 'oral_expression_section_a.php', 'practise/tef_canada/section_a/index.php', 'practise/tef_canada/section_b/index.php', 'practise/celpip/section_a/index.php', 'practise/celpip/section_b/index.php', 'practise/french_level_test/index.php', 'training.php', 'admin.php'];
+                const restrictedPaths = ['logged_in.php', 'oral_expression.php', 'oral_expression_section_a.php', 'practise/tef_canada/section_a/index.php', 'practise/tef_canada/section_b/index.php', 'practise/celpip/section_a/index.php', 'practise/celpip/section_b/index.php', 'training.php', 'admin.php'];
 
                 // Select all links that might be restricted (nav and footer)
                 const allLinks = document.querySelectorAll('a');
@@ -178,16 +178,20 @@ async function checkSession() {
                 allLinks.forEach(link => {
                     const href = link.getAttribute('href');
                     if (href && restrictedPaths.some(rp => href.includes(rp))) {
+                        // Special handling for Level Test - it should NOT be restricted
+                        if (href.includes('practise/french_level_test/')) return;
+
                         link.addEventListener('click', (e) => {
                             e.preventDefault();
+                            e.stopPropagation(); // Stop dropdowns from closing/opening if possible
+
+                            showToast('Please subscribe to access this feature.', 'info');
+
                             if (window.location.pathname.endsWith('index.html') || window.location.pathname === '/' || window.location.pathname === '') {
                                 if (subscriptionPrompt) {
                                     subscriptionPrompt.scrollIntoView({ behavior: 'smooth' });
                                     subscriptionPrompt.style.display = 'block'; // Ensure it's visible
-                                    showToast('Please subscribe to access this feature.', 'info');
                                 }
-                            } else {
-                                window.location.href = 'index.html?trigger=subscribe';
                             }
                         });
                     }

@@ -5,9 +5,9 @@ require_once '../../db/db_config.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
-if (!isset($_SESSION['user_id']) || !isset($_SESSION['subscription_status']) || $_SESSION['subscription_status'] !== 'active') {
-    http_response_code(403);
-    echo json_encode(['status' => 'error', 'message' => 'Access denied. You need an active subscription to take this test.']);
+if (!isset($_SESSION['user_id'])) {
+    http_response_code(401);
+    echo json_encode(['status' => 'error', 'message' => 'Access denied. You must be logged in to take this test.']);
     exit;
 }
 
