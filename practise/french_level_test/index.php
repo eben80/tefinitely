@@ -51,8 +51,9 @@ if ($is_admin) {
 <link rel="icon" href="img/favicon/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="img/favicon/apple-touch-icon.png">
 <link rel="manifest" href="img/favicon/site.webmanifest">
-<link rel="stylesheet" href="css/toast.css">
-<link rel="stylesheet" href="css/main.css">
+<?php require_once '../../api/version_helper.php'; ?>
+<link rel="stylesheet" href="<?= asset_v('css/toast.css') ?>">
+<link rel="stylesheet" href="<?= asset_v('css/main.css') ?>">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 <style>
     .intro-card {
@@ -139,7 +140,7 @@ if ($is_admin) {
 </head>
 <body>
 <header>
-    <a href="index.html"><img src="img/top_logo_light.png" alt="TEFinitely Logo" class="logo"></a>
+    <a href="index.php"><img src="img/top_logo_light.png" alt="TEFinitely Logo" class="logo"></a>
 </header>
 <div id="toast-container"></div>
 <nav class="main-nav" id="user-status">
@@ -181,7 +182,7 @@ if ($is_admin) {
         <div class="nav-user">
             <span id="first-name-display"></span>
             <button id="logoutBtn" style="display: none;">Logout</button>
-            <a href="login.html" id="nav-login-btn" class="btn-login">Login</a>
+            <a href="login.php" id="nav-login-btn" class="btn-login">Login</a>
         </div>
     </div>
 </nav>
@@ -221,9 +222,9 @@ if ($is_admin) {
     </div>
 </div>
 
-<script src="js/toast.js"></script>
-<script src="js/auth.js"></script>
-<script src="js/nav.js"></script>
-<script src="js/cookie-banner.js"></script>
+<script src="<?= asset_v('js/toast.js') ?>"></script>
+<script src="<?= asset_v('js/auth.js') ?>"></script>
+<script src="<?= asset_v('js/nav.js') ?>"></script>
+<script src="<?= asset_v('js/cookie-banner.js') ?>"></script>
 </body>
 </html>

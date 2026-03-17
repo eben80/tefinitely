@@ -12,10 +12,10 @@
 </script>
 
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0; url=login.html?mode=register">
+    <meta http-equiv="refresh" content="0; url=login.php?mode=register">
     <title>Redirecting to Register</title>
 </head>
 <body>
-    <p>Please wait, redirecting to the <a href="login.html?mode=register">registration page</a>...</p>
+    <p>Please wait, redirecting to the <a href="login.php?mode=register">registration page</a>...</p>
 </body>
 </html>

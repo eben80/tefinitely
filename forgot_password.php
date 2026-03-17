@@ -21,6 +21,7 @@
     <link rel="icon" href="img/favicon/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="img/favicon/apple-touch-icon.png">
     <link rel="manifest" href="img/favicon/site.webmanifest">
+    <?php require_once 'api/version_helper.php'; ?>
     <style>
         body { font-family: Arial, sans-serif; background: #f5f0ea; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 1rem; box-sizing: border-box; }
         .logo { width: 100%; max-width: 500px; margin-bottom: 2rem; }
@@ -34,7 +35,7 @@
 </head>
 <body>
     <header>
-        <a href="index.html"><img src="img/top_logo_light.png" alt="TEFinitely Logo" class="logo"></a>
+        <a href="index.php"><img src="img/top_logo_light.png" alt="TEFinitely Logo" class="logo"></a>
     </header>
     <div class="container">
         <h1>Forgot Password</h1>
@@ -54,7 +55,7 @@
         </div>
     </div>
 
-    <script src="js/browser-support.js"></script>
+    <script src="<?= asset_v('js/browser-support.js') ?>"></script>
     <script>
         document.getElementById('forgotPasswordForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -75,7 +76,7 @@
                 if (result.__debug_token) {
                     document.getElementById('debug-token').textContent = result.__debug_token;
                     const resetLink = document.getElementById('reset-link');
-                    resetLink.href = `reset_password.html?token=${result.__debug_token}`;
+                    resetLink.href = `reset_password.php?token=${result.__debug_token}`;
                     document.getElementById('debug-info').style.display = 'block';
                 }
 
@@ -85,6 +86,6 @@
             }
         });
     </script>
-<script src="js/cookie-banner.js"></script>
+<script src="<?= asset_v('js/cookie-banner.js') ?>"></script>
 </body>
 </html>

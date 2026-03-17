@@ -114,6 +114,7 @@ union() {
 </script>
 
     <title>Image to STL Converter</title>
+    <?php require_once 'api/version_helper.php'; ?>
 </head>
 <body>
 
@@ -149,6 +150,6 @@ union() {
         <p style="color:red;">Could not generate the STL file.</p>
     <?php endif; ?>
 
-<script src="js/cookie-banner.js"></script>
+<script src="<?= asset_v('js/cookie-banner.js') ?>"></script>
 </body>
 </html>
