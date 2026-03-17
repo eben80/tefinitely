@@ -51,7 +51,7 @@ try {
     // Normalize to handle root install vs. subdirectory
     $app_path = ($app_path == '/' || $app_path == '\\') ? '' : $app_path;
 
-    $reset_link = "{$protocol}://{$host}{$app_path}/reset_password.html?token=" . $token;
+    $reset_link = "{$protocol}://{$host}{$app_path}/reset_password.php?token=" . $token;
     $subject = "Password Reset Request";
 
     $body_html = "

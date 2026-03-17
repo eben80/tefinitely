@@ -54,15 +54,16 @@
 <link rel="icon" href="img/favicon/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="img/favicon/apple-touch-icon.png">
 <link rel="manifest" href="img/favicon/site.webmanifest">
-<link rel="stylesheet" href="css/toast.css">
-<link rel="stylesheet" href="css/main.css">
+<?php require_once 'api/version_helper.php'; ?>
+<link rel="stylesheet" href="<?= asset_v('css/toast.css') ?>">
+<link rel="stylesheet" href="<?= asset_v('css/main.css') ?>">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 <script src="https://applepay.cdn-apple.com/jsapi/v1/apple-pay-sdk.js"></script>
-<script src="js/paypal-util.js"></script>
+<script src="<?= asset_v('js/paypal-util.js') ?>"></script>
 </head>
 <body>
 <header>
-    <a href="index.html"><img src="img/top_logo_light.png" alt="TEFinitely Logo" class="logo"></a>
+    <a href="index.php"><img src="img/top_logo_light.png" alt="TEFinitely Logo" class="logo"></a>
 </header>
 <div id="toast-container"></div>
 <nav class="main-nav" id="user-status">
@@ -105,7 +106,7 @@
         <div class="nav-user">
             <span id="first-name-display"></span>
             <button id="logoutBtn" style="display: none;">Logout</button>
-            <a href="login.html" id="nav-login-btn" class="btn-login">Login</a>
+            <a href="login.php" id="nav-login-btn" class="btn-login">Login</a>
         </div>
     </div>
 </nav>
@@ -115,7 +116,7 @@
         <section id="features" class="features">
             <h2>Master the TEF Canada Exam</h2>
             <div class="cta-buttons" style="margin-bottom: 2rem;">
-                <a href="login.html?mode=register" id="free-trial-btn">Start Your Free Trial</a>
+                <a href="login.php?mode=register" id="free-trial-btn">Start Your Free Trial</a>
             </div>
             <div class="features-grid">
                 <div class="feature-item">
@@ -200,15 +201,15 @@
                     <h4>Quick Links</h4>
                     <ul>
                         <li><a href="profile.php">Dashboard</a></li><li><a href="#features">Features</a></li>
-                        <li><a href="login.html?mode=register">Register</a></li>
-                        <li><a href="login.html">Login</a></li>
+                        <li><a href="login.php?mode=register">Register</a></li>
+                        <li><a href="login.php">Login</a></li>
                     </ul>
                 </div>
                 <div class="footer-column">
                     <h4>Legal</h4>
                     <ul>
-                        <li><a href="terms.html">Terms of Service</a></li>
-                        <li><a href="privacy.html">Privacy Policy</a></li>
+                        <li><a href="terms.php">Terms of Service</a></li>
+                        <li><a href="privacy.php">Privacy Policy</a></li>
                     </ul>
                 </div>
                 <div class="footer-column">
@@ -223,10 +224,10 @@
         </footer>
 </div>
 
-<script src="js/toast.js"></script>
-<script src="js/browser-support.js"></script>
-<script src="js/auth.js"></script>
-<script src="js/nav.js"></script>
+<script src="<?= asset_v('js/toast.js') ?>"></script>
+<script src="<?= asset_v('js/browser-support.js') ?>"></script>
+<script src="<?= asset_v('js/auth.js') ?>"></script>
+<script src="<?= asset_v('js/nav.js') ?>"></script>
 <script>
 function speakFrench(text, rate) {
     const utterance = new SpeechSynthesisUtterance(text);
@@ -362,6 +363,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 </script>
-<script src="js/cookie-banner.js"></script>
+<script src="<?= asset_v('js/cookie-banner.js') ?>"></script>
 </body>
 </html>

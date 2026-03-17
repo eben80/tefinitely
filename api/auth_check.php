@@ -7,7 +7,7 @@ require_once __DIR__ . '/../db/db_config.php';
 function checkAccess($requireSubscription = true, $requireAdmin = false) {
     global $conn;
     if (!isset($_SESSION['user_id'])) {
-        header('Location: /login.html');
+        header('Location: /login.php');
         exit;
     }
 
@@ -46,12 +46,12 @@ function checkAccess($requireSubscription = true, $requireAdmin = false) {
     }
 
     if ($requireAdmin && $role !== 'admin') {
-        header('Location: /index.html');
+        header('Location: /index.php');
         exit;
     }
 
     if ($requireSubscription && $subscription_status !== 'active') {
-        header('Location: /index.html?trigger=subscribe');
+        header('Location: /index.php?trigger=subscribe');
         exit;
     }
 

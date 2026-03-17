@@ -33,7 +33,7 @@ if ($pending_email) {
 
 if ($stmt_update->execute()) {
     // Redirect to login page with success message
-    header("Location: /login.html?verified=true");
+    header("Location: /login.php?verified=true");
 } else {
     die("An error occurred during verification. Please try again later.");
 }

@@ -51,12 +51,12 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 // If not logged in or error, redirect
                 showToast(data.message || 'You must be logged in to view this page.', 'error');
-                setTimeout(() => { window.location.href = 'login.html'; }, 2000);
+                setTimeout(() => { window.location.href = 'login.php'; }, 2000);
             }
         } catch (error) {
             console.error('Failed to load profile data:', error);
             showToast('An error occurred while fetching your profile.', 'error');
-            setTimeout(() => { window.location.href = 'login.html'; }, 2000);
+            setTimeout(() => { window.location.href = 'login.php'; }, 2000);
         }
     }
 

@@ -1,0 +1,10 @@
+RewriteEngine On
+
+# Redirect .html to .php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^(.*)\.html$ $1.php [L,R=301]
+
+# Optional: Redirect index.php to /
+RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\ /index\.php\ HTTP/
+RewriteRule ^index\.php$ / [L,R=301]

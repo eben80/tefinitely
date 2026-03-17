@@ -29,7 +29,7 @@ async function registerUser(first_name, last_name, email, password) {
         const result = await apiRequest('api/register.php', { first_name, last_name, email, password });
         showToast(result.message, 'success', 5000);
         // Redirect to login page on successful registration
-        setTimeout(() => { window.location.href = 'login.html?registered=true'; }, 5000);
+        setTimeout(() => { window.location.href = 'login.php?registered=true'; }, 5000);
     } catch (error) {
         showToast(`Registration Failed: ${error.message || 'An unexpected error occurred.'}`, 'error');
     }
@@ -41,7 +41,7 @@ async function loginUser(email, password, remember = false) {
         const result = await apiRequest('api/login.php', { email, password, remember });
         showToast(result.message, 'success');
         // Redirect to the index page on successful login
-        setTimeout(() => { window.location.href = 'index.html'; }, 1000);
+        setTimeout(() => { window.location.href = 'index.php'; }, 1000);
     } catch (error) {
         showToast(`Login Failed: ${error.message || 'Invalid email or password.'}`, 'error');
     }
@@ -52,7 +52,7 @@ async function googleLogin(credential) {
     try {
         const result = await apiRequest('api/google_login.php', { credential });
         showToast(result.message, 'success');
-        setTimeout(() => { window.location.href = 'index.html'; }, 1000);
+        setTimeout(() => { window.location.href = 'index.php'; }, 1000);
     } catch (error) {
         showToast(`Google Login Failed: ${error.message || 'An error occurred with Google Sign-In.'}`, 'error');
     }
@@ -158,8 +158,8 @@ async function checkSession() {
             if (freeTrialBtn) freeTrialBtn.style.display = 'none';
             if (getStartedBtn) getStartedBtn.style.display = 'inline-block';
 
-            // Always show landing page content on index.html even if logged in
-            if (window.location.pathname.endsWith('index.html') || window.location.pathname === '/' || window.location.pathname === '') {
+            // Always show landing page content on index.php even if logged in
+            if (window.location.pathname.endsWith('index.php') || window.location.pathname === '/' || window.location.pathname === '') {
                 if (authContainer) authContainer.style.display = 'block';
                 if (landingFooter) landingFooter.style.display = 'block';
                 if (data.user.subscription_status === 'active') {
@@ -187,7 +187,7 @@ async function checkSession() {
 
                             showToast('Please subscribe to access this feature.', 'info');
 
-                            if (window.location.pathname.endsWith('index.html') || window.location.pathname === '/' || window.location.pathname === '') {
+                            if (window.location.pathname.endsWith('index.php') || window.location.pathname === '/' || window.location.pathname === '') {
                                 if (subscriptionPrompt) {
                                     subscriptionPrompt.scrollIntoView({ behavior: 'smooth' });
                                     subscriptionPrompt.style.display = 'block'; // Ensure it's visible
@@ -198,7 +198,7 @@ async function checkSession() {
                 });
 
                 // On index page, if logged in but inactive, show subscription prompt
-                if (window.location.pathname.endsWith('index.html') || window.location.pathname === '/' || window.location.pathname === '') {
+                if (window.location.pathname.endsWith('index.php') || window.location.pathname === '/' || window.location.pathname === '') {
                     if (authContainer) authContainer.style.display = 'block';
                     loginPromptLandingPageElements.forEach(el => el.style.display = 'none');
                     if (subscriptionPrompt) {
@@ -270,7 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch('api/logout.php');
             if (response.ok) {
                 showToast('You have been logged out.', 'success');
-                setTimeout(() => { window.location.href = 'login.html'; }, 1000);
+                setTimeout(() => { window.location.href = 'login.php'; }, 1000);
             } else {
                 showToast('Logout failed. Please try again.', 'error');
             }

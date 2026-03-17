@@ -16,13 +16,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login or Register - TEFinitely</title>
     <meta name="description" content="Log in or create an account to start your TEF Canada or CELPIP exam preparation with TEFinitely.">
-    <link rel="canonical" href="https://tefinitely.com/login.html">
+    <link rel="canonical" href="https://tefinitely.com/login.php">
     <link rel="icon" href="img/favicon/favicon.ico" sizes="any">
     <link rel="icon" href="img/favicon/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="img/favicon/apple-touch-icon.png">
     <link rel="manifest" href="img/favicon/site.webmanifest">
-    <link rel="stylesheet" href="css/toast.css">
-    <link rel="stylesheet" href="css/main.css">
+    <?php require_once 'api/version_helper.php'; ?>
+    <link rel="stylesheet" href="<?= asset_v('css/toast.css') ?>">
+    <link rel="stylesheet" href="<?= asset_v('css/main.css') ?>">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <style>
         .auth-container { max-width: 500px; margin: 4rem auto; padding: 2rem; background: #fff; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
@@ -53,7 +54,7 @@
 </head>
 <body>
     <header>
-        <a href="index.html"><img src="img/top_logo_light.png" alt="TEFinitely Logo" class="logo"></a>
+        <a href="index.php"><img src="img/top_logo_light.png" alt="TEFinitely Logo" class="logo"></a>
     </header>
     <div id="toast-container"></div>
     <nav class="main-nav" id="user-status">
@@ -96,7 +97,7 @@
             <div class="nav-user">
                 <span id="first-name-display"></span>
                 <button id="logoutBtn" style="display: none;">Logout</button>
-            <a href="login.html" id="nav-login-btn" class="btn-login">Login</a>
+            <a href="login.php" id="nav-login-btn" class="btn-login">Login</a>
             </div>
         </div>
     </nav>
@@ -144,7 +145,7 @@
                     <button type="submit" class="auth-btn">Login</button>
                 </form>
                 <div class="link">
-                    <p><a href="forgot_password.html">Forgot your password?</a></p>
+                    <p><a href="forgot_password.php">Forgot your password?</a></p>
                 </div>
             </div>
 
@@ -203,8 +204,8 @@
             <div class="footer-column">
                 <h4>Legal</h4>
                 <ul>
-                    <li><a href="terms.html">Terms of Service</a></li>
-                    <li><a href="privacy.html">Privacy Policy</a></li>
+                    <li><a href="terms.php">Terms of Service</a></li>
+                    <li><a href="privacy.php">Privacy Policy</a></li>
                 </ul>
             </div>
             <div class="footer-column">
@@ -218,10 +219,10 @@
         </div>
     </footer>
 
-    <script src="js/toast.js"></script>
-    <script src="js/browser-support.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/nav.js"></script>
+    <script src="<?= asset_v('js/toast.js') ?>"></script>
+    <script src="<?= asset_v('js/browser-support.js') ?>"></script>
+    <script src="<?= asset_v('js/auth.js') ?>"></script>
+    <script src="<?= asset_v('js/nav.js') ?>"></script>
     <script>
         // Callback for Google Sign-In
         window.handleGoogleSignIn = (response) => {
@@ -337,6 +338,6 @@
             }
         });
     </script>
-<script src="js/cookie-banner.js"></script>
+<script src="<?= asset_v('js/cookie-banner.js') ?>"></script>
 </body>
 </html>

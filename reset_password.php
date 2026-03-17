@@ -21,6 +21,7 @@
     <link rel="icon" href="img/favicon/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="img/favicon/apple-touch-icon.png">
     <link rel="manifest" href="img/favicon/site.webmanifest">
+    <?php require_once 'api/version_helper.php'; ?>
     <style>
         body { font-family: Arial, sans-serif; background: #f5f0ea; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
         .logo { width: 100%; max-width: 500px; margin-bottom: 2rem; }
@@ -35,7 +36,7 @@
 </head>
 <body>
     <header>
-        <a href="index.html"><img src="img/top_logo_light.png" alt="TEFinitely Logo" class="logo"></a>
+        <a href="index.php"><img src="img/top_logo_light.png" alt="TEFinitely Logo" class="logo"></a>
     </header>
     <div class="container">
         <h1>Reset Your Password</h1>
@@ -56,7 +57,7 @@
         <div id="response-message"></div>
     </div>
 
-    <script src="js/browser-support.js"></script>
+    <script src="<?= asset_v('js/browser-support.js') ?>"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const resetForm = document.getElementById('resetPasswordForm');
@@ -130,7 +131,7 @@
 
                     if (response.ok && result.status === 'success') {
                         resetForm.style.display = 'none';
-                        responseMsg.innerHTML += ' <a href="login.html">Click here to log in.</a>';
+                        responseMsg.innerHTML += ' <a href="login.php">Click here to log in.</a>';
                         responseMsg.style.color = 'green';
                     } else {
                         responseMsg.classList.add('error');
@@ -143,6 +144,6 @@
             });
         });
     </script>
-<script src="js/cookie-banner.js"></script>
+<script src="<?= asset_v('js/cookie-banner.js') ?>"></script>
 </body>
 </html>
