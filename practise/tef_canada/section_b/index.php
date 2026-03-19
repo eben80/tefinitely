@@ -1019,6 +1019,11 @@ function startTimer() {
 
 // -------------------- Send user message --------------------
 async function sendMessage() {
+    if (isListening) {
+        recognition.stop();
+    }
+    clearTimeout(silenceTimer);
+
     const text = inputField.value.trim();
     if (!text) return;
     appendMessage('user', text);
@@ -1193,42 +1198,86 @@ hintButton.addEventListener('click', showHints);
 
 // -------------------- Speech recognition --------------------
 let recognition;
+let silenceTimer;
+let isListening = false;
+
 function setupRecognition(language) {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         recognition = new SpeechRecognition();
         recognition.lang = language === 'fr' ? 'fr-FR' : 'en-US';
-        recognition.interimResults = false;
-        recognition.maxAlternatives = 1;
+        recognition.interimResults = true;
+        recognition.continuous = true;
 
         recognition.onstart = function() {
+            isListening = true;
             speakButton.classList.add('listening');
             const t = translations[languageSelector.value];
             speakButton.textContent = t.listeningBtn;
+            resetSilenceTimer();
         };
 
         recognition.onend = function() {
+            isListening = false;
             speakButton.classList.remove('listening');
             const t = translations[languageSelector.value];
             speakButton.textContent = t.speakBtn;
+            clearTimeout(silenceTimer);
         };
 
-        recognition.onerror = function() {
+        recognition.onerror = function(event) {
+            console.error('Speech recognition error:', event.error);
+            isListening = false;
             speakButton.classList.remove('listening');
             const t = translations[languageSelector.value];
             speakButton.textContent = t.speakBtn;
+            clearTimeout(silenceTimer);
         };
 
         recognition.onresult = function(event) {
-            inputField.value = event.results[0][0].transcript;
-            sendMessage();
+            let finalTranscript = '';
+            let interimTranscript = '';
+
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                if (event.results[i].isFinal) {
+                    finalTranscript += event.results[i][0].transcript;
+                } else {
+                    interimTranscript += event.results[i][0].transcript;
+                }
+            }
+
+            if (finalTranscript) {
+                const currentVal = inputField.value.trim();
+                inputField.value = (currentVal ? currentVal + ' ' : '') + finalTranscript;
+            }
+
+            // Optional: You could show interim results in the placeholder or a separate span
+            // For now, we just keep the input field updated with final parts
+
+            resetSilenceTimer();
         };
     }
 }
 
+function resetSilenceTimer() {
+    clearTimeout(silenceTimer);
+    silenceTimer = setTimeout(() => {
+        if (isListening && inputField.value.trim() !== "") {
+            recognition.stop();
+            sendMessage();
+        }
+    }, 2000); // 2 seconds of silence before auto-sending
+}
+
 speakButton.addEventListener('click', () => {
     unlockTTS();
-    if (recognition) recognition.start();
+    if (!recognition) return;
+    if (isListening) {
+        recognition.stop();
+    } else {
+        inputField.value = '';
+        recognition.start();
+    }
 });
 </script>
 

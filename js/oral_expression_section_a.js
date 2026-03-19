@@ -180,64 +180,88 @@ function initializeMainFlashcard() {
     const startRecordBtn = document.getElementById('startRecordBtn');
     const recordingResult = document.getElementById('recordingResult');
 
+    let silenceTimer;
+    let isListening = false;
+
+    let accumulatedTranscript = '';
     if(startRecordBtn) {
         startRecordBtn.onclick = () => {
             const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
-            // iPhone-specific fix: Stop any existing recognition before starting a new one to prevent "aborted" error.
-            if (isIOS && recognition) {
-                console.log('Applying iOS speech recognition fix: stopping previous instance.');
+            if (isListening) {
                 recognition.stop();
+                return;
             }
 
             if (!('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
               alert("Sorry, your browser does not support Speech Recognition.");
               return;
             }
-            startRecordBtn.disabled = true;
 
+            accumulatedTranscript = '';
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             recognition = new SpeechRecognition();
             recognition.lang = 'fr-FR';
-            recognition.interimResults = false;
-            recognition.maxAlternatives = 1;
+            recognition.interimResults = true;
+            recognition.continuous = true;
+
+            const resetSilenceTimer = () => {
+                clearTimeout(silenceTimer);
+                silenceTimer = setTimeout(() => {
+                    if (isListening) {
+                        recognition.stop();
+                    }
+                }, 2000); // 2 seconds of silence before auto-stopping
+            };
 
             recognition.onstart = () => {
                 console.log('Speech recognition started.');
+                isListening = true;
                 startRecordBtn.classList.add('listening');
+                recordingResult.textContent = 'Listening...';
+                resetSilenceTimer();
             };
-            recognition.onspeechend = () => {
-              console.log('Speech has stopped being detected.');
-              recognition.stop();
-            };
+
             recognition.onnomatch = () => console.log('Speech not recognized.');
 
             recognition.onresult = (event) => {
-              const transcript = event.results[0][0].transcript.toLowerCase();
-              checkPronunciation(transcript);
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        accumulatedTranscript += event.results[i][0].transcript + ' ';
+                    }
+                }
+                resetSilenceTimer();
             };
+
             recognition.onerror = (event) => {
-              console.log('Speech recognition error:', event);
-              recordingResult.textContent = 'Speech recognition error: ' + event.error;
+                console.log('Speech recognition error:', event);
+                recordingResult.textContent = 'Speech recognition error: ' + event.error;
             };
+
             recognition.onend = () => {
-              console.log('Speech recognition ended.');
-              if (startRecordBtn) {
-                  startRecordBtn.disabled = false;
-                  startRecordBtn.classList.remove('listening');
-              }
+                console.log('Speech recognition ended.');
+                isListening = false;
+                if (startRecordBtn) {
+                    startRecordBtn.classList.remove('listening');
+                }
+                clearTimeout(silenceTimer);
+                if (accumulatedTranscript.trim()) {
+                    checkPronunciation(accumulatedTranscript.trim());
+                } else {
+                    recordingResult.textContent = 'No speech detected.';
+                }
             };
 
             recognition.start();
 
             if (isIOS) {
-              console.log('iOS device detected. Setting 5s timeout to stop recognition.');
+              console.log('iOS device detected. Setting 15s safety timeout.');
               setTimeout(() => {
-                if (recognition) {
-                  console.log('iOS timeout reached. Forcing recognition.stop().');
-                  stopRecording();
+                if (isListening && recognition) {
+                  console.log('iOS safety timeout reached. Forcing recognition.stop().');
+                  recognition.stop();
                 }
-              }, 5000);
+              }, 15000);
             }
         };
     }
