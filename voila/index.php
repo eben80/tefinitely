@@ -51,29 +51,49 @@ $monitors = $stmt->fetchAll();
                         </thead>
                         <tbody>
                             <?php foreach ($monitors as $monitor):
-                                $next_check = 'N/A';
                                 $remaining_seconds = 0;
+                                $last_checked_utc = $monitor['last_checked'] ? $monitor['last_checked'] : null;
+                                $created_at_utc = $monitor['created_at'];
+
                                 if (!$monitor['is_paused']) {
-                                    $base_time = $monitor['last_checked'] ? strtotime($monitor['last_checked']) : strtotime($monitor['created_at']);
+                                    $base_time = $last_checked_utc ? strtotime($last_checked_utc) : strtotime($created_at_utc);
                                     $next_check_time = $base_time + ($monitor['interval_minutes'] * 60);
                                     $remaining_seconds = max(0, $next_check_time - time());
-                                    $next_check = date('H:i:s', $next_check_time);
                                 }
                             ?>
                                 <tr class="monitor-row"
                                     data-id="<?php echo $monitor['id']; ?>"
                                     data-remaining="<?php echo $remaining_seconds; ?>"
                                     data-interval="<?php echo $monitor['interval_minutes'] * 60; ?>"
-                                    data-paused="<?php echo $monitor['is_paused']; ?>">
+                                    data-paused="<?php echo $monitor['is_paused']; ?>"
+                                    data-last-checked="<?php echo $last_checked_utc; ?>"
+                                    data-created-at="<?php echo $created_at_utc; ?>">
                                     <td data-label="URL" style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                                         <a href="<?php echo htmlspecialchars($monitor['url']); ?>" target="_blank" style="color: var(--text-color); text-decoration: none;"><?php echo htmlspecialchars($monitor['url']); ?></a>
                                     </td>
-                                    <td data-label="Interval"><?php echo htmlspecialchars($monitor['interval_minutes']); ?> min</td>
+                                    <td data-label="Interval">
+                                        <div style="display: flex; align-items: center; gap: 5px;">
+                                            <input type="number"
+                                                   class="form-control interval-input"
+                                                   value="<?php echo htmlspecialchars($monitor['interval_minutes']); ?>"
+                                                   min="1" step="1"
+                                                   data-id="<?php echo $monitor['id']; ?>"
+                                                   style="width: 70px; padding: 0.2rem 0.4rem; font-size: 0.9rem; margin: 0;">
+                                            <span style="font-size: 0.85rem; color: var(--muted-text);">min</span>
+                                            <button class="btn save-interval-btn"
+                                                    data-id="<?php echo $monitor['id']; ?>"
+                                                    title="Save Interval"
+                                                    style="padding: 0.2rem 0.4rem; background: none; color: var(--primary-color); border: 1px solid var(--primary-color); font-size: 0.8rem; display: none;">
+                                                <i class="fas fa-save"></i>
+                                            </button>
+                                        </div>
+                                    </td>
                                     <td data-label="Next Check" style="font-size: 0.9rem; color: var(--muted-text);">
-                                        <div style="margin-bottom: 5px;"><?php echo $next_check; ?></div>
+                                        <div class="next-check-display" style="margin-bottom: 5px;">N/A</div>
                                         <div class="progress-container" style="width: 100%; height: 6px; background-color: #eee; border-radius: 3px; overflow: hidden;">
                                             <div class="progress-bar" style="width: 0%; height: 100%; background-color: var(--primary-color); transition: width 1s linear;"></div>
                                         </div>
+                                        <div class="last-checked-display" style="font-size: 0.75rem; margin-top: 5px;"></div>
                                     </td>
                                     <td data-label="Status">
                                         <?php if ($monitor['is_paused']): ?>
@@ -112,38 +132,124 @@ $monitors = $stmt->fetchAll();
             const csrfToken = '<?php echo $_SESSION['csrf_token']; ?>';
             const rows = document.querySelectorAll('.monitor-row');
 
+            const timeFormatter = new Intl.DateTimeFormat(undefined, {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            });
+
+            const dateTimeFormatter = new Intl.DateTimeFormat(undefined, {
+                dateStyle: 'short',
+                timeStyle: 'short'
+            });
+
             function updateCountdowns() {
                 let anyFinished = false;
+                const now = Math.floor(Date.now() / 1000);
 
                 document.querySelectorAll('.monitor-row').forEach(row => {
                     const isPaused = row.dataset.paused === '1';
-                    if (isPaused) return;
+                    const lastCheckedUtc = row.dataset.lastChecked;
+                    const createdAtUtc = row.dataset.createdAt;
+                    const intervalSeconds = parseInt(row.dataset.interval);
 
-                    let remaining = parseInt(row.dataset.remaining);
-                    const interval = parseInt(row.dataset.interval);
+                    const nextCheckDisplay = row.querySelector('.next-check-display');
+                    const lastCheckedDisplay = row.querySelector('.last-checked-display');
                     const progressBar = row.querySelector('.progress-bar');
 
-                    if (remaining > 0) {
-                        remaining--;
-                        row.dataset.remaining = remaining;
+                    // Update Last Checked display (Localized)
+                    if (lastCheckedUtc) {
+                        const lastCheckedDate = new Date(lastCheckedUtc + ' UTC');
+                        lastCheckedDisplay.textContent = 'Last: ' + dateTimeFormatter.format(lastCheckedDate);
+                    } else {
+                        lastCheckedDisplay.textContent = 'Never checked';
+                    }
 
-                        const percent = ((interval - remaining) / interval) * 100;
+                    if (isPaused) {
+                        nextCheckDisplay.textContent = 'Paused';
+                        progressBar.style.width = '0%';
+                        return;
+                    }
+
+                    const baseTime = lastCheckedUtc ? new Date(lastCheckedUtc + ' UTC') : new Date(createdAtUtc + ' UTC');
+                    const nextCheckTimestamp = Math.floor(baseTime.getTime() / 1000) + intervalSeconds;
+                    let remaining = nextCheckTimestamp - now;
+
+                    if (remaining > 0) {
+                        nextCheckDisplay.textContent = timeFormatter.format(new Date(nextCheckTimestamp * 1000));
+                        const percent = ((intervalSeconds - remaining) / intervalSeconds) * 100;
                         progressBar.style.width = percent + '%';
                     } else {
-                        anyFinished = true;
+                        nextCheckDisplay.textContent = 'Checking...';
                         progressBar.style.width = '100%';
+                        anyFinished = true;
                     }
                 });
 
                 if (anyFinished) {
                     // Avoid multiple reloads by stopping countdowns
                     clearInterval(countdownInterval);
-                    setTimeout(() => location.reload(), 2000);
+                    setTimeout(() => location.reload(), 3000);
                 }
             }
 
             const countdownInterval = setInterval(updateCountdowns, 1000);
             updateCountdowns(); // Initial run
+
+            // Handle interval input changes
+            document.querySelectorAll('.interval-input').forEach(input => {
+                input.addEventListener('input', function() {
+                    const row = this.closest('.monitor-row');
+                    const saveBtn = row.querySelector('.save-interval-btn');
+                    const originalValue = this.defaultValue;
+
+                    if (this.value != originalValue && parseInt(this.value) > 0) {
+                        saveBtn.style.display = 'inline-block';
+                    } else {
+                        saveBtn.style.display = 'none';
+                    }
+                });
+            });
+
+            // AJAX for saving interval
+            document.querySelectorAll('.save-interval-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = this.dataset.id;
+                    const row = this.closest('.monitor-row');
+                    const input = row.querySelector('.interval-input');
+                    const newInterval = parseInt(input.value);
+
+                    if (!newInterval || newInterval <= 0) {
+                        alert('Interval must be a positive integer.');
+                        return;
+                    }
+
+                    const formData = new FormData();
+                    formData.append('id', id);
+                    formData.append('interval_minutes', newInterval);
+                    formData.append('csrf_token', csrfToken);
+
+                    fetch('update_interval.php', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            input.defaultValue = newInterval;
+                            this.style.display = 'none';
+                            // Update row data to reset countdown logic
+                            row.dataset.interval = newInterval * 60;
+                            // Optionally recalculate remaining time, or just reload to be safe
+                            // But let's try updating data-remaining to be a full interval
+                            row.dataset.remaining = newInterval * 60;
+                        } else {
+                            alert('Error: ' + data.message);
+                        }
+                    });
+                });
+            });
 
             // AJAX for Pause/Resume
             document.querySelectorAll('.toggle-pause-btn').forEach(btn => {

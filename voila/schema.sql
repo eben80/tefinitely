@@ -16,6 +16,9 @@ CREATE TABLE IF NOT EXISTS monitors (
     last_hash VARCHAR(64),
     last_checked TIMESTAMP NULL,
     interval_minutes INT DEFAULT 60,
+    is_paused TINYINT(1) DEFAULT 0,
+    emails_sent_this_hour INT DEFAULT 0,
+    hour_start_time TIMESTAMP NULL DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
