@@ -105,7 +105,7 @@ try {
                 'first_name' => $first_name,
                 'role' => 'user',
                 'subscription_status' => $subscription_status,
-                'celpip_enabled' => 1
+                'celpip_enabled' => 0
             ];
 
             // Log registration as a successful login

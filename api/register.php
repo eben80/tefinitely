@@ -110,7 +110,7 @@ if ($stmt->execute()) {
 
     $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https://" : "http://";
     $host = $_SERVER['HTTP_HOST'];
-    $verification_link = $protocol . $host . "/api/auth/verify_email.php?token=" . $verification_token;
+    $verification_link = $protocol . $host . "/api/auth/verify_email.php?token=" . $verification_token . "&email=" . urlencode($email);
 
     $subject = "Verify Your Email - Tefinitely";
     $body_html = "<h1>Welcome, {$first_name}!</h1>

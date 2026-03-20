@@ -31,16 +31,7 @@ try {
         throw new Exception('Email and password are required.', 400);
     }
 
-    // Check for lockout
-    $stmt_lockout = $conn->prepare("SELECT COUNT(*) as failed_count FROM login_history WHERE email = ? AND status = 'failed' AND created_at >= NOW() - INTERVAL 15 MINUTE");
-    $stmt_lockout->bind_param("s", $email);
-    $stmt_lockout->execute();
-    $lockout_result = $stmt_lockout->get_result()->fetch_assoc();
-    if ($lockout_result['failed_count'] >= 5) {
-        throw new Exception('Too many failed attempts. Please try again in 15 minutes.', 429);
-    }
-
-    // Fetch user from the database
+    // Fetch user from the database first to check verification status
     $stmt = $conn->prepare("SELECT id, first_name, password, role, subscription_status, email_verified, celpip_enabled FROM users WHERE email = ?");
     if (!$stmt) {
         throw new Exception("Database prepare failed: " . $conn->error);
@@ -52,17 +43,29 @@ try {
     if ($result->num_rows === 1) {
         $user = $result->fetch_assoc();
 
-        // Check if email is verified (admins can bypass)
+        // Check if email is verified (admins can bypass) - check this BEFORE lockout
         if ($user['email_verified'] == 0 && $user['role'] !== 'admin') {
-            // Log failed attempt due to unverified email
-            $stmt_log = $conn->prepare("INSERT INTO login_history (user_id, email, ip_address, country_code, status, user_agent) VALUES (?, ?, ?, ?, 'failed', ?)");
+            // Log unverified attempt (doesn't count towards lockout)
+            $stmt_log = $conn->prepare("INSERT INTO login_history (user_id, email, ip_address, country_code, status, user_agent) VALUES (?, ?, ?, ?, 'unverified', ?)");
             $stmt_log->bind_param("issss", $user['id'], $email, $ip_address, $country_code, $user_agent);
             $stmt_log->execute();
             $stmt_log->close();
 
             throw new Exception('Please verify your email address before logging in.', 403);
         }
+    }
 
+    // Check for lockout (only for verified users or non-existent users)
+    $stmt_lockout = $conn->prepare("SELECT COUNT(*) as failed_count FROM login_history WHERE email = ? AND status = 'failed' AND created_at >= NOW() - INTERVAL 15 MINUTE");
+    $stmt_lockout->bind_param("s", $email);
+    $stmt_lockout->execute();
+    $lockout_result = $stmt_lockout->get_result()->fetch_assoc();
+    if ($lockout_result['failed_count'] >= 5) {
+        throw new Exception('Too many failed attempts. Please try again in 15 minutes.', 429);
+    }
+
+    if ($result->num_rows === 1) {
+        // User exists and is verified (checked above)
         // Verify password
         if (password_verify($password, $user['password'])) {
             // Password is correct, log success and start the session

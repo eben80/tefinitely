@@ -73,7 +73,7 @@ try {
 
         $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https://" : "http://";
         $host = $_SERVER['HTTP_HOST'];
-        $verification_link = $protocol . $host . "/api/auth/verify_email.php?token=" . $verification_token;
+        $verification_link = $protocol . $host . "/api/auth/verify_email.php?token=" . $verification_token . "&email=" . urlencode($new_email);
 
         $subject = "Verify Your New Email Address - Tefinitely";
         $body_html = "<h1>Email Change Request</h1>

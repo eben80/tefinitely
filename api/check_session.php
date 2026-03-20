@@ -55,7 +55,7 @@ if (isset($_SESSION['user_id'])) {
 
     // Prepare user data for the response
     $response_user = $user_details; // Start with all details from DB
-    $response_user['celpip_enabled'] = isset($user_details['celpip_enabled']) ? (bool)$user_details['celpip_enabled'] : true;
+    $response_user['celpip_enabled'] = isset($user_details['celpip_enabled']) ? (bool)$user_details['celpip_enabled'] : false;
     $response_user['trial_days_left'] = $trial_days_left;
     $response_user['user_id'] = $_SESSION['user_id'];
     $response_user['first_name'] = $_SESSION['first_name'];
