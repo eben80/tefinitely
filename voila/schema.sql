@@ -1,0 +1,21 @@
+CREATE DATABASE IF NOT EXISTS url_monitor;
+USE url_monitor;
+
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS monitors (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    url TEXT NOT NULL,
+    last_content LONGTEXT,
+    last_hash VARCHAR(64),
+    last_checked TIMESTAMP NULL,
+    interval_minutes INT DEFAULT 60,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
