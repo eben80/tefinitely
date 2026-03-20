@@ -7,3 +7,5 @@ sessions/
 php_server.log
 __pycache__/
 *.pyc
+voila/config.php
+voila/config.py

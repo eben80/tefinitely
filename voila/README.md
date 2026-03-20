@@ -11,21 +11,24 @@ A PHP-based URL monitoring tool that notifies users via email when changes are d
 
 ## Installation and Setup
 
-The application is configured to run in `/var/www/tefinitely.com/voila` and will be accessible at `https://tefinitely.com/voila`.
+The application is configured to run in `/var/www/tefinitely.com/html/voila` and will be accessible at `https://tefinitely.com/voila`.
 
-1. **Upload Files:** Place all project files in `/var/www/tefinitely.com/voila`.
+1. **Upload Files:** Place all project files in `/var/www/tefinitely.com/html/voila`.
 2. **Database:** Create a MySQL database and run `schema.sql` to initialize the tables.
-3. **Dependencies:** Install the required Python libraries:
+3. **Dependencies:** Create a virtual environment and install the required Python libraries:
    ```bash
-   pip3 install beautifulsoup4 mysql-connector-python
+   cd /var/www/tefinitely.com/html/voila
+   python3 -m venv venv
+   source venv/bin/activate
+   pip install -r requirements.txt
    ```
 4. **Configuration:**
-   - Update `config.php` with your MySQL host, database name, user, and password.
-   - Update `config.py` with the same MySQL credentials.
-5. **Email:** Configure the SMTP server in `monitor.py` for notifications (it defaults to `localhost`).
+   - Copy `config.php.example` to `config.php` and update it with your MySQL host, database name, user, and password.
+   - Copy `config.py.example` to `config.py` and update it with the same MySQL credentials and AWS SES configuration.
+5. **Email:** The application uses AWS SES for notifications as configured in `config.py`.
 6. **Background Monitoring:** Set up a cron job to run the monitor script. For example, to run every minute:
    ```bash
-   * * * * * python3 /var/www/tefinitely.com/voila/monitor.py >> /var/log/url_monitor.log 2>&1
+   * * * * * /var/www/tefinitely.com/html/voila/venv/bin/python3 /var/www/tefinitely.com/html/voila/monitor.py >> /var/log/url_monitor.log 2>&1
    ```
 
 ## Usage
