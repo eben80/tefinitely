@@ -17,6 +17,7 @@ $monitors = $stmt->fetchAll();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Voila!</title>
     <link rel="stylesheet" href="<?php echo asset_v('voila/style.css'); ?>">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <div class="container">
@@ -84,19 +85,18 @@ $monitors = $stmt->fetchAll();
                                         <?php endif; ?>
                                     </td>
                                     <td style="text-align: right;">
-                                        <form action="toggle_pause.php" method="POST" style="display:inline;">
-                                            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
-                                            <input type="hidden" name="id" value="<?php echo $monitor['id']; ?>">
-                                            <input type="hidden" name="is_paused" value="<?php echo $monitor['is_paused'] ? '0' : '1'; ?>">
-                                            <button type="submit" class="btn" style="padding: 0.3rem 0.6rem; font-size: 0.8rem; background-color: var(--border-color); color: var(--text-color);">
-                                                <?php echo $monitor['is_paused'] ? 'Resume' : 'Pause'; ?>
-                                            </button>
-                                        </form>
-                                        <form action="delete_monitor.php" method="POST" style="display:inline;">
-                                            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
-                                            <input type="hidden" name="id" value="<?php echo $monitor['id']; ?>">
-                                            <button type="submit" class="btn btn-danger" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;" onclick="return confirm('Are you sure you want to delete this monitor?')">Delete</button>
-                                        </form>
+                                        <button class="btn toggle-pause-btn"
+                                                data-id="<?php echo $monitor['id']; ?>"
+                                                data-paused="<?php echo $monitor['is_paused']; ?>"
+                                                style="padding: 0.3rem 0.6rem; font-size: 0.8rem; background-color: var(--border-color); color: var(--text-color);">
+                                            <i class="fas <?php echo $monitor['is_paused'] ? 'fa-play' : 'fa-pause'; ?>"></i>
+                                            <?php echo $monitor['is_paused'] ? 'Resume' : 'Pause'; ?>
+                                        </button>
+                                        <button class="btn btn-danger delete-btn"
+                                                data-id="<?php echo $monitor['id']; ?>"
+                                                style="padding: 0.3rem 0.6rem; font-size: 0.8rem;">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -109,12 +109,13 @@ $monitors = $stmt->fetchAll();
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            const csrfToken = '<?php echo $_SESSION['csrf_token']; ?>';
             const rows = document.querySelectorAll('.monitor-row');
 
             function updateCountdowns() {
                 let anyFinished = false;
 
-                rows.forEach(row => {
+                document.querySelectorAll('.monitor-row').forEach(row => {
                     const isPaused = row.dataset.paused === '1';
                     if (isPaused) return;
 
@@ -135,13 +136,50 @@ $monitors = $stmt->fetchAll();
                 });
 
                 if (anyFinished) {
-                    // Small delay before refresh to let user see 100%
+                    // Avoid multiple reloads by stopping countdowns
+                    clearInterval(countdownInterval);
                     setTimeout(() => location.reload(), 2000);
                 }
             }
 
-            setInterval(updateCountdowns, 1000);
+            const countdownInterval = setInterval(updateCountdowns, 1000);
             updateCountdowns(); // Initial run
+
+            // AJAX for Pause/Resume
+            document.querySelectorAll('.toggle-pause-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = this.dataset.id;
+                    const isPaused = parseInt(this.dataset.paused);
+                    const newPaused = isPaused ? 0 : 1;
+
+                    const formData = new FormData();
+                    formData.append('id', id);
+                    formData.append('is_paused', newPaused);
+                    formData.append('csrf_token', csrfToken);
+
+                    fetch('toggle_pause.php', {
+                        method: 'POST',
+                        body: formData
+                    }).then(() => location.reload());
+                });
+            });
+
+            // AJAX for Delete
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (!confirm('Are you sure you want to delete this monitor?')) return;
+
+                    const id = this.dataset.id;
+                    const formData = new FormData();
+                    formData.append('id', id);
+                    formData.append('csrf_token', csrfToken);
+
+                    fetch('delete_monitor.php', {
+                        method: 'POST',
+                        body: formData
+                    }).then(() => location.reload());
+                });
+            });
         });
     </script>
 </body>
