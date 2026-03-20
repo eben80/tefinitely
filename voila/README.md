@@ -11,7 +11,7 @@ A PHP-based URL monitoring tool that notifies users via email when changes are d
 
 ## Installation and Setup
 
-The application is configured to run in `/var/www/tefinitely.com/voila` and will be accessible at `https://tefinitely.com/voila`.
+The application is configured to run in `/var/www/tefinitely.com/html/voila` and will be accessible at `https://tefinitely.com/voila`.
 
 1. **Upload Files:** Place all project files in `/var/www/tefinitely.com/voila`.
 2. **Database:** Create a MySQL database and run `schema.sql` to initialize the tables.
