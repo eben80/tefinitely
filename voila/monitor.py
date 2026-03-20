@@ -1,12 +1,12 @@
 import urllib.request
 import hashlib
 import difflib
-import smtplib
-from email.mime.text import MIMEText
+import boto3
+from botocore.exceptions import BotoCoreError, ClientError
 from datetime import datetime, timedelta
 import mysql.connector
 from bs4 import BeautifulSoup
-from config import get_db_connection
+from config import get_db_connection, AWS_CONFIG
 
 def fetch_url(url):
     try:
@@ -63,21 +63,56 @@ def get_diff_snippet(old_content, new_content):
 
 def send_notification(to_email, url, snippet):
     subject = f"Visible change detected on: {url}"
-    body = f"A visible text change was detected on {url}.\n\n--- Snippet of visible changes ---\n\n{snippet}\n\n"
+    body_text = f"A visible text change was detected on {url}.\n\n--- Snippet of visible changes ---\n\n{snippet}\n\n"
+    body_html = f"""
+    <html>
+    <head></head>
+    <body>
+      <h1>Visible change detected</h1>
+      <p>A visible text change was detected on <a href="{url}">{url}</a>.</p>
+      <p>--- Snippet of visible changes ---</p>
+      <pre>{snippet}</pre>
+    </body>
+    </html>
+    """
 
-    msg = MIMEText(body)
-    msg['Subject'] = subject
-    msg['From'] = 'monitor@example.com'
-    msg['To'] = to_email
+    client = boto3.client(
+        'ses',
+        region_name=AWS_CONFIG['region_name'],
+        aws_access_key_id=AWS_CONFIG['aws_access_key_id'],
+        aws_secret_access_key=AWS_CONFIG['aws_secret_access_key']
+    )
 
     try:
-        with smtplib.SMTP('localhost') as s:
-            s.send_message(msg)
-    except Exception as e:
+        response = client.send_email(
+            Destination={
+                'ToAddresses': [to_email],
+            },
+            Message={
+                'Body': {
+                    'Html': {
+                        'Charset': 'UTF-8',
+                        'Data': body_html,
+                    },
+                    'Text': {
+                        'Charset': 'UTF-8',
+                        'Data': body_text,
+                    },
+                },
+                'Subject': {
+                    'Charset': 'UTF-8',
+                    'Data': subject,
+                },
+            },
+            Source=AWS_CONFIG['sender_email'],
+            ReplyToAddresses=[AWS_CONFIG['reply_to']]
+        )
+        print(f"Email sent! Message ID: {response['MessageId']}")
+    except (BotoCoreError, ClientError) as e:
         print(f"Error sending email to {to_email}: {e}")
         print(f"--- MOCK EMAIL ---")
         print(f"Subject: {subject}")
-        print(f"Body:\n{body}")
+        print(f"Body:\n{body_text}")
 
 def check_monitors():
     conn = get_db_connection()
