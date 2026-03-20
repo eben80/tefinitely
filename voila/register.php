@@ -22,11 +22,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute([$email, $hashed_password]);
 
             // Send welcome email
-            $subject = "Welcome to URL Monitor";
-            $body_html = "<h1>Welcome to URL Monitor!</h1>
-                          <p>Thank you for registering. You can now start monitoring URLs for visible changes.</p>
-                          <p><a href='https://tefinitely.com/voila/login.php'>Login here</a> to get started.</p>";
-            $body_text = "Welcome to URL Monitor!\n\nThank you for registering. You can now start monitoring URLs for visible changes.\n\nLogin here to get started: https://tefinitely.com/voila/login.php";
+            $subject = "Welcome to Voila!";
+            $body_html = "
+            <div style='font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 8px; overflow: hidden;'>
+                <div style='background: #007bff; padding: 20px; text-align: center;'>
+                    <h1 style='color: white; margin: 0;'>Voila!</h1>
+                </div>
+                <div style='padding: 30px; line-height: 1.6; color: #333;'>
+                    <h2>Welcome to Voila!</h2>
+                    <p>Thank you for registering. You're all set to start monitoring your favorite web pages for visible changes.</p>
+                    <div style='text-align: center; margin: 30px 0;'>
+                        <a href='https://tefinitely.com/voila/login.php' style='background: #007bff; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;'>Login to your Dashboard</a>
+                    </div>
+                    <p>If you have any questions, feel free to reply to this email.</p>
+                </div>
+                <div style='background: #f8f9fa; padding: 15px; text-align: center; font-size: 12px; color: #6c757d;'>
+                    &copy; " . date('Y') . " Voila! URL Monitoring Service
+                </div>
+            </div>";
+            $body_text = "Welcome to Voila!\n\nThank you for registering. You can now start monitoring URLs for visible changes.\n\nLogin here to get started: https://tefinitely.com/voila/login.php";
 
             sendEmail($email, $subject, $body_html, $body_text);
 
@@ -48,8 +62,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - URL Monitor</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Register - Voila!</title>
+    <link rel="stylesheet" href="<?php echo asset_v('voila/style.css'); ?>">
 </head>
 <body>
     <div class="container" style="max-width: 400px; margin-top: 5rem;">

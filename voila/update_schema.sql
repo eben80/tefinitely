@@ -1,0 +1,3 @@
+ALTER TABLE monitors ADD COLUMN is_paused TINYINT(1) DEFAULT 0;
+ALTER TABLE monitors ADD COLUMN emails_sent_this_hour INT DEFAULT 0;
+ALTER TABLE monitors ADD COLUMN hour_start_time TIMESTAMP NULL DEFAULT NULL;
