@@ -8,6 +8,10 @@ import mysql.connector
 from bs4 import BeautifulSoup
 from config import get_db_connection, AWS_CONFIG
 
+def log(message):
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    print(f"[{timestamp}] {message}")
+
 def fetch_url(url):
     try:
         req = urllib.request.Request(
@@ -21,7 +25,7 @@ def fetch_url(url):
             html = response.read().decode('utf-8', errors='ignore')
             return html
     except Exception as e:
-        print(f"Error fetching {url}: {e}")
+        log(f"Error fetching {url}: {e}")
         return None
 
 def extract_visible_text(html):
@@ -47,7 +51,7 @@ def extract_visible_text(html):
 
         return text
     except Exception as e:
-        print(f"Error extracting text: {e}")
+        log(f"Error extracting text: {e}")
         return html # Fallback to raw HTML if extraction fails
 
 def get_hash(content):
@@ -126,12 +130,12 @@ def send_notification(to_email, url, snippet):
             Source=AWS_CONFIG['sender_email'],
             ReplyToAddresses=[AWS_CONFIG['reply_to']]
         )
-        print(f"Email sent! Message ID: {response['MessageId']}")
+        log(f"Email sent! Message ID: {response['MessageId']}")
     except (BotoCoreError, ClientError) as e:
-        print(f"Error sending email to {to_email}: {e}")
-        print(f"--- MOCK EMAIL ---")
-        print(f"Subject: {subject}")
-        print(f"Body:\n{body_text}")
+        log(f"Error sending email to {to_email}: {e}")
+        log(f"--- MOCK EMAIL ---")
+        log(f"Subject: {subject}")
+        log(f"Body:\n{body_text}")
 
 def check_monitors():
     conn = get_db_connection()
@@ -151,7 +155,7 @@ def check_monitors():
     monitors = cursor.fetchall()
 
     for monitor in monitors:
-        print(f"Checking {monitor['url']}...")
+        log(f"Checking {monitor['url']}...")
         html = fetch_url(monitor['url'])
         if html is None:
             continue
@@ -180,7 +184,7 @@ def check_monitors():
                     send_notification(monitor['email'], monitor['url'], snippet)
                     cursor.execute("UPDATE monitors SET last_content = %s, last_hash = %s, last_checked = NOW(), last_changed = NOW(), emails_sent_this_hour = emails_sent_this_hour + 1 WHERE id = %s", (visible_text, new_hash, monitor['id']))
                 else:
-                    print(f"Email cap reached for {monitor['url']}. Notification skipped.")
+                    log(f"Email cap reached for {monitor['url']}. Notification skipped.")
                     cursor.execute("UPDATE monitors SET last_content = %s, last_hash = %s, last_checked = NOW(), last_changed = NOW() WHERE id = %s", (visible_text, new_hash, monitor['id']))
             else:
                 cursor.execute("UPDATE monitors SET last_checked = NOW() WHERE id = %s", (monitor['id'],))
