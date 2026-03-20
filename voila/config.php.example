@@ -18,6 +18,9 @@ try {
 // Start session
 session_start();
 
+// Asset versioning helper
+require_once __DIR__ . '/../api/version_helper.php';
+
 function is_logged_in() {
     return isset($_SESSION['user_id']);
 }
