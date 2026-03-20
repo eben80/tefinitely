@@ -178,10 +178,10 @@ def check_monitors():
             if snippet: # Only notify if there's an actual difference in text
                 if emails_sent < 6:
                     send_notification(monitor['email'], monitor['url'], snippet)
-                    cursor.execute("UPDATE monitors SET last_content = %s, last_hash = %s, last_checked = NOW(), emails_sent_this_hour = emails_sent_this_hour + 1 WHERE id = %s", (visible_text, new_hash, monitor['id']))
+                    cursor.execute("UPDATE monitors SET last_content = %s, last_hash = %s, last_checked = NOW(), last_changed = NOW(), emails_sent_this_hour = emails_sent_this_hour + 1 WHERE id = %s", (visible_text, new_hash, monitor['id']))
                 else:
                     print(f"Email cap reached for {monitor['url']}. Notification skipped.")
-                    cursor.execute("UPDATE monitors SET last_content = %s, last_hash = %s, last_checked = NOW() WHERE id = %s", (visible_text, new_hash, monitor['id']))
+                    cursor.execute("UPDATE monitors SET last_content = %s, last_hash = %s, last_checked = NOW(), last_changed = NOW() WHERE id = %s", (visible_text, new_hash, monitor['id']))
             else:
                 cursor.execute("UPDATE monitors SET last_checked = NOW() WHERE id = %s", (monitor['id'],))
         else:
