@@ -1,5 +1,7 @@
 <?php
 require_once 'config.php';
+require_once __DIR__ . '/../db/db_config.php';
+require_once __DIR__ . '/../api/services/EmailService.php';
 
 if (is_logged_in()) {
     redirect('index.php');
@@ -18,6 +20,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $stmt = $pdo->prepare("INSERT INTO users (email, password) VALUES (?, ?)");
             $stmt->execute([$email, $hashed_password]);
+
+            // Send welcome email
+            $subject = "Welcome to URL Monitor";
+            $body_html = "<h1>Welcome to URL Monitor!</h1>
+                          <p>Thank you for registering. You can now start monitoring URLs for visible changes.</p>
+                          <p><a href='https://tefinitely.com/voila/login.php'>Login here</a> to get started.</p>";
+            $body_text = "Welcome to URL Monitor!\n\nThank you for registering. You can now start monitoring URLs for visible changes.\n\nLogin here to get started: https://tefinitely.com/voila/login.php";
+
+            sendEmail($email, $subject, $body_html, $body_text);
+
             $success = "Registration successful! You can now <a href='login.php'>login</a>.";
         } catch (PDOException $e) {
             if ($e->getCode() == 23000) {

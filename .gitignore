@@ -5,3 +5,5 @@ verification/
 vendor/
 sessions/
 php_server.log
+__pycache__/
+*.pyc

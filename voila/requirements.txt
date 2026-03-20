@@ -1,0 +1,4 @@
+boto3
+botocore
+mysql-connector-python
+beautifulsoup4
