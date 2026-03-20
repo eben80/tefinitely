@@ -14,7 +14,7 @@ def fetch_url(url):
             url,
             data=None,
             headers={
-                'User-Agent': 'Mozilla/5.0 (URL Monitor Script)'
+            'User-Agent': 'Mozilla/5.0 (Voila! Bot)'
             }
         )
         with urllib.request.urlopen(req) as response:

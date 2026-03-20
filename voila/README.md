@@ -1,4 +1,4 @@
-# URL Monitor
+# Voila!
 
 A PHP-based URL monitoring tool that notifies users via email when changes are detected on tracked pages. This version is designed to detect only **user-visible text changes**, ignoring source code-only modifications (like scripts, styles, and meta tags).
 
