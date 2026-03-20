@@ -67,6 +67,7 @@ $monitors = $stmt->fetchAll();
                                     data-interval="<?php echo $monitor['interval_minutes'] * 60; ?>"
                                     data-paused="<?php echo $monitor['is_paused']; ?>"
                                     data-last-checked="<?php echo $last_checked_utc; ?>"
+                                    data-last-changed="<?php echo $monitor['last_changed']; ?>"
                                     data-created-at="<?php echo $created_at_utc; ?>">
                                     <td data-label="URL" style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                                         <a href="<?php echo htmlspecialchars($monitor['url']); ?>" target="_blank" style="color: var(--text-color); text-decoration: none;"><?php echo htmlspecialchars($monitor['url']); ?></a>
@@ -94,6 +95,7 @@ $monitors = $stmt->fetchAll();
                                             <div class="progress-bar" style="width: 0%; height: 100%; background-color: var(--primary-color); transition: width 1s linear;"></div>
                                         </div>
                                         <div class="last-checked-display" style="font-size: 0.75rem; margin-top: 5px;"></div>
+                                        <div class="last-changed-display" style="font-size: 0.75rem; margin-top: 2px; color: var(--success-color); font-weight: 600;"></div>
                                     </td>
                                     <td data-label="Status">
                                         <?php if ($monitor['is_paused']): ?>
@@ -151,19 +153,29 @@ $monitors = $stmt->fetchAll();
                 document.querySelectorAll('.monitor-row').forEach(row => {
                     const isPaused = row.dataset.paused === '1';
                     const lastCheckedUtc = row.dataset.lastChecked;
+                    const lastChangedUtc = row.dataset.lastChanged;
                     const createdAtUtc = row.dataset.createdAt;
                     const intervalSeconds = parseInt(row.dataset.interval);
 
                     const nextCheckDisplay = row.querySelector('.next-check-display');
                     const lastCheckedDisplay = row.querySelector('.last-checked-display');
+                    const lastChangedDisplay = row.querySelector('.last-changed-display');
                     const progressBar = row.querySelector('.progress-bar');
 
                     // Update Last Checked display (Localized)
-                    if (lastCheckedUtc) {
+                    if (lastCheckedUtc && lastCheckedUtc !== '') {
                         const lastCheckedDate = new Date(lastCheckedUtc + ' UTC');
-                        lastCheckedDisplay.textContent = 'Last: ' + dateTimeFormatter.format(lastCheckedDate);
+                        lastCheckedDisplay.textContent = 'Last check: ' + dateTimeFormatter.format(lastCheckedDate);
                     } else {
                         lastCheckedDisplay.textContent = 'Never checked';
+                    }
+
+                    // Update Last Changed display (Localized)
+                    if (lastChangedUtc && lastChangedUtc !== '') {
+                        const lastChangedDate = new Date(lastChangedUtc + ' UTC');
+                        lastChangedDisplay.textContent = 'Last change: ' + dateTimeFormatter.format(lastChangedDate);
+                    } else {
+                        lastChangedDisplay.textContent = '';
                     }
 
                     if (isPaused) {
@@ -172,7 +184,7 @@ $monitors = $stmt->fetchAll();
                         return;
                     }
 
-                    const baseTime = lastCheckedUtc ? new Date(lastCheckedUtc + ' UTC') : new Date(createdAtUtc + ' UTC');
+                    const baseTime = (lastCheckedUtc && lastCheckedUtc !== '') ? new Date(lastCheckedUtc + ' UTC') : new Date(createdAtUtc + ' UTC');
                     const nextCheckTimestamp = Math.floor(baseTime.getTime() / 1000) + intervalSeconds;
                     let remaining = nextCheckTimestamp - now;
 
@@ -188,10 +200,34 @@ $monitors = $stmt->fetchAll();
                 });
 
                 if (anyFinished) {
-                    // Avoid multiple reloads by stopping countdowns
-                    clearInterval(countdownInterval);
-                    setTimeout(() => location.reload(), 3000);
+                    fetchMonitorData();
                 }
+            }
+
+            let isFetching = false;
+            function fetchMonitorData() {
+                if (isFetching) return;
+                isFetching = true;
+
+                fetch('api_get_monitors.php')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            data.monitors.forEach(monitor => {
+                                const row = document.querySelector(`.monitor-row[data-id="${monitor.id}"]`);
+                                if (row) {
+                                    row.dataset.lastChecked = monitor.last_checked || '';
+                                    row.dataset.lastChanged = monitor.last_changed || '';
+                                    row.dataset.paused = monitor.is_paused;
+                                    row.dataset.interval = monitor.interval_minutes * 60;
+                                }
+                            });
+                        }
+                    })
+                    .catch(err => console.error('Fetch error:', err))
+                    .finally(() => {
+                        setTimeout(() => { isFetching = false; }, 5000); // Polling throttle
+                    });
             }
 
             const countdownInterval = setInterval(updateCountdowns, 1000);
