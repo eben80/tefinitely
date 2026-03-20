@@ -99,11 +99,11 @@ $monitors = $stmt->fetchAll();
                                     </td>
                                     <td data-label="Status">
                                         <?php if ($monitor['is_paused']): ?>
-                                            <span class="badge" style="background-color: var(--error-color); color: #fff;">Paused</span>
+                                            <span class="badge status-badge" style="background-color: var(--error-color); color: #fff;">Paused</span>
                                         <?php elseif ($monitor['last_hash']): ?>
-                                            <span class="badge badge-active">Active</span>
+                                            <span class="badge badge-active status-badge">Active</span>
                                         <?php else: ?>
-                                            <span class="badge badge-pending">Pending</span>
+                                            <span class="badge badge-pending status-badge">Pending</span>
                                         <?php endif; ?>
                                     </td>
                                     <td style="text-align: right;">
@@ -220,6 +220,25 @@ $monitors = $stmt->fetchAll();
                                     row.dataset.lastChanged = monitor.last_changed || '';
                                     row.dataset.paused = monitor.is_paused;
                                     row.dataset.interval = monitor.interval_minutes * 60;
+
+                                    // Update Status Badge
+                                    const statusBadge = row.querySelector('.status-badge');
+                                    if (monitor.is_paused == 1) {
+                                        statusBadge.textContent = 'Paused';
+                                        statusBadge.className = 'badge status-badge';
+                                        statusBadge.style.backgroundColor = 'var(--error-color)';
+                                        statusBadge.style.color = '#fff';
+                                    } else if (monitor.last_hash) {
+                                        statusBadge.textContent = 'Active';
+                                        statusBadge.className = 'badge badge-active status-badge';
+                                        statusBadge.style.backgroundColor = '';
+                                        statusBadge.style.color = '';
+                                    } else {
+                                        statusBadge.textContent = 'Pending';
+                                        statusBadge.className = 'badge badge-pending status-badge';
+                                        statusBadge.style.backgroundColor = '';
+                                        statusBadge.style.color = '';
+                                    }
                                 }
                             });
                         }
