@@ -1,24 +1,34 @@
 # URL Monitor
 
-A PHP-based URL monitoring tool that notifies users via email when changes are detected on tracked pages.
+A PHP-based URL monitoring tool that notifies users via email when changes are detected on tracked pages. This version is designed to detect only **user-visible text changes**, ignoring source code-only modifications (like scripts, styles, and meta tags).
 
 ## Features
-- User registration and login.
-- Add multiple URLs to monitor.
-- Background script to check for changes at intervals.
-- Email notifications with snippets of changes (before/after).
-- Designed to run in a subdirectory on an Nginx/PHP/MySQL server.
+- User registration and login (hashed passwords, CSRF protection).
+- Add multiple URLs to monitor with custom intervals.
+- Background script to check for changes and extract only visible text.
+- Email notifications with snippets of visible changes (unified diff).
+- Designed for an Nginx/PHP/MySQL stack on EC2.
 
 ## Installation and Setup
 
-1. **Database:** Create a MySQL database and run `schema.sql` to initialize the tables.
-2. **Dependencies:** Install the required Python libraries:
+The application is configured to run in `/var/www/tefinitely.com/voila` and will be accessible at `https://tefinitely.com/voila`.
+
+1. **Upload Files:** Place all project files in `/var/www/tefinitely.com/voila`.
+2. **Database:** Create a MySQL database and run `schema.sql` to initialize the tables.
+3. **Dependencies:** Install the required Python libraries:
    ```bash
-   pip install beautifulsoup4 mysql-connector-python
+   pip3 install beautifulsoup4 mysql-connector-python
    ```
-3. **Configuration:** Update `config.php` and `config.py` with your database credentials.
-4. **Email:** Configure the SMTP server in `monitor.py` for notifications.
-5. **Background Monitoring:** Set up a cron job to run the monitor script. For example, to run every minute:
+4. **Configuration:**
+   - Update `config.php` with your MySQL host, database name, user, and password.
+   - Update `config.py` with the same MySQL credentials.
+5. **Email:** Configure the SMTP server in `monitor.py` for notifications (it defaults to `localhost`).
+6. **Background Monitoring:** Set up a cron job to run the monitor script. For example, to run every minute:
    ```bash
-   * * * * * python3 /path/to/your/site/folder/monitor.py >> /var/log/url_monitor.log 2>&1
+   * * * * * python3 /var/www/tefinitely.com/voila/monitor.py >> /var/log/url_monitor.log 2>&1
    ```
+
+## Usage
+- Access the dashboard at `https://tefinitely.com/voila/index.php`.
+- Register a new account to start adding URLs to monitor.
+- The background script will periodically check the URLs and send notifications to your registered email address.
