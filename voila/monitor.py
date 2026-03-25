@@ -6,7 +6,7 @@ import boto3
 from botocore.exceptions import BotoCoreError, ClientError
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from email.mime.application import MIMEApplication
+from email.mime.image import MIMEImage
 from datetime import datetime, timedelta
 import mysql.connector
 from bs4 import BeautifulSoup
@@ -65,10 +65,20 @@ def get_hash(content):
 def get_diff_snippet(old_content, new_content):
     old_lines = old_content.splitlines()
     new_lines = new_content.splitlines()
-    diff = list(difflib.unified_diff(old_lines, new_lines, n=3, lineterm=''))
-    if not diff:
-        return ""
-    return "\n".join(diff)
+    diff_lines = list(difflib.unified_diff(old_lines, new_lines, n=3, lineterm=''))
+    if not diff_lines:
+        return "", None
+
+    # Extract the first added line to use for visual highlighting
+    first_added_text = None
+    for line in diff_lines:
+        if line.startswith('+') and not line.startswith('+++'):
+            clean_text = line[1:].strip()
+            if clean_text:
+                first_added_text = clean_text
+                break
+
+    return "\n".join(diff_lines), first_added_text
 
 def delete_screenshot(filename):
     if not filename:
@@ -81,14 +91,32 @@ def delete_screenshot(filename):
         except Exception as e:
             log(f"Error deleting screenshot {filename}: {e}")
 
-def take_screenshot(url, filename):
+def take_screenshot(url, filename, search_text=None):
     filepath = os.path.join(os.path.dirname(__file__), 'screenshots', filename)
     try:
         with sync_playwright() as p:
             browser = p.chromium.launch()
             page = browser.new_page(viewport={'width': 1280, 'height': 800})
             page.goto(url, wait_until="networkidle")
-            page.screenshot(path=filepath, full_page=True)
+
+            captured = False
+            if search_text:
+                try:
+                    # Attempt to find the element containing the changed text
+                    # We escape quotes to avoid breaking the selector
+                    escaped_text = search_text.replace('"', '\\"')
+                    element = page.locator(f"text=\"{escaped_text}\"").first
+                    if element.is_visible():
+                        element.screenshot(path=filepath)
+                        captured = True
+                        log(f"Captured targeted screenshot for {url}")
+                except Exception as e:
+                    log(f"Could not capture targeted area for {url}: {e}")
+
+            if not captured:
+                page.screenshot(path=filepath, full_page=True)
+                log(f"Captured full-page screenshot for {url}")
+
             browser.close()
             return filename
     except Exception as e:
@@ -98,6 +126,9 @@ def take_screenshot(url, filename):
 def send_notification(to_email, url, snippet, screenshot_filename=None):
     subject = f"Visible Change Detected - Voila!"
     current_year = datetime.now().year
+
+    # CID for inline image
+    content_id = "change_screenshot"
 
     body_text = f"A visible text change was detected on {url}.\n\n--- Snippet of visible changes ---\n\n{snippet}\n\n"
     body_html = f"""
@@ -117,7 +148,10 @@ def send_notification(to_email, url, snippet, screenshot_filename=None):
                 <pre style='margin: 0; white-space: pre-wrap;'>{snippet}</pre>
             </div>
 
-            {f"<p style='margin-top: 20px;'>A screenshot of the current page is attached to this email.</p>" if screenshot_filename else ""}
+            {f"""<h3 style='margin-top: 25px;'>Visual Confirmation:</h3>
+               <div style='border: 1px solid #ddd; padding: 5px; background: #fff; text-align: center;'>
+                   <img src="cid:{content_id}" style='max-width: 100%; height: auto; display: block; margin: 0 auto;' alt="Screenshot of changed area">
+               </div>""" if screenshot_filename else ""}
 
             <div style='text-align: center; margin: 30px 0;'>
                 <a href='https://tefinitely.com/voila/index.php' style='background: #007bff; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;'>Go to Dashboard</a>
@@ -137,24 +171,26 @@ def send_notification(to_email, url, snippet, screenshot_filename=None):
     )
 
     try:
-        msg = MIMEMultipart()
+        msg = MIMEMultipart('related')
         msg['Subject'] = subject
         msg['From'] = AWS_CONFIG['sender_email']
         msg['To'] = to_email
         msg.add_header('Reply-To', AWS_CONFIG['reply_to'])
 
-        msg_body = MIMEMultipart('alternative')
-        msg_body.attach(MIMEText(body_text, 'plain'))
-        msg_body.attach(MIMEText(body_html, 'html'))
-        msg.attach(msg_body)
+        msg_alternative = MIMEMultipart('alternative')
+        msg.attach(msg_alternative)
+
+        msg_alternative.attach(MIMEText(body_text, 'plain'))
+        msg_alternative.attach(MIMEText(body_html, 'html'))
 
         if screenshot_filename:
             filepath = os.path.join(os.path.dirname(__file__), 'screenshots', screenshot_filename)
             if os.path.exists(filepath):
                 with open(filepath, 'rb') as f:
-                    part = MIMEApplication(f.read())
-                    part.add_header('Content-Disposition', 'attachment', filename=screenshot_filename)
-                    msg.attach(part)
+                    img = MIMEImage(f.read())
+                    img.add_header('Content-ID', f'<{content_id}>')
+                    img.add_header('Content-Disposition', 'inline', filename=screenshot_filename)
+                    msg.attach(img)
 
         response = client.send_raw_email(
             Source=AWS_CONFIG['sender_email'],
@@ -213,10 +249,10 @@ def check_monitors():
                 delete_screenshot(monitor.get('last_screenshot'))
             cursor.execute("UPDATE monitors SET last_content = %s, last_hash = %s, last_checked = NOW(), last_screenshot = %s WHERE id = %s", (visible_text, new_hash, screenshot, monitor['id']))
         elif new_hash != monitor['last_hash']:
-            snippet = get_diff_snippet(monitor['last_content'], visible_text)
+            snippet, first_added = get_diff_snippet(monitor['last_content'], visible_text)
             if snippet: # Only notify if there's an actual difference in text
                 filename = f"change_{monitor['id']}_{int(datetime.now().timestamp())}.png"
-                screenshot = take_screenshot(monitor['url'], filename)
+                screenshot = take_screenshot(monitor['url'], filename, first_added)
                 if screenshot:
                     delete_screenshot(monitor.get('last_screenshot'))
 
