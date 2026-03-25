@@ -70,6 +70,17 @@ def get_diff_snippet(old_content, new_content):
         return ""
     return "\n".join(diff)
 
+def delete_screenshot(filename):
+    if not filename:
+        return
+    filepath = os.path.join(os.path.dirname(__file__), 'screenshots', filename)
+    if os.path.exists(filepath):
+        try:
+            os.remove(filepath)
+            log(f"Deleted old screenshot: {filename}")
+        except Exception as e:
+            log(f"Error deleting screenshot {filename}: {e}")
+
 def take_screenshot(url, filename):
     filepath = os.path.join(os.path.dirname(__file__), 'screenshots', filename)
     try:
@@ -164,7 +175,7 @@ def check_monitors():
     cursor = conn.cursor(dictionary=True)
 
     cursor.execute("""
-        SELECT m.id, m.user_id, m.url, m.last_content, m.last_hash, u.email, m.emails_sent_this_hour, m.hour_start_time
+        SELECT m.id, m.user_id, m.url, m.last_content, m.last_hash, u.email, m.emails_sent_this_hour, m.hour_start_time, m.last_screenshot
         FROM monitors m
         JOIN users u ON m.user_id = u.id
         WHERE m.is_paused = 0 AND (
@@ -198,12 +209,16 @@ def check_monitors():
         if monitor['last_hash'] is None:
             filename = f"monitor_{monitor['id']}_{int(datetime.now().timestamp())}.png"
             screenshot = take_screenshot(monitor['url'], filename)
+            if screenshot:
+                delete_screenshot(monitor.get('last_screenshot'))
             cursor.execute("UPDATE monitors SET last_content = %s, last_hash = %s, last_checked = NOW(), last_screenshot = %s WHERE id = %s", (visible_text, new_hash, screenshot, monitor['id']))
         elif new_hash != monitor['last_hash']:
             snippet = get_diff_snippet(monitor['last_content'], visible_text)
             if snippet: # Only notify if there's an actual difference in text
                 filename = f"change_{monitor['id']}_{int(datetime.now().timestamp())}.png"
                 screenshot = take_screenshot(monitor['url'], filename)
+                if screenshot:
+                    delete_screenshot(monitor.get('last_screenshot'))
 
                 if emails_sent < 6:
                     send_notification(monitor['email'], monitor['url'], snippet, screenshot)
@@ -219,5 +234,44 @@ def check_monitors():
     conn.commit()
     conn.close()
 
+def cleanup_screenshots():
+    """
+    Scans the screenshots directory and deletes files that are not referenced in the database.
+    """
+    log("Starting orphaned screenshot cleanup...")
+    conn = get_db_connection()
+    if conn is None:
+        return
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("SELECT last_screenshot FROM monitors WHERE last_screenshot IS NOT NULL")
+    referenced_files = {row['last_screenshot'] for row in cursor.fetchall()}
+    conn.close()
+
+    screenshots_dir = os.path.join(os.path.dirname(__file__), 'screenshots')
+    if not os.path.exists(screenshots_dir):
+        return
+
+    now = datetime.now().timestamp()
+    deleted_count = 0
+
+    for filename in os.listdir(screenshots_dir):
+        if filename in ('.gitignore', '.htaccess'):
+            continue
+
+        if filename not in referenced_files:
+            filepath = os.path.join(screenshots_dir, filename)
+            # Only delete if older than 10 minutes to avoid deleting a file currently being written
+            if now - os.path.getmtime(filepath) > 600:
+                try:
+                    os.remove(filepath)
+                    deleted_count += 1
+                except Exception as e:
+                    log(f"Error cleaning up orphaned file {filename}: {e}")
+
+    if deleted_count > 0:
+        log(f"Cleanup complete. Deleted {deleted_count} orphaned screenshot(s).")
+
 if __name__ == "__main__":
     check_monitors()
+    cleanup_screenshots()
