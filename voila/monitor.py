@@ -123,7 +123,60 @@ def take_screenshot(url, filename, search_text=None):
         log(f"Error taking screenshot for {url}: {e}")
         return None
 
-def send_notification(to_email, url, snippet, screenshot_filename=None):
+def send_resumption_notification(to_email, url):
+    subject = f"Monitoring Resumed - Voila!"
+    current_year = datetime.now().year
+
+    body_text = f"Rate-limiting period has ended for {url}. Voila! will now resume sending change notifications.\n\n"
+    body_html = f"""
+    <div style='font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 8px; overflow: hidden;'>
+        <div style='background: #007bff; padding: 20px; text-align: center;'>
+            <h1 style='color: white; margin: 0;'>Voila!</h1>
+        </div>
+        <div style='padding: 30px; line-height: 1.6; color: #333;'>
+            <h2 style='color: #28a745;'>Notifications Resumed</h2>
+            <p>The hourly rate-limit for the following URL has expired:</p>
+            <p style='background: #f8f9fa; padding: 10px; border-radius: 5px; border-left: 4px solid #28a745;'>
+                <a href='{url}' style='color: #007bff; text-decoration: none;'>{url}</a>
+            </p>
+            <p>Voila! will now resume sending real-time notifications for any further visible changes.</p>
+
+            <div style='text-align: center; margin: 30px 0;'>
+                <a href='https://tefinitely.com/voila/index.php' style='background: #007bff; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;'>View Dashboard</a>
+            </div>
+        </div>
+        <div style='background: #f8f9fa; padding: 15px; text-align: center; font-size: 12px; color: #6c757d;'>
+            &copy; {current_year} Voila! URL Monitoring Service
+        </div>
+    </div>
+    """
+
+    client = boto3.client(
+        'ses',
+        region_name=AWS_CONFIG['region_name'],
+        aws_access_key_id=AWS_CONFIG['aws_access_key_id'],
+        aws_secret_access_key=AWS_CONFIG['aws_secret_access_key']
+    )
+
+    try:
+        msg = MIMEMultipart('alternative')
+        msg['Subject'] = subject
+        msg['From'] = AWS_CONFIG['sender_email']
+        msg['To'] = to_email
+        msg.add_header('Reply-To', AWS_CONFIG['reply_to'])
+        msg.attach(MIMEText(body_text, 'plain'))
+        msg.attach(MIMEText(body_html, 'html'))
+
+        client.send_raw_email(
+            Source=AWS_CONFIG['sender_email'],
+            Destinations=[to_email],
+            RawMessage={'Data': msg.as_string()}
+        )
+        log(f"Resumption email sent to {to_email} for {url}")
+    except Exception as e:
+        log(f"Error sending resumption email: {e}")
+
+def send_notification(to_email, url, snippet, screenshot_filename=None, is_capped=False):
     subject = f"Visible Change Detected - Voila!"
     current_year = datetime.now().year
 
@@ -138,6 +191,12 @@ def send_notification(to_email, url, snippet, screenshot_filename=None):
         </div>
         <div style='padding: 30px; line-height: 1.6; color: #333;'>
             <h2 style='color: #dc3545;'>Visible Change Detected</h2>
+
+            {f"""<div style='background: #fff3cd; color: #856404; border: 1px solid #ffeeba; padding: 15px; border-radius: 5px; margin-bottom: 20px; font-size: 14px;'>
+                <strong>Rate Limit Reached:</strong> This is the 6th notification this hour.
+                Notifications for this URL will be paused for the remainder of the hour to prevent inbox flooding.
+            </div>""" if is_capped else ""}
+
             <p>Voila! has detected a visible text change on the following URL:</p>
             <p style='background: #f8f9fa; padding: 10px; border-radius: 5px; border-left: 4px solid #007bff;'>
                 <a href='{url}' style='color: #007bff; text-decoration: none;'>{url}</a>
@@ -211,7 +270,7 @@ def check_monitors():
     cursor = conn.cursor(dictionary=True)
 
     cursor.execute("""
-        SELECT m.id, m.user_id, m.url, m.last_content, m.last_hash, u.email, m.emails_sent_this_hour, m.hour_start_time, m.last_screenshot
+        SELECT m.id, m.user_id, m.url, m.last_content, m.last_hash, u.email, m.emails_sent_this_hour, m.hour_start_time, m.last_screenshot, m.was_throttled
         FROM monitors m
         JOIN users u ON m.user_id = u.id
         WHERE m.is_paused = 0 AND (
@@ -238,9 +297,12 @@ def check_monitors():
         hour_start = monitor['hour_start_time']
 
         if hour_start is None or hour_start < hour_ago:
+            if monitor.get('was_throttled') == 1:
+                send_resumption_notification(monitor['email'], monitor['url'])
+
             emails_sent = 0
             hour_start = now
-            cursor.execute("UPDATE monitors SET emails_sent_this_hour = 0, hour_start_time = %s WHERE id = %s", (hour_start, monitor['id']))
+            cursor.execute("UPDATE monitors SET emails_sent_this_hour = 0, hour_start_time = %s, was_throttled = 0 WHERE id = %s", (hour_start, monitor['id']))
 
         if monitor['last_hash'] is None:
             filename = f"monitor_{monitor['id']}_{int(datetime.now().timestamp())}.png"
@@ -257,11 +319,21 @@ def check_monitors():
                     delete_screenshot(monitor.get('last_screenshot'))
 
                 if emails_sent < 6:
-                    send_notification(monitor['email'], monitor['url'], snippet, screenshot)
-                    cursor.execute("UPDATE monitors SET last_content = %s, last_hash = %s, last_checked = NOW(), last_changed = NOW(), last_screenshot = %s, emails_sent_this_hour = emails_sent_this_hour + 1 WHERE id = %s", (visible_text, new_hash, screenshot, monitor['id']))
+                    reached_limit = (emails_sent == 5)
+                    send_notification(monitor['email'], monitor['url'], snippet, screenshot, reached_limit)
+
+                    throttled_flag = 1 if reached_limit else 0
+                    cursor.execute("""
+                        UPDATE monitors
+                        SET last_content = %s, last_hash = %s, last_checked = NOW(),
+                            last_changed = NOW(), last_screenshot = %s,
+                            emails_sent_this_hour = emails_sent_this_hour + 1,
+                            was_throttled = %s
+                        WHERE id = %s
+                    """, (visible_text, new_hash, screenshot, throttled_flag, monitor['id']))
                 else:
                     log(f"Email cap reached for {monitor['url']}. Notification skipped.")
-                    cursor.execute("UPDATE monitors SET last_content = %s, last_hash = %s, last_checked = NOW(), last_changed = NOW(), last_screenshot = %s WHERE id = %s", (visible_text, new_hash, screenshot, monitor['id']))
+                    cursor.execute("UPDATE monitors SET last_content = %s, last_hash = %s, last_checked = NOW(), last_changed = NOW(), last_screenshot = %s, was_throttled = 1 WHERE id = %s", (visible_text, new_hash, screenshot, monitor['id']))
             else:
                 cursor.execute("UPDATE monitors SET last_checked = NOW() WHERE id = %s", (monitor['id'],))
         else:

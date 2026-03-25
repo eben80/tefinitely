@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS monitors (
     hour_start_time TIMESTAMP NULL DEFAULT NULL,
     last_changed TIMESTAMP NULL DEFAULT NULL,
     last_screenshot VARCHAR(255) NULL DEFAULT NULL,
+    was_throttled TINYINT(1) DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
