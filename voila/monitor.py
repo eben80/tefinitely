@@ -95,23 +95,22 @@ def take_screenshot(url, filename, search_text=None):
     filepath = os.path.join(os.path.dirname(__file__), 'screenshots', filename)
     try:
         with sync_playwright() as p:
-            browser = p.chromium.launch()
+            browser = p.chromium.launch(headless=True)
             page = browser.new_page(viewport={'width': 1280, 'height': 800})
             page.goto(url, wait_until="networkidle")
 
             captured = False
             if search_text:
                 try:
-                    # Attempt to find the element containing the changed text
-                    # We escape quotes to avoid breaking the selector
-                    escaped_text = search_text.replace('"', '\\"')
-                    element = page.locator(f"text=\"{escaped_text}\"").first
+                    # Locate the specific element containing the changed text
+                    element = page.get_by_text(search_text).first
                     if element.is_visible():
+                        # Take a screenshot of just that element
                         element.screenshot(path=filepath)
                         captured = True
-                        log(f"Captured targeted screenshot for {url}")
+                        log(f"Captured targeted element screenshot for {url}")
                 except Exception as e:
-                    log(f"Could not capture targeted area for {url}: {e}")
+                    log(f"Could not capture targeted element for {url}: {e}")
 
             if not captured:
                 page.screenshot(path=filepath, full_page=True)
