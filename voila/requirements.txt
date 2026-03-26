@@ -2,4 +2,3 @@ boto3
 botocore
 mysql-connector-python
 beautifulsoup4
-playwright

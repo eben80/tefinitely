@@ -21,9 +21,6 @@ The application is configured to run in `/var/www/tefinitely.com/html/voila` and
    python3 -m venv venv
    source venv/bin/activate
    pip install -r requirements.txt
-   playwright install chromium
-   # Note: You may also need to install system dependencies for Playwright
-   # sudo playwright install-deps
    ```
 4. **Configuration:**
    - Copy `config.php.example` to `config.php` and update it with your MySQL host, database name, user, and password.

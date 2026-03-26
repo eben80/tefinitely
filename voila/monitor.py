@@ -6,11 +6,9 @@ import boto3
 from botocore.exceptions import BotoCoreError, ClientError
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from email.mime.image import MIMEImage
 from datetime import datetime, timedelta
 import mysql.connector
 from bs4 import BeautifulSoup
-from playwright.sync_api import sync_playwright
 from config import get_db_connection, AWS_CONFIG
 
 def log(message):
@@ -80,47 +78,6 @@ def get_diff_snippet(old_content, new_content):
 
     return "\n".join(diff_lines), first_added_text
 
-def delete_screenshot(filename):
-    if not filename:
-        return
-    filepath = os.path.join(os.path.dirname(__file__), 'screenshots', filename)
-    if os.path.exists(filepath):
-        try:
-            os.remove(filepath)
-            log(f"Deleted old screenshot: {filename}")
-        except Exception as e:
-            log(f"Error deleting screenshot {filename}: {e}")
-
-def take_screenshot(url, filename, search_text=None):
-    filepath = os.path.join(os.path.dirname(__file__), 'screenshots', filename)
-    try:
-        with sync_playwright() as p:
-            browser = p.chromium.launch(headless=True)
-            page = browser.new_page(viewport={'width': 1280, 'height': 800})
-            page.goto(url, wait_until="networkidle")
-
-            captured = False
-            if search_text:
-                try:
-                    # Locate the specific element containing the changed text
-                    element = page.get_by_text(search_text).first
-                    if element.is_visible():
-                        # Take a screenshot of just that element
-                        element.screenshot(path=filepath)
-                        captured = True
-                        log(f"Captured targeted element screenshot for {url}")
-                except Exception as e:
-                    log(f"Could not capture targeted element for {url}: {e}")
-
-            if not captured:
-                page.screenshot(path=filepath, full_page=True)
-                log(f"Captured full-page screenshot for {url}")
-
-            browser.close()
-            return filename
-    except Exception as e:
-        log(f"Error taking screenshot for {url}: {e}")
-        return None
 
 def send_resumption_notification(to_email, url):
     subject = f"Monitoring Resumed - Voila!"
@@ -175,50 +132,66 @@ def send_resumption_notification(to_email, url):
     except Exception as e:
         log(f"Error sending resumption email: {e}")
 
-def send_notification(to_email, url, snippet, screenshot_filename=None, is_capped=False):
+def send_notification(to_email, url, diff_html, is_capped=False):
     subject = f"Visible Change Detected - Voila!"
     current_year = datetime.now().year
 
-    # CID for inline image
-    content_id = "change_screenshot"
-
-    body_text = f"A visible text change was detected on {url}.\n\n--- Snippet of visible changes ---\n\n{snippet}\n\n"
+    body_text = f"A visible text change was detected on {url}.\n\nPlease login to your dashboard to view changes.\n\n"
     body_html = f"""
-    <div style='font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 8px; overflow: hidden;'>
-        <div style='background: #007bff; padding: 20px; text-align: center;'>
-            <h1 style='color: white; margin: 0;'>Voila!</h1>
-        </div>
-        <div style='padding: 30px; line-height: 1.6; color: #333;'>
-            <h2 style='color: #dc3545;'>Visible Change Detected</h2>
+    <!doctype html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style type="text/css">
+          body {{ margin:0; padding:0; font-family: Ubuntu, Helvetica, Arial, sans-serif; background-color: #141928; color: #BFC3D5; }}
+          .container {{ background:#141928; margin:0px auto; max-width:800px; padding: 20px; }}
+          .header {{ background:#141928; text-align:center; padding: 20px 0; border-bottom: 1px solid #1e2538; }}
+          .content {{ padding: 30px; line-height: 1.6; }}
+          .diff-section {{ background:#141940; border-radius: 8px; overflow: hidden; margin-top: 20px; }}
+          .diff-header {{ padding: 10px 20px; font-weight: bold; border-bottom: 1px solid #1e2538; }}
+          .diff-body {{ padding: 20px; font-family: monospace; font-size: 13px; line-height: 1.4; }}
+          .removed {{ background: #ff7c80; color: black; padding: 2px 5px; border-radius: 3px; }}
+          .added {{ background: #2ee0bc; color: black; padding: 2px 5px; border-radius: 3px; }}
+          .btn {{ display: inline-block; background: #007bff; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; margin-top: 20px; }}
+          .footer {{ background:#282246; padding: 20px; text-align: center; font-size: 12px; border-radius: 0 0 8px 8px; }}
+          .warning {{ background: #fff3cd; color: #856404; border: 1px solid #ffeeba; padding: 15px; border-radius: 5px; margin-bottom: 20px; font-size: 14px; text-align: center; }}
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1 style="color: white; margin: 0;">Voila!</h1>
+          </div>
+          <div class="content">
+            <h2 style="color: #6EC6CA; text-align: center;">Visible Change Detected</h2>
 
-            {f"""<div style='background: #fff3cd; color: #856404; border: 1px solid #ffeeba; padding: 15px; border-radius: 5px; margin-bottom: 20px; font-size: 14px;'>
+            {f"""<div class="warning">
                 <strong>Rate Limit Reached:</strong> This is the 6th notification this hour.
-                Notifications for this URL will be paused for the remainder of the hour to prevent inbox flooding.
+                Notifications for this URL will be paused for the remainder of the hour.
             </div>""" if is_capped else ""}
 
-            <p>Voila! has detected a visible text change on the following URL:</p>
-            <p style='background: #f8f9fa; padding: 10px; border-radius: 5px; border-left: 4px solid #007bff;'>
-                <a href='{url}' style='color: #007bff; text-decoration: none;'>{url}</a>
+            <p style="text-align: center;">Voila! has detected a visible text change on: <br>
+                <a href="{url}" style="color: #6EC6CA; text-decoration: none; font-weight: bold;">{url}</a>
             </p>
 
-            <h3 style='margin-top: 25px;'>Changes detected:</h3>
-            <div style='background: #333; color: #f8f9fa; padding: 15px; border-radius: 5px; font-family: monospace; font-size: 13px; overflow-x: auto;'>
-                <pre style='margin: 0; white-space: pre-wrap;'>{snippet}</pre>
+            <div class="diff-section">
+              <div class="diff-header" style="color: #6EC6CA;">Comparison Snippet:</div>
+              <div class="diff-body">
+                {diff_html}
+              </div>
             </div>
 
-            {f"""<h3 style='margin-top: 25px;'>Visual Confirmation:</h3>
-               <div style='border: 1px solid #ddd; padding: 5px; background: #fff; text-align: center;'>
-                   <img src="cid:{content_id}" style='max-width: 100%; height: auto; display: block; margin: 0 auto;' alt="Screenshot of changed area">
-               </div>""" if screenshot_filename else ""}
-
-            <div style='text-align: center; margin: 30px 0;'>
-                <a href='https://tefinitely.com/voila/index.php' style='background: #007bff; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;'>Go to Dashboard</a>
+            <div style="text-align: center;">
+                <a href="https://tefinitely.com/voila/index.php" class="btn">Go to Dashboard</a>
             </div>
-        </div>
-        <div style='background: #f8f9fa; padding: 15px; text-align: center; font-size: 12px; color: #6c757d;'>
+          </div>
+          <div class="footer">
             &copy; {current_year} Voila! URL Monitoring Service
+          </div>
         </div>
-    </div>
+      </body>
+    </html>
     """
 
     client = boto3.client(
@@ -229,26 +202,14 @@ def send_notification(to_email, url, snippet, screenshot_filename=None, is_cappe
     )
 
     try:
-        msg = MIMEMultipart('related')
+        msg = MIMEMultipart('alternative')
         msg['Subject'] = subject
         msg['From'] = AWS_CONFIG['sender_email']
         msg['To'] = to_email
         msg.add_header('Reply-To', AWS_CONFIG['reply_to'])
 
-        msg_alternative = MIMEMultipart('alternative')
-        msg.attach(msg_alternative)
-
-        msg_alternative.attach(MIMEText(body_text, 'plain'))
-        msg_alternative.attach(MIMEText(body_html, 'html'))
-
-        if screenshot_filename:
-            filepath = os.path.join(os.path.dirname(__file__), 'screenshots', screenshot_filename)
-            if os.path.exists(filepath):
-                with open(filepath, 'rb') as f:
-                    img = MIMEImage(f.read())
-                    img.add_header('Content-ID', f'<{content_id}>')
-                    img.add_header('Content-Disposition', 'inline', filename=screenshot_filename)
-                    msg.attach(img)
+        msg.attach(MIMEText(body_text, 'plain'))
+        msg.attach(MIMEText(body_html, 'html'))
 
         response = client.send_raw_email(
             Source=AWS_CONFIG['sender_email'],
@@ -258,9 +219,6 @@ def send_notification(to_email, url, snippet, screenshot_filename=None, is_cappe
         log(f"Email sent! Message ID: {response['MessageId']}")
     except (BotoCoreError, ClientError, Exception) as e:
         log(f"Error sending email to {to_email}: {e}")
-        log(f"--- MOCK EMAIL ---")
-        log(f"Subject: {subject}")
-        log(f"Body:\n{body_text}")
 
 def check_monitors():
     conn = get_db_connection()
@@ -269,7 +227,7 @@ def check_monitors():
     cursor = conn.cursor(dictionary=True)
 
     cursor.execute("""
-        SELECT m.id, m.user_id, m.url, m.last_content, m.last_hash, u.email, m.emails_sent_this_hour, m.hour_start_time, m.last_screenshot, m.was_throttled
+        SELECT m.id, m.user_id, m.url, m.last_content, m.last_hash, u.email, m.emails_sent_this_hour, m.hour_start_time, m.was_throttled
         FROM monitors m
         JOIN users u ON m.user_id = u.id
         WHERE m.is_paused = 0 AND (
@@ -304,35 +262,36 @@ def check_monitors():
             cursor.execute("UPDATE monitors SET emails_sent_this_hour = 0, hour_start_time = %s, was_throttled = 0 WHERE id = %s", (hour_start, monitor['id']))
 
         if monitor['last_hash'] is None:
-            filename = f"monitor_{monitor['id']}_{int(datetime.now().timestamp())}.png"
-            screenshot = take_screenshot(monitor['url'], filename)
-            if screenshot:
-                delete_screenshot(monitor.get('last_screenshot'))
-            cursor.execute("UPDATE monitors SET last_content = %s, last_hash = %s, last_checked = NOW(), last_screenshot = %s WHERE id = %s", (visible_text, new_hash, screenshot, monitor['id']))
+            cursor.execute("UPDATE monitors SET last_content = %s, last_hash = %s, last_checked = NOW() WHERE id = %s", (visible_text, new_hash, monitor['id']))
         elif new_hash != monitor['last_hash']:
-            snippet, first_added = get_diff_snippet(monitor['last_content'], visible_text)
+            snippet, _ = get_diff_snippet(monitor['last_content'], visible_text)
             if snippet: # Only notify if there's an actual difference in text
-                filename = f"change_{monitor['id']}_{int(datetime.now().timestamp())}.png"
-                screenshot = take_screenshot(monitor['url'], filename, first_added)
-                if screenshot:
-                    delete_screenshot(monitor.get('last_screenshot'))
+                # Generate HTML for the diff
+                diff_html = ""
+                for line in snippet.splitlines():
+                    if line.startswith('+') and not line.startswith('+++'):
+                        diff_html += f'<div class="added">{line}</div>'
+                    elif line.startswith('-') and not line.startswith('---'):
+                        diff_html += f'<div class="removed">{line}</div>'
+                    else:
+                        diff_html += f'<div>{line}</div>'
 
                 if emails_sent < 6:
                     reached_limit = (emails_sent == 5)
-                    send_notification(monitor['email'], monitor['url'], snippet, screenshot, reached_limit)
+                    send_notification(monitor['email'], monitor['url'], diff_html, reached_limit)
 
                     throttled_flag = 1 if reached_limit else 0
                     cursor.execute("""
                         UPDATE monitors
                         SET last_content = %s, last_hash = %s, last_checked = NOW(),
-                            last_changed = NOW(), last_screenshot = %s,
+                            last_changed = NOW(),
                             emails_sent_this_hour = emails_sent_this_hour + 1,
                             was_throttled = %s
                         WHERE id = %s
-                    """, (visible_text, new_hash, screenshot, throttled_flag, monitor['id']))
+                    """, (visible_text, new_hash, throttled_flag, monitor['id']))
                 else:
                     log(f"Email cap reached for {monitor['url']}. Notification skipped.")
-                    cursor.execute("UPDATE monitors SET last_content = %s, last_hash = %s, last_checked = NOW(), last_changed = NOW(), last_screenshot = %s, was_throttled = 1 WHERE id = %s", (visible_text, new_hash, screenshot, monitor['id']))
+                    cursor.execute("UPDATE monitors SET last_content = %s, last_hash = %s, last_checked = NOW(), last_changed = NOW(), was_throttled = 1 WHERE id = %s", (visible_text, new_hash, monitor['id']))
             else:
                 cursor.execute("UPDATE monitors SET last_checked = NOW() WHERE id = %s", (monitor['id'],))
         else:
@@ -351,8 +310,8 @@ def cleanup_screenshots():
         return
     cursor = conn.cursor(dictionary=True)
 
-    cursor.execute("SELECT last_screenshot FROM monitors WHERE last_screenshot IS NOT NULL")
-    referenced_files = {row['last_screenshot'] for row in cursor.fetchall()}
+    cursor.execute("SELECT 1") # Dummy to satisfy query logic if any
+    referenced_files = set()
     conn.close()
 
     screenshots_dir = os.path.join(os.path.dirname(__file__), 'screenshots')
