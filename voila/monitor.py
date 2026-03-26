@@ -237,66 +237,72 @@ def check_monitors():
     monitors = cursor.fetchall()
 
     for monitor in monitors:
-        log(f"Checking {monitor['url']}...")
-        html = fetch_url(monitor['url'])
-        if html is None:
-            continue
+        try:
+            log(f"Checking {monitor['url']}...")
+            html = fetch_url(monitor['url'])
+            if html is None:
+                continue
 
-        # Extract visible text before hashing and diffing
-        visible_text = extract_visible_text(html)
-        new_hash = get_hash(visible_text)
+            # Extract visible text before hashing and diffing
+            visible_text = extract_visible_text(html)
+            new_hash = get_hash(visible_text)
 
-        now = datetime.now()
-        hour_ago = now - timedelta(hours=1)
+            now = datetime.now()
+            hour_ago = now - timedelta(hours=1)
 
-        emails_sent = monitor['emails_sent_this_hour']
-        hour_start = monitor['hour_start_time']
+            emails_sent = monitor['emails_sent_this_hour']
+            hour_start = monitor['hour_start_time']
 
-        if hour_start is None or hour_start < hour_ago:
-            if monitor.get('was_throttled') == 1:
-                send_resumption_notification(monitor['email'], monitor['url'])
+            if hour_start is None or hour_start < hour_ago:
+                if monitor.get('was_throttled') == 1:
+                    send_resumption_notification(monitor['email'], monitor['url'])
 
-            emails_sent = 0
-            hour_start = now
-            cursor.execute("UPDATE monitors SET emails_sent_this_hour = 0, hour_start_time = %s, was_throttled = 0 WHERE id = %s", (hour_start, monitor['id']))
+                emails_sent = 0
+                hour_start = now
+                cursor.execute("UPDATE monitors SET emails_sent_this_hour = 0, hour_start_time = %s, was_throttled = 0 WHERE id = %s", (hour_start, monitor['id']))
 
-        if monitor['last_hash'] is None:
-            cursor.execute("UPDATE monitors SET last_content = %s, last_hash = %s, last_checked = NOW() WHERE id = %s", (visible_text, new_hash, monitor['id']))
-        elif new_hash != monitor['last_hash']:
-            snippet, _ = get_diff_snippet(monitor['last_content'], visible_text)
-            if snippet: # Only notify if there's an actual difference in text
-                # Generate HTML for the diff
-                diff_html = ""
-                for line in snippet.splitlines():
-                    if line.startswith('+') and not line.startswith('+++'):
-                        diff_html += f'<div class="added">{line}</div>'
-                    elif line.startswith('-') and not line.startswith('---'):
-                        diff_html += f'<div class="removed">{line}</div>'
+            if monitor['last_hash'] is None:
+                cursor.execute("UPDATE monitors SET last_content = %s, last_hash = %s, last_checked = NOW() WHERE id = %s", (visible_text, new_hash, monitor['id']))
+            elif new_hash != monitor['last_hash']:
+                snippet, _ = get_diff_snippet(monitor['last_content'], visible_text)
+                if snippet: # Only notify if there's an actual difference in text
+                    # Generate HTML for the diff
+                    diff_html = ""
+                    for line in snippet.splitlines():
+                        if line.startswith('+') and not line.startswith('+++'):
+                            diff_html += f'<div class="added">{line}</div>'
+                        elif line.startswith('-') and not line.startswith('---'):
+                            diff_html += f'<div class="removed">{line}</div>'
+                        else:
+                            diff_html += f'<div>{line}</div>'
+
+                    if emails_sent < 6:
+                        reached_limit = (emails_sent == 5)
+                        send_notification(monitor['email'], monitor['url'], diff_html, reached_limit)
+
+                        throttled_flag = 1 if reached_limit else 0
+                        cursor.execute("""
+                            UPDATE monitors
+                            SET last_content = %s, last_hash = %s, last_checked = NOW(),
+                                last_changed = NOW(),
+                                emails_sent_this_hour = emails_sent_this_hour + 1,
+                                was_throttled = %s
+                            WHERE id = %s
+                        """, (visible_text, new_hash, throttled_flag, monitor['id']))
                     else:
-                        diff_html += f'<div>{line}</div>'
-
-                if emails_sent < 6:
-                    reached_limit = (emails_sent == 5)
-                    send_notification(monitor['email'], monitor['url'], diff_html, reached_limit)
-
-                    throttled_flag = 1 if reached_limit else 0
-                    cursor.execute("""
-                        UPDATE monitors
-                        SET last_content = %s, last_hash = %s, last_checked = NOW(),
-                            last_changed = NOW(),
-                            emails_sent_this_hour = emails_sent_this_hour + 1,
-                            was_throttled = %s
-                        WHERE id = %s
-                    """, (visible_text, new_hash, throttled_flag, monitor['id']))
+                        log(f"Email cap reached for {monitor['url']}. Notification skipped.")
+                        cursor.execute("UPDATE monitors SET last_content = %s, last_hash = %s, last_checked = NOW(), last_changed = NOW(), was_throttled = 1 WHERE id = %s", (visible_text, new_hash, monitor['id']))
                 else:
-                    log(f"Email cap reached for {monitor['url']}. Notification skipped.")
-                    cursor.execute("UPDATE monitors SET last_content = %s, last_hash = %s, last_checked = NOW(), last_changed = NOW(), was_throttled = 1 WHERE id = %s", (visible_text, new_hash, monitor['id']))
+                    cursor.execute("UPDATE monitors SET last_checked = NOW() WHERE id = %s", (monitor['id'],))
             else:
                 cursor.execute("UPDATE monitors SET last_checked = NOW() WHERE id = %s", (monitor['id'],))
-        else:
-            cursor.execute("UPDATE monitors SET last_checked = NOW() WHERE id = %s", (monitor['id'],))
 
-    conn.commit()
+            # Commit after each monitor to avoid long-held locks
+            conn.commit()
+        except Exception as e:
+            log(f"Error processing monitor {monitor['id']} ({monitor['url']}): {e}")
+            conn.rollback()
+
     conn.close()
 
 if __name__ == "__main__":
