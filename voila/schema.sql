@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS monitors (
     emails_sent_this_hour INT DEFAULT 0,
     hour_start_time TIMESTAMP NULL DEFAULT NULL,
     last_changed TIMESTAMP NULL DEFAULT NULL,
+    was_throttled TINYINT(1) DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
