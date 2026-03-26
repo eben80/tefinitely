@@ -223,7 +223,7 @@ def check_monitors():
     conn = get_db_connection()
     if conn is None:
         return
-    cursor = conn.cursor(dictionary=True, buffered=True)
+    cursor = conn.cursor(dictionary=True)
 
     cursor.execute("""
         SELECT m.id, m.user_id, m.url, m.last_content, m.last_hash, u.email, m.emails_sent_this_hour, m.hour_start_time, m.was_throttled
