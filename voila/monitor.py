@@ -59,23 +59,33 @@ def extract_visible_text(html):
 def get_hash(content):
     return hashlib.sha256(content.encode('utf-8')).hexdigest()
 
-def get_diff_snippet(old_content, new_content):
+def get_diff_snippets(old_content, new_content, max_snippets=4):
+    """
+    Returns up to max_snippets diff hunks between old and new content.
+    """
     old_lines = old_content.splitlines()
     new_lines = new_content.splitlines()
-    diff_lines = list(difflib.unified_diff(old_lines, new_lines, n=3, lineterm=''))
+    diff_lines = list(difflib.unified_diff(old_lines, new_lines, n=1, lineterm=''))
+
     if not diff_lines:
-        return "", None
+        return []
 
-    # Extract the first added line to use for visual highlighting
-    first_added_text = None
-    for line in diff_lines:
-        if line.startswith('+') and not line.startswith('+++'):
-            clean_text = line[1:].strip()
-            if clean_text:
-                first_added_text = clean_text
-                break
+    snippets = []
+    current_snippet = []
 
-    return "\n".join(diff_lines), first_added_text
+    # Skip the header (--- and +++)
+    for line in diff_lines[2:]:
+        if line.startswith('@@'):
+            if current_snippet:
+                snippets.append("\n".join(current_snippet))
+            current_snippet = [line]
+        else:
+            current_snippet.append(line)
+
+    if current_snippet:
+        snippets.append("\n".join(current_snippet))
+
+    return snippets[:max_snippets]
 
 
 def send_resumption_notification(to_email, url):
@@ -174,6 +184,12 @@ def send_notification(to_email, url, diff_html, is_capped=False):
                 <a href="{url}" style="color: #6EC6CA; text-decoration: none; font-weight: bold;">{url}</a>
             </p>
 
+            <div style="margin: 20px 0; text-align: center; font-size: 12px;">
+                <span style="margin-right: 15px;"><span class="added" style="padding: 2px 8px;">+ Added</span></span>
+                <span style="margin-right: 15px;"><span class="removed" style="padding: 2px 8px;">- Deleted</span></span>
+                <span style="color: #6c757d;">(Changes show as deleted followed by added)</span>
+            </div>
+
             <div class="diff-section">
               <div class="diff-header" style="color: #6EC6CA;">Comparison Snippet:</div>
               <div class="diff-body">
@@ -264,17 +280,23 @@ def check_monitors():
             if monitor['last_hash'] is None:
                 cursor.execute("UPDATE monitors SET last_content = %s, last_hash = %s, last_checked = NOW() WHERE id = %s", (visible_text, new_hash, monitor['id']))
             elif new_hash != monitor['last_hash']:
-                snippet, _ = get_diff_snippet(monitor['last_content'], visible_text)
-                if snippet: # Only notify if there's an actual difference in text
+                snippets = get_diff_snippets(monitor['last_content'], visible_text, max_snippets=4)
+                if snippets: # Only notify if there's an actual difference in text
                     # Generate HTML for the diff
                     diff_html = ""
-                    for line in snippet.splitlines():
-                        if line.startswith('+') and not line.startswith('+++'):
-                            diff_html += f'<div class="added">{line}</div>'
-                        elif line.startswith('-') and not line.startswith('---'):
-                            diff_html += f'<div class="removed">{line}</div>'
-                        else:
-                            diff_html += f'<div>{line}</div>'
+                    for i, snippet in enumerate(snippets):
+                        if i > 0:
+                            diff_html += '<hr style="border: 0; border-top: 1px dashed #1e2538; margin: 15px 0;">'
+
+                        for line in snippet.splitlines():
+                            if line.startswith('+') and not line.startswith('+++'):
+                                diff_html += f'<div class="added">{line}</div>'
+                            elif line.startswith('-') and not line.startswith('---'):
+                                diff_html += f'<div class="removed">{line}</div>'
+                            elif line.startswith('@@'):
+                                diff_html += f'<div style="color: #6c757d; font-style: italic;">{line}</div>'
+                            else:
+                                diff_html += f'<div>{line}</div>'
 
                     if emails_sent < 6:
                         reached_limit = (emails_sent == 5)
