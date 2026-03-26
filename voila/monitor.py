@@ -23,11 +23,11 @@ def fetch_url(url):
             'User-Agent': 'Mozilla/5.0 (Voila! Bot)'
             }
         )
-        with urllib.request.urlopen(req) as response:
+        with urllib.request.urlopen(req, timeout=10) as response:
             html = response.read().decode('utf-8', errors='ignore')
             return html
     except Exception as e:
-        log(f"Error fetching {url}: {e}")
+        log(f"Skipping {url} due to error: {e}")
         return None
 
 def extract_visible_text(html):
@@ -223,7 +223,7 @@ def check_monitors():
     conn = get_db_connection()
     if conn is None:
         return
-    cursor = conn.cursor(dictionary=True)
+    cursor = conn.cursor(dictionary=True, buffered=True)
 
     cursor.execute("""
         SELECT m.id, m.user_id, m.url, m.last_content, m.last_hash, u.email, m.emails_sent_this_hour, m.hour_start_time, m.was_throttled
