@@ -59,23 +59,33 @@ def extract_visible_text(html):
 def get_hash(content):
     return hashlib.sha256(content.encode('utf-8')).hexdigest()
 
-def get_diff_snippet(old_content, new_content):
+def get_diff_snippets(old_content, new_content, max_snippets=4):
+    """
+    Returns up to max_snippets diff hunks between old and new content.
+    """
     old_lines = old_content.splitlines()
     new_lines = new_content.splitlines()
-    diff_lines = list(difflib.unified_diff(old_lines, new_lines, n=3, lineterm=''))
+    diff_lines = list(difflib.unified_diff(old_lines, new_lines, n=1, lineterm=''))
+
     if not diff_lines:
-        return "", None
+        return []
 
-    # Extract the first added line to use for visual highlighting
-    first_added_text = None
-    for line in diff_lines:
-        if line.startswith('+') and not line.startswith('+++'):
-            clean_text = line[1:].strip()
-            if clean_text:
-                first_added_text = clean_text
-                break
+    snippets = []
+    current_snippet = []
 
-    return "\n".join(diff_lines), first_added_text
+    # Skip the header (--- and +++)
+    for line in diff_lines[2:]:
+        if line.startswith('@@'):
+            if current_snippet:
+                snippets.append("\n".join(current_snippet))
+            current_snippet = [line]
+        else:
+            current_snippet.append(line)
+
+    if current_snippet:
+        snippets.append("\n".join(current_snippet))
+
+    return snippets[:max_snippets]
 
 
 def send_resumption_notification(to_email, url):
@@ -143,17 +153,17 @@ def send_notification(to_email, url, diff_html, is_capped=False):
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <style type="text/css">
-          body {{ margin:0; padding:0; font-family: Ubuntu, Helvetica, Arial, sans-serif; background-color: #141928; color: #BFC3D5; }}
-          .container {{ background:#141928; margin:0px auto; max-width:800px; padding: 20px; }}
-          .header {{ background:#141928; text-align:center; padding: 20px 0; border-bottom: 1px solid #1e2538; }}
+          body {{ margin:0; padding:0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; background-color: #f6f8fa; color: #24292e; }}
+          .container {{ background:#ffffff; margin:20px auto; max-width:800px; padding: 0; border: 1px solid #e1e4e8; border-radius: 6px; overflow: hidden; }}
+          .header {{ background:#24292e; text-align:center; padding: 20px 0; }}
           .content {{ padding: 30px; line-height: 1.6; }}
-          .diff-section {{ background:#141940; border-radius: 8px; overflow: hidden; margin-top: 20px; }}
-          .diff-header {{ padding: 10px 20px; font-weight: bold; border-bottom: 1px solid #1e2538; }}
-          .diff-body {{ padding: 20px; font-family: monospace; font-size: 13px; line-height: 1.4; }}
-          .removed {{ background: #ff7c80; color: black; padding: 2px 5px; border-radius: 3px; }}
-          .added {{ background: #2ee0bc; color: black; padding: 2px 5px; border-radius: 3px; }}
+          .diff-section {{ background:#ffffff; border: 1px solid #e1e4e8; border-radius: 6px; overflow: hidden; margin-top: 20px; }}
+          .diff-header {{ background: #f6f8fa; padding: 10px 20px; font-weight: bold; border-bottom: 1px solid #e1e4e8; color: #0366d6; }}
+          .diff-body {{ padding: 20px; font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace; font-size: 12px; line-height: 1.5; color: #24292e; }}
+          .removed {{ background-color: #ffeef0; color: #b31d28; padding: 2px 4px; border-radius: 3px; }}
+          .added {{ background-color: #e6ffed; color: #22863a; padding: 2px 4px; border-radius: 3px; }}
           .btn {{ display: inline-block; background: #007bff; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; margin-top: 20px; }}
-          .footer {{ background:#282246; padding: 20px; text-align: center; font-size: 12px; border-radius: 0 0 8px 8px; }}
+          .footer {{ background:#f6f8fa; padding: 20px; text-align: center; font-size: 12px; color: #586069; border-top: 1px solid #e1e4e8; }}
           .warning {{ background: #fff3cd; color: #856404; border: 1px solid #ffeeba; padding: 15px; border-radius: 5px; margin-bottom: 20px; font-size: 14px; text-align: center; }}
         </style>
       </head>
@@ -163,7 +173,7 @@ def send_notification(to_email, url, diff_html, is_capped=False):
             <h1 style="color: white; margin: 0;">Voila!</h1>
           </div>
           <div class="content">
-            <h2 style="color: #6EC6CA; text-align: center;">Visible Change Detected</h2>
+            <h2 style="color: #0366d6; text-align: center;">Visible Change Detected</h2>
 
             {f"""<div class="warning">
                 <strong>Rate Limit Reached:</strong> This is the 6th notification this hour.
@@ -171,11 +181,17 @@ def send_notification(to_email, url, diff_html, is_capped=False):
             </div>""" if is_capped else ""}
 
             <p style="text-align: center;">Voila! has detected a visible text change on: <br>
-                <a href="{url}" style="color: #6EC6CA; text-decoration: none; font-weight: bold;">{url}</a>
+                <a href="{url}" style="color: #0366d6; text-decoration: none; font-weight: bold;">{url}</a>
             </p>
 
+            <div style="margin: 20px 0; text-align: center; font-size: 12px;">
+                <span style="margin-right: 15px;"><span class="added" style="padding: 2px 8px;">+ Added</span></span>
+                <span style="margin-right: 15px;"><span class="removed" style="padding: 2px 8px;">- Deleted</span></span>
+                <span style="color: #6c757d;">(Changes show as deleted followed by added)</span>
+            </div>
+
             <div class="diff-section">
-              <div class="diff-header" style="color: #6EC6CA;">Comparison Snippet:</div>
+              <div class="diff-header">Comparison Snippets:</div>
               <div class="diff-body">
                 {diff_html}
               </div>
@@ -264,17 +280,23 @@ def check_monitors():
             if monitor['last_hash'] is None:
                 cursor.execute("UPDATE monitors SET last_content = %s, last_hash = %s, last_checked = NOW() WHERE id = %s", (visible_text, new_hash, monitor['id']))
             elif new_hash != monitor['last_hash']:
-                snippet, _ = get_diff_snippet(monitor['last_content'], visible_text)
-                if snippet: # Only notify if there's an actual difference in text
+                snippets = get_diff_snippets(monitor['last_content'], visible_text, max_snippets=4)
+                if snippets: # Only notify if there's an actual difference in text
                     # Generate HTML for the diff
                     diff_html = ""
-                    for line in snippet.splitlines():
-                        if line.startswith('+') and not line.startswith('+++'):
-                            diff_html += f'<div class="added">{line}</div>'
-                        elif line.startswith('-') and not line.startswith('---'):
-                            diff_html += f'<div class="removed">{line}</div>'
-                        else:
-                            diff_html += f'<div>{line}</div>'
+                    for i, snippet in enumerate(snippets):
+                        if i > 0:
+                            diff_html += '<hr style="border: 0; border-top: 1px dashed #e1e4e8; margin: 15px 0;">'
+
+                        for line in snippet.splitlines():
+                            if line.startswith('+') and not line.startswith('+++'):
+                                diff_html += f'<div class="added">{line}</div>'
+                            elif line.startswith('-') and not line.startswith('---'):
+                                diff_html += f'<div class="removed">{line}</div>'
+                            elif line.startswith('@@'):
+                                diff_html += f'<div style="color: #6c757d; font-style: italic;">{line}</div>'
+                            else:
+                                diff_html += f'<div>{line}</div>'
 
                     if emails_sent < 6:
                         reached_limit = (emails_sent == 5)
