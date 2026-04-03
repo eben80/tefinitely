@@ -173,6 +173,7 @@ if ($is_admin) {
                 <a href="javascript:void(0)" class="dropbtn">Level Test</a>
                 <div class="dropdown-content">
                     <a href="practise/french_level_test/index.php">French Level Test</a>
+                    <a href="practise/french_level_test/cat_test.php">Adaptive Level Test (CAT)</a>
                 </div>
             </div>
             <a href="training.php">Phased Training</a>
@@ -203,13 +204,23 @@ if ($is_admin) {
             <p class="wait-message"><?php echo $wait_message; ?></p>
         <?php endif; ?>
 
-        <div style="display: flex; justify-content: center; margin-top: 2rem;">
-            <div class="test-option-card" style="max-width: 400px;">
+        <div class="test-options-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem;">
+            <div class="test-option-card">
                 <i class="bi bi-translate"></i>
                 <h3>Vocabulary Test</h3>
-                <p>Assess your mastery of French vocabulary across various difficulty levels.</p>
+                <p>A fixed 20-question session focused on essential French vocabulary.</p>
                 <?php if ($can_take_test): ?>
                     <a href="practise/french_level_test/vocabulary.php" class="btn-start">Start Vocabulary Test</a>
+                <?php else: ?>
+                    <button class="btn-start btn-disabled" disabled>Locked</button>
+                <?php endif; ?>
+            </div>
+            <div class="test-option-card">
+                <i class="bi bi-cpu"></i>
+                <h3>Adaptive Test (CAT)</h3>
+                <p>An intelligent assessment powered by IRT that adapts to your true ability in real-time.</p>
+                <?php if ($can_take_test): ?>
+                    <a href="practise/french_level_test/cat_test.php" class="btn-start" style="background: #007bff;">Start Adaptive Test</a>
                 <?php else: ?>
                     <button class="btn-start btn-disabled" disabled>Locked</button>
                 <?php endif; ?>
