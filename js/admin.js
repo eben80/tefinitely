@@ -44,9 +44,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const resetFinancialBtn = document.getElementById('reset-financial-btn');
     const supportTicketsTableBody = document.getElementById('support-tickets-table-body');
 
-    const importCatBtn = document.getElementById('import-cat-btn');
-    const catImportJson = document.getElementById('cat-import-json');
+    const catDropZone = document.getElementById('cat-drop-zone');
+    const catFileInput = document.getElementById('cat-file-input');
     const importProgress = document.getElementById('import-progress');
+    const importProgressBar = document.getElementById('import-progress-bar');
+    const importCurrentFile = document.getElementById('import-current-file');
+    const importPercentage = document.getElementById('import-percentage');
     const importResultsCard = document.getElementById('import-results-card');
     const importSuccessCount = document.getElementById('import-success-count');
     const importFailureCount = document.getElementById('import-failure-count');
@@ -288,66 +291,112 @@ document.addEventListener('DOMContentLoaded', () => {
         resetFinancialBtn.addEventListener('click', () => handleClearLogs('financial'));
     }
 
-    if (importCatBtn) {
-        importCatBtn.addEventListener('click', handleImportCatQuestions);
+    if (catDropZone) {
+        catDropZone.addEventListener('click', () => catFileInput.click());
+        catDropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            catDropZone.style.background = '#e9f2ff';
+        });
+        catDropZone.addEventListener('dragleave', () => catDropZone.style.background = '#f8faff');
+        catDropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            catDropZone.style.background = '#f8faff';
+            if (e.dataTransfer.files.length > 0) {
+                handleFilesImport(e.dataTransfer.files);
+            }
+        });
     }
 
-    async function handleImportCatQuestions() {
-        const rawJson = catImportJson.value.trim();
-        if (!rawJson) return showToast('Please paste JSON data first.', 'error');
+    if (catFileInput) {
+        catFileInput.addEventListener('change', () => {
+            if (catFileInput.files.length > 0) {
+                handleFilesImport(catFileInput.files);
+            }
+        });
+    }
 
-        let data;
-        try {
-            data = JSON.parse(rawJson);
-        } catch (e) {
-            return showToast('Invalid JSON format: ' + e.message, 'error');
-        }
-
-        if (!Array.isArray(data)) {
-            return showToast('JSON must be an array of objects.', 'error');
-        }
-
-        importCatBtn.disabled = true;
+    async function handleFilesImport(files) {
         importProgress.style.display = 'flex';
         importResultsCard.style.display = 'none';
+        importErrorsContainer.style.display = 'none';
+        importErrorsList.innerHTML = '';
 
-        try {
-            const response = await fetch('api/admin/import_cat_questions.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-            const result = await response.json();
+        let totalSuccess = 0;
+        let totalFailure = 0;
+        let allErrors = [];
+        const totalFiles = files.length;
 
-            if (response.ok && result.status === 'success') {
-                showToast(result.message, 'success');
-                importSuccessCount.textContent = result.success_count;
-                importFailureCount.textContent = result.failure_count;
+        for (let i = 0; i < totalFiles; i++) {
+            const file = files[i];
+            const progress = Math.round((i / totalFiles) * 100);
 
-                if (result.errors && result.errors.length > 0) {
-                    importErrorsList.innerHTML = '';
-                    result.errors.forEach(err => {
-                        const li = document.createElement('li');
-                        li.textContent = err;
-                        importErrorsList.appendChild(li);
-                    });
-                    importErrorsContainer.style.display = 'block';
-                } else {
-                    importErrorsContainer.style.display = 'none';
+            importCurrentFile.textContent = `Processing: ${file.name}`;
+            importPercentage.textContent = `${progress}%`;
+            importProgressBar.style.width = `${progress}%`;
+
+            try {
+                const content = await readFileAsText(file);
+                const data = JSON.parse(content);
+
+                if (!Array.isArray(data)) {
+                    throw new Error('File content must be a JSON array of objects.');
                 }
 
-                importResultsCard.style.display = 'block';
-                catImportJson.value = ''; // Clear textarea on success
-            } else {
-                showToast(result.message || 'Import failed.', 'error');
+                const response = await fetch('api/admin/import_cat_questions.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+
+                if (response.ok && result.status === 'success') {
+                    totalSuccess += parseInt(result.success_count || 0);
+                    totalFailure += parseInt(result.failure_count || 0);
+                    if (result.errors) allErrors = allErrors.concat(result.errors);
+                } else {
+                    totalFailure += data.length;
+                    allErrors.push(`${file.name}: ${result.message || 'Server error'}`);
+                }
+            } catch (e) {
+                totalFailure++;
+                allErrors.push(`${file.name}: ${e.message}`);
             }
-        } catch (error) {
-            console.error('Import failed:', error);
-            showToast('An error occurred during import.', 'error');
-        } finally {
-            importCatBtn.disabled = false;
-            importProgress.style.display = 'none';
         }
+
+        // Complete
+        importPercentage.textContent = '100%';
+        importProgressBar.style.width = '100%';
+        importCurrentFile.textContent = 'Import Complete';
+
+        showToast(`Import completed for ${totalFiles} files.`, totalFailure > 0 ? 'warning' : 'success');
+
+        importSuccessCount.textContent = totalSuccess;
+        importFailureCount.textContent = totalFailure;
+        importResultsCard.style.display = 'block';
+
+        if (allErrors.length > 0) {
+            allErrors.forEach(err => {
+                const li = document.createElement('li');
+                li.textContent = err;
+                importErrorsList.appendChild(li);
+            });
+            importErrorsContainer.style.display = 'block';
+        }
+
+        // Hide progress after a delay
+        setTimeout(() => {
+            importProgress.style.display = 'none';
+            importProgressBar.style.width = '0%';
+        }, 3000);
+    }
+
+    function readFileAsText(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = () => reject(new Error('Failed to read file.'));
+            reader.readAsText(file);
+        });
     }
 
     function togglePlanFields() {

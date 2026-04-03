@@ -236,13 +236,24 @@ checkAccess(true, true); // Admin only
                     <h2>CAT Question Pool Import</h2>
                 </div>
                 <div style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 2rem;">
-                    <p>Paste your JSON array of questions below to import them into the database. Existing IDs will be updated.</p>
-                    <textarea id="cat-import-json" rows="10" style="width: 100%; font-family: monospace; margin-bottom: 1rem;" placeholder='[ { "id": "...", "competency": "...", ... }, ... ]'></textarea>
-                    <div style="display: flex; gap: 1rem; align-items: center;">
-                        <button id="import-cat-btn" class="action-btn">Import Questions</button>
-                        <div id="import-progress" style="display: none; align-items: center; gap: 0.5rem;">
-                            <div class="spinner" style="width: 20px; height: 20px; border: 3px solid #f3f3f3; border-top: 3px solid #3498db; border-radius: 50%; animation: spin 2s linear infinite;"></div>
-                            <span>Importing...</span>
+                    <p>Select or drag one or more JSON files containing question arrays to import them into the database. Existing IDs will be updated.</p>
+                    <div id="cat-drop-zone" style="border: 2px dashed #007bff; padding: 2rem; text-align: center; border-radius: 8px; cursor: pointer; transition: background 0.2s; background: #f8faff; margin-bottom: 1rem;">
+                        <i class="bi bi-cloud-arrow-up" style="font-size: 2.5rem; color: #007bff;"></i>
+                        <p style="margin: 0.5rem 0 0; font-weight: bold; color: #333;">Click to select or drag & drop JSON files here</p>
+                        <p style="margin: 0; font-size: 0.85rem; color: #666;">(Iteratively process several files at once)</p>
+                        <input type="file" id="cat-file-input" multiple accept=".json" style="display: none;">
+                    </div>
+
+                    <div id="import-progress" style="display: none; align-items: center; gap: 1rem; margin-top: 1.5rem; padding: 1rem; background: #f1f1f1; border-radius: 8px;">
+                        <div class="spinner" style="width: 24px; height: 24px; border: 3px solid #ccc; border-top: 3px solid #007bff; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                        <div style="flex-grow: 1;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 0.3rem;">
+                                <span id="import-current-file">Processing...</span>
+                                <span id="import-percentage">0%</span>
+                            </div>
+                            <div style="width: 100%; height: 8px; background: #ddd; border-radius: 4px; overflow: hidden;">
+                                <div id="import-progress-bar" style="width: 0%; height: 100%; background: #007bff; transition: width 0.3s;"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
