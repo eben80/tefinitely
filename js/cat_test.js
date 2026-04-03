@@ -50,10 +50,6 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             <div class="progress-container">
                 <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ${Math.min(100, (count/20)*100)}%"></div></div>
-                <div class="stats">
-                    <span>Confidence: ${Math.max(0, Math.min(100, 100 - (currentSEM * 100))).toFixed(0)}%</span>
-                    <span style="margin-left: auto;">Targeting: ${q.cefr_target}</span>
-                </div>
             </div>
         `;
 
