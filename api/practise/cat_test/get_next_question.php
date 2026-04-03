@@ -14,10 +14,15 @@ $theta = $_SESSION['cat_test']['theta'];
 $answered_ids = $_SESSION['cat_test']['answered_ids'];
 
 // Maximum Information Selection (Simplified): Select a question with difficulty (b) closest to the current theta estimate.
-$placeholders = count($answered_ids) > 0 ? implode(',', array_fill(0, count($answered_ids), '?')) : 'NULL';
+$exclude_clause = "";
+if (count($answered_ids) > 0) {
+    $placeholders = implode(',', array_fill(0, count($answered_ids), '?'));
+    $exclude_clause = "WHERE id NOT IN ($placeholders)";
+}
+
 $query = "SELECT id, competency, cefr_target, estimated_difficulty, stem, option_a, option_b, option_c, option_d
           FROM cat_questions
-          WHERE id NOT IN ($placeholders)
+          $exclude_clause
           ORDER BY ABS(estimated_difficulty - ?) ASC
           LIMIT 1";
 

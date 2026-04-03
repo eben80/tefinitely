@@ -89,6 +89,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function showResults(data) {
+        if (data.total_answered === 0) {
+            showError('No questions were found in the pool. Please contact an administrator.');
+            return;
+        }
+
         // Map theta to level for immediate display if not provided
         let level = 'Calculating...';
         if (data.new_theta !== undefined) {
