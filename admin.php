@@ -160,6 +160,7 @@ checkAccess(true, true); // Admin only
                 <button class="tab-link" data-tab="audit-logs">Audit Logs</button>
                 <button class="tab-link" data-tab="login-history">Login History</button>
                 <button class="tab-link" data-tab="support-tickets">Support Tickets</button>
+                <button class="tab-link" data-tab="cat-pool">CAT Question Pool</button>
             </div>
 
             <div id="user-management-tab" class="tab-content active">
@@ -229,6 +230,48 @@ checkAccess(true, true); // Admin only
                     </table>
                 </div>
             </div>
+
+            <div id="cat-pool-tab" class="tab-content">
+                <div class="header-with-button">
+                    <h2>CAT Question Pool Import</h2>
+                </div>
+                <div style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                    <p>Paste your JSON array of questions below to import them into the database. Existing IDs will be updated.</p>
+                    <textarea id="cat-import-json" rows="10" style="width: 100%; font-family: monospace; margin-bottom: 1rem;" placeholder='[ { "id": "...", "competency": "...", ... }, ... ]'></textarea>
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <button id="import-cat-btn" class="action-btn">Import Questions</button>
+                        <div id="import-progress" style="display: none; align-items: center; gap: 0.5rem;">
+                            <div class="spinner" style="width: 20px; height: 20px; border: 3px solid #f3f3f3; border-top: 3px solid #3498db; border-radius: 50%; animation: spin 2s linear infinite;"></div>
+                            <span>Importing...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="import-results-card" style="display: none; background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <h3>Import Results</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                        <div style="text-align: center; padding: 1rem; background: #e8f5e9; border-radius: 8px;">
+                            <div style="font-size: 0.9rem; color: #2e7d32;">Successful</div>
+                            <div id="import-success-count" style="font-size: 1.5rem; font-weight: bold; color: #2e7d32;">0</div>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; background: #ffebee; border-radius: 8px;">
+                            <div style="font-size: 0.9rem; color: #c62828;">Failed</div>
+                            <div id="import-failure-count" style="font-size: 1.5rem; font-weight: bold; color: #c62828;">0</div>
+                        </div>
+                    </div>
+                    <div id="import-errors-container" style="margin-top: 1.5rem; display: none;">
+                        <h4 style="color: #c62828; font-size: 1rem;">Errors:</h4>
+                        <ul id="import-errors-list" style="color: #c62828; font-size: 0.85rem; padding-left: 1.2rem;"></ul>
+                    </div>
+                </div>
+            </div>
+
+            <style>
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+            </style>
 
             <div id="promotion-settings-tab" class="tab-content">
                 <div class="header-with-button">

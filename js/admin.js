@@ -44,6 +44,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const resetFinancialBtn = document.getElementById('reset-financial-btn');
     const supportTicketsTableBody = document.getElementById('support-tickets-table-body');
 
+    const importCatBtn = document.getElementById('import-cat-btn');
+    const catImportJson = document.getElementById('cat-import-json');
+    const importProgress = document.getElementById('import-progress');
+    const importResultsCard = document.getElementById('import-results-card');
+    const importSuccessCount = document.getElementById('import-success-count');
+    const importFailureCount = document.getElementById('import-failure-count');
+    const importErrorsContainer = document.getElementById('import-errors-container');
+    const importErrorsList = document.getElementById('import-errors-list');
+
     const sendEmailModal = document.getElementById('send-email-modal');
     const sendEmailForm = document.getElementById('send-email-form');
     const emailModalUserName = document.getElementById('email-modal-user-name');
@@ -277,6 +286,68 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (resetFinancialBtn) {
         resetFinancialBtn.addEventListener('click', () => handleClearLogs('financial'));
+    }
+
+    if (importCatBtn) {
+        importCatBtn.addEventListener('click', handleImportCatQuestions);
+    }
+
+    async function handleImportCatQuestions() {
+        const rawJson = catImportJson.value.trim();
+        if (!rawJson) return showToast('Please paste JSON data first.', 'error');
+
+        let data;
+        try {
+            data = JSON.parse(rawJson);
+        } catch (e) {
+            return showToast('Invalid JSON format: ' + e.message, 'error');
+        }
+
+        if (!Array.isArray(data)) {
+            return showToast('JSON must be an array of objects.', 'error');
+        }
+
+        importCatBtn.disabled = true;
+        importProgress.style.display = 'flex';
+        importResultsCard.style.display = 'none';
+
+        try {
+            const response = await fetch('api/admin/import_cat_questions.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const result = await response.json();
+
+            if (response.ok && result.status === 'success') {
+                showToast(result.message, 'success');
+                importSuccessCount.textContent = result.success_count;
+                importFailureCount.textContent = result.failure_count;
+
+                if (result.errors && result.errors.length > 0) {
+                    importErrorsList.innerHTML = '';
+                    result.errors.forEach(err => {
+                        const li = document.createElement('li');
+                        li.textContent = err;
+                        importErrorsList.appendChild(li);
+                    });
+                    importErrorsContainer.style.display = 'block';
+                } else {
+                    importErrorsContainer.style.display = 'none';
+                }
+
+                importResultsCard.style.display = 'block';
+                catImportJson.value = ''; // Clear textarea on success
+            } else {
+                showToast(result.message || 'Import failed.', 'error');
+            }
+        } catch (error) {
+            console.error('Import failed:', error);
+            showToast('An error occurred during import.', 'error');
+        } finally {
+            importCatBtn.disabled = false;
+            importProgress.style.display = 'none';
+        }
     }
 
     function togglePlanFields() {

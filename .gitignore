@@ -9,3 +9,4 @@ __pycache__/
 *.pyc
 voila/config.php
 voila/config.py
+db/db_config.php
