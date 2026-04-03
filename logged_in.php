@@ -104,6 +104,7 @@ checkAccess();
                 <a href="javascript:void(0)" class="dropbtn">Level Test</a>
                 <div class="dropdown-content">
                     <a href="practise/french_level_test/index.php">French Level Test</a>
+                    <a href="practise/french_level_test/cat_test.php">Adaptive Level Test (CAT)</a>
                 </div>
             </div>
             <a href="training.php">Phased Training</a>

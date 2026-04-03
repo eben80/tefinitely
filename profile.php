@@ -139,6 +139,7 @@ checkAccess(false); // Does not require active subscription to view profile
                 <a href="javascript:void(0)" class="dropbtn">Level Test</a>
                 <div class="dropdown-content">
                     <a href="practise/french_level_test/index.php">French Level Test</a>
+                    <a href="practise/french_level_test/cat_test.php">Adaptive Level Test (CAT)</a>
                 </div>
             </div>
             <a href="training.php">Phased Training</a>
@@ -464,18 +465,22 @@ checkAccess(false); // Does not require active subscription to view profile
                                 <span class="level-date">Assessed on ${latestDate}</span>
                             </div>
                             <div class="level-score">
-                                <strong>Score:</strong> ${latest.score} / 20
+                                <strong>Score:</strong> ${latest.score}${latest.test_type === 'cat_adaptive' ? '%' : ' / 20'}
+                                <br><small>${latest.test_type === 'cat_adaptive' ? 'Adaptive Test' : 'Vocabulary Test'}</small>
                             </div>
                         </div>
                     `;
 
                     let html = '<table>';
-                    html += '<tr><th>Date</th><th>Score</th><th>Estimated Level</th></tr>';
+                    html += '<tr><th>Date</th><th>Test Type</th><th>Score</th><th>Estimated Level</th></tr>';
                     sortedHistory.forEach(item => {
                         const date = new Date(item.created_at).toLocaleDateString();
+                        const typeLabel = item.test_type === 'cat_adaptive' ? 'Adaptive' : 'Vocab';
+                        const scoreLabel = item.test_type === 'cat_adaptive' ? `${item.score}%` : `${item.score}/20`;
                         html += `<tr>
                                     <td>${date}</td>
-                                    <td>${item.score} / 20</td>
+                                    <td>${typeLabel}</td>
+                                    <td>${scoreLabel}</td>
                                     <td><strong>${item.estimated_level}</strong></td>
                                  </tr>`;
                     });
