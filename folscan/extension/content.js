@@ -9,7 +9,8 @@
     <style>
         #folscan-launcher { position: fixed; top: 20px; right: 120px; background: gold; color: black; font-weight: bold; padding: 10px 15px; border-radius: 50px; cursor: pointer; z-index: 100001; box-shadow: 0 4px 10px rgba(0,0,0,0.5); font-family: sans-serif; font-size: 14px; }
         #folscan-popup { position: fixed; top: 5%; left: 50%; transform: translateX(-50%); width: fit-content; min-width: 320px; max-width: 480px; max-height: 90%; overflow-y: auto; background: #1e1e1e; color: white; font-family: sans-serif; padding: 20px; border: 2px solid #666; border-radius: 10px; z-index: 100000; box-shadow: 0 0 20px #000; display: none; }
-        #folscan-popup h2 { text-align: center; font-size: 20px; margin-bottom: 16px; }
+        #folscan-popup-close { position: absolute; top: 10px; right: 10px; background: gold; color: black; font-weight: bold; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+        #folscan-popup h2 { text-align: center; font-size: 20px; margin-bottom: 16px; padding-top: 5px; }
         #folscan-buttons { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; align-items: center; justify-content: center; max-width: 380px; margin-left: auto; margin-right: auto; }
         #folscan-buttons select, #folscan-buttons input, #folscan-buttons button { background: #222; color: white; border: 1px solid #555; border-radius: 5px; padding: 5px 8px; font-size: 12px; }
         #folscan-buttons button { background: #444; cursor: pointer; }
@@ -31,14 +32,14 @@
     </style>
     <div id="folscan-launcher">FolScan<span id="launcher-premium-crown">👑</span></div>
     <div id="folscan-popup">
+        <div id="folscan-popup-close">×</div>
         <h2>FolScan <span id="premium-badge">👑 PREMIUM</span></h2>
         <div id="folscan-buttons">
             <select id="folscan-userlist"><option value="">Select Previous...</option></select>
             <input type="text" id="folscan-username" placeholder="Enter username" />
             <button id="folscan-run">Run Report</button>
-            <button id="folscan-download" disabled>Download JSON</button>
+            <button id="folscan-download" disabled>Download PDF</button>
             <button id="folscan-reset">Reset All</button>
-            <button id="folscan-close">Close</button>
         </div>
         <div id="fetch-status"></div>
         <div id="folscan-report"></div>
@@ -48,12 +49,12 @@
     const launcher = document.getElementById("folscan-launcher"),
           launcherCrown = document.getElementById("launcher-premium-crown"),
           popupDiv = document.getElementById("folscan-popup"),
+          popupClose = document.getElementById("folscan-popup-close"),
           userInp = document.getElementById("folscan-username"),
           userList = document.getElementById("folscan-userlist"),
           runBtn = document.getElementById("folscan-run"),
           dlBtn = document.getElementById("folscan-download"),
           resetBtn = document.getElementById("folscan-reset"),
-          closeBtn = document.getElementById("folscan-close"),
           status = document.getElementById("fetch-status"),
           report = document.getElementById("folscan-report"),
           premiumBadge = document.getElementById("premium-badge");
@@ -432,14 +433,53 @@
         const u = userInp.value.trim();
         if (u) { currentTarget = u; saveUserToHistory(u); runScan(u).catch(e => { status.innerText = "❌ " + e.message; runBtn.disabled = false; }); }
     });
-    dlBtn.addEventListener("click", () => {
+    dlBtn.addEventListener("click", async () => {
         if (!chrome.runtime?.id) return;
-        chrome.storage.local.get([`folscan_${currentTarget}_followers`, `folscan_${currentTarget}_followings`], (data) => {
-            if (chrome.runtime.lastError) return;
-            const out = { followers: data[`folscan_${currentTarget}_followers`], followings: data[`folscan_${currentTarget}_followings`] };
-            const blob = new Blob([JSON.stringify(out, null, 2)], {type: "application/json"});
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob); link.download = `${currentTarget}_scan.json`; link.click();
+
+        chrome.storage.local.get([`folscan_${currentTarget}_report`], (data) => {
+            if (chrome.runtime.lastError || !data[`folscan_${currentTarget}_report`]) return;
+
+            const savedReport = data[`folscan_${currentTarget}_report`];
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            let y = 20;
+
+            doc.setFontSize(22);
+            doc.text(`FolScan Report: @${currentTarget}`, 20, y);
+            y += 10;
+
+            doc.setFontSize(10);
+            doc.setTextColor(100);
+            doc.text(`Generated on: ${new Date(savedReport.timestamp).toLocaleString()}`, 20, y);
+            y += 15;
+
+            savedReport.sections.forEach(s => {
+                if (y > 270) { doc.addPage(); y = 20; }
+
+                doc.setFontSize(14);
+                doc.setTextColor(0);
+                doc.text(`${s.title} (${s.list.length})`, 20, y);
+                y += 8;
+
+                doc.setFontSize(10);
+                if (s.list.length === 0) {
+                    doc.text("- None", 25, y);
+                    y += 6;
+                } else {
+                    s.list.slice(0, 100).forEach(u => { // Limit PDF rows for safety
+                        if (y > 280) { doc.addPage(); y = 20; }
+                        doc.text(`- ${u.username} (${u.full_name || 'No Name'})`, 25, y);
+                        y += 6;
+                    });
+                    if (s.list.length > 100) {
+                        doc.text(`... and ${s.list.length - 100} more`, 25, y);
+                        y += 6;
+                    }
+                }
+                y += 5;
+            });
+
+            doc.save(`${currentTarget}_folscan_report.pdf`);
         });
     });
     resetBtn.addEventListener("click", () => {
@@ -457,7 +497,7 @@
         launcher.style.display = "none";
         updatePremiumUI();
     });
-    closeBtn.addEventListener("click", () => {
+    popupClose.addEventListener("click", () => {
         popupDiv.style.display = "none";
         launcher.style.display = "block";
     });
