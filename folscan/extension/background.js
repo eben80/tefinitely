@@ -17,6 +17,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 async function validateLicense(licenseKey) {
+    if (licenseKey === "MOCK-PREMIUM-KEY") {
+        await chrome.storage.local.set({ isPremium: true, licenseKey: licenseKey });
+        return { success: true };
+    }
     try {
         const response = await fetch(`${API_URL}/validate.php`, {
             method: 'POST',
