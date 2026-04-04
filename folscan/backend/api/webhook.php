@@ -1,7 +1,8 @@
 <?php
 require 'db.php';
+require_once 'load_env.php';
 
-$secret = 'your_lemon_squeezy_webhook_secret';
+$secret = getenv('LEMON_SQUEEZY_WEBHOOK_SECRET');
 $payload = file_get_contents('php://input');
 $sig_header = $_SERVER['HTTP_X_SIGNATURE'] ?? '';
 

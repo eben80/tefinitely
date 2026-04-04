@@ -1,8 +1,10 @@
 <?php
-$host = 'localhost';
-$db   = 'folscan_db';
-$user = 'folscan_user';
-$pass = 'your_password'; // Should be handled via environment variables
+require_once 'load_env.php';
+
+$host = getenv('DB_HOST') ?: 'localhost';
+$db   = getenv('DB_NAME') ?: 'folscan_db';
+$user = getenv('DB_USER') ?: 'folscan_user';
+$pass = getenv('DB_PASS') ?: '';
 $charset = 'utf8mb4';
 
 $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
