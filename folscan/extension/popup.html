@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { width: 300px; font-family: sans-serif; padding: 10px; background: #1e1e1e; color: white; }
+        h1 { font-size: 18px; color: gold; }
+        input { width: 100%; padding: 5px; margin: 10px 0; background: #222; color: white; border: 1px solid #555; }
+        button { background: #444; color: white; border: none; padding: 8px; width: 100%; cursor: pointer; border-radius: 5px; }
+        #status { margin-top: 10px; font-size: 12px; }
+        .premium { color: gold; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>FolScan Premium</h1>
+    <div id="status">Checking status...</div>
+    <div id="license-form" style="display: none;">
+        <p>Enter your Lemon Squeezy license key to activate premium features.</p>
+        <input type="text" id="license-key" placeholder="XXXX-XXXX-XXXX-XXXX" />
+        <button id="activate-btn">Activate Premium</button>
+    </div>
+    <div id="active-info" style="display: none;">
+        <p>Status: <span class="premium">Premium Active</span></p>
+        <button id="deactivate-btn">Deactivate License</button>
+    </div>
+    <script src="popup.js"></script>
+</body>
+</html>
