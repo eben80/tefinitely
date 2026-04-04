@@ -18,7 +18,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 async function validateLicense(licenseKey) {
     if (licenseKey === "MOCK-PREMIUM-KEY") {
-        await chrome.storage.local.set({ isPremium: true, licenseKey: licenseKey });
+        await chrome.storage.local.set({ isPremium: true, isPro: false, licenseKey: licenseKey });
+        return { success: true };
+    }
+    if (licenseKey === "MOCK-PRO-KEY") {
+        await chrome.storage.local.set({ isPremium: true, isPro: true, licenseKey: licenseKey });
         return { success: true };
     }
     try {
@@ -29,7 +33,9 @@ async function validateLicense(licenseKey) {
         });
         const data = await response.json();
         if (data.status === "active") {
-            await chrome.storage.local.set({ isPremium: true, licenseKey: licenseKey });
+            // Assume default active license is premium, but not pro unless specified
+            const isPro = data.tier === "pro";
+            await chrome.storage.local.set({ isPremium: true, isPro: isPro, licenseKey: licenseKey });
             return { success: true };
         } else {
             await chrome.storage.local.set({ isPremium: false });

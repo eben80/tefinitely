@@ -6,9 +6,9 @@ const activateBtn = document.getElementById("activate-btn");
 const deactivateBtn = document.getElementById("deactivate-btn");
 
 
-chrome.storage.local.get(["isPremium", "licenseKey"], (data) => {
+chrome.storage.local.get(["isPremium", "isPro", "licenseKey"], (data) => {
     if (data.isPremium) {
-        statusDiv.innerText = "Premium status active.";
+        statusDiv.innerText = data.isPro ? "Premium Pro status active." : "Premium status active.";
         activeInfo.style.display = "block";
     } else {
         statusDiv.innerText = "Free plan limited.";
@@ -34,7 +34,7 @@ activateBtn.addEventListener("click", async () => {
 });
 
 deactivateBtn.addEventListener("click", () => {
-    chrome.storage.local.set({ isPremium: false, licenseKey: null }, () => {
+    chrome.storage.local.set({ isPremium: false, isPro: false, licenseKey: null }, () => {
         location.reload();
     });
 });

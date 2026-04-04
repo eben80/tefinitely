@@ -55,19 +55,23 @@
     let currentTarget = "";
     const storageKey = "folscan_usernames";
 
-    const isPremium = async () => {
-        const data = await chrome.storage.local.get("isPremium");
-        return !!data.isPremium;
+    const getAccountTier = async () => {
+        const data = await chrome.storage.local.get(["isPremium", "isPro"]);
+        return { isPremium: !!data.isPremium, isPro: !!data.isPro };
     };
 
     const updatePremiumUI = async () => {
-        if (await isPremium()) {
-            premiumBadge.style.display = "inline";
-            launcherCrown.style.display = "inline";
-        } else {
-            premiumBadge.style.display = "none";
-            launcherCrown.style.display = "none";
-        }
+        chrome.storage.local.get(["isPremium", "isPro"], (data) => {
+            if (data.isPremium) {
+                premiumBadge.style.display = "inline";
+                premiumBadge.textContent = data.isPro ? "👑 PREMIUM PRO" : "👑 PREMIUM";
+                launcherCrown.style.display = "inline";
+                launcherCrown.style.color = data.isPro ? "cyan" : "white";
+            } else {
+                premiumBadge.style.display = "none";
+                launcherCrown.style.display = "none";
+            }
+        });
     };
 
     const updateDropdown = () => {
@@ -107,11 +111,37 @@
         return document.cookie.includes("ds_user_id") || !!document.querySelector("nav") || !!document.querySelector('a[href*="/direct/inbox/"]');
     };
 
+    const getCurrentViewerUsername = () => {
+        const config = Array.from(document.querySelectorAll('script')).find(s => s.textContent.includes('viewer'))?.textContent;
+        if (config) {
+            try {
+                const match = config.match(/"username":"([^"]+)"/);
+                if (match) return match[1];
+            } catch (e) {}
+        }
+        // Fallback: try to find it in common UI elements
+        const profileLink = document.querySelector('a[href^="/"][href$="/"] img[alt*="profile"]')?.closest('a')?.href;
+        if (profileLink) return profileLink.split('/').filter(Boolean).pop();
+
+        return null;
+    };
+
     const runScan = async (username) => {
         if (!isLoggedIn()) {
             throw new Error("You must be logged in to Instagram to run a scan.");
         }
-        const premium = await isPremium();
+        const { isPremium, isPro } = await getAccountTier();
+        const viewer = getCurrentViewerUsername();
+
+        if (username.toLowerCase() !== viewer?.toLowerCase()) {
+            if (!isPro) {
+                const msg = isPremium ?
+                    "Premium License only allows scanning your own account. Upgrade to Premium Pro to scan any public or followed account!" :
+                    "Scanning other accounts requires a Premium Pro license. Note: Private accounts you don't follow cannot be scanned.";
+                throw new Error(msg);
+            }
+        }
+
         runBtn.disabled = true; dlBtn.disabled = true; status.className = "pulse";
         status.innerText = `Connecting...`;
 
@@ -123,7 +153,7 @@
             let results = [], cursor = null, hasNext = true, pageCount = 0;
             const maxFree = 100;
             while (hasNext) {
-                if (!premium && results.length >= maxFree) {
+                if (!isPremium && results.length >= maxFree) {
                     status.innerText = `Free limit reached (${maxFree}). Upgrade for more!`;
                     break;
                 }
@@ -176,7 +206,7 @@
             title.textContent = `📊 Report for @${username}`;
             report.appendChild(title);
 
-            if (!premium) {
+            if (!isPremium) {
                 const limitMsg = document.createElement("p");
                 limitMsg.style.color = "gold";
                 limitMsg.textContent = "Limited to 100 items and basic reports for free users.";
@@ -184,7 +214,7 @@
             }
 
             sections.forEach(s => {
-                const isLocked = s.premium && !premium;
+                const isLocked = s.premium && !isPremium;
                 const details = document.createElement("details");
                 details.className = "folscan-section";
                 if (s.list.length > 0 && !isLocked) details.open = true;
@@ -249,6 +279,7 @@
     launcher.addEventListener("click", () => {
         popupDiv.style.display = "block";
         launcher.style.display = "none";
+        updatePremiumUI();
     });
     closeBtn.addEventListener("click", () => {
         popupDiv.style.display = "none";
