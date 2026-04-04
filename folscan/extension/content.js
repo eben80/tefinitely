@@ -8,24 +8,24 @@
     popup.innerHTML = `
     <style>
         #folscan-launcher { position: fixed; top: 20px; right: 120px; background: gold; color: black; font-weight: bold; padding: 10px 15px; border-radius: 50px; cursor: pointer; z-index: 100001; box-shadow: 0 4px 10px rgba(0,0,0,0.5); font-family: sans-serif; font-size: 14px; }
-        #folscan-popup { position: fixed; top: 5%; left: 5%; width: 90%; max-height: 90%; overflow-y: auto; background: #1e1e1e; color: white; font-family: sans-serif; padding: 20px; border: 2px solid #666; border-radius: 10px; z-index: 100000; box-shadow: 0 0 20px #000; display: none; }
-        #folscan-popup h2 { text-align: center; font-size: 24px; margin-bottom: 16px; }
-        #folscan-buttons { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; align-items: center; }
-        #folscan-buttons select, #folscan-buttons input, #folscan-buttons button { background: #222; color: white; border: 1px solid #555; border-radius: 5px; padding: 6px 10px; font-size: 14px; }
+        #folscan-popup { position: fixed; top: 5%; left: 50%; transform: translateX(-50%); width: fit-content; min-width: 320px; max-width: 480px; max-height: 90%; overflow-y: auto; background: #1e1e1e; color: white; font-family: sans-serif; padding: 20px; border: 2px solid #666; border-radius: 10px; z-index: 100000; box-shadow: 0 0 20px #000; display: none; }
+        #folscan-popup h2 { text-align: center; font-size: 20px; margin-bottom: 16px; }
+        #folscan-buttons { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; align-items: center; justify-content: center; max-width: 380px; margin-left: auto; margin-right: auto; }
+        #folscan-buttons select, #folscan-buttons input, #folscan-buttons button { background: #222; color: white; border: 1px solid #555; border-radius: 5px; padding: 5px 8px; font-size: 12px; }
         #folscan-buttons button { background: #444; cursor: pointer; }
-        #fetch-status { margin-top: 10px; font-size: 16px; color: lightgreen; }
+        #fetch-status { margin-top: 8px; font-size: 13px; color: lightgreen; text-align: center; }
         .pulse { animation: pulse 1s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
-        .folscan-section { margin: 10px 0; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        .folscan-section summary { font-weight: bold; cursor: pointer; padding: 5px; }
-        .folscan-link { color: inherit; text-decoration: none; flex: 1; margin: 2px 0; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .folscan-section { margin: 8px 0; border-bottom: 1px solid #333; padding-bottom: 8px; }
+        .folscan-section summary { font-weight: bold; cursor: pointer; padding: 4px; font-size: 14px; }
+        .folscan-link { color: inherit; text-decoration: none; margin: 2px 0; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .folscan-link:hover { text-decoration: underline; }
-        .folscan-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; border-bottom: 1px solid #2a2a2a; }
+        .folscan-row { display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: center; padding: 4px 0; border-bottom: 1px solid #2a2a2a; }
         .folscan-row:last-child { border-bottom: none; }
-        .folscan-meta { display: flex; gap: 6px; width: 100px; justify-content: flex-end; }
-        .folscan-meta span { cursor: help; font-size: 12px; filter: grayscale(1); opacity: 0.3; }
-        .folscan-meta span.active { filter: grayscale(0); opacity: 1; }
-        .folscan-header-row { display: flex; align-items: center; gap: 8px; padding-bottom: 5px; margin-bottom: 5px; border-bottom: 1px solid #444; font-size: 11px; color: #888; font-weight: bold; }
+        .folscan-meta { display: flex; gap: 8px; justify-content: flex-end; }
+        .folscan-meta span { cursor: help; font-size: 14px; filter: grayscale(1); opacity: 0.3; }
+        .folscan-meta span.active, .folscan-header-row .folscan-meta span { filter: grayscale(0); opacity: 1; }
+        .folscan-header-row { display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: center; padding-bottom: 5px; margin-bottom: 5px; border-bottom: 1px solid #444; font-size: 11px; color: #888; font-weight: bold; }
         #premium-badge { color: gold; font-weight: bold; margin-left: 10px; display: none; }
         #launcher-premium-crown { display: none; margin-left: 5px; }
     </style>
@@ -195,7 +195,7 @@
                 const headerRow = document.createElement("div");
                 headerRow.className = "folscan-header-row";
                 headerRow.innerHTML = `
-                    <div style="flex: 1">User</div>
+                    <div style="visibility: hidden">Spacer</div>
                     <div class="folscan-meta">
                         <span title="Private Account">🔒</span>
                         <span title="Verified Account">✅</span>
@@ -212,7 +212,7 @@
                     a.className = "folscan-link";
                     a.href = `https://instagram.com/${u.username}`;
                     a.target = "_blank";
-                    a.textContent = `@${u.username} (${u.full_name || 'No Name'})`;
+                    a.textContent = `${u.username} (${u.full_name || 'No Name'})`;
 
                     const meta = document.createElement("div");
                     meta.className = "folscan-meta";
@@ -373,7 +373,7 @@
                 { title: "📤 Unfollowed (By You)", list: Object.keys(lastFollowings).filter(id => !currentFollowingsMap[id]).map(id => ({ id, ...lastFollowings[id] })), color: "#ff6b6b", premium: true },
                 { title: "🚫 Not Following Back", list: currentFollowings.filter(f => !currentFollowersMap[f.id]), color: "orange", premium: false },
                 { title: "🤝 Mutual", list: currentFollowings.filter(f => currentFollowersMap[f.id]), color: "#00d4ff", premium: false },
-                { title: "📛 Username Changes", list: changedUsernames.map(c => ({ username: c.new, full_name: `was @${c.old}` })), color: "yellow", premium: true }
+                { title: "📛 Username Changes", list: changedUsernames.map(c => ({ username: c.new, full_name: `was ${c.old}` })), color: "yellow", premium: true }
             ];
 
             // Sort: Items with lists > 0 come first
