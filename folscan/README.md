@@ -10,7 +10,7 @@ FolScan is a Chrome extension designed for Instagram account analysis, allowing 
 - **Unfollowed (By You)**: Lists accounts the target has stopped following (Premium feature).
 - **Not Following Back**: Identifies accounts that the target follows but who do not follow the target back.
 - **Mutual**: Lists mutual followers.
-- **Report History**: Quick access to previous scans via a dropdown menu.
+- **Report History & Persistence**: Quick access to previous scans via a dropdown menu. FolScan automatically remembers and displays the last generated report for each username, including a timestamp of when it was run.
 - **Data Export**: Download scan results in JSON format.
 
 ## Subscription Levels
@@ -31,8 +31,8 @@ FolScan is a Chrome extension designed for Instagram account analysis, allowing 
 
 - **Launcher (Top-Right)**: A small gold button that sits out of the way of the Instagram interface. Click to expand the full analysis tool.
 - **Dropdown (Select Previous...)**: Quickly load previous scan targets.
-- **Username Input**: Enter the Instagram handle you wish to scan. **Note**: Changing this field or the dropdown selection clears the current report to avoid confusion.
-- **Run Report**: Connects to Instagram to fetch follower/following data and generate a report.
+- **Username Input**: Enter the Instagram handle you wish to scan. **Note**: Changing this field or the dropdown selection automatically loads and displays the most recent saved report for that user, if available.
+- **Run Report**: Connects to Instagram to fetch fresh follower/following data and generate a new report, updating the persistence for that user.
 - **Download JSON**: Exports the raw follower and following lists for the current target.
 - **Reset All**: Clears the extension's local storage of all scan history.
 - **Close**: Minimizes the analysis popup back to the launcher button.
@@ -42,6 +42,7 @@ FolScan is a Chrome extension designed for Instagram account analysis, allowing 
 All FolScan data is stored locally within your browser using `chrome.storage.local`.
 
 - **`folscan_usernames`**: A list of recently scanned handles for the history dropdown.
+- **`folscan_[username]_report`**: An object containing the processed scan sections and a timestamp of the last successful run.
 - **`folscan_[username]_followers`**: An array of objects containing the `username` and `full_name` of the account's followers from the most recent scan.
 - **`folscan_[username]_followings`**: An array of objects containing the `username` and `full_name` of the account's following list from the most recent scan.
 - **`isPremium` / `isPro`**: Flags indicating the current license status.

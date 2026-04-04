@@ -90,14 +90,20 @@
     userList.addEventListener("change", () => {
         if (userList.value) {
             userInp.value = userList.value;
-            report.innerHTML = "";
-            status.innerText = "";
+            currentTarget = userList.value;
+            displayPersistedReport(userList.value);
         }
     });
 
     userInp.addEventListener("input", () => {
-        report.innerHTML = "";
-        status.innerText = "";
+        const u = userInp.value.trim();
+        if (u) {
+            currentTarget = u;
+            displayPersistedReport(u);
+        } else {
+            report.innerHTML = "";
+            status.innerText = "";
+        }
     });
 
     const saveUserToHistory = u => {
@@ -133,6 +139,81 @@
         if (profileLink) return profileLink.split('/').filter(Boolean).pop();
 
         return null;
+    };
+
+    const renderReportUI = (username, sections, isPremium, timestamp = null) => {
+        report.innerHTML = "";
+        const title = document.createElement("h3");
+        title.textContent = `📊 Report for @${username}`;
+        report.appendChild(title);
+
+        if (timestamp) {
+            const tsDiv = document.createElement("div");
+            tsDiv.style.fontSize = "12px";
+            tsDiv.style.color = "#aaa";
+            tsDiv.style.marginBottom = "10px";
+            tsDiv.textContent = `Last Scan: ${new Date(timestamp).toLocaleString()}`;
+            report.appendChild(tsDiv);
+        }
+
+        if (!isPremium) {
+            const limitMsg = document.createElement("p");
+            limitMsg.style.color = "gold";
+            limitMsg.textContent = "Limited to 100 items and basic reports for free users.";
+            report.appendChild(limitMsg);
+        }
+
+        sections.forEach(s => {
+            const isLocked = s.premium && !isPremium;
+            const details = document.createElement("details");
+            details.className = "folscan-section";
+            if (s.list.length > 0 && !isLocked) details.open = true;
+
+            const summary = document.createElement("summary");
+            summary.style.color = s.color;
+            summary.textContent = `${s.title} (${isLocked ? 'Premium Only' : s.list.length})`;
+            details.appendChild(summary);
+
+            const div = document.createElement("div");
+            div.style.paddingLeft = "15px";
+
+            if (isLocked) {
+                const em = document.createElement("em");
+                em.textContent = "Upgrade to Premium to see who unfollowed you!";
+                div.appendChild(em);
+            } else if (s.list.length === 0) {
+                const em = document.createElement("em");
+                em.textContent = "None";
+                div.appendChild(em);
+            } else {
+                s.list.forEach(u => {
+                    const a = document.createElement("a");
+                    a.className = "folscan-link";
+                    a.href = `https://instagram.com/${u.username}`;
+                    a.target = "_blank";
+                    a.textContent = `@${u.username} (${u.full_name || 'No Name'})`;
+                    div.appendChild(a);
+                });
+            }
+            details.appendChild(div);
+            report.appendChild(details);
+        });
+    };
+
+    const displayPersistedReport = async (username) => {
+        const { isPremium } = await getAccountTier();
+        chrome.storage.local.get([`folscan_${username}_report`, `folscan_${username}_followers`, `folscan_${username}_followings`], (data) => {
+            const savedReport = data[`folscan_${username}_report`];
+            if (savedReport) {
+                renderReportUI(username, savedReport.sections, isPremium, savedReport.timestamp);
+                status.innerText = "Showing saved report. Click 'Run Report' for a fresh scan.";
+                dlBtn.disabled = false;
+            } else {
+                report.innerHTML = "";
+                status.innerText = "No previous scan found for this user.";
+                dlBtn.disabled = true;
+            }
+        });
     };
 
     const runScan = async (username) => {
@@ -205,58 +286,14 @@
             // Sort: Items with lists > 0 come first
             sections.sort((a, b) => (b.list.length > 0) - (a.list.length > 0));
 
+            const timestamp = Date.now();
             const saveObj = {};
             saveObj[`folscan_${username}_followers`] = currentFollowers;
             saveObj[`folscan_${username}_followings`] = currentFollowings;
+            saveObj[`folscan_${username}_report`] = { sections, timestamp };
             chrome.storage.local.set(saveObj);
 
-            report.innerHTML = "";
-            const title = document.createElement("h3");
-            title.textContent = `📊 Report for @${username}`;
-            report.appendChild(title);
-
-            if (!isPremium) {
-                const limitMsg = document.createElement("p");
-                limitMsg.style.color = "gold";
-                limitMsg.textContent = "Limited to 100 items and basic reports for free users.";
-                report.appendChild(limitMsg);
-            }
-
-            sections.forEach(s => {
-                const isLocked = s.premium && !isPremium;
-                const details = document.createElement("details");
-                details.className = "folscan-section";
-                if (s.list.length > 0 && !isLocked) details.open = true;
-
-                const summary = document.createElement("summary");
-                summary.style.color = s.color;
-                summary.textContent = `${s.title} (${isLocked ? 'Premium Only' : s.list.length})`;
-                details.appendChild(summary);
-
-                const div = document.createElement("div");
-                div.style.paddingLeft = "15px";
-
-                if (isLocked) {
-                    const em = document.createElement("em");
-                    em.textContent = "Upgrade to Premium to see who unfollowed you!";
-                    div.appendChild(em);
-                } else if (s.list.length === 0) {
-                    const em = document.createElement("em");
-                    em.textContent = "None";
-                    div.appendChild(em);
-                } else {
-                    s.list.forEach(u => {
-                        const a = document.createElement("a");
-                        a.className = "folscan-link";
-                        a.href = `https://instagram.com/${u.username}`;
-                        a.target = "_blank";
-                        a.textContent = `@${u.username} (${u.full_name || 'No Name'})`;
-                        div.appendChild(a);
-                    });
-                }
-                details.appendChild(div);
-                report.appendChild(details);
-            });
+            renderReportUI(username, sections, isPremium, timestamp);
 
             status.className = ""; status.innerText = "Done!";
             runBtn.disabled = false; dlBtn.disabled = false;
