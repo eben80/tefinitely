@@ -253,9 +253,17 @@
 
     const displayPersistedReport = async (username) => {
         if (!chrome.runtime?.id) return;
+
+        status.className = "pulse";
+        status.innerText = "Loading saved report...";
+        runBtn.disabled = true;
+
         const { isPremium } = await getAccountTier();
         chrome.storage.local.get([`folscan_${username}_report`, `folscan_${username}_followers`, `folscan_${username}_followings`], (data) => {
+            status.className = "";
+            runBtn.disabled = false;
             if (chrome.runtime.lastError) return;
+
             const savedReport = data[`folscan_${username}_report`];
             if (savedReport) {
                 renderReportUI(username, savedReport.sections, isPremium, savedReport.timestamp);
