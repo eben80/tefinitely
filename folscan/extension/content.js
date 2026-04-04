@@ -252,7 +252,7 @@
                             encodeURIComponent(JSON.stringify({ id: userId, first: 50, after: cursor }));
                 const data = await safeFetch(url);
                 const page = data.data.user[type];
-                results = results.concat(page.edges.map(({ node: n }) => ({ username: n.username, full_name: n.full_name })));
+                results = results.concat(page.edges.map(({ node: n }) => ({ id: n.id, username: n.username, full_name: n.full_name })));
                 hasNext = page.page_info.has_next_page;
                 cursor = page.page_info.end_cursor;
                 if (hasNext) {
@@ -271,16 +271,47 @@
         const currentFollowings = await fetchAll("edge_follow", "d04b0a864b4b54837c0d870b0e77e076");
 
         chrome.storage.local.get([`folscan_${username}_followers`, `folscan_${username}_followings`], (data) => {
-            const lastFollowers = data[`folscan_${username}_followers`] || [];
-            const lastFollowings = data[`folscan_${username}_followings`] || [];
+            // Support both old array format and new map format for migration
+            const lastFollowersRaw = data[`folscan_${username}_followers`] || {};
+            const lastFollowingsRaw = data[`folscan_${username}_followings`] || {};
+
+            const toMap = (raw) => {
+                if (Array.isArray(raw)) {
+                    const map = {};
+                    raw.forEach(u => { if (u.id) map[u.id] = { username: u.username, full_name: u.full_name }; });
+                    return map;
+                }
+                return raw;
+            };
+
+            const lastFollowers = toMap(lastFollowersRaw);
+            const lastFollowings = toMap(lastFollowingsRaw);
+
+            const currentFollowersMap = {};
+            currentFollowers.forEach(f => currentFollowersMap[f.id] = { username: f.username, full_name: f.full_name });
+            const currentFollowingsMap = {};
+            currentFollowings.forEach(f => currentFollowingsMap[f.id] = { username: f.username, full_name: f.full_name });
+
+            const changedUsernames = [];
+            for (const id in currentFollowersMap) {
+                if (lastFollowers[id] && lastFollowers[id].username !== currentFollowersMap[id].username) {
+                    changedUsernames.push({ id, old: lastFollowers[id].username, new: currentFollowersMap[id].username });
+                }
+            }
+            for (const id in currentFollowingsMap) {
+                if (lastFollowings[id] && lastFollowings[id].username !== currentFollowingsMap[id].username && !changedUsernames.some(c => c.id === id)) {
+                    changedUsernames.push({ id, old: lastFollowings[id].username, new: currentFollowingsMap[id].username });
+                }
+            }
 
             const sections = [
-                { title: "🆕 New Followers", list: currentFollowers.filter(f => !lastFollowers.some(l => l.username === f.username)), color: "lightgreen", premium: false },
-                { title: "❌ Lost Followers", list: lastFollowers.filter(l => !currentFollowers.some(f => f.username === l.username)), color: "salmon", premium: true },
-                { title: "🆕 New Followings", list: currentFollowings.filter(f => !lastFollowings.some(l => l.username === f.username)), color: "lightblue", premium: false },
-                { title: "📤 Unfollowed (By You)", list: lastFollowings.filter(l => !currentFollowings.some(f => f.username === l.username)), color: "#ff6b6b", premium: true },
-                { title: "🚫 Not Following Back", list: currentFollowings.filter(f => !currentFollowers.some(c => c.username === f.username)), color: "orange", premium: false },
-                { title: "🤝 Mutual", list: currentFollowings.filter(f => currentFollowers.some(c => c.username === f.username)), color: "#00d4ff", premium: false }
+                { title: "🆕 New Followers", list: currentFollowers.filter(f => !lastFollowers[f.id]), color: "lightgreen", premium: false },
+                { title: "❌ Lost Followers", list: Object.keys(lastFollowers).filter(id => !currentFollowersMap[id]).map(id => ({ id, ...lastFollowers[id] })), color: "salmon", premium: true },
+                { title: "🆕 New Followings", list: currentFollowings.filter(f => !lastFollowings[f.id]), color: "lightblue", premium: false },
+                { title: "📤 Unfollowed (By You)", list: Object.keys(lastFollowings).filter(id => !currentFollowingsMap[id]).map(id => ({ id, ...lastFollowings[id] })), color: "#ff6b6b", premium: true },
+                { title: "🚫 Not Following Back", list: currentFollowings.filter(f => !currentFollowersMap[f.id]), color: "orange", premium: false },
+                { title: "🤝 Mutual", list: currentFollowings.filter(f => currentFollowersMap[f.id]), color: "#00d4ff", premium: false },
+                { title: "📛 Username Changes", list: changedUsernames.map(c => ({ username: c.new, full_name: `was @${c.old}` })), color: "yellow", premium: true }
             ];
 
             // Sort: Items with lists > 0 come first
@@ -288,8 +319,8 @@
 
             const timestamp = Date.now();
             const saveObj = {};
-            saveObj[`folscan_${username}_followers`] = currentFollowers;
-            saveObj[`folscan_${username}_followings`] = currentFollowings;
+            saveObj[`folscan_${username}_followers`] = currentFollowersMap;
+            saveObj[`folscan_${username}_followings`] = currentFollowingsMap;
             saveObj[`folscan_${username}_report`] = { sections, timestamp };
             chrome.storage.local.set(saveObj);
 

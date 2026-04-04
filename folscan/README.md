@@ -43,8 +43,8 @@ All FolScan data is stored locally within your browser using `chrome.storage.loc
 
 - **`folscan_usernames`**: A list of recently scanned handles for the history dropdown.
 - **`folscan_[username]_report`**: An object containing the processed scan sections and a timestamp of the last successful run.
-- **`folscan_[username]_followers`**: An array of objects containing the `username` and `full_name` of the account's followers from the most recent scan.
-- **`folscan_[username]_followings`**: An array of objects containing the `username` and `full_name` of the account's following list from the most recent scan.
+- **`folscan_[username]_followers`**: A map where keys are numeric user IDs and values are objects containing `username` and `full_name` from the most recent scan.
+- **`folscan_[username]_followings`**: A map where keys are numeric user IDs and values are objects containing `username` and `full_name` from the most recent scan.
 - **`isPremium` / `isPro`**: Flags indicating the current license status.
 - **`licenseKey`**: The last successfully validated license key.
 
