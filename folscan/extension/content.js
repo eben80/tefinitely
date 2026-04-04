@@ -7,7 +7,8 @@
     popup.id = "folscan-popup-container";
     popup.innerHTML = `
     <style>
-        #folscan-popup { position: fixed; top: 5%; left: 5%; width: 90%; max-height: 90%; overflow-y: auto; background: #1e1e1e; color: white; font-family: sans-serif; padding: 20px; border: 2px solid #666; border-radius: 10px; z-index: 100000; box-shadow: 0 0 20px #000; }
+        #folscan-launcher { position: fixed; bottom: 20px; right: 20px; background: gold; color: black; font-weight: bold; padding: 10px 15px; border-radius: 50px; cursor: pointer; z-index: 100001; box-shadow: 0 4px 10px rgba(0,0,0,0.5); font-family: sans-serif; font-size: 14px; }
+        #folscan-popup { position: fixed; top: 5%; left: 5%; width: 90%; max-height: 90%; overflow-y: auto; background: #1e1e1e; color: white; font-family: sans-serif; padding: 20px; border: 2px solid #666; border-radius: 10px; z-index: 100000; box-shadow: 0 0 20px #000; display: none; }
         #folscan-popup h2 { text-align: center; font-size: 24px; margin-bottom: 16px; }
         #folscan-buttons { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; align-items: center; }
         #folscan-buttons select, #folscan-buttons input, #folscan-buttons button { background: #222; color: white; border: 1px solid #555; border-radius: 5px; padding: 6px 10px; font-size: 14px; }
@@ -21,6 +22,7 @@
         .folscan-link:hover { text-decoration: underline; }
         #premium-badge { color: gold; font-weight: bold; margin-left: 10px; display: none; }
     </style>
+    <div id="folscan-launcher">FolScan</div>
     <div id="folscan-popup">
         <h2>FolScan <span id="premium-badge">PREMIUM</span></h2>
         <div id="folscan-buttons">
@@ -36,7 +38,9 @@
     </div>`;
     document.body.appendChild(popup);
 
-    const userInp = document.getElementById("folscan-username"),
+    const launcher = document.getElementById("folscan-launcher"),
+          popupDiv = document.getElementById("folscan-popup"),
+          userInp = document.getElementById("folscan-username"),
           userList = document.getElementById("folscan-userlist"),
           runBtn = document.getElementById("folscan-run"),
           dlBtn = document.getElementById("folscan-download"),
@@ -238,5 +242,12 @@
             });
         }
     });
-    closeBtn.addEventListener("click", () => popup.remove());
+    launcher.addEventListener("click", () => {
+        popupDiv.style.display = "block";
+        launcher.style.display = "none";
+    });
+    closeBtn.addEventListener("click", () => {
+        popupDiv.style.display = "none";
+        launcher.style.display = "block";
+    });
 })();
