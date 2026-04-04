@@ -88,7 +88,16 @@
     };
 
     userList.addEventListener("change", () => {
-        if (userList.value) userInp.value = userList.value;
+        if (userList.value) {
+            userInp.value = userList.value;
+            report.innerHTML = "";
+            status.innerText = "";
+        }
+    });
+
+    userInp.addEventListener("input", () => {
+        report.innerHTML = "";
+        status.innerText = "";
     });
 
     const saveUserToHistory = u => {
@@ -256,6 +265,10 @@
 
     updateDropdown();
     updatePremiumUI();
+
+    // Periodically check premium status to update launcher crown if changed in popup
+    setInterval(updatePremiumUI, 2000);
+
     runBtn.addEventListener("click", () => {
         const u = userInp.value.trim();
         if (u) { currentTarget = u; saveUserToHistory(u); runScan(u).catch(e => { status.innerText = "❌ " + e.message; runBtn.disabled = false; }); }
