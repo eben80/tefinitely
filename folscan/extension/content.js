@@ -18,8 +18,14 @@
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
         .folscan-section { margin: 10px 0; border-bottom: 1px solid #333; padding-bottom: 10px; }
         .folscan-section summary { font-weight: bold; cursor: pointer; padding: 5px; }
-        .folscan-link { color: inherit; text-decoration: none; display: block; margin: 2px 0; font-size: 13px; }
+        .folscan-link { color: inherit; text-decoration: none; flex: 1; margin: 2px 0; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .folscan-link:hover { text-decoration: underline; }
+        .folscan-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; border-bottom: 1px solid #2a2a2a; }
+        .folscan-row:last-child { border-bottom: none; }
+        .folscan-meta { display: flex; gap: 6px; width: 100px; justify-content: flex-end; }
+        .folscan-meta span { cursor: help; font-size: 12px; filter: grayscale(1); opacity: 0.3; }
+        .folscan-meta span.active { filter: grayscale(0); opacity: 1; }
+        .folscan-header-row { display: flex; align-items: center; gap: 8px; padding-bottom: 5px; margin-bottom: 5px; border-bottom: 1px solid #444; font-size: 11px; color: #888; font-weight: bold; }
         #premium-badge { color: gold; font-weight: bold; margin-left: 10px; display: none; }
         #launcher-premium-crown { display: none; margin-left: 5px; }
     </style>
@@ -186,13 +192,47 @@
                 em.textContent = "None";
                 div.appendChild(em);
             } else {
+                const headerRow = document.createElement("div");
+                headerRow.className = "folscan-header-row";
+                headerRow.innerHTML = `
+                    <div style="flex: 1">User</div>
+                    <div class="folscan-meta">
+                        <span title="Private Account">🔒</span>
+                        <span title="Verified Account">✅</span>
+                        <span title="Requested by You">📤</span>
+                        <span title="Requested You">📥</span>
+                    </div>`;
+                div.appendChild(headerRow);
+
                 s.list.forEach(u => {
+                    const row = document.createElement("div");
+                    row.className = "folscan-row";
+
                     const a = document.createElement("a");
                     a.className = "folscan-link";
                     a.href = `https://instagram.com/${u.username}`;
                     a.target = "_blank";
                     a.textContent = `@${u.username} (${u.full_name || 'No Name'})`;
-                    div.appendChild(a);
+
+                    const meta = document.createElement("div");
+                    meta.className = "folscan-meta";
+
+                    const createIcon = (active, title, icon) => {
+                        const s = document.createElement("span");
+                        s.textContent = icon;
+                        s.title = title;
+                        if (active) s.className = "active";
+                        return s;
+                    };
+
+                    meta.appendChild(createIcon(u.is_private, "Private Account", "🔒"));
+                    meta.appendChild(createIcon(u.is_verified, "Verified Account", "✅"));
+                    meta.appendChild(createIcon(u.requested_by_viewer, "Requested by You", "📤"));
+                    meta.appendChild(createIcon(u.requested_viewer || u.has_requested_viewer, "Requested You", "📥"));
+
+                    row.appendChild(a);
+                    row.appendChild(meta);
+                    div.appendChild(row);
                 });
             }
             details.appendChild(div);
@@ -252,7 +292,15 @@
                             encodeURIComponent(JSON.stringify({ id: userId, first: 50, after: cursor }));
                 const data = await safeFetch(url);
                 const page = data.data.user[type];
-                results = results.concat(page.edges.map(({ node: n }) => ({ id: n.id, username: n.username, full_name: n.full_name })));
+                results = results.concat(page.edges.map(({ node: n }) => ({
+                    id: n.id,
+                    username: n.username,
+                    full_name: n.full_name,
+                    is_private: n.is_private,
+                    is_verified: n.is_verified,
+                    requested_by_viewer: n.requested_by_viewer,
+                    has_requested_viewer: n.has_requested_viewer
+                })));
                 hasNext = page.page_info.has_next_page;
                 cursor = page.page_info.end_cursor;
                 if (hasNext) {
@@ -288,9 +336,23 @@
             const lastFollowings = toMap(lastFollowingsRaw);
 
             const currentFollowersMap = {};
-            currentFollowers.forEach(f => currentFollowersMap[f.id] = { username: f.username, full_name: f.full_name });
+            currentFollowers.forEach(f => currentFollowersMap[f.id] = {
+                username: f.username,
+                full_name: f.full_name,
+                is_private: f.is_private,
+                is_verified: f.is_verified,
+                requested_by_viewer: f.requested_by_viewer,
+                has_requested_viewer: f.has_requested_viewer
+            });
             const currentFollowingsMap = {};
-            currentFollowings.forEach(f => currentFollowingsMap[f.id] = { username: f.username, full_name: f.full_name });
+            currentFollowings.forEach(f => currentFollowingsMap[f.id] = {
+                username: f.username,
+                full_name: f.full_name,
+                is_private: f.is_private,
+                is_verified: f.is_verified,
+                requested_by_viewer: f.requested_by_viewer,
+                has_requested_viewer: f.has_requested_viewer
+            });
 
             const changedUsernames = [];
             for (const id in currentFollowersMap) {

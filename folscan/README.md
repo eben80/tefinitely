@@ -10,6 +10,12 @@ FolScan is a Chrome extension designed for Instagram account analysis, allowing 
 - **Unfollowed (By You)**: Lists accounts the target has stopped following (Premium feature).
 - **Not Following Back**: Identifies accounts that the target follows but who do not follow the target back.
 - **Mutual**: Lists mutual followers.
+- **Username Change Tracking**: Explicitly identifies users who have changed their handle between scans.
+- **User Metadata Indicators**: Each user in the report is tagged with status icons:
+    - 🔒 **Private**: The account is set to private.
+    - ✅ **Verified**: The account is verified by Instagram.
+    - 📤 **Requested by You**: You have a pending follow request to this account.
+    - 📥 **Requested You**: This account has a pending follow request to you.
 - **Report History & Persistence**: Quick access to previous scans via a dropdown menu. FolScan automatically remembers and displays the last generated report for each username, including a timestamp of when it was run.
 - **Data Export**: Download scan results in JSON format.
 
@@ -43,8 +49,8 @@ All FolScan data is stored locally within your browser using `chrome.storage.loc
 
 - **`folscan_usernames`**: A list of recently scanned handles for the history dropdown.
 - **`folscan_[username]_report`**: An object containing the processed scan sections and a timestamp of the last successful run.
-- **`folscan_[username]_followers`**: A map where keys are numeric user IDs and values are objects containing `username` and `full_name` from the most recent scan.
-- **`folscan_[username]_followings`**: A map where keys are numeric user IDs and values are objects containing `username` and `full_name` from the most recent scan.
+- **`folscan_[username]_followers`**: A map where keys are numeric user IDs and values are objects containing `username`, `full_name`, `is_private`, `is_verified`, `requested_by_viewer`, and `has_requested_viewer`.
+- **`folscan_[username]_followings`**: A map where keys are numeric user IDs and values are objects containing `username`, `full_name`, `is_private`, `is_verified`, `requested_by_viewer`, and `has_requested_viewer`.
 - **`isPremium` / `isPro`**: Flags indicating the current license status.
 - **`licenseKey`**: The last successfully validated license key.
 
