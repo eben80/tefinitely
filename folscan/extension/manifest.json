@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "FolScan Premium",
+  "version": "1.0",
+  "description": "Instagram account analysis with premium features.",
+  "permissions": ["storage"],
+  "host_permissions": [
+    "https://www.instagram.com/*",
+    "http://localhost/*"
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.instagram.com/*"],
+      "js": ["content.js"]
+    }
+  ]
+}
