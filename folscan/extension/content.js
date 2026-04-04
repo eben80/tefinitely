@@ -435,52 +435,55 @@
     });
     dlBtn.addEventListener("click", async () => {
         if (!chrome.runtime?.id) return;
+        if (!report.innerHTML) return;
 
-        chrome.storage.local.get([`folscan_${currentTarget}_report`], (data) => {
-            if (chrome.runtime.lastError || !data[`folscan_${currentTarget}_report`]) return;
+        status.innerText = "Generating PDF (capturing emojis & unicode)...";
+        status.className = "pulse";
+        dlBtn.disabled = true;
 
-            const savedReport = data[`folscan_${currentTarget}_report`];
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            let y = 20;
-
-            doc.setFontSize(22);
-            doc.text(`FolScan Report: @${currentTarget}`, 20, y);
-            y += 10;
-
-            doc.setFontSize(10);
-            doc.setTextColor(100);
-            doc.text(`Generated on: ${new Date(savedReport.timestamp).toLocaleString()}`, 20, y);
-            y += 15;
-
-            savedReport.sections.forEach(s => {
-                if (y > 270) { doc.addPage(); y = 20; }
-
-                doc.setFontSize(14);
-                doc.setTextColor(0);
-                doc.text(`${s.title} (${s.list.length})`, 20, y);
-                y += 8;
-
-                doc.setFontSize(10);
-                if (s.list.length === 0) {
-                    doc.text("- None", 25, y);
-                    y += 6;
-                } else {
-                    s.list.slice(0, 100).forEach(u => { // Limit PDF rows for safety
-                        if (y > 280) { doc.addPage(); y = 20; }
-                        doc.text(`- ${u.username} (${u.full_name || 'No Name'})`, 25, y);
-                        y += 6;
-                    });
-                    if (s.list.length > 100) {
-                        doc.text(`... and ${s.list.length - 100} more`, 25, y);
-                        y += 6;
-                    }
-                }
-                y += 5;
+        try {
+            // Use html2canvas to capture the report exactly as it appears (supports emojis and unicode via image)
+            const canvas = await html2canvas(report, {
+                backgroundColor: "#1e1e1e",
+                scale: 2, // Higher quality
+                logging: false,
+                useCORS: true
             });
 
+            const imgData = canvas.toDataURL("image/png");
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF("p", "mm", "a4");
+
+            const pdfWidth = doc.internal.pageSize.getWidth();
+            const pdfHeight = doc.internal.pageSize.getHeight();
+            const imgWidth = pdfWidth - 20; // 10mm margins
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+            let heightLeft = imgHeight;
+            let position = 10; // margin
+
+            doc.setFontSize(16);
+            doc.text(`FolScan Report: @${currentTarget}`, 10, position);
+            position += 10;
+
+            doc.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+            heightLeft -= (pdfHeight - position);
+
+            while (heightLeft > 0) {
+                position = heightLeft - imgHeight + 10; // adjusted for next page
+                doc.addPage();
+                doc.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+                heightLeft -= pdfHeight;
+            }
+
             doc.save(`${currentTarget}_folscan_report.pdf`);
-        });
+            status.innerText = "PDF Downloaded!";
+        } catch (e) {
+            status.innerText = "❌ PDF Error: " + e.message;
+        } finally {
+            status.className = "";
+            dlBtn.disabled = false;
+        }
     });
     resetBtn.addEventListener("click", () => {
         if (!chrome.runtime?.id) return;
