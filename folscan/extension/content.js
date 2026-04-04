@@ -62,12 +62,19 @@
     const storageKey = "folscan_usernames";
 
     const getAccountTier = async () => {
-        const data = await chrome.storage.local.get(["isPremium", "isPro"]);
-        return { isPremium: !!data.isPremium, isPro: !!data.isPro };
+        if (!chrome.runtime?.id) return { isPremium: false, isPro: false };
+        try {
+            const data = await chrome.storage.local.get(["isPremium", "isPro"]);
+            return { isPremium: !!data.isPremium, isPro: !!data.isPro };
+        } catch (e) {
+            return { isPremium: false, isPro: false };
+        }
     };
 
     const updatePremiumUI = async () => {
+        if (!chrome.runtime?.id) return;
         chrome.storage.local.get(["isPremium", "isPro"], (data) => {
+            if (chrome.runtime.lastError) return;
             if (data.isPremium) {
                 premiumBadge.style.display = "inline";
                 premiumBadge.textContent = data.isPro ? "👑 PREMIUM PRO" : "👑 PREMIUM";
@@ -81,7 +88,9 @@
     };
 
     const updateDropdown = () => {
+        if (!chrome.runtime?.id) return;
         chrome.storage.local.get(storageKey, (data) => {
+            if (chrome.runtime.lastError) return;
             const list = data[storageKey] || [];
             userList.innerHTML = '<option value="">Select Previous...</option>';
             list.forEach(u => {
@@ -113,7 +122,9 @@
     });
 
     const saveUserToHistory = u => {
+        if (!chrome.runtime?.id) return;
         chrome.storage.local.get(storageKey, (data) => {
+            if (chrome.runtime.lastError) return;
             let list = data[storageKey] || [];
             if (!list.includes(u)) {
                 list.unshift(u);
@@ -241,8 +252,10 @@
     };
 
     const displayPersistedReport = async (username) => {
+        if (!chrome.runtime?.id) return;
         const { isPremium } = await getAccountTier();
         chrome.storage.local.get([`folscan_${username}_report`, `folscan_${username}_followers`, `folscan_${username}_followings`], (data) => {
+            if (chrome.runtime.lastError) return;
             const savedReport = data[`folscan_${username}_report`];
             if (savedReport) {
                 renderReportUI(username, savedReport.sections, isPremium, savedReport.timestamp);
@@ -318,7 +331,9 @@
         status.innerText = `Switching lists...`; await sleep(4000);
         const currentFollowings = await fetchAll("edge_follow", "d04b0a864b4b54837c0d870b0e77e076");
 
+        if (!chrome.runtime?.id) throw new Error("Extension context invalidated.");
         chrome.storage.local.get([`folscan_${username}_followers`, `folscan_${username}_followings`], (data) => {
+            if (chrome.runtime.lastError) return;
             // Support both old array format and new map format for migration
             const lastFollowersRaw = data[`folscan_${username}_followers`] || {};
             const lastFollowingsRaw = data[`folscan_${username}_followings`] || {};
@@ -397,14 +412,22 @@
     updatePremiumUI();
 
     // Periodically check premium status to update launcher crown if changed in popup
-    setInterval(updatePremiumUI, 2000);
+    const pollInterval = setInterval(() => {
+        if (!chrome.runtime?.id) {
+            clearInterval(pollInterval);
+            return;
+        }
+        updatePremiumUI();
+    }, 2000);
 
     runBtn.addEventListener("click", () => {
         const u = userInp.value.trim();
         if (u) { currentTarget = u; saveUserToHistory(u); runScan(u).catch(e => { status.innerText = "❌ " + e.message; runBtn.disabled = false; }); }
     });
     dlBtn.addEventListener("click", () => {
+        if (!chrome.runtime?.id) return;
         chrome.storage.local.get([`folscan_${currentTarget}_followers`, `folscan_${currentTarget}_followings`], (data) => {
+            if (chrome.runtime.lastError) return;
             const out = { followers: data[`folscan_${currentTarget}_followers`], followings: data[`folscan_${currentTarget}_followings`] };
             const blob = new Blob([JSON.stringify(out, null, 2)], {type: "application/json"});
             const link = document.createElement("a");
@@ -412,8 +435,10 @@
         });
     });
     resetBtn.addEventListener("click", () => {
+        if (!chrome.runtime?.id) return;
         if (confirm("Clear history? (This will not affect your premium license)")) {
             chrome.storage.local.get(null, (items) => {
+                if (chrome.runtime.lastError) return;
                 const keysToRemove = Object.keys(items).filter(k => k.startsWith("folscan_"));
                 chrome.storage.local.remove(keysToRemove, () => location.reload());
             });
