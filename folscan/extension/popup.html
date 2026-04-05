@@ -8,11 +8,14 @@
         button { background: #444; color: white; border: none; padding: 8px; width: 100%; cursor: pointer; border-radius: 5px; }
         #status { margin-top: 10px; font-size: 12px; }
         .premium { color: gold; font-weight: bold; }
+        .shop-link { display: block; margin-top: 15px; text-align: center; color: gold; text-decoration: none; font-size: 13px; border: 1px solid gold; padding: 8px; border-radius: 5px; transition: background 0.3s; }
+        .shop-link:hover { background: rgba(255, 215, 0, 0.1); }
     </style>
 </head>
 <body>
     <h1>FolScan Premium</h1>
     <div id="status">Checking status...</div>
+    <a href="https://tefinitely.lemonsqueezy.com/" target="_blank" class="shop-link">🛒 Get Premium / Upgrade</a>
     <div id="license-form" style="display: none;">
         <p>Enter your Lemon Squeezy license key to activate premium features.</p>
         <input type="text" id="license-key" placeholder="XXXX-XXXX-XXXX-XXXX" />
