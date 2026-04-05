@@ -21,14 +21,14 @@ activateBtn.addEventListener("click", async () => {
     if (!key) return;
 
     statusDiv.innerText = "Activating...";
-    chrome.runtime.sendMessage({ action: "validateLicense", licenseKey: key }, (response) => {
+    chrome.runtime.sendMessage({ type: "VALIDATE_LICENSE", key: key }, (response) => {
         if (response.success) {
             statusDiv.innerText = "License activated!";
             licenseForm.style.display = "none";
             activeInfo.style.display = "block";
             location.reload();
         } else {
-            statusDiv.innerText = "Activation failed: " + response.message;
+            statusDiv.innerText = "Activation failed: " + (response.message || "Invalid key");
         }
     });
 });

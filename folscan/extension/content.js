@@ -55,10 +55,6 @@
             <button id="folscan-download" disabled>Download CSV</button>
             <button id="folscan-reset">Reset All</button>
         </div>
-        <div id="folscan-license-section" style="display: flex; gap: 6px; margin-bottom: 12px; align-items: center; justify-content: center;">
-            <input type="text" id="folscan-license-key" placeholder="Enter License Key" style="background: #222; color: white; border: 1px solid #555; border-radius: 5px; padding: 5px 8px; font-size: 12px; width: 140px;" />
-            <button id="folscan-validate-license" style="background: gold; color: black; border: none; border-radius: 5px; padding: 5px 10px; font-size: 12px; cursor: pointer; font-weight: bold;">Activate</button>
-        </div>
         <div id="fetch-status"></div>
         <div id="folscan-progress-container"><div id="folscan-progress-bar"></div></div>
         <div id="folscan-report"></div>
@@ -78,9 +74,7 @@
           progBar = document.getElementById("folscan-progress-bar"),
           progCont = document.getElementById("folscan-progress-container"),
           report = document.getElementById("folscan-report"),
-          premiumBadge = document.getElementById("premium-badge"),
-          licenseInp = document.getElementById("folscan-license-key"),
-          validateBtn = document.getElementById("folscan-validate-license");
+          premiumBadge = document.getElementById("premium-badge");
 
     let currentTarget = "";
     const storageKey = "folscan_usernames";
@@ -128,12 +122,13 @@
 
     const getScanEstimate = async (username) => {
         try {
-            const searchRes = await safeFetch(`https://www.instagram.com/web/search/topsearch/?query=${username}`);
-            const user = searchRes.users.find(u => u.user.username === username)?.user;
+            const url = `https://www.instagram.com/api/v1/users/web_profile_info/?username=${username}`;
+            const res = await safeFetch(url);
+            const user = res.data.user;
             if (!user) return null;
 
-            const followers = user.follower_count || 0;
-            const followings = user.following_count || 0;
+            const followers = user.edge_followed_by?.count || 0;
+            const followings = user.edge_follow?.count || 0;
             const total = followers + followings;
             const totalPages = total / 50;
             const seconds = (totalPages * 5) + (Math.floor(totalPages / 10) * 30);
@@ -564,23 +559,6 @@
         }
     });
 
-    validateBtn.addEventListener("click", () => {
-        const key = licenseInp.value.trim();
-        if (!key) return;
-
-        status.innerText = "Validating...";
-        status.className = "pulse";
-        chrome.runtime.sendMessage({ type: "VALIDATE_LICENSE", key }, (response) => {
-            status.className = "";
-            if (response.success) {
-                status.innerText = `Success! ${response.isPro ? 'Premium Pro' : 'Premium'} activated.`;
-                updatePremiumUI();
-                licenseInp.value = "";
-            } else {
-                status.innerText = "❌ Invalid license key.";
-            }
-        });
-    });
     dlBtn.addEventListener("click", async () => {
         if (!chrome.runtime?.id) return;
 
