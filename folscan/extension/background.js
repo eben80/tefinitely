@@ -10,8 +10,8 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.action === "validateLicense") {
-        validateLicense(request.licenseKey).then(sendResponse);
+    if (request.type === "VALIDATE_LICENSE") {
+        validateLicense(request.key).then(sendResponse);
         return true;
     }
 });
@@ -19,11 +19,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 async function validateLicense(licenseKey) {
     if (licenseKey === "MOCK-PREMIUM-KEY") {
         await chrome.storage.local.set({ isPremium: true, isPro: false, licenseKey: licenseKey });
-        return { success: true };
+        return { success: true, isPro: false };
     }
     if (licenseKey === "MOCK-PRO-KEY") {
         await chrome.storage.local.set({ isPremium: true, isPro: true, licenseKey: licenseKey });
-        return { success: true };
+        return { success: true, isPro: true };
     }
     try {
         const response = await fetch(`${API_URL}/validate.php`, {

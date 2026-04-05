@@ -36,6 +36,10 @@
         .folscan-change { font-size: 12px; margin-left: 4px; }
         .folscan-up { color: lightgreen; }
         .folscan-down { color: #ff6b6b; }
+        #folscan-progress-container { width: 100%; height: 8px; background: #333; border-radius: 4px; margin-top: 10px; display: none; overflow: hidden; }
+        #folscan-progress-bar { width: 0%; height: 100%; background: gold; transition: width 0.3s ease; }
+        .large-warning { color: orange; font-weight: bold; font-size: 13px; margin-top: 5px; }
+        .estimate-info { font-size: 12px; color: #aaa; margin-top: 5px; }
     </style>
     <div id="folscan-launcher">
         FolScan
@@ -51,7 +55,12 @@
             <button id="folscan-download" disabled>Download CSV</button>
             <button id="folscan-reset">Reset All</button>
         </div>
+        <div id="folscan-license-section" style="display: flex; gap: 6px; margin-bottom: 12px; align-items: center; justify-content: center;">
+            <input type="text" id="folscan-license-key" placeholder="Enter License Key" style="background: #222; color: white; border: 1px solid #555; border-radius: 5px; padding: 5px 8px; font-size: 12px; width: 140px;" />
+            <button id="folscan-validate-license" style="background: gold; color: black; border: none; border-radius: 5px; padding: 5px 10px; font-size: 12px; cursor: pointer; font-weight: bold;">Activate</button>
+        </div>
         <div id="fetch-status"></div>
+        <div id="folscan-progress-container"><div id="folscan-progress-bar"></div></div>
         <div id="folscan-report"></div>
     </div>`;
     document.body.appendChild(popup);
@@ -66,8 +75,12 @@
           dlBtn = document.getElementById("folscan-download"),
           resetBtn = document.getElementById("folscan-reset"),
           status = document.getElementById("fetch-status"),
+          progBar = document.getElementById("folscan-progress-bar"),
+          progCont = document.getElementById("folscan-progress-container"),
           report = document.getElementById("folscan-report"),
-          premiumBadge = document.getElementById("premium-badge");
+          premiumBadge = document.getElementById("premium-badge"),
+          licenseInp = document.getElementById("folscan-license-key"),
+          validateBtn = document.getElementById("folscan-validate-license");
 
     let currentTarget = "";
     const storageKey = "folscan_usernames";
@@ -113,22 +126,70 @@
         });
     };
 
-    userList.addEventListener("change", () => {
+    const getScanEstimate = async (username) => {
+        try {
+            const searchRes = await safeFetch(`https://www.instagram.com/web/search/topsearch/?query=${username}`);
+            const user = searchRes.users.find(u => u.user.username === username)?.user;
+            if (!user) return null;
+
+            const followers = user.follower_count || 0;
+            const followings = user.following_count || 0;
+            const total = followers + followings;
+            const totalPages = total / 50;
+            const seconds = (totalPages * 5) + (Math.floor(totalPages / 10) * 30);
+
+            return { total, seconds, totalPages };
+        } catch (e) {
+            return null;
+        }
+    };
+
+    let estimateTimeout = null;
+    const updateEstimateUI = async (username) => {
+        if (!username) return;
+
+        clearTimeout(estimateTimeout);
+        estimateTimeout = setTimeout(async () => {
+            const est = await getScanEstimate(username);
+            if (!est) return;
+
+            // Clear any previous estimate/warning
+            status.querySelectorAll(".estimate-info, .large-warning").forEach(el => el.remove());
+
+            const info = document.createElement("div");
+            info.className = "estimate-info";
+            const mins = Math.ceil(est.seconds / 60);
+            info.innerText = `Estimated scan time: ~${mins} minute${mins === 1 ? '' : 's'} (${est.total} users)`;
+            status.appendChild(info);
+
+            if (est.total > 5000) {
+                const warn = document.createElement("div");
+                warn.className = "large-warning";
+                warn.innerText = "⚠️ Large account detected. This scan will take a while; keep this window open.";
+                status.appendChild(warn);
+            }
+        }, 500);
+    };
+
+    userList.addEventListener("change", async () => {
         if (userList.value) {
             userInp.value = userList.value;
             currentTarget = userList.value;
-            displayPersistedReport(userList.value);
+            await displayPersistedReport(userList.value);
+            updateEstimateUI(userList.value);
         }
     });
 
-    userInp.addEventListener("input", () => {
+    userInp.addEventListener("input", async () => {
         const u = userInp.value.trim();
         if (u) {
             currentTarget = u;
-            displayPersistedReport(u);
+            await displayPersistedReport(u);
+            updateEstimateUI(u);
         } else {
             report.innerHTML = "";
             status.innerText = "";
+            progCont.style.display = "none";
         }
     });
 
@@ -294,21 +355,24 @@
         runBtn.disabled = true;
 
         const { isPremium } = await getAccountTier();
-        chrome.storage.local.get([`folscan_${username}_report`, `folscan_${username}_followers`, `folscan_${username}_followings`], (data) => {
-            status.className = "";
-            runBtn.disabled = false;
-            if (chrome.runtime.lastError) return;
+        return new Promise((resolve) => {
+            chrome.storage.local.get([`folscan_${username}_report`, `folscan_${username}_followers`, `folscan_${username}_followings`], (data) => {
+                status.className = "";
+                runBtn.disabled = false;
+                if (chrome.runtime.lastError) { resolve(); return; }
 
-            const savedReport = data[`folscan_${username}_report`];
-            if (savedReport) {
-                renderReportUI(username, savedReport.sections, isPremium, savedReport.timestamp, savedReport.summary);
-                status.innerText = "Showing saved report. Click 'Run Report' for a fresh scan.";
-                dlBtn.disabled = false;
-            } else {
-                report.innerHTML = "";
-                status.innerText = "No previous scan found for this user.";
-                dlBtn.disabled = true;
-            }
+                const savedReport = data[`folscan_${username}_report`];
+                if (savedReport) {
+                    renderReportUI(username, savedReport.sections, isPremium, savedReport.timestamp, savedReport.summary);
+                    status.innerText = "Showing saved report. Click 'Run Report' for a fresh scan.";
+                    dlBtn.disabled = false;
+                } else {
+                    report.innerHTML = "";
+                    status.innerText = "No previous scan found for this user.";
+                    dlBtn.disabled = true;
+                }
+                resolve();
+            });
         });
     };
 
@@ -328,8 +392,14 @@
             }
         }
 
+        const est = await getScanEstimate(username);
+        const totalPages = est ? Math.ceil(est.totalPages) : 0;
+        let pagesProcessed = 0;
+
         runBtn.disabled = true; dlBtn.disabled = true; status.className = "pulse";
         status.innerText = `Connecting...`;
+        progCont.style.display = "block";
+        progBar.style.width = "0%";
 
         const searchRes = await safeFetch(`https://www.instagram.com/web/search/topsearch/?query=${username}`);
         const userId = searchRes.users.find(u => u.user.username === username)?.user.pk;
@@ -357,10 +427,16 @@
                     requested_by_viewer: n.requested_by_viewer,
                     has_requested_viewer: n.has_requested_viewer
                 })));
+
+                pageCount++;
+                pagesProcessed++;
+                if (totalPages > 0) {
+                    progBar.style.width = `${Math.min(100, (pagesProcessed / totalPages) * 100)}%`;
+                }
+
                 hasNext = page.page_info.has_next_page;
                 cursor = page.page_info.end_cursor;
                 if (hasNext) {
-                    pageCount++;
                     const delay = 3500 + Math.random() * 3000;
                     status.innerText = `Waiting ${Math.round(delay/1000)}s...`;
                     await sleep(delay);
@@ -460,6 +536,8 @@
             renderReportUI(username, sections, isPremium, timestamp, summary);
 
             status.className = ""; status.innerText = "Done!";
+            progBar.style.width = "100%";
+            setTimeout(() => { progCont.style.display = "none"; }, 2000);
             runBtn.disabled = false; dlBtn.disabled = false;
         });
     };
@@ -478,7 +556,30 @@
 
     runBtn.addEventListener("click", () => {
         const u = userInp.value.trim();
-        if (u) { currentTarget = u; saveUserToHistory(u); runScan(u).catch(e => { status.innerText = "❌ " + e.message; runBtn.disabled = false; }); }
+        if (u) {
+            currentTarget = u;
+            saveUserToHistory(u);
+            status.innerText = "";
+            runScan(u).catch(e => { status.innerText = "❌ " + e.message; runBtn.disabled = false; });
+        }
+    });
+
+    validateBtn.addEventListener("click", () => {
+        const key = licenseInp.value.trim();
+        if (!key) return;
+
+        status.innerText = "Validating...";
+        status.className = "pulse";
+        chrome.runtime.sendMessage({ type: "VALIDATE_LICENSE", key }, (response) => {
+            status.className = "";
+            if (response.success) {
+                status.innerText = `Success! ${response.isPro ? 'Premium Pro' : 'Premium'} activated.`;
+                updatePremiumUI();
+                licenseInp.value = "";
+            } else {
+                status.innerText = "❌ Invalid license key.";
+            }
+        });
     });
     dlBtn.addEventListener("click", async () => {
         if (!chrome.runtime?.id) return;
