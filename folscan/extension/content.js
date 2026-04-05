@@ -123,8 +123,22 @@
     const getScanEstimate = async (username) => {
         try {
             const url = `https://www.instagram.com/api/v1/users/web_profile_info/?username=${username}`;
-            const res = await safeFetch(url);
-            const user = res.data.user;
+            const res = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'X-IG-App-ID': '936619743392459',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Referer': `https://www.instagram.com/${username}/`
+                }
+            });
+
+            if (!res.ok) {
+                if (res.status === 429) throw new Error("Rate Limited. Please wait 1 hour.");
+                throw new Error("Could not fetch profile info");
+            }
+
+            const json = await res.json();
+            const user = json.data.user;
             if (!user) return null;
 
             const followers = user.edge_followed_by?.count || 0;
