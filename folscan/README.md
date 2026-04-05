@@ -9,6 +9,7 @@ FolScan is a Chrome extension designed for Instagram account analysis, allowing 
 - **New Followings**: Shows new accounts the target account has started following.
 - **Unfollowed (By You)**: Lists accounts the target has stopped following (Premium feature).
 - **Not Following Back**: Identifies accounts that the target follows but who do not follow the target back.
+- **Summary Header**: Displays current follower and following counts, with colored arrows (▲/▼) and change amounts relative to the previous scan.
 - **Mutual**: Lists mutual followers.
 - **Username Change Tracking**: Explicitly identifies users who have changed their handle between scans.
 - **User Metadata Indicators**: Each user in the report is tagged with status icons:

@@ -29,6 +29,13 @@
         .folscan-header-row { display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: center; padding-bottom: 5px; margin-bottom: 5px; border-bottom: 1px solid #444; font-size: 11px; color: #888; font-weight: bold; }
         #premium-badge { color: gold; font-weight: bold; margin-left: 10px; display: none; }
         #launcher-premium-crown { display: none; margin-left: 5px; }
+        .folscan-summary { display: flex; justify-content: space-around; background: #2a2a2a; padding: 10px; border-radius: 8px; margin-bottom: 12px; font-size: 14px; }
+        .folscan-summary-item { text-align: center; }
+        .folscan-summary-label { font-size: 11px; color: #888; text-transform: uppercase; margin-bottom: 4px; }
+        .folscan-summary-val { font-weight: bold; }
+        .folscan-change { font-size: 12px; margin-left: 4px; }
+        .folscan-up { color: lightgreen; }
+        .folscan-down { color: #ff6b6b; }
     </style>
     <div id="folscan-launcher">FolScan<span id="launcher-premium-crown">👑</span></div>
     <div id="folscan-popup">
@@ -159,11 +166,35 @@
         return null;
     };
 
-    const renderReportUI = (username, sections, isPremium, timestamp = null) => {
+    const renderReportUI = (username, sections, isPremium, timestamp = null, summary = null) => {
         report.innerHTML = "";
         const title = document.createElement("h3");
         title.textContent = `📊 Report for @${username}`;
         report.appendChild(title);
+
+        if (summary) {
+            const summaryDiv = document.createElement("div");
+            summaryDiv.className = "folscan-summary";
+
+            const createItem = (label, count, change) => {
+                const item = document.createElement("div");
+                item.className = "folscan-summary-item";
+                let changeHTML = "";
+                if (change !== 0) {
+                    const icon = change > 0 ? "▲" : "▼";
+                    const cls = change > 0 ? "folscan-up" : "folscan-down";
+                    changeHTML = `<span class="folscan-change ${cls}">${icon} (${Math.abs(change)})</span>`;
+                }
+                item.innerHTML = `
+                    <div class="folscan-summary-label">${label}</div>
+                    <div class="folscan-summary-val">${count}${changeHTML}</div>`;
+                return item;
+            };
+
+            summaryDiv.appendChild(createItem("Followers", summary.followers, summary.followerChange));
+            summaryDiv.appendChild(createItem("Following", summary.following, summary.followingChange));
+            report.appendChild(summaryDiv);
+        }
 
         if (timestamp) {
             const tsDiv = document.createElement("div");
@@ -267,7 +298,7 @@
 
             const savedReport = data[`folscan_${username}_report`];
             if (savedReport) {
-                renderReportUI(username, savedReport.sections, isPremium, savedReport.timestamp);
+                renderReportUI(username, savedReport.sections, isPremium, savedReport.timestamp, savedReport.summary);
                 status.innerText = "Showing saved report. Click 'Run Report' for a fresh scan.";
                 dlBtn.disabled = false;
             } else {
@@ -359,6 +390,9 @@
             const lastFollowers = toMap(lastFollowersRaw);
             const lastFollowings = toMap(lastFollowingsRaw);
 
+            const lastFollowerCount = Object.keys(lastFollowers).length;
+            const lastFollowingCount = Object.keys(lastFollowings).length;
+
             const currentFollowersMap = {};
             currentFollowers.forEach(f => currentFollowersMap[f.id] = {
                 username: f.username,
@@ -404,13 +438,23 @@
             sections.sort((a, b) => (b.list.length > 0) - (a.list.length > 0));
 
             const timestamp = Date.now();
+            const currentFollowerCount = Object.keys(currentFollowersMap).length;
+            const currentFollowingCount = Object.keys(currentFollowingsMap).length;
+
+            const summary = {
+                followers: currentFollowerCount,
+                followerChange: lastFollowerCount > 0 ? currentFollowerCount - lastFollowerCount : 0,
+                following: currentFollowingCount,
+                followingChange: lastFollowingCount > 0 ? currentFollowingCount - lastFollowingCount : 0
+            };
+
             const saveObj = {};
             saveObj[`folscan_${username}_followers`] = currentFollowersMap;
             saveObj[`folscan_${username}_followings`] = currentFollowingsMap;
-            saveObj[`folscan_${username}_report`] = { sections, timestamp };
+            saveObj[`folscan_${username}_report`] = { sections, timestamp, summary };
             chrome.storage.local.set(saveObj);
 
-            renderReportUI(username, sections, isPremium, timestamp);
+            renderReportUI(username, sections, isPremium, timestamp, summary);
 
             status.className = ""; status.innerText = "Done!";
             runBtn.disabled = false; dlBtn.disabled = false;
@@ -435,55 +479,98 @@
     });
     dlBtn.addEventListener("click", async () => {
         if (!chrome.runtime?.id) return;
-        if (!report.innerHTML) return;
 
-        status.innerText = "Generating PDF (capturing emojis & unicode)...";
-        status.className = "pulse";
-        dlBtn.disabled = true;
+        chrome.storage.local.get([`folscan_${currentTarget}_report`], (data) => {
+            if (chrome.runtime.lastError || !data[`folscan_${currentTarget}_report`]) return;
 
-        try {
-            // Use html2canvas to capture the report exactly as it appears (supports emojis and unicode via image)
-            const canvas = await html2canvas(report, {
-                backgroundColor: "#1e1e1e",
-                scale: 2, // Higher quality
-                logging: false,
-                useCORS: true
-            });
+            status.innerText = "Generating PDF...";
+            status.className = "pulse";
+            dlBtn.disabled = true;
 
-            const imgData = canvas.toDataURL("image/png");
+            const savedReport = data[`folscan_${currentTarget}_report`];
             const { jsPDF } = window.jspdf;
-            const doc = new jsPDF("p", "mm", "a4");
+            const doc = new jsPDF();
+            let y = 20;
 
-            const pdfWidth = doc.internal.pageSize.getWidth();
-            const pdfHeight = doc.internal.pageSize.getHeight();
-            const imgWidth = pdfWidth - 20; // 10mm margins
-            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            const emojiToText = (text) => {
+                return text
+                    .replace(/🔒/g, "[Private]")
+                    .replace(/✅/g, "[Verified]")
+                    .replace(/📤/g, "[Requested by You]")
+                    .replace(/📥/g, "[Requested You]")
+                    .replace(/👑/g, "[Crown]")
+                    .replace(/▲/g, "[UP]")
+                    .replace(/▼/g, "[DOWN]")
+                    .replace(/🆕/g, "[NEW]")
+                    .replace(/❌/g, "[LOST]")
+                    .replace(/📤/g, "[UNFOLLOWED]")
+                    .replace(/🚫/g, "[NOT FOLLOWING BACK]")
+                    .replace(/🤝/g, "[MUTUAL]")
+                    .replace(/📛/g, "[CHANGED]")
+                    .replace(/📊/g, "[REPORT]");
+            };
 
-            let heightLeft = imgHeight;
-            let position = 10; // margin
+            doc.setFontSize(22);
+            doc.text(`FolScan Report: @${currentTarget}`, 20, y);
+            y += 10;
 
-            doc.setFontSize(16);
-            doc.text(`FolScan Report: @${currentTarget}`, 10, position);
-            position += 10;
+            doc.setFontSize(10);
+            doc.setTextColor(100);
+            doc.text(`Generated on: ${new Date(savedReport.timestamp).toLocaleString()}`, 20, y);
+            y += 15;
 
-            doc.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-            heightLeft -= (pdfHeight - position);
-
-            while (heightLeft > 0) {
-                position = heightLeft - imgHeight + 10; // adjusted for next page
-                doc.addPage();
-                doc.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-                heightLeft -= pdfHeight;
+            if (savedReport.summary) {
+                doc.setFontSize(14);
+                doc.setTextColor(0);
+                doc.text("Summary", 20, y);
+                y += 8;
+                doc.setFontSize(10);
+                let fChange = savedReport.summary.followerChange !== 0 ? ` (${savedReport.summary.followerChange > 0 ? '+' : ''}${savedReport.summary.followerChange})` : "";
+                let flChange = savedReport.summary.followingChange !== 0 ? ` (${savedReport.summary.followingChange > 0 ? '+' : ''}${savedReport.summary.followingChange})` : "";
+                doc.text(`Followers: ${savedReport.summary.followers}${fChange}`, 25, y);
+                y += 6;
+                doc.text(`Following: ${savedReport.summary.following}${flChange}`, 25, y);
+                y += 12;
             }
+
+            savedReport.sections.forEach(s => {
+                if (y > 270) { doc.addPage(); y = 20; }
+
+                doc.setFontSize(14);
+                doc.setTextColor(0);
+                doc.text(`${emojiToText(s.title)} (${s.list.length})`, 20, y);
+                y += 8;
+
+                doc.setFontSize(10);
+                if (s.list.length === 0) {
+                    doc.text("- None", 25, y);
+                    y += 6;
+                } else {
+                    s.list.slice(0, 500).forEach(u => { // Increased limit for text-only
+                        if (y > 280) { doc.addPage(); y = 20; }
+                        let meta = [];
+                        if (u.is_private) meta.push("[Private]");
+                        if (u.is_verified) meta.push("[Verified]");
+                        if (u.requested_by_viewer) meta.push("[Requested by You]");
+                        if (u.has_requested_viewer) meta.push("[Requested You]");
+
+                        let metaStr = meta.length > 0 ? ` ${meta.join(" ")}` : "";
+                        doc.text(`- ${u.username} (${u.full_name || 'No Name'})${metaStr}`, 25, y);
+                        y += 6;
+                    });
+                    if (s.list.length > 500) {
+                        doc.text(`... and ${s.list.length - 500} more`, 25, y);
+                        y += 6;
+                    }
+                }
+                y += 5;
+            });
 
             doc.save(`${currentTarget}_folscan_report.pdf`);
             status.innerText = "PDF Downloaded!";
-        } catch (e) {
-            status.innerText = "❌ PDF Error: " + e.message;
-        } finally {
             status.className = "";
             dlBtn.disabled = false;
-        }
+        });
     });
     resetBtn.addEventListener("click", () => {
         if (!chrome.runtime?.id) return;
