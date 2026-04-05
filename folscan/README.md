@@ -18,7 +18,7 @@ FolScan is a Chrome extension designed for Instagram account analysis, allowing 
     - 📤 **Requested by You**: You have a pending follow request to this account.
     - 📥 **Requested You**: This account has a pending follow request to you.
 - **Report History & Persistence**: Quick access to previous scans via a dropdown menu. FolScan automatically remembers and displays the last generated report for each username, including a timestamp of when it was run.
-- **Data Export**: Download scan results as a formatted PDF report.
+- **Data Export**: Download scan results as a formatted CSV report.
 
 ## Subscription Levels
 
@@ -40,7 +40,7 @@ FolScan is a Chrome extension designed for Instagram account analysis, allowing 
 - **Dropdown (Select Previous...)**: Quickly load previous scan targets.
 - **Username Input**: Enter the Instagram handle you wish to scan. **Note**: Changing this field or the dropdown selection automatically loads and displays the most recent saved report for that user, if available.
 - **Run Report**: Connects to Instagram to fetch fresh follower/following data and generate a new report, updating the persistence for that user.
-- **Download PDF**: Generates and downloads a formatted PDF report of the current scan results.
+- **Download CSV**: Generates and downloads a formatted CSV report of the current scan results.
 - **Reset All**: Clears the extension's local storage of all scan history.
 - **× (Top-Right)**: Minimizes the analysis popup back to the launcher button.
 

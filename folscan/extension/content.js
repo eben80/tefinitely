@@ -45,7 +45,7 @@
             <select id="folscan-userlist"><option value="">Select Previous...</option></select>
             <input type="text" id="folscan-username" placeholder="Enter username" />
             <button id="folscan-run">Run Report</button>
-            <button id="folscan-download" disabled>Download PDF</button>
+            <button id="folscan-download" disabled>Download CSV</button>
             <button id="folscan-reset">Reset All</button>
         </div>
         <div id="fetch-status"></div>
@@ -483,91 +483,80 @@
         chrome.storage.local.get([`folscan_${currentTarget}_report`], (data) => {
             if (chrome.runtime.lastError || !data[`folscan_${currentTarget}_report`]) return;
 
-            status.innerText = "Generating PDF...";
+            status.innerText = "Generating CSV...";
             status.className = "pulse";
             dlBtn.disabled = true;
 
             const savedReport = data[`folscan_${currentTarget}_report`];
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            let y = 20;
+            const rows = [];
 
-            const emojiToText = (text) => {
-                return text
-                    .replace(/🔒/g, "[Private]")
-                    .replace(/✅/g, "[Verified]")
-                    .replace(/📤/g, "[Requested by You]")
-                    .replace(/📥/g, "[Requested You]")
-                    .replace(/👑/g, "[Crown]")
-                    .replace(/▲/g, "[UP]")
-                    .replace(/▼/g, "[DOWN]")
-                    .replace(/🆕/g, "[NEW]")
-                    .replace(/❌/g, "[LOST]")
-                    .replace(/📤/g, "[UNFOLLOWED]")
-                    .replace(/🚫/g, "[NOT FOLLOWING BACK]")
-                    .replace(/🤝/g, "[MUTUAL]")
-                    .replace(/📛/g, "[CHANGED]")
-                    .replace(/📊/g, "[REPORT]");
+            // Helper to escape CSV values
+            const escape = (val) => {
+                if (val === undefined || val === null) return '""';
+                let s = String(val).replace(/"/g, '""');
+                return `"${s}"`;
             };
 
-            doc.setFontSize(22);
-            doc.text(`FolScan Report: @${currentTarget}`, 20, y);
-            y += 10;
+            // Header
+            rows.push(["FolScan Report", `@${currentTarget}`]);
+            rows.push(["Generated on", new Date(savedReport.timestamp).toLocaleString()]);
+            rows.push([]);
 
-            doc.setFontSize(10);
-            doc.setTextColor(100);
-            doc.text(`Generated on: ${new Date(savedReport.timestamp).toLocaleString()}`, 20, y);
-            y += 15;
+            const emojiMap = {
+                "🔒": "[Private]", "✅": "[Verified]", "📤": "[Requested by You]", "📥": "[Requested You]",
+                "👑": "[Crown]", "▲": "[UP]", "▼": "[DOWN]", "🆕": "[NEW]", "❌": "[LOST]",
+                "🚫": "[NOT FOLLOWING BACK]", "🤝": "[MUTUAL]", "📛": "[CHANGED]", "📊": "[REPORT]"
+            };
 
+            const replaceEmojis = (text) => {
+                let out = text;
+                for (const [emoji, val] of Object.entries(emojiMap)) {
+                    out = out.split(emoji).join(val);
+                }
+                return out;
+            };
+
+            // Summary
             if (savedReport.summary) {
-                doc.setFontSize(14);
-                doc.setTextColor(0);
-                doc.text("Summary", 20, y);
-                y += 8;
-                doc.setFontSize(10);
-                let fChange = savedReport.summary.followerChange !== 0 ? ` (${savedReport.summary.followerChange > 0 ? '+' : ''}${savedReport.summary.followerChange})` : "";
-                let flChange = savedReport.summary.followingChange !== 0 ? ` (${savedReport.summary.followingChange > 0 ? '+' : ''}${savedReport.summary.followingChange})` : "";
-                doc.text(`Followers: ${savedReport.summary.followers}${fChange}`, 25, y);
-                y += 6;
-                doc.text(`Following: ${savedReport.summary.following}${flChange}`, 25, y);
-                y += 12;
+                rows.push(["Summary"]);
+                rows.push(["Category", "Count", "Change"]);
+                const fChange = savedReport.summary.followerChange > 0 ? `[UP] (+${savedReport.summary.followerChange})` : (savedReport.summary.followerChange < 0 ? `[DOWN] (-${Math.abs(savedReport.summary.followerChange)})` : "0");
+                const flChange = savedReport.summary.followingChange > 0 ? `[UP] (+${savedReport.summary.followingChange})` : (savedReport.summary.followingChange < 0 ? `[DOWN] (-${Math.abs(savedReport.summary.followingChange)})` : "0");
+                rows.push(["Followers", savedReport.summary.followers, fChange]);
+                rows.push(["Following", savedReport.summary.following, flChange]);
+                rows.push([]);
             }
 
+            // Sections
             savedReport.sections.forEach(s => {
-                if (y > 270) { doc.addPage(); y = 20; }
-
-                doc.setFontSize(14);
-                doc.setTextColor(0);
-                doc.text(`${emojiToText(s.title)} (${s.list.length})`, 20, y);
-                y += 8;
-
-                doc.setFontSize(10);
-                if (s.list.length === 0) {
-                    doc.text("- None", 25, y);
-                    y += 6;
-                } else {
-                    s.list.slice(0, 500).forEach(u => { // Increased limit for text-only
-                        if (y > 280) { doc.addPage(); y = 20; }
-                        let meta = [];
-                        if (u.is_private) meta.push("[Private]");
-                        if (u.is_verified) meta.push("[Verified]");
-                        if (u.requested_by_viewer) meta.push("[Requested by You]");
-                        if (u.has_requested_viewer) meta.push("[Requested You]");
-
-                        let metaStr = meta.length > 0 ? ` ${meta.join(" ")}` : "";
-                        doc.text(`- ${u.username} (${u.full_name || 'No Name'})${metaStr}`, 25, y);
-                        y += 6;
+                rows.push([replaceEmojis(s.title), `Count: ${s.list.length}`]);
+                if (s.list.length > 0) {
+                    rows.push(["ID", "Username", "Full Name", "Private", "Verified", "Requested by You", "Requested You"]);
+                    s.list.forEach(u => {
+                        rows.push([
+                            u.id || "",
+                            u.username,
+                            u.full_name || "",
+                            u.is_private ? "[Private]" : "No",
+                            u.is_verified ? "[Verified]" : "No",
+                            u.requested_by_viewer ? "[Requested by You]" : "No",
+                            u.has_requested_viewer ? "[Requested You]" : "No"
+                        ]);
                     });
-                    if (s.list.length > 500) {
-                        doc.text(`... and ${s.list.length - 500} more`, 25, y);
-                        y += 6;
-                    }
+                } else {
+                    rows.push(["None"]);
                 }
-                y += 5;
+                rows.push([]);
             });
 
-            doc.save(`${currentTarget}_folscan_report.pdf`);
-            status.innerText = "PDF Downloaded!";
+            const csvContent = rows.map(r => r.map(escape).join(",")).join("\n");
+            const blob = new Blob(["\ufeff" + csvContent], { type: "text/csv;charset=utf-8;" }); // Add BOM for Excel Unicode support
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `${currentTarget}_folscan_report.csv`;
+            link.click();
+
+            status.innerText = "CSV Downloaded!";
             status.className = "";
             dlBtn.disabled = false;
         });

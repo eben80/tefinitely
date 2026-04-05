@@ -17,7 +17,7 @@
   "content_scripts": [
     {
       "matches": ["https://www.instagram.com/*"],
-      "js": ["libs/jspdf.umd.min.js", "content.js"]
+      "js": ["content.js"]
     }
   ]
 }
