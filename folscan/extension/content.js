@@ -7,7 +7,8 @@
     popup.id = "folscan-popup-container";
     popup.innerHTML = `
     <style>
-        #folscan-launcher { position: fixed; top: 20px; right: 120px; background: gold; color: black; font-weight: bold; padding: 10px 15px; border-radius: 50px; cursor: pointer; z-index: 100001; box-shadow: 0 4px 10px rgba(0,0,0,0.5); font-family: sans-serif; font-size: 14px; }
+        #folscan-launcher { position: fixed; top: 20px; right: 120px; background: gold; color: black; font-weight: bold; padding: 5px; border-radius: 50%; cursor: pointer; z-index: 100001; box-shadow: 0 4px 10px rgba(0,0,0,0.5); width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; overflow: visible; }
+        #folscan-launcher img { width: 30px; height: 30px; border-radius: 50%; }
         #folscan-popup { position: fixed; top: 5%; left: 50%; transform: translateX(-50%); width: fit-content; min-width: 320px; max-width: 480px; max-height: 90%; overflow-y: auto; background: #1e1e1e; color: white; font-family: sans-serif; padding: 20px; border: 2px solid #666; border-radius: 10px; z-index: 100000; box-shadow: 0 0 20px #000; display: none; }
         #folscan-popup-close { position: absolute; top: 10px; right: 10px; background: gold; color: black; font-weight: bold; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
         #folscan-popup h2 { text-align: center; font-size: 20px; margin-bottom: 16px; padding-top: 5px; }
@@ -28,7 +29,7 @@
         .folscan-meta span.active, .folscan-header-row .folscan-meta span { filter: grayscale(0); opacity: 1; }
         .folscan-header-row { display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: center; padding-bottom: 5px; margin-bottom: 5px; border-bottom: 1px solid #444; font-size: 11px; color: #888; font-weight: bold; }
         #premium-badge { color: gold; font-weight: bold; margin-left: 10px; display: none; }
-        #launcher-premium-crown { display: none; margin-left: 5px; }
+        #launcher-premium-crown { display: none; position: absolute; top: -5px; right: -5px; font-size: 16px; text-shadow: 0 0 5px rgba(0,0,0,0.5); }
         .folscan-summary { display: flex; justify-content: space-around; background: #2a2a2a; padding: 10px; border-radius: 8px; margin-bottom: 12px; font-size: 14px; }
         .folscan-summary-item { text-align: center; }
         .folscan-summary-label { font-size: 11px; color: #888; text-transform: uppercase; margin-bottom: 4px; }
@@ -37,7 +38,10 @@
         .folscan-up { color: lightgreen; }
         .folscan-down { color: #ff6b6b; }
     </style>
-    <div id="folscan-launcher">FolScan<span id="launcher-premium-crown">👑</span></div>
+    <div id="folscan-launcher">
+        <img src="${chrome.runtime.getURL('icons/icon48.png')}" alt="FolScan" />
+        <span id="launcher-premium-crown">👑</span>
+    </div>
     <div id="folscan-popup">
         <div id="folscan-popup-close">×</div>
         <h2>FolScan <span id="premium-badge">👑 PREMIUM</span></h2>
