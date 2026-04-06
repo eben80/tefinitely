@@ -266,6 +266,9 @@
 
             summaryDiv.appendChild(createItem("Followers", summary.followers, summary.followerChange));
             summaryDiv.appendChild(createItem("Following", summary.following, summary.followingChange));
+            if (summary.notFollowingBack !== undefined) {
+                summaryDiv.appendChild(createItem("Not Follow Back", summary.notFollowingBack, summary.notFollowingBackChange));
+            }
             report.appendChild(summaryDiv);
         }
 
@@ -298,6 +301,15 @@
 
             const div = document.createElement("div");
             div.style.paddingLeft = "15px";
+
+            if (s.stats) {
+                const statsDiv = document.createElement("div");
+                statsDiv.style.fontSize = "12px";
+                statsDiv.style.color = "#aaa";
+                statsDiv.style.marginBottom = "8px";
+                statsDiv.innerHTML = `📊 Statistics: <strong>${s.stats.private}</strong> Private, <strong>${s.stats.verified}</strong> Verified`;
+                div.appendChild(statsDiv);
+            }
 
             if (isLocked) {
                 const em = document.createElement("em");
@@ -480,6 +492,7 @@
 
             const lastFollowerCount = Object.keys(lastFollowers).length;
             const lastFollowingCount = Object.keys(lastFollowings).length;
+            const lastNotFollowingBackCount = Object.keys(lastFollowings).filter(id => !lastFollowers[id]).length;
 
             const currentFollowersMap = {};
             currentFollowers.forEach(f => currentFollowersMap[f.id] = {
@@ -512,18 +525,34 @@
                 }
             }
 
+            const notFollowingBackList = currentFollowings.filter(f => !currentFollowersMap[f.id]);
             const sections = [
                 { title: "🆕 New Followers", list: currentFollowers.filter(f => !lastFollowers[f.id]), color: "lightgreen", premium: false },
                 { title: "❌ Lost Followers", list: Object.keys(lastFollowers).filter(id => !currentFollowersMap[id]).map(id => ({ id, ...lastFollowers[id] })), color: "salmon", premium: true },
                 { title: "🆕 New Followings", list: currentFollowings.filter(f => !lastFollowings[f.id]), color: "lightblue", premium: false },
                 { title: "📤 Unfollowed (By You)", list: Object.keys(lastFollowings).filter(id => !currentFollowingsMap[id]).map(id => ({ id, ...lastFollowings[id] })), color: "#ff6b6b", premium: true },
-                { title: "🚫 Not Following Back", list: currentFollowings.filter(f => !currentFollowersMap[f.id]), color: "orange", premium: false },
+                {
+                    title: "🚫 Not Following Back",
+                    list: notFollowingBackList,
+                    color: "orange",
+                    premium: false,
+                    stats: {
+                        private: notFollowingBackList.filter(u => u.is_private).length,
+                        verified: notFollowingBackList.filter(u => u.is_verified).length
+                    }
+                },
                 { title: "🤝 Mutual", list: currentFollowings.filter(f => currentFollowersMap[f.id]), color: "#00d4ff", premium: false },
                 { title: "📛 Username Changes", list: changedUsernames.map(c => ({ username: c.new, full_name: `was ${c.old}` })), color: "yellow", premium: true }
             ];
 
-            // Sort: Items with lists > 0 come first
-            sections.sort((a, b) => (b.list.length > 0) - (a.list.length > 0));
+            // Sort: Username Changes first if not empty, then items with lists > 0
+            sections.sort((a, b) => {
+                const aHas = a.list.length > 0;
+                const bHas = b.list.length > 0;
+                if (a.title === "📛 Username Changes" && aHas) return -1;
+                if (b.title === "📛 Username Changes" && bHas) return 1;
+                return bHas - aHas;
+            });
 
             const timestamp = Date.now();
             const currentFollowerCount = Object.keys(currentFollowersMap).length;
@@ -533,7 +562,9 @@
                 followers: currentFollowerCount,
                 followerChange: lastFollowerCount > 0 ? currentFollowerCount - lastFollowerCount : 0,
                 following: currentFollowingCount,
-                followingChange: lastFollowingCount > 0 ? currentFollowingCount - lastFollowingCount : 0
+                followingChange: lastFollowingCount > 0 ? currentFollowingCount - lastFollowingCount : 0,
+                notFollowingBack: notFollowingBackList.length,
+                notFollowingBackChange: lastFollowingCount > 0 ? notFollowingBackList.length - lastNotFollowingBackCount : 0
             };
 
             const saveObj = {};
@@ -618,14 +649,21 @@
                 rows.push(["Category", "Count", "Change"]);
                 const fChange = savedReport.summary.followerChange > 0 ? `[UP] (+${savedReport.summary.followerChange})` : (savedReport.summary.followerChange < 0 ? `[DOWN] (-${Math.abs(savedReport.summary.followerChange)})` : "0");
                 const flChange = savedReport.summary.followingChange > 0 ? `[UP] (+${savedReport.summary.followingChange})` : (savedReport.summary.followingChange < 0 ? `[DOWN] (-${Math.abs(savedReport.summary.followingChange)})` : "0");
+                const nfbChange = savedReport.summary.notFollowingBackChange > 0 ? `[UP] (+${savedReport.summary.notFollowingBackChange})` : (savedReport.summary.notFollowingBackChange < 0 ? `[DOWN] (-${Math.abs(savedReport.summary.notFollowingBackChange)})` : "0");
                 rows.push(["Followers", savedReport.summary.followers, fChange]);
                 rows.push(["Following", savedReport.summary.following, flChange]);
+                if (savedReport.summary.notFollowingBack !== undefined) {
+                    rows.push(["Not Following Back", savedReport.summary.notFollowingBack, nfbChange]);
+                }
                 rows.push([]);
             }
 
             // Sections
             savedReport.sections.forEach(s => {
                 rows.push([replaceEmojis(s.title), `Count: ${s.list.length}`]);
+                if (s.stats) {
+                    rows.push([`Statistics: ${s.stats.private} Private, ${s.stats.verified} Verified`]);
+                }
                 if (s.list.length > 0) {
                     rows.push(["ID", "Username", "Full Name", "Private", "Verified", "Requested by You", "Requested You"]);
                     s.list.forEach(u => {
