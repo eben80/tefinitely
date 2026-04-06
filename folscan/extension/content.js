@@ -289,7 +289,6 @@
             const isLocked = s.premium && !isPremium;
             const details = document.createElement("details");
             details.className = "folscan-section";
-            if (s.list.length > 0 && !isLocked) details.open = true;
 
             const summary = document.createElement("summary");
             summary.style.color = s.color;
@@ -537,30 +536,45 @@
                 }
             }
 
-            // Correct semantic logic for NFB
+            // Categorization
+            const followingList = currentFollowings;
+            const followersList = currentFollowers;
+            const mutualList = currentFollowings.filter(f => currentFollowersMap[f.id]);
+            const newFollowingsList = currentFollowings.filter(f => !lastFollowings[f.id]);
+            const newFollowersList = currentFollowers.filter(f => !lastFollowers[f.id]);
+
+            const lastMutualIds = Object.keys(lastFollowings).filter(id => lastFollowers[id]);
+            const newMutualList = mutualList.filter(f => !lastMutualIds.includes(f.id));
+
+            const lostFollowersList = Object.keys(lastFollowers).filter(id => !currentFollowersMap[id]).map(id => ({ id, ...lastFollowers[id] }));
+            const unfollowedByTargetList = Object.keys(lastFollowings).filter(id => !currentFollowingsMap[id]).map(id => ({ id, ...lastFollowings[id] }));
+
             const userNotFollowingBackList = currentFollowers.filter(f => !currentFollowingsMap[f.id]);
             const notFollowingUserBackList = currentFollowings.filter(f => !currentFollowersMap[f.id]);
 
             const sections = [
-                { title: "Following", list: currentFollowings, color: "#aaa", premium: false },
-                { title: "Followers", list: currentFollowers, color: "#aaa", premium: false },
+                { title: "New Followings", list: newFollowingsList, color: "lightblue", premium: false },
+                { title: "New Followers", list: newFollowersList, color: "lightgreen", premium: false },
+                { title: "New Mutual", list: newMutualList, color: "#00d4ff", premium: true },
+                { title: `Unfollowed by ${username}`, list: unfollowedByTargetList, color: "#ff6b6b", premium: true },
+                { title: "Lost Followers", list: lostFollowersList, color: "salmon", premium: true },
+                { title: "Username Changes", list: changedUsernames.map(c => ({ username: c.new, full_name: `was ${c.old}` })), color: "yellow", premium: true },
+                { title: "Mutual", list: mutualList, color: "#00d4ff", premium: false },
+                { title: "Following", list: followingList, color: "#aaa", premium: false },
+                { title: "Followers", list: followersList, color: "#aaa", premium: false },
                 { title: `Not Following ${username} Back`, list: notFollowingUserBackList, color: "orange", premium: false },
-                { title: `${username} Not Following Back`, list: userNotFollowingBackList, color: "orange", premium: false },
-                { title: "🤝 Mutual", list: currentFollowings.filter(f => currentFollowersMap[f.id]), color: "#00d4ff", premium: false },
-                { title: "🆕 New Followers", list: currentFollowers.filter(f => !lastFollowers[f.id]), color: "lightgreen", premium: false },
-                { title: "❌ Lost Followers", list: Object.keys(lastFollowers).filter(id => !currentFollowersMap[id]).map(id => ({ id, ...lastFollowers[id] })), color: "salmon", premium: true },
-                { title: "🆕 New Followings", list: currentFollowings.filter(f => !lastFollowings[f.id]), color: "lightblue", premium: false },
-                { title: `Unfollowed by ${username}`, list: Object.keys(lastFollowings).filter(id => !currentFollowingsMap[id]).map(id => ({ id, ...lastFollowings[id] })), color: "#ff6b6b", premium: true },
-                { title: "📛 Username Changes", list: changedUsernames.map(c => ({ username: c.new, full_name: `was ${c.old}` })), color: "yellow", premium: true }
+                { title: `${username} Not Following Back`, list: userNotFollowingBackList, color: "orange", premium: false }
             ];
 
-            // Sort: Username Changes first if not empty, then items with lists > 0
+            // Order defined by original index, but 0-length items moved to bottom
+            const baseOrder = sections.map(s => s.title);
             sections.sort((a, b) => {
-                const aHas = a.list.length > 0;
-                const bHas = b.list.length > 0;
-                if (a.title === "📛 Username Changes" && aHas) return -1;
-                if (b.title === "📛 Username Changes" && bHas) return 1;
-                return bHas - aHas;
+                const aLen = a.list.length;
+                const bLen = b.list.length;
+                if (aLen > 0 && bLen === 0) return -1;
+                if (aLen === 0 && bLen > 0) return 1;
+                // If both > 0 or both == 0, keep relative requested order
+                return baseOrder.indexOf(a.title) - baseOrder.indexOf(b.title);
             });
 
             const timestamp = Date.now();
