@@ -1,4 +1,4 @@
-const API_URL = "https://tefinitely.com/folscan/backend/api"; // Replace with actual EC2 URL
+const API_URL = "https://tefinitely.com/folscan/backend/api";
 
 chrome.runtime.onInstalled.addListener(() => {
     // Check license periodically or on startup

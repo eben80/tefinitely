@@ -242,7 +242,7 @@
     const renderReportUI = (username, sections, isPremium, timestamp = null, summary = null) => {
         report.innerHTML = "";
         const title = document.createElement("h3");
-        title.textContent = `📊 Report for @${username}`;
+        title.textContent = `📊 Report for ${username}`;
         report.appendChild(title);
 
         if (summary) {
@@ -266,9 +266,6 @@
 
             summaryDiv.appendChild(createItem("Followers", summary.followers, summary.followerChange));
             summaryDiv.appendChild(createItem("Following", summary.following, summary.followingChange));
-            if (summary.notFollowingBack !== undefined) {
-                summaryDiv.appendChild(createItem("Not Follow Back", summary.notFollowingBack, summary.notFollowingBackChange));
-            }
             report.appendChild(summaryDiv);
         }
 
@@ -301,15 +298,6 @@
 
             const div = document.createElement("div");
             div.style.paddingLeft = "15px";
-
-            if (s.stats) {
-                const statsDiv = document.createElement("div");
-                statsDiv.style.fontSize = "12px";
-                statsDiv.style.color = "#aaa";
-                statsDiv.style.marginBottom = "8px";
-                statsDiv.innerHTML = `📊 Statistics: <strong>${s.stats.private}</strong> Private, <strong>${s.stats.verified}</strong> Verified`;
-                div.appendChild(statsDiv);
-            }
 
             if (isLocked) {
                 const em = document.createElement("em");
@@ -422,7 +410,16 @@
         progCont.style.display = "block";
         progBar.style.width = "0%";
 
-        const searchRes = await safeFetch(`https://www.instagram.com/web/search/topsearch/?query=${username}`);
+        const searchResResponse = await fetch(`https://www.instagram.com/web/search/topsearch/?query=${username}`, {
+            method: 'GET',
+            headers: {
+                'X-IG-App-ID': '936619743392459',
+                'X-Requested-With': 'XMLHttpRequest',
+                'Referer': `https://www.instagram.com/${username}/`
+            }
+        });
+        if (!searchResResponse.ok) throw new Error("Search failed");
+        const searchRes = await searchResResponse.json();
         const userId = searchRes.users.find(u => u.user.username === username)?.user.pk;
         if (!userId) throw new Error("User not found.");
 
@@ -437,7 +434,22 @@
                 status.innerText = `Fetching ${type}: ${results.length}...`;
                 const url = `https://www.instagram.com/graphql/query/?query_hash=${hash}&variables=` +
                             encodeURIComponent(JSON.stringify({ id: userId, first: 50, after: cursor }));
-                const data = await safeFetch(url);
+
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'X-IG-App-ID': '936619743392459',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Referer': `https://www.instagram.com/${username}/`
+                    }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 429) throw new Error("Rate Limited. Please wait 1 hour.");
+                    throw new Error(`Could not fetch ${type}`);
+                }
+
+                const data = await response.json();
                 const page = data.data.user[type];
                 results = results.concat(page.edges.map(({ node: n }) => ({
                     id: n.id,
@@ -525,23 +537,20 @@
                 }
             }
 
-            const notFollowingBackList = currentFollowings.filter(f => !currentFollowersMap[f.id]);
+            // Correct semantic logic for NFB
+            const userNotFollowingBackList = currentFollowers.filter(f => !currentFollowingsMap[f.id]);
+            const notFollowingUserBackList = currentFollowings.filter(f => !currentFollowersMap[f.id]);
+
             const sections = [
+                { title: "Following", list: currentFollowings, color: "#aaa", premium: false },
+                { title: "Followers", list: currentFollowers, color: "#aaa", premium: false },
+                { title: `Not Following ${username} Back`, list: notFollowingUserBackList, color: "orange", premium: false },
+                { title: `${username} Not Following Back`, list: userNotFollowingBackList, color: "orange", premium: false },
+                { title: "🤝 Mutual", list: currentFollowings.filter(f => currentFollowersMap[f.id]), color: "#00d4ff", premium: false },
                 { title: "🆕 New Followers", list: currentFollowers.filter(f => !lastFollowers[f.id]), color: "lightgreen", premium: false },
                 { title: "❌ Lost Followers", list: Object.keys(lastFollowers).filter(id => !currentFollowersMap[id]).map(id => ({ id, ...lastFollowers[id] })), color: "salmon", premium: true },
                 { title: "🆕 New Followings", list: currentFollowings.filter(f => !lastFollowings[f.id]), color: "lightblue", premium: false },
-                { title: "📤 Unfollowed (By You)", list: Object.keys(lastFollowings).filter(id => !currentFollowingsMap[id]).map(id => ({ id, ...lastFollowings[id] })), color: "#ff6b6b", premium: true },
-                {
-                    title: "🚫 Not Following Back",
-                    list: notFollowingBackList,
-                    color: "orange",
-                    premium: false,
-                    stats: {
-                        private: notFollowingBackList.filter(u => u.is_private).length,
-                        verified: notFollowingBackList.filter(u => u.is_verified).length
-                    }
-                },
-                { title: "🤝 Mutual", list: currentFollowings.filter(f => currentFollowersMap[f.id]), color: "#00d4ff", premium: false },
+                { title: `Unfollowed by ${username}`, list: Object.keys(lastFollowings).filter(id => !currentFollowingsMap[id]).map(id => ({ id, ...lastFollowings[id] })), color: "#ff6b6b", premium: true },
                 { title: "📛 Username Changes", list: changedUsernames.map(c => ({ username: c.new, full_name: `was ${c.old}` })), color: "yellow", premium: true }
             ];
 
@@ -562,9 +571,7 @@
                 followers: currentFollowerCount,
                 followerChange: lastFollowerCount > 0 ? currentFollowerCount - lastFollowerCount : 0,
                 following: currentFollowingCount,
-                followingChange: lastFollowingCount > 0 ? currentFollowingCount - lastFollowingCount : 0,
-                notFollowingBack: notFollowingBackList.length,
-                notFollowingBackChange: lastFollowingCount > 0 ? notFollowingBackList.length - lastNotFollowingBackCount : 0
+                followingChange: lastFollowingCount > 0 ? currentFollowingCount - lastFollowingCount : 0
             };
 
             const saveObj = {};
@@ -625,7 +632,7 @@
             };
 
             // Header
-            rows.push(["FolScan Report", `@${currentTarget}`]);
+            rows.push(["FolScan Report", currentTarget]);
             rows.push(["Generated on", new Date(savedReport.timestamp).toLocaleString()]);
             rows.push([]);
 
@@ -649,21 +656,14 @@
                 rows.push(["Category", "Count", "Change"]);
                 const fChange = savedReport.summary.followerChange > 0 ? `[UP] (+${savedReport.summary.followerChange})` : (savedReport.summary.followerChange < 0 ? `[DOWN] (-${Math.abs(savedReport.summary.followerChange)})` : "0");
                 const flChange = savedReport.summary.followingChange > 0 ? `[UP] (+${savedReport.summary.followingChange})` : (savedReport.summary.followingChange < 0 ? `[DOWN] (-${Math.abs(savedReport.summary.followingChange)})` : "0");
-                const nfbChange = savedReport.summary.notFollowingBackChange > 0 ? `[UP] (+${savedReport.summary.notFollowingBackChange})` : (savedReport.summary.notFollowingBackChange < 0 ? `[DOWN] (-${Math.abs(savedReport.summary.notFollowingBackChange)})` : "0");
                 rows.push(["Followers", savedReport.summary.followers, fChange]);
                 rows.push(["Following", savedReport.summary.following, flChange]);
-                if (savedReport.summary.notFollowingBack !== undefined) {
-                    rows.push(["Not Following Back", savedReport.summary.notFollowingBack, nfbChange]);
-                }
                 rows.push([]);
             }
 
             // Sections
             savedReport.sections.forEach(s => {
                 rows.push([replaceEmojis(s.title), `Count: ${s.list.length}`]);
-                if (s.stats) {
-                    rows.push([`Statistics: ${s.stats.private} Private, ${s.stats.verified} Verified`]);
-                }
                 if (s.list.length > 0) {
                     rows.push(["ID", "Username", "Full Name", "Private", "Verified", "Requested by You", "Requested You"]);
                     s.list.forEach(u => {
